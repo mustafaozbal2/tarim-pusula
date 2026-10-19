@@ -1,0 +1,34 @@
+crop_tr,crop_fao,kc_ini,kc_mid,kc_end,max_height_m,note,source,review_status
+Arpa,Barley,0.3,1.15,0.25,1,"Ini degeri tahil grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Kislik bugday (donan toprak),Winter wheat (frozen soils),0.4,1.15,0.25-0.4,1,"End araligi dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Kislik bugday (donmayan toprak),Winter wheat (non-frozen soils),0.7,1.15,0.25-0.4,1,"End araligi dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Yazlik bugday,Spring wheat,0.3,1.15,0.25-0.4,1,"Ini degeri tahil grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Misir (tane),Maize field (grain),0.3,1.20,0.6,2,"Kuru tane hasadinda end daha dusuk (dipnot); dogrula",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Misir (tatli),Maize sweet,0.3,1.15,1.05,1.5,"End dipnotlu; dogrula",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Domates,Tomato,0.6,1.15,0.7-0.9,0.6,"Ini grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Patates,Potato,0.5,1.15,0.75,0.6,"Ini grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Seker pancari,Sugar beet,0.35,1.20,0.7,0.5,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Pamuk,Cotton,0.35,1.15-1.20,0.5-0.7,1.2-1.5,"Ini grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Aycicegi,Sunflower,0.35,1.0-1.15,0.35,2,"Ini grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Mercimek,Lentil,0.4,1.10,0.3,0.5,"Ini grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Nohut,Chick pea,0.4,1.00,0.35,0.4,"Ini grup degeri",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Antep fistigi (ortu yok),Pistachios no ground cover,0.40,1.10,0.45,3-5,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Zeytin (%40-60 ortu),Olives 40-60% ground coverage,0.65,0.70,0.70,3-5,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Badem (ortu yok),Almonds no ground cover,0.40,0.90,0.65,5,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Ceviz,Walnut orchard,0.50,1.10,0.65,4-5,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Elma/Kiraz/Armut (ortu yok; olduren don),Apples/Cherries/Pears no ground cover killing frost,0.45,0.95,0.70,4,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Elma/Kiraz/Armut (ortu yok; don yok),Apples/Cherries/Pears no ground cover no frosts,0.60,0.95,0.75,4,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Elma/Kiraz/Armut (aktif ortu; olduren don),Apples/Cherries/Pears active ground cover killing frost,0.50,1.20,0.95,4,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Elma/Kiraz/Armut (aktif ortu; don yok),Apples/Cherries/Pears active ground cover no frosts,0.80,1.20,0.85,4,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Kayisi/Seftali/Cekirdekli (ortu yok; olduren don),Apricots/Peaches/Stone fruit no ground cover killing frost,0.45,0.90,0.65,3,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Kayisi/Seftali/Cekirdekli (ortu yok; don yok),Apricots/Peaches/Stone fruit no ground cover no frosts,0.55,0.90,0.65,3,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Kayisi/Seftali/Cekirdekli (aktif ortu; olduren don),Apricots/Peaches/Stone fruit active ground cover killing frost,0.50,1.15,0.90,3,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Kayisi/Seftali/Cekirdekli (aktif ortu; don yok),Apricots/Peaches/Stone fruit active ground cover no frosts,0.80,1.15,0.85,3,"End dipnotlu",FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Narenciye (ortu yok; %70 tac),Citrus no ground cover 70% canopy,0.70,0.65,0.70,4,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Narenciye (ortu yok; %50 tac),Citrus no ground cover 50% canopy,0.65,0.60,0.65,3,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Narenciye (ortu yok; %20 tac),Citrus no ground cover 20% canopy,0.50,0.45,0.55,2,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Narenciye (aktif ortu; %70 tac),Citrus active ground cover 70% canopy,0.75,0.70,0.75,4,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Narenciye (aktif ortu; %50 tac),Citrus active ground cover 50% canopy,0.80,0.80,0.80,3,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Narenciye (aktif ortu; %20 tac),Citrus active ground cover 20% canopy,0.85,0.85,0.85,2,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Uzum (sofralik/kurutmalik),Grapes table or raisin,0.30,0.85,0.45,2,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
+Uzum (sarapllik),Grapes wine,0.30,0.70,0.45,1.5-2,,FAO-56 Table 12,taslak-uzman-onayi-bekliyor
