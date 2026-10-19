@@ -37,7 +37,7 @@ Sen Tarım Pusula projesinde otonom çalışıyorsun. Kimse sana cevap vermeyece
 5) Bitirdiğinde 5 satırı geçmeyen bir özet yaz.
 $lastErr
 "@
-    $out = (& claude -p $prompt --dangerously-skip-permissions 2>&1 | Out-String)
+    $out = (& claude -p $prompt --model sonnet --dangerously-skip-permissions 2>&1 | Out-String)
     $code = $LASTEXITCODE
     Add-Content ".overnight\$t.out.txt" ("`n=== " + (Get-Date -Format s) + " ===`n" + $out)
 
