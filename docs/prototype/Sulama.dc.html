@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Sulama vanası</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Manrope',system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F4F6F0;color:#14392B;font-family:'Manrope',system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden;position:relative">
+
+  <div style="display:flex;align-items:center;gap:8px;padding:16px 12px 8px">
+    <a href="Arazilerim.dc.html" aria-label="Geri" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#14392B">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+    </a>
+    <div>
+      <div style="font-size:20px;font-weight:800;line-height:1.1">Sulama vanası</div>
+      <div style="font-size:12px;color:#4F6258;font-weight:600">Burç Köyü Fıstık Bahçesi · çevrimiçi</div>
+    </div>
+  </div>
+
+  <div style="margin:8px 20px 0;background:#14392B;border-radius:24px;padding:22px;color:#FFFFFF;text-align:center">
+    <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+      <div style="width:96px;height:96px;border-radius:48px;background:#1D5B7A;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#FFFFFF">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
+      </div>
+      <div style="font-size:28px;font-weight:800;margin-top:12px">Su akıyor</div>
+      <div style="font-size:14px;color:#CFE0D6;margin-top:2px">Kalan süre: 20 dk · azami 30 dk</div>
+    </sc-if>
+    <sc-if value="{{ isNotRunning }}" hint-placeholder-val="{{ true }}">
+      <div style="width:96px;height:96px;border-radius:48px;background:#2F5A49;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#CFE0D6">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
+      </div>
+      <div style="font-size:28px;font-weight:800;margin-top:12px">Kapalı</div>
+      <div style="font-size:14px;color:#CFE0D6;margin-top:2px">Son sulama: dün 06:40 · 25 dk</div>
+    </sc-if>
+  </div>
+
+  <div style="margin:12px 20px 0;background:#FFFFFF;border:1px solid #DCE3D5;border-radius:18px;padding:14px;display:flex;gap:12px;align-items:flex-start">
+    <div style="flex:none;width:36px;height:36px;border-radius:10px;background:#E3EFD2;color:#1F4D12;display:flex;align-items:center;justify-content:center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:800">Pusula önerisi: bugün sulama gerekmiyor</div>
+      <div style="font-size:12px;color:#3E5247;margin-top:3px;line-height:1.4">Su açığı eşiğin altında. İstersen yine de manuel başlatabilirsin.</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:12px 20px 0;background:#FFFFFF;border:1px solid #DCE3D5;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700"><span style="width:22px;height:22px;border-radius:11px;background:#14392B;color:#FFFFFF;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>Komut gönderildi</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700"><span style="width:22px;height:22px;border-radius:11px;background:#14392B;color:#FFFFFF;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>Cihaz onayladı (1,2 sn)</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700"><span style="width:22px;height:22px;border-radius:11px;background:#1D5B7A;color:#FFFFFF;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>Vana açık, akış başladı</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isNotRunning }}" hint-placeholder-val="{{ true }}">
+    <div style="margin:12px 20px 0;display:flex;gap:8px">
+      <div style="flex:1;min-height:48px;border-radius:14px;background:#14392B;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">Manuel</div>
+      <div style="flex:1;min-height:48px;border-radius:14px;background:#FFFFFF;border:1px solid #CBD5C3;color:#14392B;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">Otomatik</div>
+    </div>
+  </sc-if>
+
+  <div style="flex:1"></div>
+
+  <div style="padding:0 20px 8px;display:flex;align-items:center;gap:8px;font-size:12px;color:#3E5247;font-weight:600">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+    Her komut kayıt altına alınır. Cihaz, bağlantı kopsa bile azami süre sonunda vanayı kapatır.
+  </div>
+
+  <div style="padding:0 20px 24px">
+    <sc-if value="{{ isIdle }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ ask }}" style="width:100%;min-height:60px;border-radius:30px;border:0;background:#1D5B7A;color:#FFFFFF;font-family:inherit;font-size:18px;font-weight:800">Sulamayı başlat</button>
+    </sc-if>
+    <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ stop }}" style="width:100%;min-height:60px;border-radius:30px;border:0;background:#9B2F1E;color:#FFFFFF;font-family:inherit;font-size:18px;font-weight:800">Durdur</button>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ isConfirming }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:#14392B99;display:flex;align-items:flex-end">
+      <div style="width:100%;box-sizing:border-box;background:#FFFFFF;border-radius:28px 28px 0 0;padding:22px 20px 28px">
+        <div style="font-size:20px;font-weight:800">Vanayı açmak istiyor musun?</div>
+        <div style="font-size:14px;color:#3E5247;margin-top:6px;line-height:1.4">Burç Köyü Fıstık Bahçesi · damla sulama. Süre dolunca vana kendiliğinden kapanır.</div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <div style="flex:1;min-height:48px;border-radius:14px;border:1px solid #CBD5C3;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">10 dk</div>
+          <div style="flex:1;min-height:48px;border-radius:14px;background:#14392B;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">20 dk</div>
+          <div style="flex:1;min-height:48px;border-radius:14px;border:1px solid #CBD5C3;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">30 dk</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button onClick="{{ cancel }}" style="flex:1;min-height:56px;border-radius:28px;border:1px solid #14392B;background:#FFFFFF;color:#14392B;font-family:inherit;font-size:16px;font-weight:800">Vazgeç</button>
+          <button onClick="{{ confirm }}" style="flex:1;min-height:56px;border-radius:28px;border:0;background:#1D5B7A;color:#FFFFFF;font-family:inherit;font-size:16px;font-weight:800">Başlat</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { phase: 'idle' };
+  renderVals() {
+    const p = this.state.phase;
+    return {
+      isIdle: p === 'idle',
+      isConfirming: p === 'confirming',
+      isRunning: p === 'running',
+      isNotRunning: p !== 'running',
+      ask: () => this.setState({ phase: 'confirming' }),
+      cancel: () => this.setState({ phase: 'idle' }),
+      confirm: () => this.setState({ phase: 'running' }),
+      stop: () => this.setState({ phase: 'idle' })
+    };
+  }
+}
+</script>
+</body>
+</html>

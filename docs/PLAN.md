@@ -266,3 +266,11 @@ Varsayım: Teknofest 2027 başvurusu Ocak–Şubat 2027, ön değerlendirme form
 - Yapay zekâ danışmanlığı: [FarmerChat testleri (Rural 21)](https://www.rural21.com/english/news/detail/article/testing-ai-advisory-services-insights-from-farmerchat-in-india-and-kenya.html), [Dünya Bankası](https://blogs.worldbank.org/en/agfood/can-ai-give-small-scale-producers-the-right-advice-)
 - Wageningen: [Karar destek sistemleri](https://www.wur.nl/en/research/plant/decision-support-systems-and-user-applications), [AgROS](https://wur.nl/en/show/6.-agros-farmer-data-space.htm), [FarmMaps](https://www.hortidaily.com/article/6024685/dutch-agriculture-data-platform-launched/)
 - Zeytin don toleransı derlemesi: [PMC9144808](https://pmc.ncbi.nlm.nih.gov/articles/PMC9144808/)
+
+---
+## Ek (20 Ekim 2026): kararlar
+
+- **Sıra:** önce 2–3 ay yazılım + prototip; ziraat mühendisi görüşmeleri, MGM/kurum izin dilekçeleri yayına (go-live) yakın yapılır.
+- **Sadelik ilkesi:** çiftçi için büyük "tasarım sistemi" sayfası yok; ekran başına tek ana iş (bkz. docs/UX_KURALLARI.md). Onaylı ekranlar: docs/prototype/.
+- **Konum özelliği (yaşlı dostu), 4 yol:** Tarladayım (GPS) · Köyümü seçeyim (il>ilçe>köy) · Haritada göstereyim (uydu + "Burası mı?") · Yakınım yapsın (6 haneli kod, çiftçi onaylar). GPS reddedilirse köy listesine düşer. Sınır çizimi isteğe bağlı, nokta yeterli.
+- **Gece çalıştırma:** G0–G14 görevleri docs/tasks/ altında; scripts/overnight.ps1 sırayla işletir, limit dolunca 2,5 saatte bir yeniden dener.
