@@ -21,3 +21,4 @@ export const kcRecordSchema = z.object({
 
 export type SourceRef = z.infer<typeof sourceRefSchema>;
 export type KcRecord = z.infer<typeof kcRecordSchema>;
+export * from './auth';
