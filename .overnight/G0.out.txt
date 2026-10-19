@@ -1,0 +1,10 @@
+
+=== 2026-10-20T01:00:18 ===
+G0 tamamland¦- ve `dev` dal¦-na commit'lendi (2e31b13). K+Âk `pnpm run verify` hatas¦-z ge+ðti: lint, typecheck, test ve `prettier --check` dahil, 24 g+Ârevin 24'+- ba+þar¦-l¦-.
+
+- **Yap¦-:** pnpm ve Turborepo ile monorepo kuruldu. Uygulamalar mobile, panel, api ve workers; paketler agro-core (FAO-56 evreli Kc, "onays¦-z bilgi +Âneri +-retmez" kap¦-s¦-), schemas, ui ve device-sim (30 dk vana s¦-n¦-r¦-). Altyap¦- i+ðin docker-compose (PostGIS+pgvector, Redis, Mosquitto) ve CI i+þ ak¦-+þ¦- eklendi.
+- **Tasar¦-m sistemi:** `@tarim/ui` i+ðinde token'lar ve Button, Card, Chip, Badge, BigChoice bile+þenleri var. Testler dokunma alan¦- ÔëÑ56, yaz¦- ÔëÑ16/18 ve WCAG AA kar+þ¦-tl¦-¦þ¦-n¦- koruyor.
+- **Mobil:** Bug+-n, Tarlalar¦-m, Soru sor, Pazar sekmeleri prototipe g+Âre T+-rk+ðe (i18n, emoji yok) yaz¦-ld¦-. Web paketlemesi `expo export --platform web` ile ba+þar¦-l¦-; `expo start --web` ile a+ð¦-l¦-+þ¦- denemedim.
+- **Do¦þrulanamayanlar:** CI GitHub'da +ðal¦-+þt¦-r¦-lmad¦- (uzak depo yok), `docker compose up` denenmedi, g+Ârsel kar+þ¦-la+þt¦-rma yap¦-lmad¦-.
+- **Notlar:** Kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
