@@ -1,0 +1,9 @@
+
+=== 2026-10-20T01:07:42 ===
+G1 tamam ve `dev` dal¦-na i+þlendi. K+Âk `pnpm run verify` hatas¦-z ge+ðti (lint, typecheck, test, prettier).
+- **Veri taban¦-:** SQL migration ile kullan¦-c¦-, rol, tarla, payla+þ¦-m, cihaz, r¦-za, OTP, oturum ve audit_log tablolar¦- kuruldu. RLS, k¦-s¦-tl¦- bir uygulama rol+- ve s+-tun bazl¦- yetkiler var. Drizzle/Prisma yerine d+-z SQL se+ðtim (gerek+ðe KARARLAR'da).
+- **Giri+þ ve yetki:** Telefonla SMS-OTP giri+þi var (sahte sa¦þlay¦-c¦-; deneme ve istek s¦-n¦-r¦-; TC kimlik no yok). U+ðlar varsay¦-lan olarak giri+þ ister. Ba+þkas¦-n¦-n tarlas¦-n¦- okuma, yazma veya silme 403 d+Âner ve denetim kayd¦-na d+-+þer.
+- **Denetim kayd¦-:** Her ekleme, g+-ncelleme ve silme sat¦-r +-retir. Sat¦-rlar zincirli hash ile saklan¦-r, de¦þi+þtirilemez ve bozulursa tespit edilir.
+- **KVKK:** R¦-za kayd¦-, veri d¦-+þa aktarma ve hesap silme u+ðlar¦- eklendi. Hesap silinince audit sat¦-rlar¦- anonim UUID ile kal¦-r; bunun hukuki do¦þrulamas¦- gerekir.
+- **Do¦þrulanamayanlar:** Testler yaln¦-z s+-re+ð i+ði PGlite ile +ðal¦-+þt¦-. Ger+ðek Postgres/PostGIS imaj¦- ve `PgDb` ba¦þlant¦-s¦- denenmedi; devir notlar¦- `.overnight/NOTES.md`'de.
+

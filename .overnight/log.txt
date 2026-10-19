@@ -1,1 +1,3 @@
 2026-10-20T00:49:47  BASLA G0 (basarisiz deneme: 0)
+2026-10-20T01:00:23  G0 TAMAM
+2026-10-20T01:00:23  BASLA G1 (basarisiz deneme: 0)
