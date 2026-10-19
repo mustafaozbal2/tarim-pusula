@@ -12,7 +12,7 @@ function Log($m) { $l = "$(Get-Date -Format s)  $m"; Write-Host $l; Add-Content 
 
 # Bilgisayar uyumasın
 Add-Type -Name P -Namespace W -MemberDefinition '[DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint f);'
-[void][W.P]::SetThreadExecutionState(0x80000003)
+[void][W.P]::SetThreadExecutionState([uint32]2147483651)
 powercfg /change standby-timeout-ac 0 | Out-Null
 powercfg /change monitor-timeout-ac 0 | Out-Null
 
@@ -72,4 +72,4 @@ $lastErr
   }
 }
 Log "TUM GOREVLER ISLENDI"
-[void][W.P]::SetThreadExecutionState(0x80000000)
+[void][W.P]::SetThreadExecutionState([uint32]2147483648)
