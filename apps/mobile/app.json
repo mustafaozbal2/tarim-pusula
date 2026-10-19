@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Tarım Pusula",
+    "slug": "tarim-pusula",
+    "scheme": "tarimpusula",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router", "expo-font"],
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

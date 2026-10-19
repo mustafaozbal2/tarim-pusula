@@ -1,0 +1,18 @@
+services:
+  db:
+    build: ./infra/db
+    environment:
+      POSTGRES_USER: tarim
+      POSTGRES_PASSWORD: tarim
+      POSTGRES_DB: tarim
+    ports: ['5432:5432']
+    volumes: ['dbdata:/var/lib/postgresql/data', './infra/db-init:/docker-entrypoint-initdb.d:ro']
+  redis:
+    image: redis:7-alpine
+    ports: ['6379:6379']
+  mqtt:
+    image: eclipse-mosquitto:2
+    ports: ['1883:1883']
+    volumes: ['./infra/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro']
+volumes:
+  dbdata:

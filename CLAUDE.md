@@ -3,9 +3,11 @@
 Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Üretim"). Teknofest Tarım Teknolojileri, lisans üstü kategori. Jüri profesördür: her hesap matematiksel olarak dayanaklı ve test edilmiş olmalı.
 
 ## Her zaman oku
+
 - docs/PLAN.md (ana plan), docs/UX_KURALLARI.md, docs/tasks/Gx.md (sıradaki görev), docs/prototype/ (onaylı ekran tasarımları — birebir uy)
 
 ## Çalışma düzeni
+
 - Soru sorma. Makul karar ver, docs/KARARLAR.md'ye tarih + gerekçeyle yaz, devam et.
 - Görev dosyasındaki kabul ölçütleri sağlanana kadar bitirme. Kök `pnpm run verify` (lint+typecheck+test) yeşil olmalı.
 - Önce test, sonra kod; sayısal çekirdeği (packages/agro-core) literatür örnekleriyle doğrula.
@@ -13,6 +15,7 @@ Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Ür
 - .overnight/NOTES.md dosyasına her görev sonunda: ne yapıldı, ne yarım, sonraki görev için not.
 
 ## Değişmez kurallar
+
 1. Uzman onayı olmayan (taslak) bilgi: rozetle gösterilir, ASLA uyarı/öneri/komut üretmez.
 2. Yapay zekâ ilaç dozu veya karışım oranı UYDURMAZ; BKÜ'ye yönlendirir. Atıfsız iddia yok.
 3. Sulama komutu: sunucuda yetki kontrolü, TTL, idempotency, ack, cihazda azami süre 30 dk, audit log. Başkası başkasının vanasını açamaz.
@@ -22,8 +25,10 @@ Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Ür
 7. Arayüz: Türkçe, büyük yazı (>=16, ana metin 18+), dokunma alanı >=56 px, ekran başına tek ana iş, emoji yok, çiftçi dili (jargon yok).
 
 ## Güvenlik sınırı
+
 - Yalnız bu depo klasörü içinde çalış. Klasör dışında dosya silme/değiştirme yok. `rm -rf`, disk biçimlendirme, sistem ayarı yok.
 - Dışarıdan indirilen dosyaları çalıştırma; paketleri yalnız resmi kayıtlardan (npm/pip) kur.
 
 ## Yığın
+
 Expo (RN)+TS+Expo Router · Next.js · NestJS · PostgreSQL+PostGIS+pgvector · Redis+BullMQ · MQTT · Claude API (araç çağırma, RAG) · pnpm+Turborepo · Vitest/Playwright.

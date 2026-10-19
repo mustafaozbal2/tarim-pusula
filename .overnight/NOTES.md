@@ -1,0 +1,6 @@
+# Devir notları
+
+## G0 (2026-10-20) — tamam
+Yapılan: pnpm+Turborepo monorepo (apps: mobile/panel/api/workers; packages: agro-core/schemas/ui/device-sim), kök `pnpm run verify` (lint+typecheck+test+prettier) yeşil, docker-compose (PostGIS+pgvector, Redis, Mosquitto), CI iş akışı, @tarim/ui (token, Button/Card/Chip/Badge/BigChoice), mobil 4 sekmeli iskelet (tr i18n), `expo export --platform web` başarılı.
+Yarım / doğrulanamayan: GitHub'da CI çalıştırılmadı (uzak depo yok; iş akışı yerel komutların aynısı). `docker compose up` bu oturumda denenmedi. `expo start --web` yerine `expo export --platform web` ile paketleme doğrulandı. Panel `next build` çalıştırılmadı (typecheck geçiyor). Bileşenler cihazda/tarayıcıda görsel olarak karşılaştırılmadı.
+Sonraki görev için: yeni paketlere `lint/typecheck/test` script'i ekle (turbo bunları arar). Mobil testleri yalnız saf TS (RN bileşen testi altyapısı yok). `pnpm approve-builds` ile esbuild izinli (pnpm-workspace.yaml). Veri tohumu `data/kc_fao56_seed.csv` henüz şemaya yüklenmedi (G-sonrası). Ses/fotoğraf düğmeleri şimdilik işlevsiz.

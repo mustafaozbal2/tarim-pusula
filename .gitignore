@@ -1,0 +1,9 @@
+node_modules
+dist
+.next
+.expo
+.turbo
+coverage
+.env
+*.tsbuildinfo
+next-env.d.ts

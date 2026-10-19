@@ -1,0 +1,22 @@
+{
+  "name": "tarim-pusula",
+  "private": true,
+  "packageManager": "pnpm@12.14.0",
+  "scripts": {
+    "dev:infra": "docker compose up -d",
+    "format": "prettier --write .",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "verify": "turbo run lint typecheck test && prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10",
+    "turbo": "^2.11.9",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^5.0.5"
+  }
+}
