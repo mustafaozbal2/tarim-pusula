@@ -1,0 +1,10 @@
+
+=== 2026-10-20T08:20:30 ===
+G11 tamamland¦- ve `dev` dal¦-na i+þlendi. K+Âk `pnpm run verify` ye+þil (27/27 g+Ârev).
+
+- **Uygunluk:** yamuk +-yelik, a¦þ¦-rl¦-kl¦- geometrik ortalama ve P10ÔÇôP90 ekonomik aral¦-k +ðekirdekte, elle hesapl¦- testlerle. Tohum fakt+Ârleri taslak ve kayna¦þa kar+þ¦- do¦þrulanmad¦-, bu y+-zden uzman onay¦- gelene kadar hi+ðbir +-r+-nde skor +ð¦-kmaz. Mobilde uygunluk ve destek ekran¦- yok, yaln¦-z API var.
+- **Destekler:** 4 genel destek kayd¦-, hepsi taslak ve rozetli. Tutar ve tarih yok, uydurmad¦-m.
+- **Veri C+-zdan¦-:** `GET /me/export` t+-m kullan¦-c¦- tablolar¦-n¦- kaps¦-yor. +Þemaya yeni kullan¦-c¦- tablosu eklenip d¦-+þa aktarmaya yaz¦-lmazsa test k¦-r¦-l¦-yor. Mobilde `/veri-cuzdani` ekran¦- (veri say¦-s¦-, payla+þ¦-m¦- kapatma, indirme) var.
+- **Payla+þ¦-m s¦-n¦-r¦-:** payla+þ¦-m izinlerinde al¦-c¦-ya veri yaln¦-z `fields` kategorisi i+ðin d+Ân+-yor (koordinats¦-z). Di¦þer kategoriler kay¦-t olarak tutuluyor ama al¦-c¦-ya veri veren u+ð yok. Mobilde payla+þ¦-m olu+þturma ekran¦- da yok.
+- **Kay¦-tlar:** kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
