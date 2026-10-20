@@ -1,0 +1,15 @@
+
+=== 2026-10-20T12:14:35 ===
+G14 tamamland¦-. K+Âk `pnpm run verify` hatas¦-z ge+ðti (27/27 g+Ârev, 597 birim/API testi, 19 e2e) ve de¦þi+þiklikler `dev` dal¦-na commit edildi.
+
+- **Eri+þilebilirlik:** Mobil kaynak kodu art¦-k testle taran¦-yor (yaz¦- boyutu, dokunma alan¦-, ekran okuyucu rol+-, emoji, kontrast). D+-zeltilecek ihlal +ð¦-kmad¦-. Ger+ðek ekran okuyucuyla ve %200 yaz¦- b+-y+-tmesiyle el testi yap¦-lmad¦-.
+- **G+-venlik:**
+  - API'ye g+-venlik ba+þl¦-klar¦- eklendi. +£retimde `CORS_ORIGINS` verilmezse sunucu a+ð¦-lm¦-yor.
+  - Panel i+ðin de ba+þl¦-klar eklendi.
+  - ¦-zlenen t+-m dosyalarda gizli anahtar taramas¦- yapan bir test eklendi, bulgu +ð¦-kmad¦-.
+  - `pnpm audit --prod` 3 bulgu verdi (hepsi Expo derleme zincirinde); gerek+ðeyle kabul edildi, `docs/GUVENLIK_ASVS.md`'de yaz¦-l¦-.
+  - D+-z metin TOTP/cihaz s¦-rr¦-, g+-venli depoda olmayan mobil jeton ve genel h¦-z s¦-n¦-r¦- eksikli¦þi a+ð¦-k risk olarak duruyor.
+- **Do¦þrulama raporu:** `docs/DOGRULAMA_RAPORU.md` bu g+-nk+- ger+ðek +ð¦-kt¦-larla dolu (ET0 kitapta 3,9, bizde 3,880). Pusula AI skoru (205/205) sahte sa¦þlay¦-c¦-yla, gecikme de¦þerleri a¦þ modeliyle; ikisi de raporda b+Âyle yaz¦-l¦-. SUS testi yap¦-lmad¦-, yaln¦-z +þablon var (`docs/SUS_SABLONU.md`), sahte skor yaz¦-lmad¦-.
+- **Paketleme:** EAS profilleri, ma¦þaza kimlikleri ve izinler, PWA (manifest, simge, servis +ðal¦-+þan¦-) ve gizlilik politikas¦- tasla¦þ¦- eklendi. EAS derlemesi +ðal¦-+þt¦-r¦-lmad¦- (hesap yok), API adresleri yer tutucu. PWA'n¦-n taray¦-c¦-da +ðevrimd¦-+þ¦- a+ð¦-l¦-+þ¦- el ile denenmedi.
+- **Kay¦-tlar:** Kararlar `docs/KARARLAR.md`'ye, devir notu `.overnight/NOTES.md`'ye yaz¦-ld¦-.
+
