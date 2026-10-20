@@ -2,3 +2,15 @@
 === 2026-10-20T01:12:39 ===
 API Error: Unable to connect to API: SSL certificate has expired
 
+
+=== 2026-10-20T04:07:21 ===
+G2 tamam: konum ak¦-+þ¦-n¦-n d+Ârt yolu, harita, +ðevrimd¦-+þ¦- s¦-ra ve bitki bilgi paketi +ðal¦-+þ¦-yor. K+Âk `pnpm run verify` ye+þil (27 g+Ârev, Playwright dahil). `dev` dal¦-nda a0e52f0 olarak commit'lendi.
+
+- **Alan ve tarla:** alan hesab¦- sunucuda yap¦-l¦-yor ve GeographicLib de¦þeriyle do¦þruland¦-. Nokta konum zorunlu, s¦-n¦-r ve ada/parsel iste¦þe ba¦þl¦-.
+- **Konum yollar¦-:** Playwright'ta 9 test ge+ðiyor. D+Ârt yolun her biri tarla kaydediyor; GPS reddi, yanl¦-+þ kod ve +ðevrimd¦-+þ¦- s¦-ra da testte.
+- **Yak¦-n¦-m yaps¦-n:** yard¦-m eden kodu kullan¦-nca otomatik `assistant` rol+- al¦-yor ve +ðift+ði onaylayana kadar tarla olu+þmuyor. Yard¦-m edenin tarladaki yetkisi yaln¦-z okuma.
+- **Bitki paketi:** 33 FAO sat¦-r¦- s+-r+-ml+- paket olarak i+ðe aktar¦-ld¦-, hepsi taslak. Onays¦-z Kc'den say¦- ya da uyar¦- +ð¦-km¦-yor; bu hem birim hem API testinde kan¦-tl¦-.
+- **Veri:** il>il+ðe>k+Ây tablosu GeoNames'ten (CC BY 4.0, 81 il); kayna¦þ¦- `data/yerlesim.SOURCE.md` dosyas¦-nda. Uydu altl¦-¦þ¦- EOX Sentinel-2; ticari yay¦-nda lisans¦- do¦þrulanmal¦-.
+
+Do¦þrulanmayanlar: cihaz haritas¦-, `expo-location` ve `expo-sqlite` cihazda +ðal¦-+þt¦-r¦-lmad¦- (yaln¦-z tip denetimi ve web), ko+þullu PostGIS SQL'i ger+ðek PostGIS'te denenmedi. Kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+

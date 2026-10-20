@@ -1,3 +1,7 @@
 2026-10-20T00:49:47  BASLA G0 (basarisiz deneme: 0)
 2026-10-20T01:00:23  G0 TAMAM
 2026-10-20T01:00:23  BASLA G1 (basarisiz deneme: 0)
+2026-10-20T01:07:51  G1 TAMAM
+2026-10-20T01:07:51  BASLA G2 (basarisiz deneme: 0)
+2026-10-20T01:12:39  G2 : limit/baglanti sorunu. 2.5 saat bekleniyor.
+2026-10-20T03:42:39  BASLA G2 (basarisiz deneme: 0)
