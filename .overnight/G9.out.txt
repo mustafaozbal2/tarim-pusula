@@ -1,0 +1,8 @@
+
+=== 2026-10-20T07:57:18 ===
+G9 g+Ârevini tam bitiremedim: su dengesi ve kural motoru +ðekirde¦þi haz¦-r ama API ucu ve mobil ekran ba¦þlant¦-s¦- yap¦-lmad¦-. K+Âk `pnpm run verify` ge+ðiyor ve de¦þi+þiklik `dev` dal¦-nda a21dbb8 olarak commit'lendi.
+- **Eklenenler:** `packages/agro-core/src/waterBalance.ts`'te TAW, RAW, p d+-zeltmesi, Ks, g+-nl+-k Dr dengesi, derine s¦-zma ve `decideIrrigation` kural motoru var. Motor "bug+-n sula / sulama" karar¦-n¦- ad¦-m ad¦-m hesap gerek+ðesiyle veriyor. Kc, toprak, k+Âk derinli¦þi ve p'den biri bile onayl¦- de¦þilse +Âneri +-retmiyor. 24 yeni test eklendi.
+- **Do¦þrulama eksi¦þi:** Testler denklemleri elle hesaplanm¦-+þ de¦þerlerle, su korunumuyla ve s¦-n¦-r durumlar¦-yla do¦þruluyor. FAO-56'n¦-n bas¦-l¦- b+Âl+-m +Ârneklerine kar+þ¦- birebir do¦þrulama yapmad¦-m, bu y+-zden "FAO-56 +Ârnekleriyle say¦-sal do¦þrulama" +Âl+ð+-t+- eksik kald¦-.
+- **Yap¦-lmayanlar:** API ucu, Dr durumunun saklanmas¦-, sulama ekran¦-ndaki "Pusula +Ânerisi" kart¦-n¦-n ba¦þlanmas¦- ve g+-nl+-k toplam sulama s+-resi s¦-n¦-r¦- yok. Toprak de¦þerleri taslak oldu¦þu ve k+Âk derinli¦þi ile p +-r+-n paketinde bulunmad¦-¦þ¦- i+ðin canl¦-da +Âneri zaten +ð¦-kmaz.
+- **Notlar:** Kararlar `docs/KARARLAR.md`'ye, devir notu `.overnight/NOTES.md`'ye yaz¦-ld¦-.
+
