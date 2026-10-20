@@ -24,6 +24,10 @@ import { LibraryController } from './controllers.g6';
 import { Places } from './places';
 import { DataService } from './data.service';
 import type { Db } from './db/db';
+import { PusulaController } from './pusula/pusula.controller';
+import { LLM, PusulaService } from './pusula/pusula.service';
+import { PusulaTools } from './pusula/tools';
+import { AnthropicProvider, FakeLlmProvider, type LlmProvider } from './pusula/provider';
 import { HealthController } from './health.controller';
 import {
   FakePushClient,
@@ -45,7 +49,16 @@ export interface AppOptions {
   weather?: WeatherProvider;
   queue?: NotificationQueue;
   push?: PushClient;
+  /** Verilmezse ANTHROPIC_API_KEY varsa Claude, yoksa ağa çıkmayan sahte sağlayıcı. */
+  llm?: LlmProvider;
   now?: () => Date;
+}
+
+function defaultLlm(): LlmProvider {
+  const key = process.env['ANTHROPIC_API_KEY'];
+  return key
+    ? new AnthropicProvider(key, process.env['PUSULA_MODEL'] || undefined)
+    : new FakeLlmProvider();
 }
 
 @Module({})
@@ -71,6 +84,7 @@ export class AppModule {
         PanelMfaController,
         PanelController,
         LibraryController,
+        PusulaController,
       ],
       providers: [
         { provide: DB, useValue: opts.db },
@@ -81,6 +95,11 @@ export class AppModule {
         { provide: NOTIFY_QUEUE, useValue: opts.queue ?? new InMemoryQueue() },
         { provide: PUSH, useValue: opts.push ?? new FakePushClient() },
         { provide: CLOCK, useValue: opts.now ?? (() => new Date()) },
+        { provide: LLM, useFactory: () => opts.llm ?? defaultLlm() },
+        TodayController,
+        FieldCalendarController,
+        PusulaTools,
+        PusulaService,
         NotifyService,
         AuthService,
         DataService,

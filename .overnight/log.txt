@@ -15,3 +15,5 @@
 2026-10-20T06:55:25  BASLA G5 (basarisiz deneme: 0)
 2026-10-20T07:06:53  G5 TAMAM
 2026-10-20T07:06:53  BASLA G6 (basarisiz deneme: 0)
+2026-10-20T07:16:44  G6 TAMAM
+2026-10-20T07:16:44  BASLA G7 (basarisiz deneme: 0)

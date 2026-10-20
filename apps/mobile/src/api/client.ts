@@ -19,6 +19,26 @@ export class NetworkError extends Error {
   }
 }
 
+export interface PusulaSourceDto {
+  title: string;
+  publisher?: string;
+  date: string;
+  version?: string;
+  page?: number;
+  needsBadge: boolean;
+}
+
+/** Pusula AI kısa kartı: başlık, 1-3 adım, kaynak, "Neden?". */
+export interface PusulaCardDto {
+  kind: 'answer' | 'refusal' | 'handoff' | 'info';
+  title: string;
+  steps: string[];
+  sources: PusulaSourceDto[];
+  why: string;
+  expertQuestionId?: string;
+  reason?: string;
+}
+
 export interface FieldDto {
   id: string;
   name: string;
@@ -176,6 +196,11 @@ export function createApi(opts: ApiOptions) {
     crops: () => request<CropDto[]>('GET', '/crops'),
     fields: () => request<FieldDto[]>('GET', '/fields'),
     createField: (f: FieldCreate) => request<FieldDto>('POST', '/fields', f),
+    pusulaAsk: (body: {
+      question: string;
+      fieldId?: string;
+      image?: { mime: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string };
+    }) => request<{ card: PusulaCardDto }>('POST', '/pusula/ask', body),
     nearbyCreateCode: () => request<{ code: string; expiresAt: string }>('POST', '/nearby/codes'),
     nearbyClaim: (code: string, field: FieldCreate) =>
       request<{ proposalId: string }>('POST', '/nearby/claim', { code, field }),
