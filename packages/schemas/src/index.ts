@@ -24,3 +24,4 @@ export type KcRecord = z.infer<typeof kcRecordSchema>;
 export * from './auth';
 export * from './fields';
 export * from './announcements';
+export * from './panel';

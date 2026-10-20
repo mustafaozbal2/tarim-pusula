@@ -7,12 +7,14 @@
     "build": "next build",
     "lint": "eslint .",
     "typecheck": "tsc -p .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "start": "next start"
   },
   "dependencies": {
     "next": "^16.4.2",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "@tarim/schemas": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",

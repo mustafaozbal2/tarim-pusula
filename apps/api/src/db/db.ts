@@ -96,6 +96,8 @@ export async function migrate(db: Db): Promise<string[]> {
 export interface Principal {
   userId: string;
   roles: string[];
+  /** Oturum ikinci adımı (TOTP) geçti mi. Panel uçları bunu ister. */
+  mfa?: boolean;
 }
 
 /**

@@ -20,7 +20,7 @@ import {
   type Targeting,
 } from '@tarim/agro-core';
 import { announcementCreateSchema } from '@tarim/schemas';
-import { Me, parse, Roles } from './auth/access';
+import { Me, parse, RequireMfa, Roles } from './auth/access';
 import { templatesForCrop } from './calendar';
 import { PLACES } from './controllers.g2';
 import { DataService } from './data.service';
@@ -163,6 +163,7 @@ export class FieldCalendarController {
 }
 
 @Controller('announcements')
+@RequireMfa()
 export class AnnouncementsController {
   constructor(@Inject(DataService) private readonly data: DataService) {}
 

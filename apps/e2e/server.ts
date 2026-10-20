@@ -79,6 +79,20 @@ async function main() {
         res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, ...(await newUser()) }));
         return;
       }
+      if (url.pathname === '/__e2e/staff') {
+        // Test için: verilen rolde panel kullanıcısı (telefonla SMS girişi yapılabilir).
+        const u = await newUser();
+        const role = url.searchParams.get('role') ?? 'institution_admin';
+        await systemTx(db, (q) =>
+          q.query('INSERT INTO user_roles(user_id, role, granted_by) VALUES ($1,$2,$1)', [
+            u.userId,
+            role,
+          ]),
+        );
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, ...u }));
+        return;
+      }
       if (url.pathname === '/__e2e/approve-frost') {
         // Test için: Antep fıstığı paketini ve çiçeklenme eşiğini (-2 °C) "uzman onaylı" yapar.
         await systemTx(db, async (q) => {

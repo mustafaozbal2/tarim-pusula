@@ -81,6 +81,10 @@ beforeAll(async () => {
   expert = await login('+905321120104');
   await grant(inst.userId, 'institution_admin');
   await grant(expert.userId, 'expert');
+  // Panel uçları ikinci adım ister (G5); bu testte oturumlar doğrulanmış sayılır.
+  await sql('UPDATE sessions SET mfa_at = now() WHERE user_id = ANY($1::uuid[])', [
+    [inst.userId, expert.userId],
+  ]);
 
   const mk = async (t: string, body: object) => (await call('POST', '/fields', t, body)).body.id;
   fGaziantep = await mk(gaziantep.token, {

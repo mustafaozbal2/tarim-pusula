@@ -65,6 +65,17 @@ export type WaterNeedDto =
   | { kind: 'water-need'; etcMmPerDay: number; kc: number; source?: string }
   | { kind: 'none'; reason: 'uzman-onayi-bekliyor' | 'deger-yok'; badge: boolean };
 
+export interface AnnouncementDto {
+  id: string;
+  sourceOrg: string;
+  title: string;
+  body: string;
+  sourceUrl: string | null;
+  publishedAt: string;
+  needsBadge: boolean;
+  why: string;
+}
+
 export interface TodayDto {
   fieldId: string;
   fieldName: string;
@@ -158,6 +169,8 @@ export function createApi(opts: ApiOptions) {
         `/places/villages?province=${q(province)}&district=${q(district)}${search ? `&q=${q(search)}` : ''}`,
       ),
     today: (fieldId: string) => request<TodayDto>('GET', `/fields/${q(fieldId)}/today`),
+    announcements: (fieldId: string) =>
+      request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
     registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>
       request<{ ok: boolean }>('POST', '/me/push-token', { token, platform }),
     crops: () => request<CropDto[]>('GET', '/crops'),

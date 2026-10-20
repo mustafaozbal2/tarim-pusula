@@ -2,13 +2,14 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
-import type { FieldDto } from '../../src/api/client';
+import type { AnnouncementDto, FieldDto } from '../../src/api/client';
 import { Icon } from '../../src/components/Icon';
 import { Screen } from '../../src/components/Screen';
 import { tr } from '../../src/i18n/tr';
 import { kv } from '../../src/offline/kvStore';
 import { registerForPush } from '../../src/push';
 import { api } from '../../src/session';
+import { loadAnnouncements } from '../../src/today/announcements';
 import { FIELDS_CACHE, loadToday, nextFieldId, type TodayResult } from '../../src/today/load';
 import { clock, frostCardModel, waterNeedText, weatherText } from '../../src/today/model';
 
@@ -19,13 +20,17 @@ export default function TodayScreen() {
   const [data, setData] = useState<TodayResult | null>(null);
   const [state, setState] = useState<'loading' | 'empty' | 'ready' | 'error'>('loading');
   const [showWhy, setShowWhy] = useState(false);
+  const [news, setNews] = useState<AnnouncementDto[]>([]);
 
   const load = useCallback(async (pick?: string) => {
     try {
       const r = await loadToday(api, kv, pick);
       setData(r);
       setState(r ? 'ready' : 'empty');
-      if (r) void registerForPush(api);
+      if (r) {
+        void registerForPush(api);
+        void loadAnnouncements(api, kv, r.field.id).then(setNews);
+      }
     } catch {
       setState('error');
     }
@@ -136,6 +141,28 @@ export default function TodayScreen() {
           </Text>
         </View>
       </View>
+
+      {news.length > 0 ? (
+        <View testID="bugun-duyurular" style={{ gap: spacing.md }}>
+          <Text style={styles.strong}>{t.announcements}</Text>
+          {news.map((a) => (
+            <Card key={a.id}>
+              <Text style={styles.taskLabel}>{a.title}</Text>
+              <Text style={styles.alertBody}>{a.body}</Text>
+              {a.needsBadge ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{t.announcementPending}</Text>
+                </View>
+              ) : null}
+              <Text style={styles.muted}>
+                {tr.common.source}: {a.sourceOrg} · {t.announcementPublished}:{' '}
+                {new Date(a.publishedAt).toLocaleDateString('tr-TR')}
+              </Text>
+              <Text style={styles.muted}>{a.why}</Text>
+            </Card>
+          ))}
+        </View>
+      ) : null}
 
       {data.offline ? <Text style={styles.muted}>{t.offline}</Text> : null}
       {today.weather.stale && !data.offline ? <Text style={styles.muted}>{t.stale}</Text> : null}

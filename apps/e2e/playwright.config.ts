@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 const WEB_PORT = Number(process.env['E2E_WEB_PORT'] ?? 8111);
+const PANEL_PORT = Number(process.env['E2E_PANEL_PORT'] ?? 8112);
 
 /**
  * Tarayıcı: yerel makinede kurulu Microsoft Edge/Chrome kullanılır (indirme gerekmez);
@@ -27,11 +28,21 @@ export default defineConfig({
       args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
     },
   },
-  webServer: {
-    command: 'pnpm exec tsx server.ts',
-    url: `http://127.0.0.1:${WEB_PORT}/__e2e/health`,
-    reuseExistingServer: !process.env['CI'],
-    timeout: 120_000,
-    stdout: 'pipe',
-  },
+  webServer: [
+    {
+      command: 'pnpm exec tsx server.ts',
+      url: `http://127.0.0.1:${WEB_PORT}/__e2e/health`,
+      reuseExistingServer: !process.env['CI'],
+      timeout: 120_000,
+      stdout: 'pipe',
+    },
+    {
+      // Panel: önce üretim derlemesi (ilk çalıştırmada uzun sürebilir), sonra `next start`.
+      command: 'pnpm exec tsx panel-server.ts',
+      url: `http://127.0.0.1:${PANEL_PORT}/giris`,
+      reuseExistingServer: !process.env['CI'],
+      timeout: 300_000,
+      stdout: 'pipe',
+    },
+  ],
 });

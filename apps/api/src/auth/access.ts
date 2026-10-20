@@ -17,9 +17,12 @@ import { AuthService } from './auth.service';
 
 const PUBLIC = 'tp:public';
 const ROLES = 'tp:roles';
+const MFA = 'tp:mfa';
 
 /** Giriş gerektirmeyen uç (OTP isteği/doğrulama, sağlık). */
 export const Public = () => SetMetadata(PUBLIC, true);
+/** Oturumun ikinci adımı (TOTP) geçmiş olmasını zorunlu kılar (panel uçları). */
+export const RequireMfa = () => SetMetadata(MFA, true);
 /** Bu rollerden en az birine sahip olmayı zorunlu kılar. */
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES, roles);
 
@@ -52,6 +55,9 @@ export class AccessGuard implements CanActivate {
     const required = this.reflector.getAllAndOverride<Role[] | undefined>(ROLES, targets);
     if (required && !required.some((r) => principal.roles.includes(r))) {
       throw new ForbiddenException('Bu işlem için yetkiniz yok');
+    }
+    if (this.reflector.getAllAndOverride<boolean>(MFA, targets) && !principal.mfa) {
+      throw new ForbiddenException('İkinci adım doğrulaması gerekiyor');
     }
     return true;
   }

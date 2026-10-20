@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { kcRecordSchema, sourceRefSchema } from './index';
+import {
+  canOpen,
+  hasPanelAccess,
+  kcRecordSchema,
+  panelMenu,
+  sourceRefSchema,
+  stageCreateSchema,
+} from './index';
 
 describe('şemalar', () => {
   const source = {
@@ -80,5 +87,33 @@ describe('tarla sınırı ve yakın kodu', () => {
       nearbyClaimSchema.safeParse({ code: '482913', field: { name: 'A', lat: 37, lon: 38 } })
         .success,
     ).toBe(true);
+  });
+});
+
+describe('panel menüsü', () => {
+  it('rol bazlı menü ve sayfa erişimi', () => {
+    expect(panelMenu(['farmer'])).toEqual([]);
+    expect(hasPanelAccess(['farmer', 'assistant'])).toBe(false);
+    expect(panelMenu(['institution_admin']).map((m) => m.path)).toEqual(['/duyurular']);
+    expect(panelMenu(['expert']).map((m) => m.path)).toEqual(['/duyurular', '/onay', '/paketler']);
+    expect(panelMenu(['admin']).map((m) => m.path)).toContain('/denetim');
+    expect(canOpen('/onay', ['institution_admin'])).toBe(false);
+    expect(canOpen('/onay/x', ['expert'])).toBe(true);
+    expect(canOpen('/denetim', ['expert'])).toBe(false);
+    expect(canOpen('/bilinmeyen', ['admin'])).toBe(false);
+    expect(canOpen('/onayx', ['admin'])).toBe(false);
+  });
+
+  it('evre girişi: kaynak zorunlu, Kc ya da don eşiği gerekli', () => {
+    expect(
+      stageCreateSchema.safeParse({ nameTr: 'Çiçeklenme', frostCriticalC: -2, source: 'FAO' })
+        .success,
+    ).toBe(true);
+    expect(
+      stageCreateSchema.safeParse({ nameTr: 'Çiçeklenme', frostCriticalC: -2, source: '' }).success,
+    ).toBe(false);
+    expect(stageCreateSchema.safeParse({ nameTr: 'Çiçeklenme', source: 'FAO' }).success).toBe(
+      false,
+    );
   });
 });

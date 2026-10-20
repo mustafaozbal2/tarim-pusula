@@ -40,6 +40,9 @@ export const tr = {
     askByVoice: 'Sesle sor',
     takePhoto: 'Fotoğraf çek',
     sampleSource: 'Örnek veri',
+    announcements: 'Duyurular',
+    announcementPending: 'Uzman onayı bekliyor',
+    announcementPublished: 'Yayın',
   },
   fields: {
     title: 'Tarlalarım',

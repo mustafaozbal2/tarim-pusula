@@ -19,6 +19,7 @@ import {
 } from './controllers';
 import { CropsController, NearbyController, PLACES, PlacesController } from './controllers.g2';
 import { AnnouncementsController, FieldCalendarController } from './controllers.g4';
+import { PanelController, PanelMfaController } from './controllers.g5';
 import { Places } from './places';
 import { DataService } from './data.service';
 import type { Db } from './db/db';
@@ -66,6 +67,8 @@ export class AppModule {
         JobsController,
         FieldCalendarController,
         AnnouncementsController,
+        PanelMfaController,
+        PanelController,
       ],
       providers: [
         { provide: DB, useValue: opts.db },

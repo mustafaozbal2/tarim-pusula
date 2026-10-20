@@ -1,8 +1,19 @@
 import { createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
-import { HttpException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  HttpException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { Role } from '@tarim/schemas';
 import { systemTx, type Db, type Principal } from '../db/db';
 import type { SmsProvider } from './sms';
+import { newTotpSecret, otpauthUri, verifyTotp } from './totp';
+
+/** Panele girebilen roller. */
+export const STAFF_ROLES = ['institution_admin', 'expert', 'admin'] as const;
 
 export const DB = Symbol('DB');
 export const SMS = Symbol('SMS');
@@ -142,8 +153,8 @@ export class AuthService {
   async authenticate(token: string): Promise<Principal | null> {
     const now = this.cfg.now();
     return systemTx(this.db, async (q) => {
-      const [s] = await q.query<{ user_id: string }>(
-        `SELECT user_id FROM sessions
+      const [s] = await q.query<{ user_id: string; mfa_at: Date | null }>(
+        `SELECT user_id, mfa_at FROM sessions
          WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > $2`,
         [sha256(token), now],
       );
@@ -152,8 +163,105 @@ export class AuthService {
         'SELECT role FROM user_roles WHERE user_id = $1',
         [s.user_id],
       );
-      return { userId: s.user_id, roles: roles.map((r) => r.role) };
+      return { userId: s.user_id, roles: roles.map((r) => r.role), mfa: s.mfa_at !== null };
     });
+  }
+
+  /** İkinci adım yalnız panel rolleri için (kurum yöneticisi, uzman, yönetici). */
+  private assertStaff(p: Principal) {
+    if (!p.roles.some((r) => (STAFF_ROLES as readonly string[]).includes(r))) {
+      throw new ForbiddenException('Bu işlem için yetkiniz yok');
+    }
+  }
+
+  /** Doğrulayıcı uygulama (TOTP) kaydı başlatır. Onaylanmış kayıt varsa yeniden başlatılamaz. */
+  async mfaEnroll(p: Principal, phone?: string): Promise<{ secret: string; otpauthUri: string }> {
+    this.assertStaff(p);
+    return systemTx(this.db, async (q) => {
+      const [cur] = await q.query<{ confirmed_at: Date | null }>(
+        'SELECT confirmed_at FROM user_mfa WHERE user_id = $1',
+        [p.userId],
+      );
+      if (cur?.confirmed_at) throw new ConflictException('İkinci adım zaten kurulu');
+      const secret = newTotpSecret();
+      await q.query(
+        `INSERT INTO user_mfa(user_id, secret) VALUES ($1, $2)
+         ON CONFLICT (user_id) DO UPDATE SET secret = EXCLUDED.secret, last_step = 0`,
+        [p.userId, secret],
+      );
+      await q.query('SELECT set_config($1, $2, true)', ['app.user_id', p.userId]);
+      await q.query('SELECT write_audit($1, $2, $3, $4)', [
+        'auth.mfa.enroll',
+        'user_mfa',
+        p.userId,
+        '{}',
+      ]);
+      return { secret, otpauthUri: otpauthUri(secret, phone ?? p.userId) };
+    });
+  }
+
+  async mfaStatus(p: Principal): Promise<{ enrolled: boolean; verified: boolean }> {
+    this.assertStaff(p);
+    const [row] = await systemTx(this.db, (q) =>
+      q.query<{ confirmed_at: Date | null }>(
+        'SELECT confirmed_at FROM user_mfa WHERE user_id = $1',
+        [p.userId],
+      ),
+    );
+    return { enrolled: !!row?.confirmed_at, verified: p.mfa === true };
+  }
+
+  /** Kodu doğrular; ilk başarıda kaydı onaylar, oturuma `mfa_at` yazar. 5 hatadan sonra 5 dk kilit. */
+  async mfaVerify(p: Principal, token: string, code: string): Promise<void> {
+    this.assertStaff(p);
+    const now = this.cfg.now();
+    const fail = () => new UnauthorizedException('Kod yanlış ya da süresi dolmuş');
+    const ok = await systemTx(this.db, async (q) => {
+      const [m] = await q.query<{
+        secret: string;
+        last_step: string;
+        failures: number;
+        locked_until: Date | null;
+      }>(
+        'SELECT secret, last_step, failures, locked_until FROM user_mfa WHERE user_id = $1 FOR UPDATE',
+        [p.userId],
+      );
+      if (!m) throw new ConflictException('Önce doğrulayıcı uygulamayı kurun');
+      if (m.locked_until && m.locked_until > now) {
+        throw new HttpException('Çok fazla deneme. Biraz bekleyip tekrar deneyin.', 429);
+      }
+      const step = verifyTotp(m.secret, code, now, Number(m.last_step));
+      await q.query('SELECT set_config($1, $2, true)', ['app.user_id', p.userId]);
+      if (step === null) {
+        const failures = m.failures + 1;
+        await q.query('UPDATE user_mfa SET failures = $2, locked_until = $3 WHERE user_id = $1', [
+          p.userId,
+          failures >= 5 ? 0 : failures,
+          failures >= 5 ? new Date(now.getTime() + 300_000) : null,
+        ]);
+        await q.query('SELECT write_audit($1, $2, $3, $4)', [
+          'auth.mfa.fail',
+          'sessions',
+          p.userId,
+          '{}',
+        ]);
+        return false;
+      }
+      await q.query(
+        `UPDATE user_mfa SET last_step = $2, failures = 0, locked_until = NULL,
+           confirmed_at = coalesce(confirmed_at, $3) WHERE user_id = $1`,
+        [p.userId, step, now],
+      );
+      await q.query('UPDATE sessions SET mfa_at = $2 WHERE token_hash = $1', [sha256(token), now]);
+      await q.query('SELECT write_audit($1, $2, $3, $4)', [
+        'auth.mfa.ok',
+        'sessions',
+        p.userId,
+        '{}',
+      ]);
+      return true;
+    });
+    if (!ok) throw fail();
   }
 
   async logout(token: string, userId: string): Promise<void> {
