@@ -40,6 +40,7 @@
     "react-native-web": "^0.21.4"
   },
   "devDependencies": {
+    "@types/node": "^24.19.2",
     "@types/react": "^19.3.0"
   }
 }

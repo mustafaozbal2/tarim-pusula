@@ -3,7 +3,7 @@
     "name": "Tarım Pusula",
     "slug": "tarim-pusula",
     "scheme": "tarimpusula",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "plugins": [
@@ -21,10 +21,40 @@
     ],
     "web": {
       "bundler": "metro",
-      "output": "single"
+      "output": "single",
+      "favicon": "./public/icon-192.png",
+      "name": "Tarım Pusula",
+      "shortName": "Tarım Pusula",
+      "lang": "tr",
+      "themeColor": "#14392B",
+      "backgroundColor": "#F4F6F0"
     },
     "experiments": {
       "typedRoutes": false
+    },
+    "icon": "./assets/icon.png",
+    "ios": {
+      "bundleIdentifier": "tr.tarimpusula.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Bitkinin fotoğrafını uzmana göstermek için galeriden seçeceksin. Fotoğraf başka amaçla kullanılmaz.",
+        "NSCameraUsageDescription": "Bitkinin fotoğrafını uzmana göstermek için kamera kullanılır."
+      }
+    },
+    "android": {
+      "package": "tr.tarimpusula.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#14392B"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "POST_NOTIFICATIONS"
+      ],
+      "blockedPermissions": ["RECORD_AUDIO", "READ_CONTACTS", "READ_SMS"]
     }
   }
 }

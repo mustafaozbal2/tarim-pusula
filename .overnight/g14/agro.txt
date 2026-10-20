@@ -1,0 +1,42 @@
+ ✓ src/waterBalance.test.ts > TAW / RAW (FAO-56 Denk. 82-83) > θFC 0,23, θWP 0,10, Zr 0,5 m → TAW 65 mm
+ ✓ src/waterBalance.test.ts > TAW / RAW (FAO-56 Denk. 82-83) > p = 0,5 → RAW 32,5 mm
+ ✓ src/waterBalance.test.ts > TAW / RAW (FAO-56 Denk. 82-83) > geçersiz girdide hata verir
+ ✓ src/waterBalance.test.ts > TAW / RAW (FAO-56 Denk. 82-83) > p düzeltmesi: ETc 5 mm/gün → değişmez; sınırlar 0,1..0,8
+ ✓ src/waterBalance.test.ts > Ks (Denk. 84) > RAW altında ve sınırında 1
+ ✓ src/waterBalance.test.ts > Ks (Denk. 84) > RAW ile TAW arasında doğrusal azalır
+ ✓ src/waterBalance.test.ts > Ks (Denk. 84) > TAW noktasında 0
+ ✓ src/waterBalance.test.ts > günlük denge (Denk. 85/88) > stressiz gün: Dr ETc kadar artar
+ ✓ src/waterBalance.test.ts > günlük denge (Denk. 85/88) > stresli gün: kullanım Ks ile azalır
+ ✓ src/waterBalance.test.ts > günlük denge (Denk. 85/88) > fazla yağış: Dr 0 olur, fazlası derine sızar
+ ✓ src/waterBalance.test.ts > günlük denge (Denk. 85/88) > Dr, TAW üstüne çıkmaz
+ ✓ src/waterBalance.test.ts > günlük denge (Denk. 85/88) > su korunur: kuru dizide Dr toplamı ETc,adj toplamına eşit
+ ✓ src/waterBalance.test.ts > günlük denge (Denk. 85/88) > sulama eksiği geri doldurur
+ ✓ src/waterBalance.test.ts > günlük denge (Denk. 85/88) > sınır dışı girdide hata
+ ✓ src/waterBalance.test.ts > kural motoru > az eksik su → sulama gerekmiyor, adımlar gösterilir
+ ✓ src/waterBalance.test.ts > kural motoru > Dr RAW üstünde → sulama gerekir, miktar Dr kadar
+ ✓ src/waterBalance.test.ts > kural motoru > bugünkü kayıp sınırı aşacaksa sulama gerekir, stres henüz yok
+ ✓ src/waterBalance.test.ts > kural motoru > yağış beklentisi sulamayı gereksiz kılar
+ ✓ src/waterBalance.test.ts > kural motoru > onaysız Kc ile öneri üretilmez
+ ✓ src/waterBalance.test.ts > kural motoru > onaysız toprak ile öneri üretilmez
+ ✓ src/waterBalance.test.ts > kural motoru > onaysız kök derinliği ile öneri üretilmez
+ ✓ src/waterBalance.test.ts > kural motoru > onaysız tükenme oranı ile öneri üretilmez
+ ✓ src/waterBalance.test.ts > kural motoru > toprak su durumu bilinmiyorsa öneri yok
+ ✓ src/waterBalance.test.ts > kural motoru > tohum toprak parametreleri taslaktır ve öneri üretmez
+ ✓ src/g3.test.ts > FAO-56 ara denklemler > Örnek 2-3: e°(24,5)=3,075; Δ(16,9)=0,122; basınç 100 m = 100,1
+ ✓ src/g3.test.ts > FAO-56 ara denklemler > rüzgâr 10 m → 2 m: 2,78 m/s → 2,08
+ ✓ src/g3.test.ts > FAO-56 ara denklemler > yılın günü: 6 Temmuz = 187
+ ✓ src/g3.test.ts > FAO-56 ara denklemler > Ra: Örnek 8 (3 Eylül, 20°S) ≈ 32,2
+ ✓ src/g3.test.ts > ET0 — FAO-56 Örnek 18 (Uccle/Brüksel, 6 Temmuz) > ET0 = 3,9 mm/gün ±0,05
+ ✓ src/g3.test.ts > ET0 — FAO-56 Örnek 18 (Uccle/Brüksel, 6 Temmuz) > ara değerler: es 1,997, ea 1,409, Rs ≈ 22,07, Rn ≈ 13,28
+ ✓ src/g3.test.ts > ET0 — diğer yollar > Rs ve nem yokken (Hargreaves + Tmin) makul aralıkta
+ ✓ src/g3.test.ts > ET0 — diğer yollar > sıcak/kuru gün daha çok su ister; negatif olmaz
+ ✓ src/g3.test.ts > ET0 — diğer yollar > Tmax < Tmin hata verir
+ ✓ src/g3.test.ts > yükselti ve GDD > 6,5 °C/km: +500 m → −3,25 °C; aşağı inince ısınır
+ ✓ src/g3.test.ts > yükselti ve GDD > GDD: kırpma (taban 10, üst 30)
+ ✓ src/g3.test.ts > don olasılığı (sentetik ensemble) > oran = Tmin ≤ Tkritik üyeler / tüm üyeler
+ ✓ src/g3.test.ts > don olasılığı (sentetik ensemble) > uçlar: hepsi / hiçbiri; sınır dahil
+ ✓ src/g3.test.ts > don olasılığı (sentetik ensemble) > NaN üyeler atılır; boş ensemble hata
+ ✓ src/g3.test.ts > don olasılığı (sentetik ensemble) > düzeyler
+ ✓ src/g3.test.ts > don olasılığı (sentetik ensemble) > onaysız eşik uyarı üretmez (kural 1); onaylı üretir
+ Test Files  2 passed (2)
+      Tests  40 passed (40)

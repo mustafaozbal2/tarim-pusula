@@ -8,6 +8,7 @@ import { importCalendarTemplates } from './calendar';
 import { importCropCatalog } from './crops';
 import { ExpoPushClient, FakePushClient, createQueue } from '@tarim/workers';
 import { OpenMeteoClient, FakeWeatherProvider } from './weather/openmeteo';
+import { corsOrigins, securityHeaders } from './security';
 import { migrate, PgDb, PgliteDb, type Db } from './db/db';
 
 async function bootstrap() {
@@ -39,8 +40,10 @@ async function bootstrap() {
   );
   // PDF yükleme base64 geldiğinden gövde sınırı varsayılandan (100 kb) yüksek.
   app.useBodyParser('json', { limit: '30mb' });
-  // Kimlik doğrulama çerezle değil Bearer jetonla olduğundan CORS CSRF riski doğurmaz; üretimde CORS_ORIGINS ile daraltılır.
-  app.enableCors({ origin: process.env['CORS_ORIGINS']?.split(',') ?? true });
+  app.disable('x-powered-by');
+  app.use(securityHeaders({ hsts: process.env['NODE_ENV'] === 'production' }));
+  // Kimlik doğrulama çerezle değil Bearer jetonla olduğundan CORS CSRF riski doğurmaz; üretimde CORS_ORIGINS zorunlu.
+  app.enableCors({ origin: corsOrigins(process.env) });
   await app.listen(Number(process.env['PORT'] ?? 3000));
   // Fiyat toplayıcıları: boşsa kapalı. Kaynak başına tekrar çekim aralığı ve robots.txt yine uygulanır.
   const everyMin = Number(process.env['MARKET_COLLECT_INTERVAL_MIN']);

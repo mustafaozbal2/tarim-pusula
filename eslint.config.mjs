@@ -14,6 +14,7 @@ export default tseslint.config(
       '**/playwright-report/**',
       '**/next-env.d.ts',
       '**/*.config.js',
+      'apps/mobile/public/**', // servis çalışanı ve statik web dosyaları derlenmeyen düz JS
       'docs/**',
       'data/**',
     ],

@@ -8,7 +8,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "verify": "turbo run lint typecheck test && prettier --check ."
+    "verify": "turbo run lint typecheck test && prettier --check .",
+    "audit:deps": "pnpm audit --prod"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",

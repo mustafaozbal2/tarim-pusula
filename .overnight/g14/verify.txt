@@ -1,0 +1,520 @@
+$ turbo run lint typecheck test && prettier --check .
+
+   • turbo 2.11.9
+   • Packages in scope: @tarim/agro-core, @tarim/api, @tarim/device-sim, @tarim/e2e, @tarim/mobile, @tarim/panel, @tarim/schemas, @tarim/ui, @tarim/workers
+   • Running lint, typecheck, test in 9 packages
+   • Remote caching disabled
+
+@tarim/device-sim:typecheck: cache hit, replaying logs f10cd7e20a6f0b64
+@tarim/schemas:lint: cache hit, replaying logs c288131f68267e20
+@tarim/device-sim:typecheck: $ tsc -p .
+@tarim/schemas:lint: $ eslint .
+@tarim/mobile:lint: cache hit, replaying logs 6a609ebb37150a48
+@tarim/workers:test: cache hit, replaying logs 4a1e26e4a1c4ac21
+@tarim/device-sim:test: cache hit, replaying logs a914cfdf753c0f06
+@tarim/schemas:test: cache hit, replaying logs 4b1be7194f7904ab
+@tarim/mobile:lint: $ eslint .
+@tarim/mobile:test: cache hit, replaying logs 1c47301ec621daf2
+@tarim/workers:test: $ vitest run --passWithNoTests
+@tarim/workers:test: 
+@tarim/workers:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/apps/workers[39m
+@tarim/workers:test: 
+@tarim/workers:test:  [32m✓[39m src/index.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+@tarim/workers:test: 
+@tarim/workers:test: [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+@tarim/workers:test: [2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+@tarim/workers:test: [2m   Start at [22m 04:19:22
+@tarim/workers:test: [2m   Duration [22m 602ms[2m (transform 59%, tests 21%, import 15%, worker 4%)[22m
+@tarim/workers:test: 
+@tarim/e2e:lint: cache hit, replaying logs 9ea225043bf85fb1
+@tarim/mobile:typecheck: cache hit, replaying logs 6ecde6af21fd0784
+@tarim/schemas:typecheck: cache hit, replaying logs 1d0f70fee6a470f0
+@tarim/device-sim:test: $ vitest run --passWithNoTests
+@tarim/device-sim:test: 
+@tarim/device-sim:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/packages/device-sim[39m
+@tarim/device-sim:test: 
+@tarim/device-sim:test:  [32m✓[39m src/index.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 148[2mms[22m[39m
+@tarim/device-sim:test: 
+@tarim/device-sim:test: [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+@tarim/device-sim:test: [2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+@tarim/device-sim:test: [2m   Start at [22m 07:51:44
+@tarim/device-sim:test: [2m   Duration [22m 929ms[2m (transform 57%, tests 31%, import 10%, worker 3%)[22m
+@tarim/device-sim:test: 
+@tarim/schemas:test: $ vitest run --passWithNoTests
+@tarim/schemas:test: 
+@tarim/schemas:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/packages/schemas[39m
+@tarim/schemas:test: 
+@tarim/schemas:test:  [32m✓[39m src/index.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+@tarim/schemas:test: 
+@tarim/schemas:test: [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+@tarim/schemas:test: [2m      Tests [22m [1m[32m19 passed[39m[22m[90m (19)[39m
+@tarim/schemas:test: [2m   Start at [22m 08:18:36
+@tarim/schemas:test: [2m   Duration [22m 2.03s[2m (transform 51%, import 46%, tests 3%, worker 1%)[22m
+@tarim/schemas:test: 
+@tarim/panel:lint: cache miss, executing 854957c30607e858
+@tarim/mobile:test: $ vitest run --passWithNoTests
+@tarim/mobile:test: 
+@tarim/mobile:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/apps/mobile[39m
+@tarim/mobile:test: 
+@tarim/mobile:test:  [32m✓[39m src/g8.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g3.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g10.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g11.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g14.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g7.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g5.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/app.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g13.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+@tarim/mobile:test:  [32m✓[39m src/g2.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+@tarim/mobile:test: 
+@tarim/mobile:test: [2m Test Files [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+@tarim/mobile:test: [2m      Tests [22m [1m[32m90 passed[39m[22m[90m (90)[39m
+@tarim/mobile:test: [2m   Start at [22m 12:12:10
+@tarim/mobile:test: [2m   Duration [22m 1.72s[2m (transform 75%, import 17%, tests 5%, worker 3%)[22m
+@tarim/mobile:test: 
+@tarim/mobile:typecheck: $ tsc -p .
+@tarim/schemas:typecheck: $ tsc -p .
+@tarim/e2e:lint: $ eslint .
+@tarim/panel:typecheck: cache miss, executing 26745530ea7ca388
+@tarim/panel:test: cache miss, executing 0b0ed9a5a3ce4792
+@tarim/api:typecheck: cache hit, replaying logs a901aa8dea483af8
+@tarim/api:lint: cache hit, replaying logs dd99b6b17b44cd9b
+@tarim/api:lint: $ eslint .
+@tarim/api:typecheck: $ tsc -p .
+@tarim/api:test: cache hit, replaying logs ab15d2c90a5c4d22
+@tarim/e2e:typecheck: cache hit, replaying logs d55128d1d1493176
+@tarim/workers:typecheck: cache hit, replaying logs 88aebe06a02151e9
+@tarim/api:test: $ vitest run --passWithNoTests
+@tarim/api:test: 
+@tarim/api:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/apps/api[39m
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g4.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321120101: Tarım Pusula giriş kodunuz: 201153
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/pusula/g7.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321170101: Tarım Pusula giriş kodunuz: 497451
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g8.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321180001: Tarım Pusula giriş kodunuz: 123093
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g4.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321120102: Tarım Pusula giriş kodunuz: 554473
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g4.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321120103: Tarım Pusula giriş kodunuz: 593593
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/pusula/g7.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321170102: Tarım Pusula giriş kodunuz: 131531
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g8.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321180002: Tarım Pusula giriş kodunuz: 438522
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g10.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321100001: Tarım Pusula giriş kodunuz: 107176
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g4.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321120104: Tarım Pusula giriş kodunuz: 524714
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/pusula/g7.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321170103: Tarım Pusula giriş kodunuz: 487444
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g8.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321180003: Tarım Pusula giriş kodunuz: 859018
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g8.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321180004: Tarım Pusula giriş kodunuz: 572339
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/pusula/g7.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321170104: Tarım Pusula giriş kodunuz: 295548
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321111111: Tarım Pusula giriş kodunuz: 252001
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g10.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321100002: Tarım Pusula giriş kodunuz: 705387
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/weather/g3.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321110101: Tarım Pusula giriş kodunuz: 237733
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g8.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321180005: Tarım Pusula giriş kodunuz: 796609
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g10.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321100003: Tarım Pusula giriş kodunuz: 415020
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/weather/g3.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321110102: Tarım Pusula giriş kodunuz: 312347
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905322222222: Tarım Pusula giriş kodunuz: 005244
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905329999999: Tarım Pusula giriş kodunuz: 660002
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g11.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321200001: Tarım Pusula giriş kodunuz: 288442
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g11.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321200002: Tarım Pusula giriş kodunuz: 302043
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2myanlış kod 401; 5 yanlış denemeden sonra doğru kod da geçmez
+@tarim/api:test: [22m[39m[sahte-sms] +905323333333: Tarım Pusula giriş kodunuz: 053443
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g6.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130101: Tarım Pusula giriş kodunuz: 945327
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g11.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321200003: Tarım Pusula giriş kodunuz: 310692
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130001: Tarım Pusula giriş kodunuz: 414996
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g11.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321200004: Tarım Pusula giriş kodunuz: 976600
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g4.test.ts[2m > [22m[2mduyuru ekleme yetkisi[2m > [22m[2mkurum yöneticisi yalnız kendi duyurularını listeler
+@tarim/api:test: [22m[39m[sahte-sms] +905321120105: Tarım Pusula giriş kodunuz: 283020
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mkod bir kez kullanılır ve süresi dolar
+@tarim/api:test: [22m[39m[sahte-sms] +905324444444: Tarım Pusula giriş kodunuz: 677681
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g6.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130102: Tarım Pusula giriş kodunuz: 342216
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130002: Tarım Pusula giriş kodunuz: 209407
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g6.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130103: Tarım Pusula giriş kodunuz: 094853
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mkod bir kez kullanılır ve süresi dolar
+@tarim/api:test: [22m[39m[sahte-sms] +905324444444: Tarım Pusula giriş kodunuz: 940767
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mkod isteği sınırlıdır (429)
+@tarim/api:test: [22m[39m[sahte-sms] +905325555555: Tarım Pusula giriş kodunuz: 734474
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130003: Tarım Pusula giriş kodunuz: 821615
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mkod isteği sınırlıdır (429)
+@tarim/api:test: [22m[39m[sahte-sms] +905325555555: Tarım Pusula giriş kodunuz: 003551
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g2.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321110001: Tarım Pusula giriş kodunuz: 527619
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mkod isteği sınırlıdır (429)
+@tarim/api:test: [22m[39m[sahte-sms] +905325555555: Tarım Pusula giriş kodunuz: 794720
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mkod isteği sınırlıdır (429)
+@tarim/api:test: [22m[39m[sahte-sms] +905325555555: Tarım Pusula giriş kodunuz: 465779
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mkod isteği sınırlıdır (429)
+@tarim/api:test: [22m[39m[sahte-sms] +905325555555: Tarım Pusula giriş kodunuz: 479154
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g2.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321110002: Tarım Pusula giriş kodunuz: 822504
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130004: Tarım Pusula giriş kodunuz: 005306
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g2.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321110003: Tarım Pusula giriş kodunuz: 350227
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mgiriş (SMS-OTP)[2m > [22m[2mjetonsuz / sahte jetonlu istek 401; çıkış jetonu geçersiz kılar
+@tarim/api:test: [22m[39m[sahte-sms] +905326666666: Tarım Pusula giriş kodunuz: 876695
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/weather/g3.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 12527[2mms[22m[39m
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321130005: Tarım Pusula giriş kodunuz: 335330
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts[2m > [22m[2mpanel girişi (ikinci adım)[2m > [22m[2myalnız telefon girişi yetmez: ikinci adım yoksa 403
+@tarim/api:test: [22m[39m[sahte-sms] +905321130010: Tarım Pusula giriş kodunuz: 071637
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts[2m > [22m[2mpanel girişi (ikinci adım)[2m > [22m[2myanlış kod reddedilir, 5 hatadan sonra kilitlenir; kilitliyken doğru kod da geçmez
+@tarim/api:test: [22m[39m[sahte-sms] +905321130011: Tarım Pusula giriş kodunuz: 189586
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g5.test.ts[2m > [22m[2mpanel girişi (ikinci adım)[2m > [22m[2maynı kod tekrar kullanılamaz; onaylı kurulum yeniden başlatılamaz
+@tarim/api:test: [22m[39m[sahte-sms] +905321130003: Tarım Pusula giriş kodunuz: 547549
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/g10.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 13032[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/g4.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 13044[2mms[22m[39m
+@tarim/api:test: [90mstdout[2m | src/g12.test.ts[2m > [22m[2myönetici ucu[2m > [22m[2mçiftçi 403, MFA’sız yönetici 403, MFA’lı yönetici 200 ve sonuç raporu alır
+@tarim/api:test: [22m[39m[sahte-sms] +905321120001: Tarım Pusula giriş kodunuz: 636260
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/g6.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 13628[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m doküman yükleme [2m(4)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m PDF yüklenir ve sayfa sayfa okunur; PDF olmayan ve metinsiz dosya 400[33m 591[2mms[22m[39m
+@tarim/api:test: [90mstdout[2m | src/g12.test.ts[2m > [22m[2myönetici ucu[2m > [22m[2mçiftçi 403, MFA’sız yönetici 403, MFA’lı yönetici 200 ve sonuç raporu alır
+@tarim/api:test: [22m[39m[sahte-sms] +905321120002: Tarım Pusula giriş kodunuz: 440565
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mKVKK[2m > [22m[2mrıza geçmişi eklenir, geri çekme yeni kayıttır
+@tarim/api:test: [22m[39m[sahte-sms] +905327777777: Tarım Pusula giriş kodunuz: 474837
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/g5.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 13717[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/g11.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 13768[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m veri cüzdanı: paylaşım izinleri [2m(5)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m paylaşım → alıcı ilçe düzeyinde özet görür (koordinat yok) → geri alınca kaybolur[33m 331[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/g12.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 13767[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m docx çıkarma [2m(4)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m zip bombası: açılmış boyut sınırı aşılırsa reddedilir[33m 442[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m biçim tanıma [2m(1)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m imzaya bakar: PDF, docx, txt; eski .doc ve uzantısı yanlış zip reddedilir[33m 657[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m klasörden uçtan uca içe aktarma [2m(6)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m her dosya künyesiyle taslak girer; künyesiz/bozuk dosya sebebiyle atlanır[33m 309[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m yönetici ucu [2m(1)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m çiftçi 403, MFA’sız yönetici 403, MFA’lı yönetici 200 ve sonuç raporu alır[33m 394[2mms[22m[39m
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mKVKK[2m > [22m[2mhesap silme onay ister; sonra veri, oturum ve tarlalar gider; denetim satırları kalır
+@tarim/api:test: [22m[39m[sahte-sms] +905328888888: Tarım Pusula giriş kodunuz: 950990
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/api.test.ts[2m > [22m[2mKVKK[2m > [22m[2mhesap silme onay ister; sonra veri, oturum ve tarlalar gider; denetim satırları kalır
+@tarim/api:test: [22m[39m[sahte-sms] +905328888888: Tarım Pusula giriş kodunuz: 700534
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/api.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 14133[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/g14.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 362[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m G14 gizli anahtar taraması [2m(3)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m depoda izlenen hiçbir dosyada gizli anahtar yok; .env izlenmiyor[33m 347[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/auth/totp.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/g8.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 14644[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m gecikme raporu [2m(1)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m yönetici gecikme dağılımını görür; çiftçi göremez[33m 533[2mms[22m[39m
+@tarim/api:test: [90mstdout[2m | src/g2.test.ts[2m > [22m[2mYakınım yapsın[2m > [22m[2mkod tahmini sınırlanır: saatte 10 yanlış denemeden sonra 429
+@tarim/api:test: [22m[39m[sahte-sms] +905321110009: Tarım Pusula giriş kodunuz: 111365
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/g2.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 15086[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m Bitki Bilgi Paketi [2m(8)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m ONAYSIZ Kc ile su ihtiyacı/uyarı üretilmez, yüksek ET0 olsa bile[33m 700[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/health.controller.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@tarim/api:test: [90mstdout[2m | src/pusula/g7.test.ts[2m > [22m[2msağlayıcı[2m > [22m[2manahtar yokken varsayılan sahte sağlayıcıyla çalışır (kural 5)
+@tarim/api:test: [22m[39m[sahte-sms] +905321170199: Tarım Pusula giriş kodunuz: 675859
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/db/rls.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 3388[2mms[22m[39m
+@tarim/api:test: [90mstdout[2m | src/g13.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321300001: Tarım Pusula giriş kodunuz: 857302
+@tarim/api:test: 
+@tarim/api:test: [90mstdout[2m | src/g13.test.ts
+@tarim/api:test: [22m[39m[sahte-sms] +905321300002: Tarım Pusula giriş kodunuz: 643472
+@tarim/api:test: 
+@tarim/api:test:  [32m✓[39m src/g13.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2963[2mms[22m[39m
+@tarim/api:test:  [32m✓[39m src/pusula/g7.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 19939[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m sağlayıcı [2m(4)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m anahtar yokken varsayılan sahte sağlayıcıyla çalışır (kural 5)[33m 3500[2mms[22m[39m
+@tarim/api:test:    [32m✓[39m değerlendirme seti (otomatik koşucu) [2m(1)[22m
+@tarim/api:test:      [33m[2m✓[22m[39m 200+ soru; güvenlik kategorileri %100, genel başarı >= %90[33m 3484[2mms[22m[39m
+@tarim/api:test: 
+@tarim/api:test: [2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+@tarim/api:test: [2m      Tests [22m [1m[32m264 passed[39m[22m[90m (264)[39m
+@tarim/api:test: [2m   Start at [22m 12:12:10
+@tarim/api:test: [2m   Duration [22m 25.55s[2m (tests 74%, import 19%, transform 6%)[22m
+@tarim/api:test: 
+@tarim/workers:lint: cache hit, replaying logs 53db09b7a448e3c1
+@tarim/agro-core:typecheck: cache hit, replaying logs 031724b8d0537f8e
+@tarim/e2e:typecheck: $ tsc -p .
+@tarim/workers:typecheck: $ tsc -p .
+@tarim/workers:lint: $ eslint .
+@tarim/agro-core:typecheck: $ tsc -p .
+@tarim/ui:test: cache hit, replaying logs c8a994b135eb2e5f
+@tarim/ui:test: $ vitest run --passWithNoTests
+@tarim/ui:test: 
+@tarim/ui:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/packages/ui[39m
+@tarim/ui:test: 
+@tarim/ui:test:  [32m✓[39m src/ui.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@tarim/ui:test: 
+@tarim/ui:test: [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+@tarim/ui:test: [2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+@tarim/ui:test: [2m   Start at [22m 00:59:21
+@tarim/ui:test: [2m   Duration [22m 574ms[2m (transform 61%, import 25%, worker 7%, tests 6%)[22m
+@tarim/ui:test: 
+@tarim/panel:lint: $ eslint .
+@tarim/agro-core:lint: cache hit, replaying logs 9999891207057d2c
+@tarim/ui:lint: cache hit, replaying logs 3c9b4d4796e3e88a
+@tarim/agro-core:lint: $ eslint .
+@tarim/ui:lint: $ eslint .
+@tarim/device-sim:lint: cache hit, replaying logs 899bc49f1b925b8b
+@tarim/ui:typecheck: cache hit, replaying logs 0dc272ea4fa0ac65
+@tarim/agro-core:test: cache hit, replaying logs bd22d60ad7a7cb8f
+@tarim/e2e:test: cache hit, replaying logs 419852186e7f7741
+@tarim/ui:typecheck: $ tsc -p .
+@tarim/agro-core:test: $ vitest run --passWithNoTests
+@tarim/agro-core:test: 
+@tarim/agro-core:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/packages/agro-core[39m
+@tarim/agro-core:test: 
+@tarim/agro-core:test:  [32m✓[39m src/rag.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/market.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/geo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/waterBalance.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/cropPack.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/pusula.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/kc.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/g3.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/g4.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/suitability.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/ndvi.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+@tarim/agro-core:test:  [32m✓[39m src/review.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@tarim/agro-core:test: 
+@tarim/agro-core:test: [2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+@tarim/agro-core:test: [2m      Tests [22m [1m[32m173 passed[39m[22m[90m (173)[39m
+@tarim/agro-core:test: [2m   Start at [22m 12:03:19
+@tarim/agro-core:test: [2m   Duration [22m 2.84s[2m (transform 64%, import 31%, tests 4%, worker 2%)[22m
+@tarim/agro-core:test: 
+@tarim/device-sim:lint: $ eslint .
+@tarim/e2e:test: $ playwright test
+@tarim/e2e:test: [WebServer] e2e hazır: web 8111, api 3111
+@tarim/e2e:test: [WebServer] ▲ Next.js 16.4.2 (Turbopack)
+@tarim/e2e:test: [WebServer] ✓ Running next.config.mjs took 54ms
+@tarim/e2e:test: [WebServer] 
+@tarim/e2e:test: [WebServer]   Creating an optimized production build ...
+@tarim/e2e:test: [WebServer] ✓ Compiled successfully in 3.6s
+@tarim/e2e:test: [WebServer]   Running TypeScript ...
+@tarim/e2e:test: [WebServer]   Finished TypeScript in 3.7s ...
+@tarim/e2e:test: [WebServer]   Collecting page data using 9 workers ...
+@tarim/e2e:test: [WebServer]   Generating static pages using 9 workers (0/8) ...
+@tarim/e2e:test: [WebServer]   Generating static pages using 9 workers (2/8) 
+@tarim/e2e:test: [WebServer]   Generating static pages using 9 workers (4/8) 
+@tarim/e2e:test: [WebServer]   Generating static pages using 9 workers (6/8) 
+@tarim/e2e:test: [WebServer] ✓ Generating static pages using 9 workers (8/8) in 1093ms
+@tarim/e2e:test: [WebServer]   Finalizing page optimization ...
+@tarim/e2e:test: [WebServer] 
+@tarim/e2e:test: [WebServer] Route (app)
+@tarim/e2e:test: [WebServer] ┌ ○ /
+@tarim/e2e:test: [WebServer] ├ ○ /_not-found
+@tarim/e2e:test: [WebServer] ├ ○ /denetim
+@tarim/e2e:test: [WebServer] ├ ○ /duyurular
+@tarim/e2e:test: [WebServer] ├ ○ /giris
+@tarim/e2e:test: [WebServer] ├ ○ /onay
+@tarim/e2e:test: [WebServer] └ ○ /paketler
+@tarim/e2e:test: [WebServer] 
+@tarim/e2e:test: [WebServer] 
+@tarim/e2e:test: [WebServer] ○  (Static)  prerendered as static content
+@tarim/e2e:test: [WebServer] 
+@tarim/e2e:test: [WebServer] (node:24244) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+@tarim/e2e:test: [WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+@tarim/e2e:test: [WebServer] ▲ Next.js 16.4.2
+@tarim/e2e:test: [WebServer] - Local:         http://127.0.0.1:8112
+@tarim/e2e:test: [WebServer] - Network:       http://127.0.0.1:8112
+@tarim/e2e:test: [WebServer] ✓ Ready in 284ms
+@tarim/e2e:test: [WebServer] ✓ Running next.config.mjs took 44ms
+@tarim/e2e:test: $ expo export --platform web
+@tarim/e2e:test: Expo Autolinking module resolution enabled
+@tarim/e2e:test: Starting Metro Bundler
+@tarim/e2e:test: 
+@tarim/e2e:test: Web Bundled 2772ms node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\entry.js (1088 modules)
+@tarim/e2e:test: 
+@tarim/e2e:test: › Assets (25):
+@tarim/e2e:test: ..\..\node_modules\.pnpm\@expo-google-fonts+manrope@0.4.2\node_modules\@expo-google-fonts\manrope\200ExtraLight\Manrope_200ExtraLight.ec4a6e976cec7c2fa377e9f24e292338.ttf (97KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\@expo-google-fonts+manrope@0.4.2\node_modules\@expo-google-fonts\manrope\300Light\Manrope_300Light.7c8bdfd65f2d0d081069e438f953359f.ttf (97KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\@expo-google-fonts+manrope@0.4.2\node_modules\@expo-google-fonts\manrope\400Regular\Manrope_400Regular.8ca1a84037fdb644723129315c390ad9.ttf (97KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\@expo-google-fonts+manrope@0.4.2\node_modules\@expo-google-fonts\manrope\500Medium\Manrope_500Medium.de7b3026c153d63d5732582887fecbf4.ttf (97KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\@expo-google-fonts+manrope@0.4.2\node_modules\@expo-google-fonts\manrope\600SemiBold\Manrope_600SemiBold.80cb1b1a8ba262608706cb7f2b017835.ttf (97KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\@expo-google-fonts+manrope@0.4.2\node_modules\@expo-google-fonts\manrope\700Bold\Manrope_700Bold.8e8fe178c0f147b91ed2a2b3097ad8a4.ttf (97KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\@expo-google-fonts+manrope@0.4.2\node_modules\@expo-google-fonts\manrope\800ExtraBold\Manrope_800ExtraBold.f8f555c6d9efacc1b0af255e815a97da.ttf (98KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\arrow_down.017bc6ba3fc25503e5eb5e53826d48a8.png (9.5KB)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\error.d1ea1496f9057eb392d5bbf3732a61b7.png (469B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\file.19eeb73b9593a38f8e9f418337fc7d10.png (138B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\forward.d8b800c443b8972542883e0b9de2bdc6.png (188B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\pkg.ab19f4cbc543357183a20571f68380a3.png (364B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\react-navigation\elements\back-icon-mask.0a328cd9c1afd0afe8e3b1ec5165b1b4.png (653B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\react-navigation\elements\back-icon.35ba0eaec5a4f5ed12ca16fabeae451d.png (207B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\react-navigation\elements\clear-icon.c94f6478e7ae0cdd9f15de1fcb9e5e55.png (4 variations | 425B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\react-navigation\elements\close-icon.808e1b1b9b53114ec2838071a7e6daa7.png (4 variations | 235B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\react-navigation\elements\search-icon.286d67d3f74808a60a78d3ebf1a5fb57.png (928B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\sitemap.412dd9275b6b48ad28f5e3d81bb1f626.png (465B)
+@tarim/e2e:test: ..\..\node_modules\.pnpm\expo-router@58.0.24_08ea079e664d5c683875e14532b27974\node_modules\expo-router\assets\unmatched.20e71bdf79e3a97bf55fd9e164041578.png (4.8KB)
+@tarim/e2e:test: 
+@tarim/e2e:test: › web bundles (21):
+@tarim/e2e:test: _expo/static/css/maplibre-gl-dc3f9f1339c2c312db0e4c8f314a98f9.css (71KB)
+@tarim/e2e:test: _expo/static/js/web/__common-1f57ab70b6922383827576c5316221fd.js (662KB)
+@tarim/e2e:test: _expo/static/js/web/__expo-metro-runtime-97703ae02682710149335928b974f18d.js (10KB)
+@tarim/e2e:test: _expo/static/js/web/_layout-2a4bbb200450a5308423e024720e9416.js (358B)
+@tarim/e2e:test: _expo/static/js/web/_layout-8c1ce5b4d67833193cd2fc753b527d74.js (1.3KB)
+@tarim/e2e:test: _expo/static/js/web/_layout-ba78559c8f1d5cb8d844116f069e4095.js (117KB)
+@tarim/e2e:test: _expo/static/js/web/entry-68bca99965739525872cbbf081d03de1.js (1.1MB)
+@tarim/e2e:test: _expo/static/js/web/giris-10a21dc5b799e9cfb597eaea31581f71.js (1.9KB)
+@tarim/e2e:test: _expo/static/js/web/gps-ec5068bf2777ee5382b2c3682ed3d122.js (15KB)
+@tarim/e2e:test: _expo/static/js/web/harita-49de0c1ab996014318d8675db8f3b397.js (1.1MB)
+@tarim/e2e:test: _expo/static/js/web/index-17d21835c57f619db1be8705ecb2dcd7.js (1.4KB)
+@tarim/e2e:test: _expo/static/js/web/index-5ffc5c4fbf1210ef817c09bd5ce52393.js (63KB)
+@tarim/e2e:test: _expo/static/js/web/index-e22b973c4e3fdb4305579c95ac330fb8.js (8.3KB)
+@tarim/e2e:test: _expo/static/js/web/koy-6f5c5afa3a2a2ba36c8af210390ceaae.js (3.7KB)
+@tarim/e2e:test: _expo/static/js/web/pazar-b40e78b4fd9f5faa6f5e067eb279a511.js (6.8KB)
+@tarim/e2e:test: _expo/static/js/web/soru-sor-0c9fa8c316b43bef1018d6d3743e03d4.js (19KB)
+@tarim/e2e:test: _expo/static/js/web/sulama-19828f25182d64f789d4ccac6e254400.js (9.9KB)
+@tarim/e2e:test: _expo/static/js/web/tarlalarim-20fed9c6564029d5fd1a89a04c326459.js (3KB)
+@tarim/e2e:test: _expo/static/js/web/urun-f4821d4675f3faffc5a1a8f8e2c84aa0.js (4.7KB)
+@tarim/e2e:test: _expo/static/js/web/yakin-91aa561f2a1a8c341d923505077e28e2.js (2.3KB)
+@tarim/e2e:test: _expo/static/js/web/yakin-kod-241950f4dbfbc5ec156ab01f59b296e3.js (1.4KB)
+@tarim/e2e:test: 
+@tarim/e2e:test: › Files (2):
+@tarim/e2e:test: index.html (1.6KB)
+@tarim/e2e:test: metadata.json (49B)
+@tarim/e2e:test: 
+@tarim/e2e:test: Exported: dist
+@tarim/e2e:test: 
+@tarim/e2e:test: Running 19 tests using 1 worker
+@tarim/e2e:test: 
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000001: Tarım Pusula giriş kodunuz: 323534
+@tarim/e2e:test:   ok  1 tests\bugun.spec.ts:29:1 › Bugün: gerçek API verisi, onaysız eşikte uyarı yok, onaylıysa don kartı (1.9s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000002: Tarım Pusula giriş kodunuz: 172264
+@tarim/e2e:test:   ok  2 tests\bugun.spec.ts:63:1 › Bugün: sunucuya ulaşılamazsa son bilgi ve "son güncelleme" görünür (2.1s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000003: Tarım Pusula giriş kodunuz: 982295
+@tarim/e2e:test:   ok  3 tests\konum.spec.ts:77:3 › konum akışı (web) › 1) Tarladayım: GPS konumu, harita onayı, ürün, kayıt (3.8s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000004: Tarım Pusula giriş kodunuz: 889634
+@tarim/e2e:test:   ok  4 tests\konum.spec.ts:105:3 › konum akışı (web) › 1b) Tarladayım: izin reddedilirse köy listesine düşer (1.6s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000005: Tarım Pusula giriş kodunuz: 219654
+@tarim/e2e:test:   ok  5 tests\konum.spec.ts:116:3 › konum akışı (web) › 2) Köyümü seçeyim: il > ilçe > köy, harita onayı, kayıt (3.7s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000006: Tarım Pusula giriş kodunuz: 297498
+@tarim/e2e:test:   ok  6 tests\konum.spec.ts:150:3 › konum akışı (web) › 3) Haritada göstereyim: dokun, işaret, evet, kayıt (3.4s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000007: Tarım Pusula giriş kodunuz: 531943
+@tarim/e2e:test:   ok  7 tests\konum.spec.ts:171:3 › konum akışı (web) › 3b) "Hayır, düzelt": işaret kalkar, yeniden dokununca yeni nokta (1.5s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000008: Tarım Pusula giriş kodunuz: 141633
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000009: Tarım Pusula giriş kodunuz: 565026
+@tarim/e2e:test:   ok  8 tests\konum.spec.ts:187:3 › konum akışı (web) › 4) Yakınım yapsın: kod, yakın ekler, çiftçi onaylar, tarla çiftçinin olur (6.1s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000010: Tarım Pusula giriş kodunuz: 522138
+@tarim/e2e:test:   ok  9 tests\konum.spec.ts:238:3 › konum akışı (web) › 4b) Yakınım yapsın: yanlış kod reddedilir (2.7s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000011: Tarım Pusula giriş kodunuz: 232513
+@tarim/e2e:test:   ok 10 tests\konum.spec.ts:251:3 › konum akışı (web) › 5) Çevrimdışı: kayıt sıraya alınır, bağlantı gelince bir kez gönderilir (3.4s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327009999: Tarım Pusula giriş kodunuz: 955110
+@tarim/e2e:test:   ok 11 tests\konum.spec.ts:281:3 › konum akışı (web) › giriş: telefon + SMS kodu (1.9s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000012: Tarım Pusula giriş kodunuz: 962201
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000013: Tarım Pusula giriş kodunuz: 175227
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000013: Tarım Pusula giriş kodunuz: 688040
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000014: Tarım Pusula giriş kodunuz: 356688
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000014: Tarım Pusula giriş kodunuz: 314580
+@tarim/e2e:test:   ok 12 tests\panel.spec.ts:39:1 › duyuru yayınla > uzman onayla > mobilde görünür (4.8s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000015: Tarım Pusula giriş kodunuz: 593301
+@tarim/e2e:test:   ok 13 tests\panel.spec.ts:117:1 › başka ilin duyurusu mobilde görünmez (917ms)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000016: Tarım Pusula giriş kodunuz: 133881
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000017: Tarım Pusula giriş kodunuz: 295920
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000017: Tarım Pusula giriş kodunuz: 072027
+@tarim/e2e:test:   ok 14 tests\panel.spec.ts:138:1 › yetkisiz rol sayfayı göremez (1.3s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000018: Tarım Pusula giriş kodunuz: 106096
+@tarim/e2e:test:   ok 15 tests\pazar.spec.ts:7:1 › Pazar: fiyat gelmeden uydurma yok; toplayıcıdan sonra kaynaklı fiyat, tarih, mesafe (1.9s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000019: Tarım Pusula giriş kodunuz: 949612
+@tarim/e2e:test:   ok 16 tests\pusula.spec.ts:30:1 › Soru sor: ilaç dozu istenirse reddedilir ve BKÜ’ye yönlendirir (1.1s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000020: Tarım Pusula giriş kodunuz: 735925
+@tarim/e2e:test:   ok 17 tests\pusula.spec.ts:41:1 › Soru sor: kaynağı olmayan soruda uydurma yok, uzmana sorulur (1.1s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000021: Tarım Pusula giriş kodunuz: 007138
+@tarim/e2e:test:   ok 18 tests\sulama.spec.ts:24:1 › Sulama: onay iste, komut cihaza gitsin, onay gelsin, durdur (2.1s)
+@tarim/e2e:test: [WebServer] [sahte-sms] +905327000022: Tarım Pusula giriş kodunuz: 961364
+@tarim/e2e:test:   ok 19 tests\sulama.spec.ts:44:1 › Sulama: vazgeçersen hiçbir komut gitmez (1.5s)
+@tarim/e2e:test: 
+@tarim/e2e:test:   19 passed (1.6m)
+@tarim/panel:typecheck: $ tsc -p .
+@tarim/panel:test: $ vitest run --passWithNoTests
+@tarim/panel:test: 
+@tarim/panel:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90mD:/TarimPusula/apps/panel[39m
+@tarim/panel:test: 
+@tarim/panel:test:  [32m✓[39m app/title.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+@tarim/panel:test:  [32m✓[39m app/lib/announcement.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@tarim/panel:test: 
+@tarim/panel:test: [2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+@tarim/panel:test: [2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+@tarim/panel:test: [2m   Start at [22m 12:14:18
+@tarim/panel:test: [2m   Duration [22m 498ms[2m (import 50%, transform 41%, worker 4%, tests 4%)[22m
+@tarim/panel:test: 
+
+ Tasks:    27 successful, 27 total
+Cached:    24 cached, 27 total
+  Time:    2.243s 
+
+Checking formatting...
+All matched files use Prettier code style!
