@@ -1,0 +1,10 @@
+
+=== 2026-10-20T07:06:39 ===
+G5 bitti ve k+Âk `pnpm run verify` hatas¦-z ge+ðti (27 g+Ârev, 14 Playwright testi dahil). De¦þi+þiklikler `dev` dal¦-nda `8695080` olarak commit'lendi.
+
+- **Giri+þ:** Panel rolleri telefon SMS koduna ek olarak do¦þrulay¦-c¦- uygulama kodu (TOTP) ister. Kodlar RFC test vekt+Ârleriyle do¦þruland¦-. Ayn¦- kod ikinci kez kullan¦-lamaz, 5 hatada 5 dakika kilit var.
+- **Panel:** Next.js panelinde duyuru yazma, il/il+ðe/+-r+-n hedefi se+ðme, uzman onay kuyru¦þu, bitki paketi ve evre onay¦-, denetim sayfas¦- var. Men+- rol+-ne g+Âre de¦þi+þiyor, yetkisiz rol sayfa i+ðeri¦þini hi+ð g+Ârm+-yor.
+- **Onay kurallar¦-:** Onay i+þlemleri audit_log'a d+-+þ+-yor. Evre giri+þinde kaynak zorunlu, giren ki+þi kendi girdi¦þini onaylayam¦-yor. Kurum y+Âneticisi kendi duyurusunu onaylayam¦-yor.
+- **Mobil:** Bug+-n ekran¦-na Duyurular kart¦- eklendi (kaynak, tarih, "Neden?" metni, onays¦-zsa rozet). Playwright testi +þunlar¦- do¦þruluyor: kurum yazar, uzman onaylar, mobilde g+Âr+-n+-r. Ba+þka ilin duyurusu g+Âr+-nm+-yor, yetkisiz rol giri+þe y+Ânleniyor.
+- **Yar¦-m kalanlar:** TOTP s¦-rr¦- veritaban¦-nda d+-z metin. MFA s¦-f¦-rlama, paket reddi ve duyuru d+-zenleme yok. Kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
