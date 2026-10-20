@@ -6,7 +6,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../api/src/app.module';
 import { FakeSmsProvider } from '../api/src/auth/sms';
 import { importCropCatalog } from '../api/src/crops';
-import { migrate, PgliteDb } from '../api/src/db/db';
+import { migrate, PgliteDb, systemTx } from '../api/src/db/db';
+import { FakeWeatherProvider, sampleBundle } from '../api/src/weather/openmeteo';
 
 /**
  * Uçtan uca test sunucusu: gerçek API (süreç içi Postgres + sahte SMS) ve mobil uygulamanın
@@ -34,7 +35,15 @@ async function main() {
   await migrate(db);
   await importCropCatalog(db);
   const app = await NestFactory.create(
-    AppModule.register({ db, sms, auth: { otpSecret: 'e2e' } }),
+    AppModule.register({
+      db,
+      sms,
+      auth: { otpSecret: 'e2e' },
+      // Dış ağ yok: hava sahte, ensemble üyelerinin hepsi -6 °C (don olasılığı %100).
+      weather: new FakeWeatherProvider((lat, lon) =>
+        sampleBundle(lat, lon, { memberMinC: Array.from({ length: 20 }, () => -6) }),
+      ),
+    }),
     {
       logger: false,
     },
@@ -68,6 +77,21 @@ async function main() {
       if (url.pathname === '/__e2e/user') {
         res.setHeader('content-type', 'application/json');
         res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, ...(await newUser()) }));
+        return;
+      }
+      if (url.pathname === '/__e2e/approve-frost') {
+        // Test için: Antep fıstığı paketini ve çiçeklenme eşiğini (-2 °C) "uzman onaylı" yapar.
+        await systemTx(db, async (q) => {
+          await q.query(
+            `UPDATE crop_pack_versions SET review_status = 'uzman-onayli' WHERE crop_id = 'antep-fistigi'`,
+          );
+          await q.query(
+            `INSERT INTO crop_stages(pack_id, seq, name_tr, frost_critical_c, review_status, source)
+             SELECT id, 1, 'Çiçeklenme', -2, 'uzman-onayli', 'e2e' FROM crop_pack_versions
+             WHERE crop_id = 'antep-fistigi' ON CONFLICT DO NOTHING`,
+          );
+        });
+        res.end('ok');
         return;
       }
       if (url.pathname === '/__e2e/health') {

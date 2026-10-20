@@ -42,6 +42,54 @@ export interface CropDto {
   canDriveAdvice: boolean;
 }
 
+export interface DailyDto {
+  date: string;
+  tMinC: number;
+  tMaxC: number;
+  precipMm: number | null;
+}
+
+export type FrostAssessmentDto =
+  | {
+      kind: 'frost';
+      probability: number;
+      members: number;
+      level: 'none' | 'watch' | 'warning';
+      thresholdC: number;
+      medianMinC: number;
+      minMemberC: number;
+    }
+  | { kind: 'none'; reason: 'uzman-onayi-bekliyor' | 'deger-yok'; badge: boolean };
+
+export type WaterNeedDto =
+  | { kind: 'water-need'; etcMmPerDay: number; kc: number; source?: string }
+  | { kind: 'none'; reason: 'uzman-onayi-bekliyor' | 'deger-yok'; badge: boolean };
+
+export interface TodayDto {
+  fieldId: string;
+  fieldName: string;
+  generatedAt: string;
+  weather: {
+    source: string;
+    fetchedAt: string;
+    stale: boolean;
+    elevationM: number;
+    current: { tempC: number; weatherCode: number } | null;
+    today: DailyDto;
+  };
+  et0: { mmPerDay: number; method: string };
+  waterNeed: WaterNeedDto;
+  frost: {
+    assessment: FrostAssessmentDto;
+    date: string | null;
+    dayOffset: number | null;
+    stageName: string | null;
+    unavailable: boolean;
+    source: string;
+    fetchedAt: string;
+  };
+}
+
 export interface PlaceDto {
   name: string;
   lat: number;
@@ -109,6 +157,9 @@ export function createApi(opts: ApiOptions) {
         'GET',
         `/places/villages?province=${q(province)}&district=${q(district)}${search ? `&q=${q(search)}` : ''}`,
       ),
+    today: (fieldId: string) => request<TodayDto>('GET', `/fields/${q(fieldId)}/today`),
+    registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>
+      request<{ ok: boolean }>('POST', '/me/push-token', { token, platform }),
     crops: () => request<CropDto[]>('GET', '/crops'),
     fields: () => request<FieldDto[]>('GET', '/fields'),
     createField: (f: FieldCreate) => request<FieldDto>('POST', '/fields', f),

@@ -45,7 +45,7 @@ describe('arayüz metinleri', () => {
     expect(tr.common.sampleData).toBe('Örnek veri');
     expect(tr.market.sampleNote).toContain('Örnek veri');
   });
-  it('uyarı kartında kaynak yazılıdır', () => {
-    expect(tr.today.frostSource.startsWith('Kaynak:')).toBe(true);
+  it('uyarı kartında kaynak etiketi vardır', () => {
+    expect(tr.today.frostSource).toBe('Kaynak');
   });
 });

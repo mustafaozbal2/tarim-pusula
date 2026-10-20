@@ -59,3 +59,10 @@ export const profileUpdateSchema = z.object({
 
 export const accountDeleteSchema = z.object({ confirm: z.literal('SIL') });
 export const roleGrantSchema = z.object({ role: roleSchema });
+
+/** Expo push belirteci (ExponentPushToken[...]) ve platformu. */
+export const pushTokenSchema = z.object({
+  token: z.string().min(10).max(200),
+  platform: z.enum(['ios', 'android', 'web']),
+});
+export type PushTokenInput = z.infer<typeof pushTokenSchema>;

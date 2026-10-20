@@ -11,6 +11,10 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@tarim/schemas": "workspace:*"
+    "@tarim/schemas": "workspace:*",
+    "bullmq": "^6.3.17"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2"
   }
 }

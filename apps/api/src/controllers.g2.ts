@@ -53,7 +53,7 @@ export class PlacesController {
   }
 }
 
-interface PackRow {
+export interface PackRow {
   id: string;
   version: number;
   reviewStatus: 'taslak-uzman-onayi-bekliyor' | 'uzman-onayli';
@@ -72,7 +72,7 @@ const PACK_COLS = `id, version, review_status AS "reviewStatus", kc_ini AS "kcIn
   retrieved_at AS "retrievedAt"`;
 
 /** Karar için kullanılacak sürüm: en yeni ONAYLI sürüm; yoksa en yeni (taslak) sürüm yalnız gösterim içindir. */
-async function pickPack(q: Queryable, cropId: string): Promise<PackRow | undefined> {
+export async function pickPack(q: Queryable, cropId: string): Promise<PackRow | undefined> {
   const [approved] = await q.query<PackRow>(
     `SELECT ${PACK_COLS} FROM crop_pack_versions
      WHERE crop_id = $1 AND review_status = 'uzman-onayli' ORDER BY version DESC LIMIT 1`,
@@ -86,7 +86,7 @@ async function pickPack(q: Queryable, cropId: string): Promise<PackRow | undefin
   return latest;
 }
 
-async function stagesOf(q: Queryable, packId: string): Promise<CropStage[]> {
+export async function stagesOf(q: Queryable, packId: string): Promise<CropStage[]> {
   const rows = await q.query<{
     seq: number;
     name: string;
