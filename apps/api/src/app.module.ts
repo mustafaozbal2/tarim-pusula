@@ -22,6 +22,7 @@ import { AnnouncementsController, FieldCalendarController } from './controllers.
 import { PanelController, PanelMfaController } from './controllers.g5';
 import { SuitabilityController, SupportsController, WalletController } from './decision';
 import { LibraryController } from './controllers.g6';
+import { defaultIngestDir, INGEST_DIR, IngestController } from './ingest/controller';
 import { IrrigationController } from './controllers.g8';
 import {
   MARKET_FETCH,
@@ -73,6 +74,8 @@ export interface AppOptions {
     sources?: MarketSourceConfig[];
     sleep?: (ms: number) => Promise<void>;
   };
+  /** İçerik içe aktarma klasörü. Verilmezse CONTENT_INGEST_DIR, o da yoksa <DATA_DIR>/icerik. */
+  ingestDir?: string;
   now?: () => Date;
 }
 
@@ -113,9 +116,11 @@ export class AppModule {
         SuitabilityController,
         SupportsController,
         WalletController,
+        IngestController,
       ],
       providers: [
         { provide: DB, useValue: opts.db },
+        { provide: INGEST_DIR, useValue: opts.ingestDir ?? defaultIngestDir() },
         { provide: SMS, useValue: opts.sms },
         { provide: AUTH_CONFIG, useValue: { ...defaultAuthConfig(), ...opts.auth } },
         { provide: PLACES, useFactory: () => opts.places ?? Places.load() },

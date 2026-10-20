@@ -74,7 +74,7 @@ async function hasVectorColumn(q: Queryable): Promise<boolean> {
 /** Dokümanı ve parçalarını tek işlemde kaydeder. Aynı içerik+sürüm ikinci kez girilemez (unique ihlali). */
 export async function storeDocument(
   q: Queryable,
-  userId: string,
+  userId: string | null,
   meta: DocMeta,
   pages: PageText[],
 ): Promise<{ id: string; chunks: number }> {
