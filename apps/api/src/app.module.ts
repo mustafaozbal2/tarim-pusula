@@ -34,6 +34,9 @@ import {
 } from './market/collector';
 import { MarketController, MarketJobsController } from './market/controller';
 import { MarketService } from './market/service';
+import { NdviController } from './ndvi/ndvi.controller';
+import { CopernicusNdviClient, FakeNdviProvider, type NdviProvider } from './ndvi/provider';
+import { NDVI } from './ndvi/tokens';
 import { InMemoryBroker } from '@tarim/device-sim';
 import { DEVICE_BROKER, IrrigationService } from './irrigation';
 import { Places } from './places';
@@ -62,6 +65,8 @@ export interface AppOptions {
   places?: Places;
   /** Verilmezse ağa çıkmayan sahte sağlayıcı (testler ve anahtarsız geliştirme). */
   weather?: WeatherProvider;
+  /** Verilmezse COPERNICUS_CLIENT_ID/SECRET varsa Copernicus, yoksa açıkça "örnek" işaretli sahte sağlayıcı. */
+  ndvi?: NdviProvider;
   queue?: NotificationQueue;
   push?: PushClient;
   /** Verilmezse ANTHROPIC_API_KEY varsa Claude, yoksa ağa çıkmayan sahte sağlayıcı. */
@@ -86,6 +91,14 @@ function defaultLlm(): LlmProvider {
     : new FakeLlmProvider();
 }
 
+function defaultNdvi(): NdviProvider {
+  const clientId = process.env['COPERNICUS_CLIENT_ID'];
+  const clientSecret = process.env['COPERNICUS_CLIENT_SECRET'];
+  return clientId && clientSecret
+    ? new CopernicusNdviClient({ clientId, clientSecret })
+    : new FakeNdviProvider();
+}
+
 @Module({})
 export class AppModule {
   static register(opts: AppOptions): DynamicModule {
@@ -102,6 +115,7 @@ export class AppModule {
         CropsController,
         NearbyController,
         TodayController,
+        NdviController,
         PushTokenController,
         JobsController,
         FieldCalendarController,
@@ -125,6 +139,7 @@ export class AppModule {
         { provide: AUTH_CONFIG, useValue: { ...defaultAuthConfig(), ...opts.auth } },
         { provide: PLACES, useFactory: () => opts.places ?? Places.load() },
         { provide: WEATHER, useValue: opts.weather ?? new FakeWeatherProvider() },
+        { provide: NDVI, useFactory: () => opts.ndvi ?? defaultNdvi() },
         { provide: NOTIFY_QUEUE, useValue: opts.queue ?? new InMemoryQueue() },
         { provide: PUSH, useValue: opts.push ?? new FakePushClient() },
         { provide: CLOCK, useValue: opts.now ?? (() => new Date()) },

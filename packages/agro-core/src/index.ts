@@ -13,3 +13,4 @@ export * from './waterBalance';
 export * from './market';
 export * from './suitability';
 export * from './supports';
+export * from './ndvi';

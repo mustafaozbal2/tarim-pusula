@@ -1,5 +1,11 @@
 import type { WalletDto } from '../wallet/model';
-import type { CommandCreate, CommandDto, DeviceStatusDto, FieldCreate } from '@tarim/schemas';
+import type {
+  CommandCreate,
+  CommandDto,
+  DeviceStatusDto,
+  FieldCreate,
+  FieldUpdate,
+} from '@tarim/schemas';
 
 /** Sunucu yanıt verdi ama hata döndü (400/403/404/429...). Yeniden denemek işe yaramaz. */
 export class ApiError extends Error {
@@ -189,6 +195,27 @@ export interface MarketDto {
   national: MarketPlaceDto[];
 }
 
+export type NdviTrendDto =
+  | { kind: 'drop'; latest: number; baseline: number; drop: number; date: string }
+  | { kind: 'normal'; latest: number; baseline: number; date: string }
+  | { kind: 'unknown'; reason: 'yetersiz-veri' };
+
+export type NdviDto =
+  | {
+      kind: 'series';
+      fieldId: string;
+      fieldName: string;
+      points: { from: string; to: string; mean: number; validFraction: number }[];
+      skipped: number;
+      trend: NdviTrendDto;
+      source: { name: string; version: string; date: string };
+      fetchedAt: string;
+      stale: boolean;
+      sample: boolean;
+      needsBadge: true;
+    }
+  | { kind: 'none'; reason: 'sinir-yok' | 'veri-yok'; fieldId: string };
+
 export interface ApiOptions {
   baseUrl: string | (() => Promise<string> | string);
   getToken: () => Promise<string | null> | string | null;
@@ -252,6 +279,7 @@ export function createApi(opts: ApiOptions) {
     exportData: () => request<unknown>('GET', '/me/export'),
     revokeShare: (id: string) => request<undefined>('DELETE', `/me/shares/${q(id)}`),
     today: (fieldId: string) => request<TodayDto>('GET', `/fields/${q(fieldId)}/today`),
+    ndvi: (fieldId: string) => request<NdviDto>('GET', `/fields/${q(fieldId)}/ndvi`),
     announcements: (fieldId: string) =>
       request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
     registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>
@@ -264,6 +292,8 @@ export function createApi(opts: ApiOptions) {
       request<CommandDto>('POST', `/devices/${q(id)}/commands`, body),
     fields: () => request<FieldDto[]>('GET', '/fields'),
     createField: (f: FieldCreate) => request<FieldDto>('POST', '/fields', f),
+    updateField: (id: string, patch: FieldUpdate) =>
+      request<FieldDto>('PATCH', `/fields/${q(id)}`, patch),
     pusulaAsk: (body: {
       question: string;
       fieldId?: string;

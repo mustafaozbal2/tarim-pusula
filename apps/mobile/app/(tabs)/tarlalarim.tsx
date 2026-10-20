@@ -65,7 +65,11 @@ export default function FieldsScreen() {
       <PendingProposals onChanged={() => void load()} />
       {waiting.map((w) => (
         <Card key={w.id} style={styles.card}>
-          <Text style={styles.name}>{w.payload.name}</Text>
+          <Text style={styles.name}>
+            {w.kind === 'field-update'
+              ? (w.patch.name ?? cache?.fields.find((f) => f.id === w.fieldId)?.name ?? '')
+              : w.payload.name}
+          </Text>
           <View style={styles.status}>
             <Text style={styles.statusText}>{t.waiting}</Text>
           </View>
@@ -82,6 +86,11 @@ export default function FieldsScreen() {
               ? ` · ${f.areaDecare.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} ${t.area}`
               : ''}
           </Text>
+          <Button
+            label={tr.ndvi.open}
+            variant="secondary"
+            onPress={() => router.push({ pathname: '/ndvi', params: { fieldId: f.id } })}
+          />
           {devices
             .filter((d) => d.fieldId === f.id)
             .map((d) => (

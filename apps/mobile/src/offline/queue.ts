@@ -1,11 +1,13 @@
-import type { FieldCreate } from '@tarim/schemas';
+import type { FieldCreate, FieldUpdate } from '@tarim/schemas';
 import { ApiError, NetworkError, type Api } from '../api/client';
 import type { KV } from './kv';
 
 /** Çevrimdışıyken yazılan işler sıraya girer; bağlantı gelince sırayla gönderilir. */
 export type QueueItem =
   | { id: string; kind: 'field'; payload: FieldCreate; queuedAt: string }
-  | { id: string; kind: 'claim'; code: string; payload: FieldCreate; queuedAt: string };
+  | { id: string; kind: 'claim'; code: string; payload: FieldCreate; queuedAt: string }
+  /** Tarla düzeltmesi (ürün, sınır, ad). PATCH aynı yamayla tekrarlanınca aynı sonucu verir. */
+  | { id: string; kind: 'field-update'; fieldId: string; patch: FieldUpdate; queuedAt: string };
 
 export type Outcome =
   | { id: string; result: 'sent' }
@@ -22,7 +24,8 @@ export class OfflineQueue {
 
   constructor(
     private readonly kv: KV,
-    private readonly api: Pick<Api, 'createField' | 'nearbyClaim'>,
+    private readonly api: Pick<Api, 'createField' | 'nearbyClaim'> &
+      Partial<Pick<Api, 'updateField'>>,
   ) {}
 
   /** Sıradan en az bir iş çıktığında (gönderildi ya da reddedildi) haber verir. */
@@ -69,7 +72,10 @@ export class OfflineQueue {
       try {
         if (item.kind === 'field')
           await this.api.createField({ ...item.payload, clientId: item.id });
-        else await this.api.nearbyClaim(item.code, item.payload);
+        else if (item.kind === 'field-update') {
+          if (!this.api.updateField) throw new Error('updateField yok');
+          await this.api.updateField(item.fieldId, item.patch);
+        } else await this.api.nearbyClaim(item.code, item.payload);
         await this.remove(item.id);
         outcomes.push({ id: item.id, result: 'sent' });
       } catch (e) {
