@@ -8,3 +8,4 @@ docs
 data
 .overnight
 scripts
+apps/api/src/market/fixtures/

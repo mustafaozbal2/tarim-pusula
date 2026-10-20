@@ -22,6 +22,16 @@ import { AnnouncementsController, FieldCalendarController } from './controllers.
 import { PanelController, PanelMfaController } from './controllers.g5';
 import { LibraryController } from './controllers.g6';
 import { IrrigationController } from './controllers.g8';
+import {
+  MARKET_FETCH,
+  MARKET_SLEEP,
+  MARKET_SOURCES,
+  MarketCollector,
+  defaultMarketSources,
+  type MarketSourceConfig,
+} from './market/collector';
+import { MarketController, MarketJobsController } from './market/controller';
+import { MarketService } from './market/service';
 import { InMemoryBroker } from '@tarim/device-sim';
 import { DEVICE_BROKER, IrrigationService } from './irrigation';
 import { Places } from './places';
@@ -56,6 +66,12 @@ export interface AppOptions {
   llm?: LlmProvider;
   /** Cihaz aracısı. Verilmezse süreç içi aracı (gerçek MQTT/TLS aracısı üretimde bunun yerine geçer). */
   broker?: InMemoryBroker;
+  /** Pazar toplayıcıları: ağ, kaynak listesi ve bekleme. Verilmezse gerçek fetch ve ortam değişkenleri. */
+  market?: {
+    fetch?: typeof fetch;
+    sources?: MarketSourceConfig[];
+    sleep?: (ms: number) => Promise<void>;
+  };
   now?: () => Date;
 }
 
@@ -91,6 +107,8 @@ export class AppModule {
         LibraryController,
         PusulaController,
         IrrigationController,
+        MarketController,
+        MarketJobsController,
       ],
       providers: [
         { provide: DB, useValue: opts.db },
@@ -106,6 +124,18 @@ export class AppModule {
         FieldCalendarController,
         { provide: DEVICE_BROKER, useFactory: () => opts.broker ?? new InMemoryBroker() },
         IrrigationService,
+        { provide: MARKET_FETCH, useValue: opts.market?.fetch ?? fetch },
+        {
+          provide: MARKET_SOURCES,
+          useFactory: () => opts.market?.sources ?? defaultMarketSources(),
+        },
+        {
+          provide: MARKET_SLEEP,
+          useValue:
+            opts.market?.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms))),
+        },
+        MarketCollector,
+        MarketService,
         PusulaTools,
         PusulaService,
         NotifyService,

@@ -1,0 +1,9 @@
+[
+  {"ProductId": 101, "ProductName": "Domates (Sofralık)", "UnitName": "Kilogram", "MinPrice": 18.5, "MaxPrice": 26, "Date": "2026-10-19T00:00:00"},
+  {"ProductId": 102, "ProductName": "Zeytin (Yeşil)", "UnitName": "Kilogram", "MinPrice": 60, "MaxPrice": 85.5, "Date": "2026-10-19T00:00:00"},
+  {"ProductId": 103, "ProductName": "Antep Fıstığı (Kabuklu)", "UnitName": "Kg", "MinPrice": 270, "MaxPrice": 310, "Date": "2026-10-19T00:00:00"},
+  {"ProductId": 104, "ProductName": "Yer Fıstığı", "UnitName": "Kilogram", "MinPrice": 70, "MaxPrice": 90, "Date": "2026-10-19T00:00:00"},
+  {"ProductId": 105, "ProductName": "Marul", "UnitName": "Adet", "MinPrice": 5, "MaxPrice": 9, "Date": "2026-10-19T00:00:00"},
+  {"ProductId": 106, "ProductName": "Karpuz", "UnitName": "Kilogram", "MinPrice": 0, "MaxPrice": 0, "Date": "2026-10-19T00:00:00"},
+  {"ProductId": 107, "ProductName": "Pamuk", "UnitName": "Ton", "MinPrice": 41000, "MaxPrice": 47000, "Date": "2026-10-19T00:00:00"}
+]

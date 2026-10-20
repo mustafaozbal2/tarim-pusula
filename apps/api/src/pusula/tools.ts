@@ -4,6 +4,8 @@ import { FieldCalendarController } from '../controllers.g4';
 import { DataService } from '../data.service';
 import type { Principal } from '../db/db';
 import { searchLibrary } from '../library';
+import { cropIdFor } from '../market/parse';
+import { MarketService } from '../market/service';
 import { TodayController } from '../weather/weather.controller';
 import type { ToolCall, ToolResultMsg } from './provider';
 
@@ -32,6 +34,7 @@ export class PusulaTools {
     @Inject(DataService) private readonly data: DataService,
     @Inject(TodayController) private readonly today: TodayController,
     @Inject(FieldCalendarController) private readonly calendar: FieldCalendarController,
+    @Inject(MarketService) private readonly market: MarketService,
   ) {}
 
   /** Tarlanın kullanıcıya ait/erişilebilir olduğunu doğrular (değilse ForbiddenException). */
@@ -187,9 +190,38 @@ export class PusulaTools {
           ? ok(facts, 'kütüphane')
           : none('Kütüphanede ilgili kaynak yok.', false);
       }
-      case 'get_price':
-        // Fiyat veri kaynağı henüz bağlı değil (G-sonrası Pazar görevi); uydurma fiyat verilmez.
-        return none('Fiyat verisi henüz bağlı değil.');
+      case 'get_price': {
+        // Yalnız kaynak künyeli fiyat olgu olur; ürün tanınmazsa ya da kayıt yoksa "veri yok".
+        const text = typeof call.input['crop'] === 'string' ? call.input['crop'] : '';
+        const cropId = cropIdFor(text);
+        if (!cropId) return none('Hangi ürünün fiyatı sorulduğu anlaşılamadı.');
+        const ov = await this.market.overview(me, cropId);
+        const c = ov.current;
+        if (!c) return none('Bu ürün için kaynaklı fiyat verisi yok.');
+        const tl = (n: number) => `${mm(n)} ₺`;
+        const src: CardSource = {
+          title: c.source.name,
+          date: c.source.date,
+          version: c.source.version,
+          needsBadge: false,
+        };
+        const facts: Fact[] = [
+          {
+            id: fid(1),
+            text: `${c.name} için ${c.date} tarihli ${ov.cropName.toLowerCase()} fiyatı kilo başına ${tl(c.priceMin)} ile ${tl(c.priceMax)} arasında.`,
+            approved: true,
+            source: src,
+          },
+        ];
+        if (c.stale)
+          facts.push({
+            id: fid(2),
+            text: 'Bu fiyat eski olabilir, güncel kayıt bulunamadı.',
+            approved: true,
+            source: src,
+          });
+        return ok(facts, 'pazar fiyatı');
+      }
       case 'find_video':
         return none('Video kataloğu henüz yok.');
       case 'handoff_to_expert':

@@ -41,9 +41,10 @@ describe('arayüz metinleri', () => {
     const emoji = /\p{Extended_Pictographic}/u;
     expect(strings.filter((s) => emoji.test(s))).toEqual([]);
   });
-  it('örnek veri gösteren ekranlar bunu açıkça yazar', () => {
+  it('örnek veri etiketi vardır; Pazar artık gerçek kaynaklı veri gösterir, örnek rakam taşımaz', () => {
     expect(tr.common.sampleData).toBe('Örnek veri');
-    expect(tr.market.sampleNote).toContain('Örnek veri');
+    expect(tr.market.source).toBe('Kaynak');
+    expect(JSON.stringify(tr.market)).not.toMatch(/\d+ ₺/);
   });
   it('uyarı kartında kaynak etiketi vardır', () => {
     expect(tr.today.frostSource).toBe('Kaynak');

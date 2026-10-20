@@ -7,6 +7,9 @@ import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
 import { AppModule } from '../api/src/app.module';
 import { FakeSmsProvider } from '../api/src/auth/sms';
 import { importCropCatalog } from '../api/src/crops';
+import { MarketCollector, type MarketSourceConfig } from '../api/src/market/collector';
+import { parseBorsaBulletin } from '../api/src/market/parse';
+import { readFileSync } from 'node:fs';
 import { migrate, PgliteDb, systemTx } from '../api/src/db/db';
 import { FakeWeatherProvider, sampleBundle } from '../api/src/weather/openmeteo';
 
@@ -36,12 +39,46 @@ async function main() {
   await migrate(db);
   const broker = new InMemoryBroker();
   await importCropCatalog(db);
+  // Pazar: dış ağ yok. Borsa bülteni kayıtlı örnekten, tarihi BUGÜN olacak biçimde sunulur.
+  const today = new Date();
+  const trDate = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+  const bulletin = readFileSync(
+    resolve(import.meta.dirname, '../api/src/market/fixtures/borsa_bulteni.html'),
+    'utf8',
+  ).replace('19.10.2026', trDate);
+  const marketSources: MarketSourceConfig[] = [
+    {
+      id: 'borsa-bulten',
+      name: 'Gaziantep Ticaret Borsası',
+      url: 'https://borsa.e2e.test/bulten.html',
+      licenseNote: 'e2e',
+      formatVersion: 'borsa-bulten-v1',
+      parse: parseBorsaBulletin,
+      place: {
+        id: 'borsa-gaziantep',
+        name: 'Gaziantep Ticaret Borsası',
+        province: 'Gaziantep',
+        lat: 37.0662,
+        lon: 37.3833,
+        approx: true,
+      },
+    },
+  ];
+  const marketFetch = (async (url: string) => {
+    const isRobots = url.endsWith('/robots.txt');
+    return {
+      ok: !isRobots,
+      status: isRobots ? 404 : 200,
+      text: async () => (isRobots ? '' : bulletin),
+    };
+  }) as unknown as typeof fetch;
   const app = await NestFactory.create(
     AppModule.register({
       db,
       sms,
       auth: { otpSecret: 'e2e' },
       broker,
+      market: { fetch: marketFetch, sources: marketSources },
       // Dış ağ yok: hava sahte, ensemble üyelerinin hepsi -6 °C (don olasılığı %100).
       weather: new FakeWeatherProvider((lat, lon) =>
         sampleBundle(lat, lon, { memberMinC: Array.from({ length: 20 }, () => -6) }),
@@ -77,6 +114,12 @@ async function main() {
     void (async () => {
       const url = new URL(req.url ?? '/', 'http://x');
       res.setHeader('access-control-allow-origin', '*');
+      if (url.pathname === '/__e2e/market-collect') {
+        const out = await app.get(MarketCollector).runAll({ force: true });
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify(out));
+        return;
+      }
       if (url.pathname === '/__e2e/user') {
         res.setHeader('content-type', 'application/json');
         res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, ...(await newUser()) }));

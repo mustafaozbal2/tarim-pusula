@@ -142,6 +142,52 @@ export interface ProposalDto {
   createdAt: string;
 }
 
+export interface MarketSourceDto {
+  name: string;
+  date: string;
+  version: string;
+  url?: string;
+}
+
+export interface MarketTrendDto {
+  direction: 'up' | 'down' | 'flat' | 'unknown';
+  changePct30d: number | null;
+  days: number;
+}
+
+export interface MarketNetDto {
+  kind: 'range' | 'insufficient';
+  p10: number | null;
+  p50: number | null;
+  p90: number | null;
+  samples: number;
+  assumptions: string[];
+}
+
+export interface MarketPlaceDto {
+  placeId: string;
+  name: string;
+  product: string;
+  price: number;
+  priceMin: number;
+  priceMax: number;
+  date: string;
+  stale: boolean;
+  distanceKm: number | null;
+  approxLocation: boolean;
+  source: MarketSourceDto;
+  trend: MarketTrendDto;
+  net: MarketNetDto;
+}
+
+export interface MarketDto {
+  cropId: string;
+  cropName: string;
+  current: MarketPlaceDto | null;
+  places: MarketPlaceDto[];
+  national: MarketPlaceDto[];
+}
+
 export interface ApiOptions {
   baseUrl: string | (() => Promise<string> | string);
   getToken: () => Promise<string | null> | string | null;
@@ -194,6 +240,12 @@ export function createApi(opts: ApiOptions) {
       request<PlaceDto[]>(
         'GET',
         `/places/villages?province=${q(province)}&district=${q(district)}${search ? `&q=${q(search)}` : ''}`,
+      ),
+    marketCrops: () => request<{ id: string; name: string }[]>('GET', '/market/crops'),
+    marketPrices: (cropId: string, fieldId?: string) =>
+      request<MarketDto>(
+        'GET',
+        `/market/prices?crop=${q(cropId)}${fieldId ? `&fieldId=${q(fieldId)}` : ''}`,
       ),
     today: (fieldId: string) => request<TodayDto>('GET', `/fields/${q(fieldId)}/today`),
     announcements: (fieldId: string) =>
