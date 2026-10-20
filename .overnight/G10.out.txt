@@ -1,0 +1,9 @@
+
+=== 2026-10-20T08:11:04 ===
+G10 tamamland¦-; k+Âk `pnpm run verify` ye+þil (27 g+Ârev, 19 e2e, bi+ðim denetimi dahil) ve commit `dev` dal¦-nda at¦-ld¦-.
+- **Toplay¦-c¦-lar:** ¦-BB hal, TEPGE ayl¦-k ve borsa b+-lteni i+ðin robots.txt, Crawl-Delay, 6 saatlik tekrar aral¦-¦þ¦- ve kaynak/tarih/s+-r+-m kayd¦- var. Yasakl¦- veya belirsiz robots durumunda veri adresine hi+ð istek at¦-lmaz. Testler kay¦-tl¦- +Ârnek yan¦-tlarla +ðal¦-+þ¦-yor.
+- **Pazar:** `market.ts` +ðekirde¦þi, `/market/*` u+ðlar¦- ve migration 0009 yaz¦-ld¦-. Mobil Pazar ekran¦- fiyat, trend, mesafeli "nerede satar¦-m" listesi ve net kazan+ð aral¦-¦þ¦- (P10-P90) g+Âsteriyor; Pusula `get_price` arac¦- da ger+ðek veriyle +ðal¦-+þ¦-yor. Kaynaks¦-z fiyat veritaban¦-nda, sunucuda ve mobilde engellenir.
+- **Hesap kararlar¦-:** komisyon ve nakliye maliyeti bilinmiyorsa s¦-f¦-r say¦-lmaz, "hesaba kat¦-lmad¦-" diye yaz¦-l¦-r. Net aral¦-k fiyat yay¦-l¦-m¦-d¦-r, ger+ðek +Âng+Âr+- aral¦-¦þ¦- de¦þildir. Bunlar ve di¦þer kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+- **Do¦þrulanamayanlar:** toplay¦-c¦-lar ger+ðek servislere kar+þ¦- hi+ð +ðal¦-+þt¦-r¦-lmad¦-. Fixture'lar canl¦- kay¦-t de¦þil, bi+ðim +Ârne¦þi; ¦-BB alan adlar¦- tahmin. Kaynak adresleri `.env`'den gelir ve bo+þsa kaynak kapal¦-d¦-r. ¦-BB'nin `data.ibb.gov.tr/api/` yolu robots.txt ile yasak oldu¦þu i+ðin kullan¦-lmad¦-.
+- **H+ól+ó yap¦-lmad¦-:** G9'dan kalan sulama +Ânerisi ucu, Dr saklama, g+-nl+-k sulama s¦-n¦-r¦- ve cihaz s¦-rr¦- +þifreleme.
+
