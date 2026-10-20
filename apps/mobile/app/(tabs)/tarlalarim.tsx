@@ -113,6 +113,11 @@ export default function FieldsScreen() {
           router.push('/tarla-ekle');
         }}
       />
+      <Button
+        label={tr.wallet.open}
+        variant="secondary"
+        onPress={() => router.push('/veri-cuzdani')}
+      />
     </Screen>
   );
 }

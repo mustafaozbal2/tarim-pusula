@@ -1,0 +1,5 @@
+id,title,summary,crop_ids,provinces,min_area,max_area,apply_from,apply_to,source_url
+mazot-gubre,Mazot ve gübre desteği,Kullandığınız mazot ve gübre için devletin verdiği destek. Tutar ve şartları Bakanlık duyurusundan kontrol edin.,,,,,,,https://www.tarimorman.gov.tr
+sertifikali-tohum,Sertifikalı tohum desteği,Sertifikalı tohum kullanırsanız verilebilen destek. Şartlar her yıl değişebilir.,,,,,,,https://www.tarimorman.gov.tr
+organik-tarim,Organik tarım desteği,Organik üretim yapan çiftçiye verilen destek. Başvuru için sertifika gerekir.,,,,,,,https://www.tarimorman.gov.tr
+tarim-sigortasi,Tarım sigortası prim desteği,Tarım sigortası (TARSİM) primine devletin katkısı.,,,,,,,https://www.tarimorman.gov.tr

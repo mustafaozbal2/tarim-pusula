@@ -29,6 +29,7 @@ import { FIELD_COLS, FIELD_COLUMN, insertField, withComputedArea } from './field
 import { Me, parse, Public, Roles, Token } from './auth/access';
 import { AuthService } from './auth/auth.service';
 import { DataService } from './data.service';
+import { buildExport } from './wallet';
 import type { Principal, Queryable } from './db/db';
 
 @Controller('auth')
@@ -234,28 +235,9 @@ export class MeController {
   /** Veri taşınabilirliği: kullanıcıya ait her şey tek JSON olarak. */
   @Get('export')
   async export(@Me() me: Principal) {
-    const out = await this.data.run(me, 'me.export', async (q) => ({
-      profile: await this.profile(q, me),
-      fields: await q.query(`SELECT ${FIELD_COLS} FROM fields WHERE owner_id = $1`, [me.userId]),
-      sharedWithMe: await q.query(
-        `SELECT field_id AS "fieldId", level FROM field_access WHERE user_id = $1`,
-        [me.userId],
-      ),
-      devices: await q.query(
-        `SELECT d.id, d.field_id AS "fieldId", d.name, d.kind FROM devices d
-         JOIN fields f ON f.id = d.field_id WHERE f.owner_id = $1`,
-        [me.userId],
-      ),
-      consents: await q.query(
-        `SELECT purpose, granted, policy_version AS "policyVersion", created_at AS "createdAt"
-         FROM consents ORDER BY created_at, id`,
-      ),
-      auditLog: await q.query(
-        `SELECT seq, at, action, entity, entity_id AS "entityId" FROM audit_log
-         WHERE actor_id = $1 ORDER BY seq`,
-        [me.userId],
-      ),
-    }));
+    const out = await this.data.run(me, 'me.export', async (q) =>
+      buildExport(q, me, await this.profile(q, me)),
+    );
     await this.data.run(me, 'me.export', (q) =>
       q.query('SELECT write_audit($1, $2, $3, $4)', ['me.export', 'users', me.userId, '{}']),
     );

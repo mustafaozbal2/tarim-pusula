@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { parseCsv, parseKcSeed } from '@tarim/agro-core';
 import type { Db } from './db/db';
 import { systemTx } from './db/db';
+import { importDecisionSeeds } from './decision';
 import { DEFAULT_DATA_DIR } from './places';
 
 export const KC_SEED_SOURCE = 'FAO-56 Tablo 12 (Allen vd., 1998) - data/kc_fao56_seed.csv';
@@ -90,5 +91,6 @@ export async function importCropCatalog(db: Db, dataDir = DEFAULT_DATA_DIR): Pro
   if (orphans.length > 0) {
     throw new Error(`Kc tohumunda ürün listesine bağlanmamış satır var: ${orphans.join('; ')}`);
   }
+  await importDecisionSeeds(db, dataDir);
   return res;
 }

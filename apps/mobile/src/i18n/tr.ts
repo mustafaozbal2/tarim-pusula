@@ -241,6 +241,23 @@ export const tr = {
     nationalTitle: 'Türkiye geneli',
     source: 'Kaynak',
   },
+  wallet: {
+    open: 'Veri cüzdanım',
+    title: 'Veri cüzdanım',
+    intro: 'Verileriniz sizindir. Neyin tutulduğunu görün, indirin, paylaşımı kapatın.',
+    records: 'kayıt',
+    download: 'Verilerimi indir',
+    downloaded: 'Dosya hazırlandı.',
+    sharesTitle: 'Kimlerle paylaştım',
+    noShares: 'Kimseyle paylaşım yok.',
+    revoke: 'Paylaşımı kapat',
+    shareId: 'Paylaşım kimliğim',
+    shareIdHint: 'Birinin sizinle paylaşım yapması için bu kimliği ona verin.',
+    receivedTitle: 'Benimle paylaşılanlar',
+    noReceived: 'Sizinle paylaşılan veri yok.',
+    error: 'Bilgi alınamadı. Biraz sonra tekrar deneyin.',
+    offline: 'İnternet yok. Veri cüzdanı için bağlantı gerekir.',
+  },
 } as const;
 
 export type Translations = typeof tr;

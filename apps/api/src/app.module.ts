@@ -20,6 +20,7 @@ import {
 import { CropsController, NearbyController, PLACES, PlacesController } from './controllers.g2';
 import { AnnouncementsController, FieldCalendarController } from './controllers.g4';
 import { PanelController, PanelMfaController } from './controllers.g5';
+import { SuitabilityController, SupportsController, WalletController } from './decision';
 import { LibraryController } from './controllers.g6';
 import { IrrigationController } from './controllers.g8';
 import {
@@ -109,6 +110,9 @@ export class AppModule {
         IrrigationController,
         MarketController,
         MarketJobsController,
+        SuitabilityController,
+        SupportsController,
+        WalletController,
       ],
       providers: [
         { provide: DB, useValue: opts.db },

@@ -11,3 +11,5 @@ export * from './rag';
 export * from './pusula';
 export * from './waterBalance';
 export * from './market';
+export * from './suitability';
+export * from './supports';

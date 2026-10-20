@@ -1,3 +1,4 @@
+import type { WalletDto } from '../wallet/model';
 import type { CommandCreate, CommandDto, DeviceStatusDto, FieldCreate } from '@tarim/schemas';
 
 /** Sunucu yanıt verdi ama hata döndü (400/403/404/429...). Yeniden denemek işe yaramaz. */
@@ -247,6 +248,9 @@ export function createApi(opts: ApiOptions) {
         'GET',
         `/market/prices?crop=${q(cropId)}${fieldId ? `&fieldId=${q(fieldId)}` : ''}`,
       ),
+    wallet: () => request<WalletDto>('GET', '/me/wallet'),
+    exportData: () => request<unknown>('GET', '/me/export'),
+    revokeShare: (id: string) => request<undefined>('DELETE', `/me/shares/${q(id)}`),
     today: (fieldId: string) => request<TodayDto>('GET', `/fields/${q(fieldId)}/today`),
     announcements: (fieldId: string) =>
       request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
