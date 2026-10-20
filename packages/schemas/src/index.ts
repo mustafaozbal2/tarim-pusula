@@ -25,3 +25,4 @@ export * from './auth';
 export * from './fields';
 export * from './announcements';
 export * from './panel';
+export * from './library';

@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { createSmsProvider } from './auth/sms';
 import { importCalendarTemplates } from './calendar';
@@ -20,7 +21,7 @@ async function bootstrap() {
   await migrate(db);
   await importCropCatalog(db);
   await importCalendarTemplates(db);
-  const app = await NestFactory.create(
+  const app = await NestFactory.create<NestExpressApplication>(
     AppModule.register({
       db,
       sms: createSmsProvider(),
@@ -35,6 +36,8 @@ async function bootstrap() {
           : new FakePushClient(),
     }),
   );
+  // PDF yükleme base64 geldiğinden gövde sınırı varsayılandan (100 kb) yüksek.
+  app.useBodyParser('json', { limit: '30mb' });
   // Kimlik doğrulama çerezle değil Bearer jetonla olduğundan CORS CSRF riski doğurmaz; üretimde CORS_ORIGINS ile daraltılır.
   app.enableCors({ origin: process.env['CORS_ORIGINS']?.split(',') ?? true });
   await app.listen(Number(process.env['PORT'] ?? 3000));
