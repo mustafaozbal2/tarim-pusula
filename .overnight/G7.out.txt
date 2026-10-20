@@ -1,0 +1,13 @@
+
+=== 2026-10-20T07:36:18 ===
+G7 tamamland¦-: k+Âk `pnpm run verify` ye+þil (27 g+Ârev, e2e dahil) ve `dev` dal¦-nda commit at¦-ld¦-.
+- **Kabul +Âl+ð+-tleri:** Doz isteyen sorular modele gitmeden reddedilir, BK+£'ye y+Ânlendirilir (testli). API anahtar¦- yokken sahte sa¦þlay¦-c¦-yla t+-m testler ge+ðer. Karardan karara notlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+- **Mimari:** Karta yaln¦-z ara+ðlardan gelen, kaynakl¦- ve onayl¦- bilgiler girer. Kaynaks¦-z, onays¦-z ya da doz i+ðeren ad¦-m¦- sunucu atar; ba+þkas¦-n¦-n tarlas¦- ve prompt injection reddedilir. Emin olunmayan sorular ve foto¦þraflar uzman kuyru¦þuna d+-+þer (MFA'l¦- uzman u+ðlar¦-, +Ânbellek dahil).
+- **Eval:** `docs/eval/` alt¦-nda 205 soruluk set ve otomatik ko+þucu var, verify'a ba¦þl¦-; g+-venlik kategorileri %100 ge+ðiyor. Bu skor sahte sa¦þlay¦-c¦-yla ve ayn¦- d+Âng+-de ayarlanm¦-+þ e+þiklerle al¦-nd¦-, ger+ðek model ba+þar¦-s¦- de¦þil.
+- **Mobil:** "Soru sor" ekran¦- yaz¦-, ses ve foto¦þraf giri+þiyle +ðal¦-+þ¦-yor. Ses giri+þi yaln¦-z web'de; kartlar sesli okunabiliyor.
+- **Eksikler:**
+  - Ger+ðek Claude API'ye canl¦- +ða¦þr¦- yap¦-lmad¦- (istemci taklit fetch ile testli).
+  - Fiyat ve video ara+ðlar¦- "veri yok" d+Ân+-yor, +ð+-nk+- kaynaklar¦- hen+-z ba¦þl¦- de¦þil.
+  - Panelde uzman kuyru¦þu sayfas¦- yok (yaln¦-z API).
+  - `msgpackr-extract: false` ekleyerek bir `pnpm install` hatas¦- giderildi.
+
