@@ -1,0 +1,15 @@
+
+=== 2026-10-20T07:54:46 ===
+G8'in kod ve testleri bitti. K+Âk `pnpm run verify` hatas¦-z ge+ðti (27 g+Ârev, 18 e2e dahil) ve `dev` dal¦-nda commit'lendi (45dfa99).
+
+- **Yetki:** ba+þkas¦-n¦-n cihaz¦-na komut 403 d+Ân+-yor; vana a+ð¦-lm¦-yor, komut kayd¦- olu+þmuyor, denetim sat¦-r¦- d+-+þ+-yor. Salt okuma izni olan ve y+Ânetici rol+- de ayn¦- 403'+- al¦-yor. Yetki karar¦- veritaban¦-nda; komutlar imzal¦-, TTL'li ve idempotent, cihaz ack veriyor.
+- **Azami s+-re:** ba¦þlant¦- kopsa da vana 30 dk'da kapan¦-yor (sim+-lat+Âr testi). S¦-n¦-r +þema, veritaban¦- ve cihazda ayr¦- ayr¦- uygulan¦-yor; a+ð¦-kken tekrar "a+ð" g+Ânderilince tavan uzam¦-yor.
+- **Gecikme:** her komutta `latency_ms` saklan¦-yor, y+Ânetici `/admin/irrigation/latency` ile p50/p95 g+Âr+-yor. Sim+-lat+Âr +Âl+ð+-m+- `docs/G8_GECIKME.md` i+ðinde: ortanca yakla+þ¦-k 0,33 sn, p95 yakla+þ¦-k 0,9 sn. Buradaki a¦þ gecikmesi bir modeldir, ger+ðek +Âl+ð+-m de¦þildir; raporda da +Âyle yaz¦-yor.
+- **Eksik:** ger+ðek MQTT/TLS arac¦-s¦- (Mosquitto) ile hi+ð +ðal¦-+þt¦-r¦-lmad¦-. Kurallar s+-re+ð i+ði arac¦-da testli, Mosquitto yap¦-land¦-rmas¦- `infra/` alt¦-nda yaz¦-l¦- ama denenmedi; sunucu taraf¦-nda `mqtt` istemci ba¦þda+þt¦-r¦-c¦-s¦- da yok. Cihaz s¦-rr¦- veritaban¦-nda d+-z metin. Sulama ekran¦-ndaki "Pusula +Ânerisi" kart¦- sabit "hen+-z yok" diyor; ger+ðek +Âneri G9'a kald¦-.
+- **Mobil ekran:** sulama ekran¦- yaln¦-z web'de denendi, iOS/Android'de de¦þil.
+- Kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
+Bu bildirim, en ba+þtaki tak¦-lan test +ðal¦-+þt¦-rmas¦-na ait. O arka plan komutu s+-re s¦-n¦-r¦-na ula+þ¦-nca durduruldu.
+
+Tak¦-lman¦-n nedeni d+-zeltildi (`status()` i+ðindeki i+ð i+ðe veritaban¦- i+þlemi). G8 testleri sonradan ge+ðti ve k+Âk `verify` ye+þil, yani yeniden ba+þlatmaya gerek yok.
+
