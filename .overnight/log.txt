@@ -7,3 +7,7 @@
 2026-10-20T03:42:39  BASLA G2 (basarisiz deneme: 0)
 2026-10-20T04:07:33  G2 TAMAM
 2026-10-20T04:07:33  BASLA G3 (basarisiz deneme: 0)
+2026-10-20T04:20:22  G3 TAMAM
+2026-10-20T04:20:22  BASLA G4 (basarisiz deneme: 0)
+2026-10-20T04:24:28  G4 : limit/baglanti sorunu. 2.5 saat bekleniyor.
+2026-10-20T06:54:28  BASLA G4 (basarisiz deneme: 0)

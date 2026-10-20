@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { createSmsProvider } from './auth/sms';
+import { importCalendarTemplates } from './calendar';
 import { importCropCatalog } from './crops';
 import { ExpoPushClient, FakePushClient, createQueue } from '@tarim/workers';
 import { OpenMeteoClient, FakeWeatherProvider } from './weather/openmeteo';
@@ -18,6 +19,7 @@ async function bootstrap() {
   }
   await migrate(db);
   await importCropCatalog(db);
+  await importCalendarTemplates(db);
   const app = await NestFactory.create(
     AppModule.register({
       db,

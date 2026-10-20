@@ -5,3 +5,5 @@ export * from './cropPack';
 export * from './et0';
 export * from './phenology';
 export * from './frost';
+export * from './targeting';
+export * from './calendar';

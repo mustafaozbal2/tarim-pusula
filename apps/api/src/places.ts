@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseCsv } from '@tarim/agro-core';
+import { haversineKm, parseCsv } from '@tarim/agro-core';
 
 export interface Place {
   province: string;
@@ -70,5 +70,23 @@ export class Places {
         foldTr(r.district) === d &&
         (q === '' || foldTr(r.name).includes(q)),
     );
+  }
+
+  /**
+   * Noktaya en yakın yerleşim (il/ilçe/köy tahmini). `maxKm` içinde yerleşim yoksa undefined.
+   * Sınıra yakın noktalarda komşu ili verebilir; çağıran bunu "tahmin" saymalıdır.
+   */
+  nearest(lat: number, lon: number, maxKm = 40): Place | undefined {
+    let best: Place | undefined;
+    let bestKm = Infinity;
+    for (const r of this.rows) {
+      if (Math.abs(r.lat - lat) > 1) continue;
+      const km = haversineKm(lat, lon, r.lat, r.lon);
+      if (km < bestKm) {
+        bestKm = km;
+        best = r;
+      }
+    }
+    return bestKm <= maxKm ? best : undefined;
   }
 }

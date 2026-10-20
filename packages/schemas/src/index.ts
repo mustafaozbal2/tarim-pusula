@@ -23,3 +23,4 @@ export type SourceRef = z.infer<typeof sourceRefSchema>;
 export type KcRecord = z.infer<typeof kcRecordSchema>;
 export * from './auth';
 export * from './fields';
+export * from './announcements';
