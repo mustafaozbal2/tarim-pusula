@@ -1,0 +1,12 @@
+
+=== 2026-10-20T07:16:37 ===
+G6 tamamland¦-. K+Âk `pnpm run verify` ye+þil (27 g+Ârev, API'de 146 test ge+ðti). ¦-+þ `dev` dal¦-nda a32d1c1 olarak commit'lendi.
+
+- **+çekirdek (`agro-core/rag.ts`):** C+-mle s¦-n¦-rl¦-, sayfa at¦-fl¦- par+ðalama, anahtars¦-z +ðal¦-+þan yerel g+Âmme ve kosin+-s s¦-ralamas¦- var. S¦-ralama uzman onayl¦- > kurum > genel d+-zeyine g+Âre yap¦-l¦-yor. 8 soruluk alt¦-n k+-mede do¦þru par+ða her seferinde ilk s¦-rada +ð¦-kt¦-. ¦-lgisiz soruda sonu+ð bo+þ d+Ân+-yor.
+- **API (migration 0006 ve `/library/*` u+ðlar¦-):** Metin ya da PDF y+-kleme, `GET /library/search` ve uzman onay¦- +ðal¦-+þ¦-yor. Y+-kleme i+ðin kurum rol+- ve MFA gerekiyor. Kaynak, tarih, s+-r+-m ve lisans notu zorunlu, kaynaks¦-z par+ða d+Ânm+-yor. Y+-klenen her dok+-man taslak ba+þl¦-yor ve onaylanana kadar rozetli d+Ân+-yor.
+- **Do¦þrulanmad¦-:** pgvector yolu (`<=>` sorgusu) hi+ð +ðal¦-+þt¦-r¦-lmad¦-, +ð+-nk+- bu PGlite s+-r+-m+-nde eklenti yok. Testler `real[]` ile TS'de yap¦-lan aramay¦- kaps¦-yor. Yerel g+Âmme anlam benzerli¦þi yapm¦-yor, yaln¦-zca s+Âzc+-k ve k+Âk benzerli¦þine bak¦-yor.
+- **Eksik:** Mobil ve panelde K+-t+-phane ekran¦- yok, yaln¦-zca API var. OCR, +ðevrimd¦-+þ¦- indirme ve dok+-man silme de yok.
+- **Ek de¦þi+þiklik:** API testleri paralel ko+þuda 10 saniyelik hook s+-resini a+þ¦-yordu, bu y+-zden `apps/api/vitest.config.ts` ile s+-releri uzatt¦-m.
+
+Kararlar `docs/KARARLAR.md`'de, G7 i+ðin devir notu `.overnight/NOTES.md`'de.
+
