@@ -6,3 +6,12 @@ You've hit your session limit TÀ resets 11:50am (Europe/Istanbul)
 === 2026-10-20T10:57:11 ===
 You've hit your session limit TÀ resets 11:50am (Europe/Istanbul)
 
+
+=== 2026-10-20T12:04:58 ===
+G13 tamam: tarla bazl¦- NDVI zaman serisi ve +ðevrimd¦-+þ¦- mod yaz¦-ld¦-, k+Âk `pnpm run verify` hatas¦-z ge+ðti. +çal¦-+þma `dev` dal¦-nda tek commit (1955c12).
+- **NDVI:** Copernicus Statistical API istemcisi OAuth jetonunu +Ânbelle¦þe al¦-yor. Anahtar yoksa "+ûRNEK VER¦-" etiketli sahte sa¦þlay¦-c¦- +ðal¦-+þ¦-yor. S¦-n¦-r¦- olmayan tarlada grafik +ð¦-km¦-yor. Mobilde Tarlalar¦-m'daki "Bitki ye+þilli¦þi" d+-¦þmesinden a+ð¦-lan `/ndvi` ekran¦-nda sade +ðubuk grafik var. Anormal d+-+þ+-+þ ipucu "uzman onay¦- bekliyor" rozetli, uyar¦- veya komut +-retmiyor.
+- **+çevrimd¦-+þ¦-:** hava, duyurular, pazar ve ye+þillik ba¦þlant¦- kesilince +Ânbellekten, "son g+-ncelleme" saatiyle geliyor. Kuyru¦þa tarla d+-zeltmesi (`field-update`) eklendi; sulama komutu yine kuyru¦þa al¦-nm¦-yor.
+- **Testler:** yeni test say¦-s¦- agro-core'da 9, API'de 10, mobilde 9; "kay¦-tl¦- yan¦-tla istemci" ve "tam +ðevrimd¦-+þ¦- senaryo" testleri dahil.
+- **Eksikler:** canl¦- Copernicus +ða¦þr¦-s¦- yap¦-lmad¦-; kay¦-tl¦- yan¦-t dosyas¦- canl¦- kay¦-t de¦þil, belgelerdeki bi+ðime g+Âre haz¦-rlanm¦-+þ +Ârnek. D+-+þ+-+þ e+þi¦þi (0,15) ve bulut e+þi¦þi (0,5) bizim se+ðimimiz, do¦þrulanmad¦-. `field-update` i+ðin d+-zenleme ekran¦- ve NDVI e2e testi yok.
+- **Kay¦-tlar:** kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
