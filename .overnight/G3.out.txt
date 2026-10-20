@@ -1,0 +1,11 @@
+
+=== 2026-10-20T04:20:18 ===
+G3 tamam: k+Âk `pnpm run verify` ye+þil (27 g+Ârev, Playwright e2e dahil). Her +þey `dev` dal¦-nda `4176a87` olarak commitlendi.
+- **ET0 ve +ðekirdek:** `agro-core`'da FAO-56 Penman-Monteith, GDD, 6,5 T-C/km y+-kseklik d+-zeltmesi ve ensemble don olas¦-l¦-¦þ¦- var. ET0, +ûrnek 18'de 3,9 mm/g+-n T-0,05 testini ge+ðiyor.
+- **API:** Open-Meteo istemcisi +Ânbellek, eski veri ve hata tolerans¦-yla +ðal¦-+þ¦-yor. `GET /fields/:id/today`, `POST /me/push-token`, `POST /admin/jobs/frost-scan` ve migration 0003 (push belirte+ðleri, g+Ânderim kayd¦-) eklendi. Lisans notu `docs/RISKLER.md`'de.
+- **Bildirim:** Expo Push, sessiz saatler (22ÔÇô06, don hari+ð), m+-kerrer +Ânleme ve kuyruk (`REDIS_URL` varsa BullMQ, yoksa bellek) `apps/workers`'ta.
+- **Bug+-n ekran¦-:** ger+ðek API verisini g+Âsteriyor (testte hava sa¦þlay¦-c¦-s¦- sahte), +ðevrimd¦-+þ¦- +Ânbelle¦þi ve "son g+-ncelleme" saati var.
+- **Do¦þrulanamayanlar:** BullMQ ger+ðek Redis'e, Expo Push ve `expo-notifications` ger+ðek cihaza kar+þ¦- denenmedi. `crop_stages` bo+þ oldu¦þundan +þu an hi+ðbir +-r+-nde don uyar¦-s¦- +ð¦-km¦-yor; kart "uzman onay¦- bekliyor" rozetiyle kal¦-yor (kural 1).
+
+Kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
