@@ -20,7 +20,7 @@ git checkout -B dev 2>&1 | Out-Null
 
 $limitPattern = '(?i)usage limit|rate.?limit|limit reached|overloaded|credit balance|quota|too many requests|\b429\b|\b529\b|resets? (at|in)|try again later|ECONNRESET|ETIMEDOUT|network'
 
-foreach ($i in 0..14) {
+foreach ($i in 0..15) {
   $t = "G$i"
   $done = ".overnight\$t.done"
   if (Test-Path $done) { continue }
