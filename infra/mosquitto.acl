@@ -1,0 +1,10 @@
+# Cihaz (kullanıcı adı = cihaz kimliği): yalnız kendi komut konusunu okur, kendi ack/durum konusuna yazar.
+pattern read tp/dev/%u/cmd
+pattern write tp/dev/%u/ack
+pattern write tp/dev/%u/state
+
+# Sunucu: tüm cihazlara komut yazar, tüm ack/durumları okur. Başka hiçbir konu yok.
+user tp-server
+topic write tp/dev/+/cmd
+topic read tp/dev/+/ack
+topic read tp/dev/+/state

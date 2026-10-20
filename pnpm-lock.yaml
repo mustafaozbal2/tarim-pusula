@@ -205,6 +205,9 @@ importers:
       '@tarim/agro-core':
         specifier: workspace:*
         version: link:../../packages/agro-core
+      '@tarim/device-sim':
+        specifier: workspace:*
+        version: link:../../packages/device-sim
       '@tarim/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -254,6 +257,9 @@ importers:
       '@tarim/agro-core':
         specifier: workspace:*
         version: link:../../packages/agro-core
+      '@tarim/device-sim':
+        specifier: workspace:*
+        version: link:../../packages/device-sim
       '@tarim/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -414,6 +420,13 @@ importers:
       '@tarim/schemas':
         specifier: workspace:*
         version: link:../schemas
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
 
   packages/schemas:
     dependencies:

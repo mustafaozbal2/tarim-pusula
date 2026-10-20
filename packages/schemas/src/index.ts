@@ -27,3 +27,4 @@ export * from './announcements';
 export * from './panel';
 export * from './library';
 export * from './pusula';
+export * from './irrigation';

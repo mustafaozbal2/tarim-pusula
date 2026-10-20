@@ -2,7 +2,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize } from '@tarim/ui';
-import type { FieldDto } from '../../src/api/client';
+import type { DeviceDto, FieldDto } from '../../src/api/client';
 import { Notice } from '../../src/components/FlowParts';
 import { PendingProposals } from '../../src/components/Proposals';
 import { Screen } from '../../src/components/Screen';
@@ -29,6 +29,7 @@ export default function FieldsScreen() {
   const [cache, setCache] = useState<Cache | null>(null);
   const [offline, setOffline] = useState(false);
   const [waiting, setWaiting] = useState<QueueItem[]>([]);
+  const [devices, setDevices] = useState<DeviceDto[]>([]);
 
   const load = useCallback(async () => {
     setWaiting(await queue.pending());
@@ -42,6 +43,7 @@ export default function FieldsScreen() {
       await kv.set(CACHE_KEY, JSON.stringify(fresh));
       setCache(fresh);
       setOffline(false);
+      setDevices(await api.devices().catch(() => []));
     } catch {
       setOffline(true); // son kaydedilen liste kalır, "son güncelleme" saati görünür
     }
@@ -80,6 +82,16 @@ export default function FieldsScreen() {
               ? ` · ${f.areaDecare.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} ${t.area}`
               : ''}
           </Text>
+          {devices
+            .filter((d) => d.fieldId === f.id)
+            .map((d) => (
+              <Button
+                key={d.id}
+                label={`${tr.irrigation.openValve}: ${d.name}`}
+                variant="water"
+                onPress={() => router.push({ pathname: '/sulama', params: { deviceId: d.id } })}
+              />
+            ))}
         </Card>
       ))}
       {empty ? (

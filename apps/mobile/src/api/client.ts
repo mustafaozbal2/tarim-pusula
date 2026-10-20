@@ -1,4 +1,4 @@
-import type { FieldCreate } from '@tarim/schemas';
+import type { CommandCreate, CommandDto, DeviceStatusDto, FieldCreate } from '@tarim/schemas';
 
 /** Sunucu yanıt verdi ama hata döndü (400/403/404/429...). Yeniden denemek işe yaramaz. */
 export class ApiError extends Error {
@@ -51,6 +51,13 @@ export interface FieldDto {
   cropId: string | null;
   locationSource: string | null;
   clientId: string | null;
+}
+
+export interface DeviceDto {
+  id: string;
+  fieldId: string;
+  name: string;
+  kind: string;
 }
 
 export interface CropDto {
@@ -194,6 +201,11 @@ export function createApi(opts: ApiOptions) {
     registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>
       request<{ ok: boolean }>('POST', '/me/push-token', { token, platform }),
     crops: () => request<CropDto[]>('GET', '/crops'),
+    devices: () => request<DeviceDto[]>('GET', '/devices'),
+    deviceStatus: (id: string) => request<DeviceStatusDto>('GET', `/devices/${q(id)}/status`),
+    /** Sulama komutu ASLA çevrimdışı sıraya alınmaz: geç icra edilen vana komutu tehlikelidir. */
+    sendCommand: (id: string, body: CommandCreate) =>
+      request<CommandDto>('POST', `/devices/${q(id)}/commands`, body),
     fields: () => request<FieldDto[]>('GET', '/fields'),
     createField: (f: FieldCreate) => request<FieldDto>('POST', '/fields', f),
     pusulaAsk: (body: {

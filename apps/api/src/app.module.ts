@@ -21,6 +21,9 @@ import { CropsController, NearbyController, PLACES, PlacesController } from './c
 import { AnnouncementsController, FieldCalendarController } from './controllers.g4';
 import { PanelController, PanelMfaController } from './controllers.g5';
 import { LibraryController } from './controllers.g6';
+import { IrrigationController } from './controllers.g8';
+import { InMemoryBroker } from '@tarim/device-sim';
+import { DEVICE_BROKER, IrrigationService } from './irrigation';
 import { Places } from './places';
 import { DataService } from './data.service';
 import type { Db } from './db/db';
@@ -51,6 +54,8 @@ export interface AppOptions {
   push?: PushClient;
   /** Verilmezse ANTHROPIC_API_KEY varsa Claude, yoksa ağa çıkmayan sahte sağlayıcı. */
   llm?: LlmProvider;
+  /** Cihaz aracısı. Verilmezse süreç içi aracı (gerçek MQTT/TLS aracısı üretimde bunun yerine geçer). */
+  broker?: InMemoryBroker;
   now?: () => Date;
 }
 
@@ -85,6 +90,7 @@ export class AppModule {
         PanelController,
         LibraryController,
         PusulaController,
+        IrrigationController,
       ],
       providers: [
         { provide: DB, useValue: opts.db },
@@ -98,6 +104,8 @@ export class AppModule {
         { provide: LLM, useFactory: () => opts.llm ?? defaultLlm() },
         TodayController,
         FieldCalendarController,
+        { provide: DEVICE_BROKER, useFactory: () => opts.broker ?? new InMemoryBroker() },
+        IrrigationService,
         PusulaTools,
         PusulaService,
         NotifyService,

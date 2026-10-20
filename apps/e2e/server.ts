@@ -3,6 +3,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
 import { NestFactory } from '@nestjs/core';
+import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
 import { AppModule } from '../api/src/app.module';
 import { FakeSmsProvider } from '../api/src/auth/sms';
 import { importCropCatalog } from '../api/src/crops';
@@ -33,12 +34,14 @@ async function main() {
   const db = new PgliteDb();
   const sms = new FakeSmsProvider();
   await migrate(db);
+  const broker = new InMemoryBroker();
   await importCropCatalog(db);
   const app = await NestFactory.create(
     AppModule.register({
       db,
       sms,
       auth: { otpSecret: 'e2e' },
+      broker,
       // Dış ağ yok: hava sahte, ensemble üyelerinin hepsi -6 °C (don olasılığı %100).
       weather: new FakeWeatherProvider((lat, lon) =>
         sampleBundle(lat, lon, { memberMinC: Array.from({ length: 20 }, () => -6) }),
@@ -77,6 +80,30 @@ async function main() {
       if (url.pathname === '/__e2e/user') {
         res.setHeader('content-type', 'application/json');
         res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, ...(await newUser()) }));
+        return;
+      }
+      if (url.pathname === '/__e2e/irrigation') {
+        // Test için: tarla + kurulu cihaz + bağlı sanal ESP32 (vana kapalı).
+        const u = await newUser();
+        const call = async (path: string, body?: unknown) =>
+          (await (
+            await api(path, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', authorization: `Bearer ${u.token}` },
+              body: body === undefined ? undefined : JSON.stringify(body),
+            })
+          ).json()) as Record<string, string>;
+        const field = await call('/fields', {
+          name: 'Burç Köyü Fıstık Bahçesi',
+          lat: 37.1,
+          lon: 37.4,
+        });
+        const dev = await call('/devices', { fieldId: field['id'], name: 'Fıstık bahçesi vanası' });
+        const prov = await call(`/devices/${dev['id']}/provision`);
+        const device = new VirtualDevice({ id: dev['id']!, secret: prov['secret']!, broker });
+        await device.connect();
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, ...u, deviceId: dev['id'] }));
         return;
       }
       if (url.pathname === '/__e2e/staff') {

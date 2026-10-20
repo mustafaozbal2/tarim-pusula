@@ -8,9 +8,14 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc -p .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "bench": "tsx scripts/bench.ts"
   },
   "dependencies": {
     "@tarim/schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "tsx": "^4.23.15"
   }
 }
