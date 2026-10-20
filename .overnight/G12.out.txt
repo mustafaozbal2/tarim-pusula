@@ -1,0 +1,8 @@
+
+=== 2026-10-20T08:26:40 ===
+G12 tamam. K+Âk `pnpm run verify` ye+þil (27 g+Ârev, 248 API testi) ve de¦þi+þiklik `dev` dal¦-nda commitlendi.
+- **Hat:** `apps/api/src/ingest/` alt¦-nda kendi ZIP/`.docx` okuyucum var, yeni ba¦þ¦-ml¦-l¦-k eklemedim. PDF ve txt de desteklenir. Her dosyan¦-n yan¦-nda `*.kunye.json` (kaynak, tarih, s+-r+-m, lisans) +þart. Dosyalar taslak olarak k+-t+-phaneye ya da Kc tablosundan bitki paketine y+-klenir. Onay durumu k+-nyede verilemez. Sonu+ðlar `ingest_log`'a (migration 0011) yaz¦-l¦-r.
+- **U+ð ve test:** `POST /admin/jobs/content-ingest` yaln¦-z y+Ânetici + MFA ile +ðal¦-+þ¦-r, klas+Âr istekten gelmez. 14 yeni test +Ârnek docx/pdf/txt ile u+ðtan uca ko+þuyor.
+- **Eksikler:** takvim +þablonunun Word'den i+ðe aktar¦-m¦-, panelde y+-kleme ekran¦-, OCR ve eski `.doc` deste¦þi yok. `.docx`'te sayfa numaras¦- yaln¦-z a+ð¦-k sayfa sonlar¦-ndan gelir. +ûrnek belgeler testte +-retildi, ger+ðek kurum belgeleriyle denenmedi.
+- **Notlar:** kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
