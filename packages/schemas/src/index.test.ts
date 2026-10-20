@@ -43,7 +43,42 @@ describe('telefon ve kimlik şemaları', () => {
     expect(otpVerifySchema.safeParse({ phone: '5321234567', code: '123456' }).success).toBe(true);
   });
   it('tarla koordinatı sınırları denetlenir', () => {
-    expect(fieldCreateSchema.safeParse({ name: 'A', lat: 91 }).success).toBe(false);
+    expect(fieldCreateSchema.safeParse({ name: 'A', lat: 91, lon: 38 }).success).toBe(false);
+    expect(fieldCreateSchema.safeParse({ name: 'A' }).success).toBe(false); // nokta konum zorunlu
     expect(fieldCreateSchema.safeParse({ name: 'A', lat: 37, lon: 38 }).success).toBe(true);
+  });
+});
+
+import { boundarySchema, nearbyCodeSchema, nearbyClaimSchema } from './index';
+
+describe('tarla sınırı ve yakın kodu', () => {
+  const ring = [
+    [37, 37],
+    [37.001, 37],
+    [37.001, 37.001],
+    [37, 37],
+  ];
+  it('sınır GeoJSON Polygon olmalı', () => {
+    expect(boundarySchema.safeParse({ type: 'Polygon', coordinates: [ring] }).success).toBe(true);
+    expect(
+      boundarySchema.safeParse({ type: 'Polygon', coordinates: [ring.slice(0, 3)] }).success,
+    ).toBe(false);
+    expect(boundarySchema.safeParse({ type: 'Polygon', coordinates: [ring, ring] }).success).toBe(
+      false,
+    );
+    expect(
+      boundarySchema.safeParse({ type: 'Polygon', coordinates: [[[200, 0], ...ring]] }).success,
+    ).toBe(false);
+  });
+  it('kod 6 hane; boşluklu yazım kabul', () => {
+    expect(nearbyCodeSchema.parse('482 913')).toBe('482913');
+    expect(nearbyCodeSchema.safeParse('48291').success).toBe(false);
+    expect(nearbyCodeSchema.safeParse('abcdef').success).toBe(false);
+  });
+  it('talep tarla içerir', () => {
+    expect(
+      nearbyClaimSchema.safeParse({ code: '482913', field: { name: 'A', lat: 37, lon: 38 } })
+        .success,
+    ).toBe(true);
   });
 });

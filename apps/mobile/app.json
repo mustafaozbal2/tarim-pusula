@@ -6,7 +6,18 @@
     "version": "0.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-sqlite",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Tarlanın yerini bulmak için telefonunun konumuna bakacağız. Konumunu başka kimseyle paylaşmayız."
+        }
+      ],
+      "@maplibre/maplibre-react-native"
+    ],
     "web": {
       "bundler": "metro",
       "output": "single"

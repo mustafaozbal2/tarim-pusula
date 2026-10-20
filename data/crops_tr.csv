@@ -1,0 +1,46 @@
+id,name_tr,name_en,grp,lifespan,common_rank,seed_key
+antep-fistigi,Antep fıstığı,Pistachio,meyve-agaci,cok-yillik,1,Antep fistigi (ortu yok)
+zeytin,Zeytin,Olive,meyve-agaci,cok-yillik,2,Zeytin (%40-60 ortu)
+bugday,Buğday,Wheat,tahil,yillik,3,Kislik bugday (donmayan toprak)
+pamuk,Pamuk,Cotton,endustri,yillik,4,Pamuk
+domates,Domates,Tomato,sebze,yillik,5,Domates
+arpa,Arpa,Barley,tahil,yillik,6,Arpa
+bugday-donan-toprak,Buğday (kışlık; toprak donuyorsa),Winter wheat (frozen soils),tahil,yillik,,Kislik bugday (donan toprak)
+bugday-yazlik,Buğday (yazlık),Spring wheat,tahil,yillik,,Yazlik bugday
+misir-tane,Mısır (tane),Maize field (grain),tahil,yillik,,Misir (tane)
+misir-tatli,Mısır (tatlı),Maize sweet,sebze,yillik,,Misir (tatli)
+patates,Patates,Potato,sebze,yillik,,Patates
+seker-pancari,Şeker pancarı,Sugar beet,endustri,yillik,,Seker pancari
+aycicegi,Ayçiçeği,Sunflower,endustri,yillik,,Aycicegi
+mercimek,Mercimek,Lentil,baklagil,yillik,,Mercimek
+nohut,Nohut,Chick pea,baklagil,yillik,,Nohut
+badem,Badem,Almond,meyve-agaci,cok-yillik,,Badem (ortu yok)
+ceviz,Ceviz,Walnut,meyve-agaci,cok-yillik,,Ceviz
+elma-kiraz-armut-olduren-don,"Elma, kiraz, armut (örtüsüz; öldüren don olur)","Apples, cherries, pears",meyve-agaci,cok-yillik,,Elma/Kiraz/Armut (ortu yok; olduren don)
+elma-kiraz-armut,"Elma, kiraz, armut (örtüsüz; don olmaz)","Apples, cherries, pears",meyve-agaci,cok-yillik,,Elma/Kiraz/Armut (ortu yok; don yok)
+elma-kiraz-armut-ortulu-olduren-don,"Elma, kiraz, armut (yeşil örtülü; öldüren don olur)","Apples, cherries, pears",meyve-agaci,cok-yillik,,Elma/Kiraz/Armut (aktif ortu; olduren don)
+elma-kiraz-armut-ortulu,"Elma, kiraz, armut (yeşil örtülü; don olmaz)","Apples, cherries, pears",meyve-agaci,cok-yillik,,Elma/Kiraz/Armut (aktif ortu; don yok)
+kayisi-seftali-olduren-don,"Kayısı, şeftali, çekirdekli (örtüsüz; öldüren don olur)","Apricots, peaches, stone fruit",meyve-agaci,cok-yillik,,Kayisi/Seftali/Cekirdekli (ortu yok; olduren don)
+kayisi-seftali,"Kayısı, şeftali, çekirdekli (örtüsüz; don olmaz)","Apricots, peaches, stone fruit",meyve-agaci,cok-yillik,,Kayisi/Seftali/Cekirdekli (ortu yok; don yok)
+kayisi-seftali-ortulu-olduren-don,"Kayısı, şeftali, çekirdekli (yeşil örtülü; öldüren don olur)","Apricots, peaches, stone fruit",meyve-agaci,cok-yillik,,Kayisi/Seftali/Cekirdekli (aktif ortu; olduren don)
+kayisi-seftali-ortulu,"Kayısı, şeftali, çekirdekli (yeşil örtülü; don olmaz)","Apricots, peaches, stone fruit",meyve-agaci,cok-yillik,,Kayisi/Seftali/Cekirdekli (aktif ortu; don yok)
+narenciye-yuzde70,Narenciye (örtüsüz; taç %70),Citrus,meyve-agaci,cok-yillik,,Narenciye (ortu yok; %70 tac)
+narenciye-yuzde50,Narenciye (örtüsüz; taç %50),Citrus,meyve-agaci,cok-yillik,,Narenciye (ortu yok; %50 tac)
+narenciye-yuzde20,Narenciye (örtüsüz; taç %20),Citrus,meyve-agaci,cok-yillik,,Narenciye (ortu yok; %20 tac)
+narenciye-ortulu-yuzde70,Narenciye (yeşil örtülü; taç %70),Citrus,meyve-agaci,cok-yillik,,Narenciye (aktif ortu; %70 tac)
+narenciye-ortulu-yuzde50,Narenciye (yeşil örtülü; taç %50),Citrus,meyve-agaci,cok-yillik,,Narenciye (aktif ortu; %50 tac)
+narenciye-ortulu-yuzde20,Narenciye (yeşil örtülü; taç %20),Citrus,meyve-agaci,cok-yillik,,Narenciye (aktif ortu; %20 tac)
+uzum-sofralik,Üzüm (sofralık / kurutmalık),Grapes table or raisin,meyve-agaci,cok-yillik,,Uzum (sofralik/kurutmalik)
+uzum-sarap,Üzüm (şaraplık),Grapes wine,meyve-agaci,cok-yillik,,Uzum (sarapllik)
+incir,İncir,Fig,meyve-agaci,cok-yillik,,
+nar,Nar,Pomegranate,meyve-agaci,cok-yillik,,
+findik,Fındık,Hazelnut,meyve-agaci,cok-yillik,,
+cay,Çay,Tea,endustri,cok-yillik,,
+cilek,Çilek,Strawberry,sebze,yillik,,
+biber,Biber,Pepper,sebze,yillik,,
+patlican,Patlıcan,Eggplant,sebze,yillik,,
+salatalik,Salatalık,Cucumber,sebze,yillik,,
+sogan,Soğan,Onion,sebze,yillik,,
+kavun-karpuz,Kavun ve karpuz,Melon and watermelon,sebze,yillik,,
+fasulye,Fasulye,Bean,baklagil,yillik,,
+yonca,Yonca,Alfalfa,yem,cok-yillik,,

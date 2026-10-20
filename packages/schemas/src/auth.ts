@@ -31,18 +31,6 @@ export const otpVerifySchema = z.object({
 
 export const fieldLevelSchema = z.enum(['read', 'write']);
 
-export const fieldCreateSchema = z.object({
-  name: z.string().trim().min(1).max(80),
-  province: z.string().trim().max(60).optional(),
-  district: z.string().trim().max(60).optional(),
-  village: z.string().trim().max(60).optional(),
-  lat: z.number().min(-90).max(90).optional(),
-  lon: z.number().min(-180).max(180).optional(),
-  areaDecare: z.number().positive().max(1_000_000).optional(),
-  cropId: z.string().trim().max(60).optional(),
-});
-export const fieldUpdateSchema = fieldCreateSchema.partial();
-
 export const fieldAccessGrantSchema = z.object({
   userId: z.uuid(),
   level: fieldLevelSchema,
@@ -71,6 +59,3 @@ export const profileUpdateSchema = z.object({
 
 export const accountDeleteSchema = z.object({ confirm: z.literal('SIL') });
 export const roleGrantSchema = z.object({ role: roleSchema });
-
-export type FieldCreate = z.infer<typeof fieldCreateSchema>;
-export type FieldUpdate = z.infer<typeof fieldUpdateSchema>;

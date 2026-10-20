@@ -15,7 +15,11 @@ export type IconName =
   | 'drop'
   | 'mic'
   | 'camera'
-  | 'compass';
+  | 'compass'
+  | 'village'
+  | 'people'
+  | 'back'
+  | 'target';
 
 /** Prototipteki çizgi ikonları (24x24, çizgi kalınlığı 2). Anlam her zaman yazıyla da verilir. */
 export function Icon({
@@ -115,6 +119,31 @@ function shape(name: IconName) {
         <>
           <Path d="M4 8h3l2-3h6l2 3h3v11H4z" />
           <Circle cx={12} cy={13} r={3.5} />
+        </>
+      );
+    case 'village':
+      return (
+        <>
+          <Path d="M3 20h18M5 20V10l7-5 7 5v10" />
+          <Path d="M10 20v-6h4v6" />
+        </>
+      );
+    case 'people':
+      return (
+        <>
+          <Circle cx={9} cy={8} r={3.5} />
+          <Path d="M2 20c0-4 3-6 7-6s7 2 7 6" />
+          <Path d="M17 5h5M19.5 2.5v5" />
+        </>
+      );
+    case 'back':
+      return <Path d="M15 6l-6 6 6 6" />;
+    case 'target':
+      return (
+        <>
+          <Circle cx={12} cy={12} r={3.5} />
+          <Circle cx={12} cy={12} r={8} />
+          <Path d="M12 1v3M12 20v3M1 12h3M20 12h3" />
         </>
       );
     case 'compass':

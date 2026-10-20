@@ -233,7 +233,11 @@ describe('yetki: paylaşım', () => {
 
 describe('audit_log: her mutasyon satır üretir', () => {
   it.each([
-    ['tarla ekle', async () => call('POST', '/fields', veli.token, { name: 'Veli tarlası' })],
+    [
+      'tarla ekle',
+      async () =>
+        call('POST', '/fields', veli.token, { name: 'Veli tarlası', lat: 37.1, lon: 37.4 }),
+    ],
     ['profil güncelle', async () => call('PATCH', '/me', veli.token, { displayName: 'Veli' })],
     [
       'rıza ekle',
@@ -252,7 +256,8 @@ describe('audit_log: her mutasyon satır üretir', () => {
   });
 
   it('tarla güncelle / cihaz ekle / cihaz sil / tarla sil: her biri satır ekler', async () => {
-    const f = (await call('POST', '/fields', veli.token, { name: 'Geçici' })).body;
+    const f = (await call('POST', '/fields', veli.token, { name: 'Geçici', lat: 37.1, lon: 37.4 }))
+      .body;
     let before = await auditCount();
     expect((await call('PATCH', `/fields/${f.id}`, veli.token, { name: 'Geçici 2' })).status).toBe(
       200,
@@ -304,7 +309,9 @@ describe('audit_log: her mutasyon satır üretir', () => {
 
 describe('doğrulama', () => {
   it('bozuk gövde 400', async () => {
-    expect((await call('POST', '/fields', ali.token, { name: '' })).status).toBe(400);
+    expect((await call('POST', '/fields', ali.token, { name: '', lat: 37, lon: 37 })).status).toBe(
+      400,
+    );
     expect((await call('POST', '/fields', ali.token, { name: 'a', lat: 123 })).status).toBe(400);
     expect(
       (
@@ -339,7 +346,8 @@ describe('KVKK', () => {
 
   it('hesap silme onay ister; sonra veri, oturum ve tarlalar gider; denetim satırları kalır', async () => {
     const u = await login('+905328888888');
-    const f = (await call('POST', '/fields', u.token, { name: 'Silinecek' })).body;
+    const f = (await call('POST', '/fields', u.token, { name: 'Silinecek', lat: 37.1, lon: 37.4 }))
+      .body;
     expect((await call('DELETE', '/me', u.token, {})).status).toBe(400);
     expect((await call('DELETE', '/me', u.token, { confirm: 'SIL' })).status).toBe(204);
     expect((await call('GET', '/me', u.token)).status).toBe(401);

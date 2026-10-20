@@ -25,24 +25,11 @@ import {
   roleSchema,
   type FieldUpdate,
 } from '@tarim/schemas';
+import { FIELD_COLS, FIELD_COLUMN, insertField, withComputedArea } from './fields.logic';
 import { Me, parse, Public, Roles, Token } from './auth/access';
 import { AuthService } from './auth/auth.service';
 import { DataService } from './data.service';
 import type { Principal, Queryable } from './db/db';
-
-const FIELD_COLS = `id, owner_id AS "ownerId", name, province, district, village, lat, lon,
-  area_decare AS "areaDecare", crop_id AS "cropId", created_at AS "createdAt", updated_at AS "updatedAt"`;
-
-const FIELD_COLUMN: Record<keyof FieldUpdate, string> = {
-  name: 'name',
-  province: 'province',
-  district: 'district',
-  village: 'village',
-  lat: 'lat',
-  lon: 'lon',
-  areaDecare: 'area_decare',
-  cropId: 'crop_id',
-};
 
 @Controller('auth')
 export class AuthController {
@@ -77,24 +64,8 @@ export class FieldsController {
   @Post()
   create(@Me() me: Principal, @Body() body: unknown) {
     const f = parse(fieldCreateSchema, body);
-    return this.data.run(me, 'fields.create', async (q) => {
-      const [row] = await q.query(
-        `INSERT INTO fields(owner_id, name, province, district, village, lat, lon, area_decare, crop_id)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING ${FIELD_COLS}`,
-        [
-          me.userId,
-          f.name,
-          f.province,
-          f.district,
-          f.village,
-          f.lat,
-          f.lon,
-          f.areaDecare,
-          f.cropId,
-        ].map((v) => v ?? null),
-      );
-      return row;
-    });
+    const checked = withComputedArea(f); // geçersiz sınır burada 400 olur
+    return this.data.run(me, 'fields.create', (q) => insertField(q, me.userId, checked));
   }
 
   @Get()
@@ -114,7 +85,7 @@ export class FieldsController {
 
   @Patch(':id')
   update(@Me() me: Principal, @Param('id') id: string, @Body() body: unknown) {
-    const patch = parse(fieldUpdateSchema, body);
+    const patch = withComputedArea(parse(fieldUpdateSchema, body));
     const keys = (Object.keys(patch) as (keyof FieldUpdate)[]).filter(
       (k) => patch[k] !== undefined,
     );
@@ -122,10 +93,15 @@ export class FieldsController {
       if (keys.length === 0) {
         return (await q.query(`SELECT ${FIELD_COLS} FROM fields WHERE id = $1`, [id]))[0];
       }
-      const sets = keys.map((k, i) => `${FIELD_COLUMN[k]} = $${i + 2}`).join(', ');
+      const sets = keys
+        .map((k, i) => `${FIELD_COLUMN[k]} = $${i + 2}${k === 'boundary' ? '::jsonb' : ''}`)
+        .join(', ');
       const [row] = await q.query(
         `UPDATE fields SET ${sets} WHERE id = $1 RETURNING ${FIELD_COLS}`,
-        [id, ...keys.map((k) => patch[k])],
+        [
+          id,
+          ...keys.map((k) => (k === 'boundary' && patch[k] ? JSON.stringify(patch[k]) : patch[k])),
+        ],
       );
       return row;
     });

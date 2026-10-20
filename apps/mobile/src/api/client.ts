@@ -1,0 +1,124 @@
+import type { FieldCreate } from '@tarim/schemas';
+
+/** Sunucu yanıt verdi ama hata döndü (400/403/404/429...). Yeniden denemek işe yaramaz. */
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+/** Sunucuya ulaşılamadı (internet yok / zaman aşımı). Sıraya alınıp sonra denenir. */
+export class NetworkError extends Error {
+  constructor() {
+    super('Sunucuya ulaşılamadı');
+    this.name = 'NetworkError';
+  }
+}
+
+export interface FieldDto {
+  id: string;
+  name: string;
+  province: string | null;
+  district: string | null;
+  village: string | null;
+  lat: number | null;
+  lon: number | null;
+  areaDecare: number | null;
+  cropId: string | null;
+  locationSource: string | null;
+  clientId: string | null;
+}
+
+export interface CropDto {
+  id: string;
+  nameTr: string;
+  group: string;
+  commonRank: number | null;
+  needsBadge: boolean;
+  canDriveAdvice: boolean;
+}
+
+export interface PlaceDto {
+  name: string;
+  lat: number;
+  lon: number;
+}
+
+export interface ProposalDto {
+  id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  as: 'owner' | 'helper';
+  payload: FieldCreate;
+  createdAt: string;
+}
+
+export interface ApiOptions {
+  baseUrl: string | (() => Promise<string> | string);
+  getToken: () => Promise<string | null> | string | null;
+  fetchImpl?: typeof fetch;
+  timeoutMs?: number;
+}
+
+export function createApi(opts: ApiOptions) {
+  const doFetch = opts.fetchImpl ?? fetch;
+
+  async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+    const token = await opts.getToken();
+    const baseUrl = typeof opts.baseUrl === 'function' ? await opts.baseUrl() : opts.baseUrl;
+    const ctrl = typeof AbortController === 'undefined' ? null : new AbortController();
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 15_000) : null;
+    let res: Response;
+    try {
+      res = await doFetch(baseUrl + path, {
+        method,
+        headers: {
+          'content-type': 'application/json',
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        signal: ctrl?.signal,
+      });
+    } catch {
+      throw new NetworkError();
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+    const text = await res.text();
+    const data = text ? (JSON.parse(text) as unknown) : undefined;
+    if (!res.ok) {
+      const msg = (data as { message?: string | string[] } | undefined)?.message;
+      throw new ApiError(res.status, Array.isArray(msg) ? msg.join('; ') : (msg ?? 'Hata'));
+    }
+    return data as T;
+  }
+
+  const q = encodeURIComponent;
+  return {
+    requestOtp: (phone: string) => request<{ ok: boolean }>('POST', '/auth/otp/request', { phone }),
+    verifyOtp: (phone: string, code: string) =>
+      request<{ token: string; userId: string }>('POST', '/auth/otp/verify', { phone, code }),
+    provinces: () => request<string[]>('GET', '/places/provinces'),
+    districts: (province: string) =>
+      request<string[]>('GET', `/places/districts?province=${q(province)}`),
+    villages: (province: string, district: string, search?: string) =>
+      request<PlaceDto[]>(
+        'GET',
+        `/places/villages?province=${q(province)}&district=${q(district)}${search ? `&q=${q(search)}` : ''}`,
+      ),
+    crops: () => request<CropDto[]>('GET', '/crops'),
+    fields: () => request<FieldDto[]>('GET', '/fields'),
+    createField: (f: FieldCreate) => request<FieldDto>('POST', '/fields', f),
+    nearbyCreateCode: () => request<{ code: string; expiresAt: string }>('POST', '/nearby/codes'),
+    nearbyClaim: (code: string, field: FieldCreate) =>
+      request<{ proposalId: string }>('POST', '/nearby/claim', { code, field }),
+    nearbyProposals: () => request<ProposalDto[]>('GET', '/nearby/proposals'),
+    nearbyDecide: (id: string, approve: boolean) =>
+      request<{ status: string }>('POST', `/nearby/proposals/${id}/decision`, { approve }),
+  };
+}
+
+export type Api = ReturnType<typeof createApi>;
