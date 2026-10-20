@@ -2,3 +2,12 @@
 === 2026-10-20T04:24:28 ===
 You've hit your session limit TÀ resets 4:40am (Europe/Istanbul)
 
+
+=== 2026-10-20T06:55:21 ===
+G4 bitti ve k+Âk `pnpm run verify` hatas¦-z ge+ðti (27/27 g+Ârev). Mobilde takvim veya duyuru ekran¦- yok, yaln¦-zca API taraf¦- var.
+
+- **Hedefleme ve takvim:** agro-core'da hedefleme (il/il+ðe/k+Ây, daire ve +-r+-n) ile taslak etkinlik +þablonlar¦-ndan tarlaya +Âzel takvim eklendi. Ba+þka ilin duyurusu g+Âr+-nm+-yor, bu testle do¦þruland¦-.
+- **API ve veri:** Duyuru y+Ânetimi, tarlaya g+Âre duyuru ve takvim u+ðlar¦- ile migration 0004 eklendi. Her duyuru kart¦- kaynak kurum, tarih ve "Neden?" metni ta+þ¦-yor.
+- **Bu oturumda:** +ûnceki oturumdan kalan yar¦-m i+þi tamamlad¦-m. Tek lint hatas¦- `apps/api/src/g4.test.ts` i+ðindeki kullan¦-lmayan `ids` de¦þi+þkeniydi, onu d+-zelttim. Kararlar¦- `docs/KARARLAR.md`'ye, devir notunu `.overnight/NOTES.md`'ye yazd¦-m ve `dev` dal¦-na commit att¦-m.
+- **Do¦þrulanmad¦-:** Daire hedeflemesi ger+ðek PostGIS'te denenmedi, e+þle+þme TypeScript'te yap¦-l¦-yor. Takvim +þablonlar¦- taslak oldu¦þu i+ðin rozetli g+Âsterilecek, uyar¦- +-retmeyecek; onay ak¦-+þ¦- G5'te.
+
