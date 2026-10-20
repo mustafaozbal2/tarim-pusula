@@ -27,3 +27,8 @@
 2026-10-20T08:11:11  BASLA G11 (basarisiz deneme: 0)
 2026-10-20T08:20:36  G11 TAMAM
 2026-10-20T08:20:36  BASLA G12 (basarisiz deneme: 0)
+2026-10-20T08:26:47  G12 TAMAM
+2026-10-20T08:26:47  BASLA G13 (basarisiz deneme: 0)
+2026-10-20T08:27:02  G13 : limit/baglanti sorunu. 2.5 saat bekleniyor.
+2026-10-20T10:57:02  BASLA G13 (basarisiz deneme: 0)
+2026-10-20T10:57:11  G13 : limit/baglanti sorunu. 2.5 saat bekleniyor.
