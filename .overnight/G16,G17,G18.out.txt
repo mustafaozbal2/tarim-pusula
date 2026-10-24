@@ -1,0 +1,23 @@
+
+=== 2026-10-24T17:21:52 ===
+G16, G17 ve G18 uyguland¦- ve `dev` dal¦-na commit'lendi. K+Âk `pnpm run verify` ye+þil (27/27 g+Ârev, 42 e2e). Ger+ðek EAS/APK derlemesi ve telefonla deneme yap¦-lmad¦-; bunlar Expo hesab¦- gerektirir, yaln¦-z yap¦-land¦-rma testle do¦þruland¦-.
+
+- **G16 (mobil):**
+  - Yeni tema ve bile+þenler, +Âzg+-n +ðift+ði SVG'si, Bug+-n ekran¦-. Bug+-n'de kayd¦-rmadan 6'dan fazla sat¦-r g+Âr+-n+-yor.
+  - Tarlalar¦-m liste/harita, Ayarlar (Normal/B+-y+-k yaz¦-, ses rehberi), Bitki Kc ve Toprak listeleri (yeni `/crops/kc-table`, `/soils`).
+  - 13 ekran 390+ù844 g+Âr+-nt+-lendi: `docs/gorsel/KARSILASTIRMA.md`.
+  - Liste ye+þili #24976E beyazla AA'y¦- ge+ðmedi¦þi i+ðin #1B7F5A'ya koyula+þt¦-r¦-ld¦- (KARARLAR'da).
+- **G17 (panel):**
+  - Gruplu men+-, +-st +ðubuk, ana sayfa +Âzeti, "T+-m+-" a+ð¦-k se+ðenekli duyuru formu ve canl¦- telefon +Ânizlemesi, g+Ârsel y+-kleme (migration 0013).
+  - Arama/s+-zge+ð/s¦-ralama/sayfalama, d+-zenle/sil, reddet, onay¦- geri +ðek, MFA s¦-f¦-rla.
+  - Duyuru olu+þtur > d+-zenle > onayla > mobilde g+Âr+-n+-r > sil e2e testi ge+ðti.
+  - +£r+-n arz talep ve Verim haritas¦- sayfalar¦- veri kayna¦þ¦- olmad¦-¦þ¦-ndan "veri bekleniyor" g+Âsteriyor. Kc/toprak tablolar¦-nda D+-zenle/Sil kas¦-tl¦- yok.
+- **G18 (APK):**
+  - EAS preview/development, paket ad¦- `com.tarimpusula.app`, yer tutucu logo, sunucu adresi yokken +ð+Âkmeme ve "Sunucuya ba¦þlan¦-lamad¦-" kart¦-.
+  - `demo -- --lan` modu, `docs/APK_REHBERI.md` (Expo hesab¦-, `eas login/init/build`, APK kurulumu, g+-venlik duvar¦- komutu sende), Hakk¦-nda.
+- **Bilinen s¦-n¦-rlar:**
+  - B+-y+-k yaz¦- modu yaln¦-z web'de denendi.
+  - `--lan` modu ger+ðek telefonla denenmedi.
+  - Duyuru sat¦-rlar¦-na dokununca ayr¦-nt¦- a+ð¦-l¦-yor, bu y+-zden `panel.spec` ve `takvim.spec`'e bir dokunu+þ eklendi.
+- **Not:** e2e'de aral¦-kl¦- d+-+þen +ðevrimd¦-+þ¦- testi i+ðin servis +ðal¦-+þan¦-n¦- sa¦þlamla+þt¦-rd¦-m ve e2e sunucu a+ð¦-l¦-+þ s+-resini 120 sn'den 300 sn'ye +ð¦-kard¦-m. Tam kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+
