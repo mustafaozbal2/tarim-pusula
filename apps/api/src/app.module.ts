@@ -10,6 +10,8 @@ import {
   type AuthConfig,
 } from './auth/auth.service';
 import type { SmsProvider } from './auth/sms';
+import { DEMO_INFO, DemoController, type DemoInfo } from './demo';
+
 import {
   AdminController,
   AuthController,
@@ -83,6 +85,8 @@ export interface AppOptions {
   /** İçerik içe aktarma klasörü. Verilmezse CONTENT_INGEST_DIR, o da yoksa <DATA_DIR>/icerik. */
   ingestDir?: string;
   now?: () => Date;
+  /** Demo modu (yalnız `demoInfo(env)` döndürdüyse verilir): /demo/info ucu ve sabit kod. */
+  demo?: DemoInfo;
 }
 
 function defaultLlm(): LlmProvider {
@@ -133,12 +137,21 @@ export class AppModule {
         SupportsController,
         WalletController,
         IngestController,
+        ...(opts.demo ? [DemoController] : []),
       ],
       providers: [
+        { provide: DEMO_INFO, useValue: opts.demo },
         { provide: DB, useValue: opts.db },
         { provide: INGEST_DIR, useValue: opts.ingestDir ?? defaultIngestDir() },
         { provide: SMS, useValue: opts.sms },
-        { provide: AUTH_CONFIG, useValue: { ...defaultAuthConfig(), ...opts.auth } },
+        {
+          provide: AUTH_CONFIG,
+          useValue: {
+            ...defaultAuthConfig(),
+            ...(opts.demo ? { demoCode: opts.demo.code, otpMaxRequests: 1000 } : {}),
+            ...opts.auth,
+          },
+        },
         { provide: PLACES, useFactory: () => opts.places ?? Places.load() },
         { provide: WEATHER, useValue: opts.weather ?? new FakeWeatherProvider() },
         { provide: NDVI, useFactory: () => opts.ndvi ?? defaultNdvi() },

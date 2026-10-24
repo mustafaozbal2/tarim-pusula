@@ -1,6 +1,8 @@
 node_modules
 dist
+dist-demo
 .next
+.next-demo
 .expo
 .turbo
 pnpm-lock.yaml

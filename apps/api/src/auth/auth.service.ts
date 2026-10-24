@@ -12,7 +12,7 @@ import type { Role } from '@tarim/schemas';
 import { systemTx, type Db, type Principal } from '../db/db';
 import type { SmsProvider } from './sms';
 import { encKeyFrom, isSealed, open, seal } from './secretbox';
-import { newTotpSecret, otpauthUri, verifyTotp } from './totp';
+import { newTotpSecret, otpauthUri, totpStep, verifyTotp } from './totp';
 
 /** Panele girebilen roller. */
 export const STAFF_ROLES = ['institution_admin', 'expert', 'admin'] as const;
@@ -34,6 +34,8 @@ export interface AuthConfig {
   sessionTtlSeconds: number;
   /** Veritabanındaki sırların şifre anahtarı (.env: SECRET_ENC_KEY). */
   encKey: Buffer;
+  /** YALNIZ demo modu: SMS ve doğrulayıcı kodu yerine geçen sabit kod. Üretimde asla verilmez. */
+  demoCode?: string;
 }
 
 export const defaultAuthConfig = (env: NodeJS.ProcessEnv = process.env): AuthConfig => ({
@@ -69,7 +71,7 @@ export class AuthService {
   async requestOtp(phone: string): Promise<{ expiresInSeconds: number }> {
     const now = this.cfg.now();
     const since = new Date(now.getTime() - this.cfg.otpRequestWindowSeconds * 1000);
-    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const code = this.cfg.demoCode ?? String(randomInt(0, 1_000_000)).padStart(6, '0');
     await systemTx(this.db, async (q) => {
       const [row] = await q.query<{ n: string }>(
         'SELECT count(*)::text n FROM otp_codes WHERE phone = $1 AND created_at > $2',
@@ -235,7 +237,11 @@ export class AuthService {
       if (m.locked_until && m.locked_until > now) {
         throw new HttpException('Çok fazla deneme. Biraz bekleyip tekrar deneyin.', 429);
       }
-      const step = verifyTotp(open(this.cfg.encKey, m.secret), code, now, Number(m.last_step));
+      // Demo modunda sabit kod kabul edilir; adım yine ilerler (aynı adım tekrar kullanılamaz).
+      const step =
+        this.cfg.demoCode && code === this.cfg.demoCode
+          ? Math.max(Number(m.last_step) + 1, totpStep(now))
+          : verifyTotp(open(this.cfg.encKey, m.secret), code, now, Number(m.last_step));
       await q.query('SELECT set_config($1, $2, true)', ['app.user_id', p.userId]);
       if (step === null) {
         const failures = m.failures + 1;

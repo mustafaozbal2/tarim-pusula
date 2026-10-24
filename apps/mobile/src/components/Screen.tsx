@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, fontFamily, fontSize, spacing } from '@tarim/ui';
+import { DemoBadge } from './DemoBadge';
 
 /** Ortak ekran iskeleti: zemin rengi, kenar boşluğu, kaydırma. Ekran başına tek ana iş. */
 export function Screen({
@@ -15,6 +16,7 @@ export function Screen({
 }) {
   const scroll = (
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+      <DemoBadge />
       {title ? (
         <Text accessibilityRole="header" style={styles.title}>
           {title}

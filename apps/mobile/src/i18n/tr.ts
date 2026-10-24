@@ -133,6 +133,7 @@ export const tr = {
     enter: 'Giriş yap',
     wrong: 'Kod yanlış ya da süresi dolmuş.',
     noNet: 'İnternet yok. Bağlantı gelince tekrar dene.',
+    demoCode: 'Demo kodu',
   },
   commonCrops: [
     { id: 'antep-fistigi', name: 'Antep fıstığı' },

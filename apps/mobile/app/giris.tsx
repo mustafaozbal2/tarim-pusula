@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, TextInput } from 'react-native';
 import { Button, colors, fontFamily, fontSize, radius } from '@tarim/ui';
 import { ApiError, NetworkError } from '../src/api/client';
 import { FlowScreen, Notice, subtitleStyle, titleStyle } from '../src/components/FlowParts';
+import { DEMO_BUILD, demoCodeLine, loadDemoInfo, type DemoInfoDto } from '../src/demo';
 import { tr } from '../src/i18n/tr';
 import { api, setToken } from '../src/session';
 
@@ -28,6 +29,17 @@ export default function LoginScreen() {
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [demo, setDemo] = useState<DemoInfoDto | null>(null);
+
+  // Demo derlemesinde sunucuya sorulur; sunucu demo değilse kod hiç görünmez.
+  useEffect(() => {
+    if (!DEMO_BUILD) return;
+    void loadDemoInfo(() => api.demoInfo()).then((info) => {
+      setDemo(info);
+      if (info) setPhone((p) => p || info.farmerPhone);
+    });
+  }, []);
+  const demoLine = demoCodeLine(demo, t.demoCode);
 
   async function run(fn: () => Promise<void>) {
     setError(null);
@@ -90,6 +102,7 @@ export default function LoginScreen() {
         />
       )}
       {error ? <Notice tone="warn">{error}</Notice> : null}
+      {demoLine ? <Notice>{demoLine}</Notice> : null}
       <Text
         style={{
           fontFamily: fontFamily.semibold,

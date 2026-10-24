@@ -1,7 +1,8 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api, ApiError, clearToken, setToken } from '../lib/api';
+import { DEMO_BUILD, demoLine, loadDemoInfo, type DemoInfo } from '../lib/demo';
 import { Button, card, h1, input, label, Message } from '../ui';
 
 type Step = 'phone' | 'sms' | 'enroll' | 'totp';
@@ -15,6 +16,17 @@ export default function Login() {
   const [secret, setSecret] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [demo, setDemo] = useState<DemoInfo | null>(null);
+
+  // Demo derlemesinde sunucuya sorulur; sunucu demo değilse kod hiç görünmez.
+  useEffect(() => {
+    if (!DEMO_BUILD) return;
+    void loadDemoInfo(() => api<DemoInfo>('GET', '/demo/info')).then((info) => {
+      setDemo(info);
+      if (info) setPhone((p) => p || info.staffPhone);
+    });
+  }, []);
+  const demoText = demoLine(demo);
 
   const run = async (fn: () => Promise<void>) => {
     setError('');
@@ -132,6 +144,11 @@ export default function Login() {
           />
         ) : null}
         {error ? <Message kind="error">{error}</Message> : null}
+        {demoText ? (
+          <p data-testid="demo-kodu" style={{ fontSize: 18, fontWeight: 800 }}>
+            {demoText}
+          </p>
+        ) : null}
       </div>
     </main>
   );

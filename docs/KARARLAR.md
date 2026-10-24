@@ -195,3 +195,13 @@
 - **Takvim ekranı ve duyuru kartı.** Takvim: "Şimdi / Yaklaşan", taslak şablon rozetli ve "yalnız bilgi" notlu, kaynak + sürüm + tarih, "Neden?". Duyuru kartı: kaynak + yayın tarihi, rozet, "Neden?". Ortak `Button`/`Card` bileşenlerine `testID` eklendi.
 - **Görsel karşılaştırma yöntemi.** Piksel birebirliği anlamsız (gerçek veri, yazı tipi, örnek veri farkı); iki ekran 39×84 bloğa indirilip ortalama renk farkı ölçülür, eşik 0,25. Ölçümde Bugün ekranında gerçek sapmalar bulundu ve düzeltildi: tek tarlada gereksiz "Başka tarla seç" düğmesi kaldırıldı, "Sesle sor/Fotoğraf çek" şeridi kaydırmadan bağımsız sabitlendi (prototipteki gibi). Bildirim zili, işlevsiz olacağı için eklenmedi. Spec adı `zgorsel` (z): Pazar testi fiyat gelmeden önceki durumu bekler.
 - **Kabul tablosu.** `docs/KABUL_TABLOSU.md`; durumlar KANITLI / KISMEN / YAPILMADI, kanıt test adıdır. Kanıtı olmayan: G0 CI koşusu, G9 sulama önerisi ucu bağlama işleri.
+
+
+## DEMO (2026-10-24)
+
+- **Demo kodu sunucuya bağlı.** `demoInfo(env)` yalnız `DEMO_MODE=1` ve `NODE_ENV!=='production'` iken döner; `/demo/info` ucu ve sabit kod (`AuthConfig.demoCode`) yalnız o zaman kaydedilir. İstemciler (mobil, panel) kodu derleme bayrağına göre değil bu uca sorarak gösterir; uç 404 ise hiçbir şey çıkmaz. Gerekçe: yanlışlıkla demo bayraklı bir paket üretimde kod göstermesin. Test: kapalıyken 404 + 123456 reddedilir, üretimde `DEMO_MODE=1` bile kapalı.
+- **Demo TOTP.** Panel doğrulayıcı adımında da aynı sabit kod kabul edilir (adım numarası ilerler, tekrar kullanılamaz); gerçek TOTP yolu değişmedi. Demo modunda OTP istek sınırı 1000 (gezerken kilitlenmesin).
+- **Docker'sız demo.** Süreç içi PGlite + sahte SMS/hava/uydu/LLM; tohum verisi API'nin kendi uçlarıyla (tarla, cihaz, giriş) yazılır, yalnız onay durumu ve duyuru/belge/takvim doğrudan SQL ile. Hepsi "Örnek veri" işaretli (başlık/künye). Antep fıstığı çiçeklenme eşiği örnek olarak "onaylı" yazılır; kural 1 gereği gerçek veri için bu yol kullanılmaz (yalnız `demo-server.ts`).
+- **Ayrı derleme klasörleri.** Mobil `apps/mobile/dist-demo`, panel `.next-demo` (`NEXT_DIST_DIR`); e2e derlemeleri bozulmaz. Demo adresi (`EXPO_PUBLIC_API_URL`, `NEXT_PUBLIC_API_URL`) ve rozet bayrağı (`*_DEMO=1`) derlemeye gömülür. Portlar: mobil 8200, panel 8201, API 8210.
+- **Telefon sütunu.** Mobil web kökü en çok 430 px, ortada; cihazda etkisiz. Rozet `DemoBadge` yalnız demo derlemesinde `Screen`/`FlowScreen` üstünde çizilir (ekran başına bir rozet; kart kart değil).
+- **Pusula hazır cevapları.** 3 onaylı örnek belge (doz/karışım içermez) + hava aracı; sorular `DEMO_QUESTIONS`, testte her biri kaynaklı cevap alır, doz sorusu cevaplanmaz.

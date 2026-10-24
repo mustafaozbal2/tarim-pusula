@@ -8,6 +8,7 @@ import {
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Platform, View } from 'react-native';
 import { I18nextProvider } from 'react-i18next';
 import { i18n } from '../src/i18n';
 import { queue, useToken } from '../src/session';
@@ -39,6 +40,21 @@ function useSessionGate() {
   }, [token]);
 }
 
+/** Tarayıcıda telefon boyutunda, ortalanmış dar sütun; cihazda tam ekran. */
+const webFrame =
+  Platform.OS === 'web'
+    ? ({
+        flex: 1,
+        width: '100%',
+        maxWidth: 430,
+        alignSelf: 'center',
+        overflow: 'hidden',
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderColor: '#D5DBCB',
+      } as const)
+    : ({ flex: 1 } as const);
+
 export default function RootLayout() {
   // Yazı tipi yüklenemese bile uygulama sistem yazısıyla açılır.
   useFonts({ Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
@@ -46,7 +62,9 @@ export default function RootLayout() {
   return (
     <I18nextProvider i18n={i18n}>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }} />
+      <View style={webFrame}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </View>
     </I18nextProvider>
   );
 }

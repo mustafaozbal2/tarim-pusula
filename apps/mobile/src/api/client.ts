@@ -287,6 +287,12 @@ export function createApi(opts: ApiOptions) {
     requestOtp: (phone: string) => request<{ ok: boolean }>('POST', '/auth/otp/request', { phone }),
     verifyOtp: (phone: string, code: string) =>
       request<{ token: string; userId: string }>('POST', '/auth/otp/verify', { phone, code }),
+    /** Yalnız demo sunucusunda vardır; başka yerde 404 (ApiError) döner. */
+    demoInfo: () =>
+      request<{ demo: true; code: string; farmerPhone: string; staffPhone: string }>(
+        'GET',
+        '/demo/info',
+      ),
     provinces: () => request<string[]>('GET', '/places/provinces'),
     districts: (province: string) =>
       request<string[]>('GET', `/places/districts?province=${q(province)}`),

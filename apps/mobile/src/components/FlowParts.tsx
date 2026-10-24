@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
 import { tr } from '../i18n/tr';
+import { DemoBadge } from './DemoBadge';
 import { Icon, type IconName } from './Icon';
 
 /** Akış ekranı gövdesi: zemin rengi, kenar boşluğu, kaydırma. */
@@ -10,6 +11,7 @@ export function FlowScreen({ children, footer }: { children: ReactNode; footer?:
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingTop: 0, gap: spacing.md }}>
+        <DemoBadge />
         {children}
       </ScrollView>
       {footer ? (
