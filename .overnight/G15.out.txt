@@ -1,0 +1,25 @@
+
+=== 2026-10-20T12:29:47 ===
+You've hit your weekly limit TÀ resets Oct 24, 3pm (Europe/Istanbul)
+
+
+=== 2026-10-20T14:59:52 ===
+You've hit your weekly limit TÀ resets Oct 24, 3pm (Europe/Istanbul)
+
+
+=== 2026-10-20T18:25:50 ===
+You've hit your weekly limit TÀ resets Oct 24, 3pm (Europe/Istanbul)
+
+
+=== 2026-10-20T20:55:57 ===
+You've hit your weekly limit TÀ resets Oct 24, 3pm (Europe/Istanbul)
+
+
+=== 2026-10-24T15:29:38 ===
+G15 tamamland¦- ve `dev` dal¦-na commit edildi (28ec56a). K+Âk `pnpm run verify` (27 g+Ârev, 26 e2e, prettier) ve ger+ðek Docker altyap¦-s¦-na kar+þ¦- `pnpm run test:integration` (296 test) ye+þil.
+
+- **Ger+ðek altyap¦-:** Entegrasyon testleri PostgreSQL+PostGIS+pgvector, Redis/BullMQ ve ACL'li Mosquitto'ya kar+þ¦- ko+þuyor (CI'da ayr¦- `integration` i+þi). Bu testler 3 ger+ðek hata buldu ve d+-zeltildi. Ger+ðek MQTT gidi+þ-d+Ân+-+þ gecikmesi p50 79 ms, ancak bu yerel d+Âng+-; saha a¦þ¦- de¦þil.
+- **A+ð¦-klar kapand¦-:** TOTP ve cihaz s¦-rr¦- +þifreli (`SECRET_ENC_KEY`), MFA s¦-f¦-rlama, paket/evre/duyuru reddetme ve onay geri +ðekme, duyuru d+-zenleme/silme, s+-resi ge+ðen OTP/oturum temizli¦þi, jeton `expo-secure-store`'da, mobil takvim ekran¦- ve duyuru kart¦-, +ðevrimd¦-+þ¦- servis +ðal¦-+þan¦-, prototip g+Ârsel kar+þ¦-la+þt¦-rmas¦- (5 ekran).
+- **Kabul tablosu:** `docs/KABUL_TABLOSU.md`'de her +Âl+ð+-t KANITLI, KISMEN veya YAPILMADI olarak yaz¦-l¦-. `KARARLAR.md` ve `.overnight/NOTES.md` g+-ncellendi.
+- **YAPILMADI / KISMEN:** GitHub CI ko+þusu g+Âr+-lemedi. Sulama +Ânerisi ucu, Dr saklama ve g+-nl+-k sulama s¦-n¦-r¦- h+ól+ó a+ð¦-k. Panelde reddet/geri +ðek/d+-zenle/MFA s¦-f¦-rla ekranlar¦- yok (yaln¦-z API). `expo-secure-store` cihazda denenmedi. G+Ârsel kar+þ¦-la+þt¦-rma yaln¦-z 5 ekranda ve d+-zen d+-zeyinde.
+
