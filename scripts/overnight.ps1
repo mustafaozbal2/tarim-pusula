@@ -3,7 +3,8 @@
 param(
   [string]$Repo = (Split-Path -Parent $PSScriptRoot),
   [double]$WaitHours = 2.5,
-  [int]$MaxFails = 3
+  [int]$MaxFails = 3,
+  [string[]]$Tasks = @(0..16 | ForEach-Object { "G$_" })
 )
 Set-Location $Repo
 New-Item -ItemType Directory -Force .overnight | Out-Null
@@ -20,8 +21,7 @@ git checkout -B dev 2>&1 | Out-Null
 
 $limitPattern = '(?i)usage limit|rate.?limit|limit reached|overloaded|credit balance|quota|too many requests|\b429\b|\b529\b|resets? (at|in)|try again later|ECONNRESET|ETIMEDOUT|network'
 
-foreach ($i in 0..15) {
-  $t = "G$i"
+foreach ($t in $Tasks) {
   $done = ".overnight\$t.done"
   if (Test-Path $done) { continue }
   $fails = 0
