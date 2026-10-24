@@ -1,0 +1,10 @@
+
+=== 2026-10-24T15:54:54 ===
+DEMO g+Ârevi tamam ve `dev` dal¦-na i+þlendi (091c7ab). K+Âk `pnpm run verify` hatas¦-z ge+ðti (lint, typecheck, testler, prettier).
+
+- **Komut:** `pnpm run demo` Docker's¦-z +ðal¦-+þ¦-r. API, mobil web (http://localhost:8200, dar telefon s+-tunu) ve kurum paneli (http://localhost:8201) birlikte kalkar, sa¦þl¦-k u+ðlar¦- 200 d+Ânene kadar beklenir, taray¦-c¦- a+ð¦-l¦-r. Elle denedim: Edge'de mobil giri+þ ve Bug+-n ekran¦-, panel giri+þ sayfas¦- a+ð¦-ld¦-.
+- **Demo kodu:** "Demo kodu: 123456" giri+þ ekran¦-n¦-n alt¦-nda g+Âr+-n+-r ve SMS kodu yerine ge+ðer. Panelde SMS ve do¦þrulay¦-c¦- ad¦-m¦-nda da 123456 ge+ðer. Kod yaln¦-z sunucu `DEMO_MODE=1` ve +-retim d¦-+þ¦-yken vard¦-r. Aksi halde `/demo/info` 404 d+Âner, ekranda kod +ð¦-kmaz, 123456 reddedilir; bu testlerle do¦þruland¦-.
+- **Demo verisi:** 2 +Ârnek tarla, g+-ncel tarihli don uyar¦-s¦-, duyuru, pazar fiyat¦-, Pusula'n¦-n haz¦-r cevaplar¦-, sanal sulama cihaz¦- ve 3 takvim i+þi. Her mobil ekran¦-n +-st+-nde "+ûrnek veri" rozeti +ð¦-kar.
+- **Rehber:** `docs/DEMO_REHBERI.md` kurulum, ekran ekran kontrol listesi ve bilinen eksikleri i+ðerir. Kararlar `docs/KARARLAR.md`'ye, devir notu `.overnight/NOTES.md`'ye yaz¦-ld¦-.
+- **Eksikler:** Demoda haz¦-r uzman hesab¦- yok, bu y+-zden onay ak¦-+þlar¦- u+ðtan uca gezilemez. Panelin i+ði elle gezilmedi (yaln¦-z giri+þ sayfas¦- g+Âr+-ld+-); panel giri+þindeki SMS ve do¦þrulay¦-c¦- ad¦-m¦- API testiyle do¦þruland¦-. `pnpm run demo` komutunu temiz klonda ba+þtan denemedim.
+
