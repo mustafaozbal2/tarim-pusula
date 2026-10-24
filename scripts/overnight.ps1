@@ -7,6 +7,9 @@ param(
   [string[]]$Tasks = @(0..18 | ForEach-Object { "G$_" })
 )
 Set-Location $Repo
+$Tasks = @($Tasks | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+$unmerged = git diff --name-only --diff-filter=U
+if ($unmerged) { Write-Host "DURDU: cozulmemis birlesme cakismasi var: $unmerged"; exit 1 }
 New-Item -ItemType Directory -Force .overnight | Out-Null
 $log = Join-Path $Repo ".overnight\log.txt"
 function Log($m) { $l = "$(Get-Date -Format s)  $m"; Write-Host $l; Add-Content -Path $log -Value $l }
