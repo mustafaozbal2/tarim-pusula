@@ -24,6 +24,8 @@ import {
   type CommandDto,
   type DeviceStatusDto,
 } from '@tarim/schemas';
+import { AUTH_CONFIG, type AuthConfig } from './auth/auth.service';
+import { open, seal } from './auth/secretbox';
 import { DataService } from './data.service';
 import type { Principal } from './db/db';
 import { CLOCK } from './weather/tokens';
@@ -80,6 +82,7 @@ export class IrrigationService implements OnModuleInit, OnModuleDestroy {
     @Inject(DataService) private readonly data: DataService,
     @Inject(CLOCK) private readonly now: () => Date,
     @Inject(DEVICE_BROKER) private readonly broker: InMemoryBroker,
+    @Inject(AUTH_CONFIG) private readonly auth: AuthConfig,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -90,7 +93,9 @@ export class IrrigationService implements OnModuleInit, OnModuleDestroy {
         'SELECT device_id, secret FROM device_secrets',
       ),
     );
-    for (const s of secrets) this.broker.addDevice(s.device_id, mqttPasswordFor(s.secret));
+    for (const s of secrets) {
+      this.broker.addDevice(s.device_id, mqttPasswordFor(open(this.auth.encKey, s.secret)));
+    }
     this.bus = this.broker.connect(SERVER_USER, this.serverPass, { persistent: true });
     this.unsub.push(
       await this.bus.subscribe(ALL_ACKS, (t, p) => void this.onAck(t, p).catch(console.error)),
@@ -124,7 +129,7 @@ export class IrrigationService implements OnModuleInit, OnModuleDestroy {
       q.query(
         `INSERT INTO device_secrets(device_id, secret) VALUES ($1, $2)
          ON CONFLICT (device_id) DO UPDATE SET secret = EXCLUDED.secret, created_at = now()`,
-        [deviceId, secret],
+        [deviceId, seal(this.auth.encKey, secret)],
       ),
     );
     this.broker.removeUser(deviceId); // eski kimlik düşer; yenisi tanımlanır
@@ -202,7 +207,7 @@ export class IrrigationService implements OnModuleInit, OnModuleDestroy {
       ]),
     );
     if (!sec) return this.finish(row.id, 'failed', 'cihaz-kurulmamis');
-    const msg = signCommand(sec.secret, {
+    const msg = signCommand(open(this.auth.encKey, sec.secret), {
       v: 1,
       id: row.id,
       deviceId: row.deviceId,

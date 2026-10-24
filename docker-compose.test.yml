@@ -1,0 +1,18 @@
+# Entegrasyon testleri için ACL'li Mosquitto (1884). `docker compose up -d` ile gelen db/redis'e ek olarak.
+services:
+  mqtt-acl:
+    image: eclipse-mosquitto:2
+    ports: ['1884:1883']
+    volumes:
+      - './infra/mosquitto.test.conf:/mosquitto/config/mosquitto.test.conf:ro'
+      - './infra/mosquitto.acl:/mosquitto/config/acl:ro'
+    # Test kullanıcıları: sunucu + iki cihaz. Parolalar yalnız bu kapsayıcıda geçerli, gizli değil.
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        rm -f /tmp/passwd && mosquitto_passwd -b -c /tmp/passwd tp-server test-server-pw &&
+        mosquitto_passwd -b /tmp/passwd dev-1 test-dev1-pw &&
+        mosquitto_passwd -b /tmp/passwd dev-2 test-dev2-pw &&
+        chown mosquitto:mosquitto /tmp/passwd && chmod 0600 /tmp/passwd &&
+        exec mosquitto -c /mosquitto/config/mosquitto.test.conf

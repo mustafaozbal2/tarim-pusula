@@ -43,4 +43,10 @@ export const stageCreateSchema = z
   .refine((v) => v.kc !== null || v.frostCriticalC !== null, {
     message: 'Kc ya da don eşiği girin',
   });
+/** Reddetme ve onay geri çekme gerekçesi (denetim kaydına yazılır). */
+export const reasonSchema = z.object({
+  reason: z.string().trim().min(3, 'Gerekçe yazın').max(300),
+});
+export type Reason = z.infer<typeof reasonSchema>;
+
 export type StageCreate = z.infer<typeof stageCreateSchema>;

@@ -36,6 +36,9 @@ export class PgliteDb implements Db {
   }
 }
 
+// `date` sütunu Date'e çevrilirse yerel saat dilimiyle bir gün kayabilir (PGlite metin döndürür); metin kalsın.
+pg.types.setTypeParser(1082, (v: string) => v);
+
 /** Üretim: bağlantı havuzu. */
 export class PgDb implements Db {
   private readonly pool: pg.Pool;

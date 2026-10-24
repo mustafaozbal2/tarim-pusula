@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@tarim/schemas": "workspace:*",
-    "bullmq": "^6.3.17"
+    "bullmq": "^6.3.17",
+    "ioredis": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.2"

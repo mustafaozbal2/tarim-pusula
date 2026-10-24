@@ -5,10 +5,11 @@ import { InMemoryBroker, VirtualDevice, mqttPasswordFor } from '@tarim/device-si
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
-import { migrate, PgliteDb, systemTx } from './db/db';
+import { migrate, systemTx } from './db/db';
+import { createTestDb } from './db/testdb';
 import { Places } from './places';
 
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 const broker = new InMemoryBroker();
 let app: INestApplication;

@@ -91,6 +91,11 @@ export default function FieldsScreen() {
             variant="secondary"
             onPress={() => router.push({ pathname: '/ndvi', params: { fieldId: f.id } })}
           />
+          <Button
+            label={tr.calendar.open}
+            variant="secondary"
+            onPress={() => router.push({ pathname: '/takvim', params: { fieldId: f.id } })}
+          />
           {devices
             .filter((d) => d.fieldId === f.id)
             .map((d) => (

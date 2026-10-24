@@ -6,10 +6,11 @@ import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
 import { base32Decode, hotp, totpStep } from './auth/totp';
 import { importCropCatalog } from './crops';
-import { migrate, PgliteDb, systemTx } from './db/db';
+import { migrate, systemTx } from './db/db';
+import { createTestDb } from './db/testdb';
 import { Places } from './places';
 
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 let app: INestApplication;
 let base: string;

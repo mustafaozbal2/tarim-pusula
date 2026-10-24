@@ -9,6 +9,7 @@ import { tr } from '../../src/i18n/tr';
 import { kv } from '../../src/offline/kvStore';
 import { registerForPush } from '../../src/push';
 import { api } from '../../src/session';
+import { AnnouncementCard } from '../../src/components/AnnouncementCard';
 import { loadAnnouncements } from '../../src/today/announcements';
 import { FIELDS_CACHE, loadToday, nextFieldId, type TodayResult } from '../../src/today/load';
 import { clock, frostCardModel, waterNeedText, weatherText } from '../../src/today/model';
@@ -21,6 +22,7 @@ export default function TodayScreen() {
   const [state, setState] = useState<'loading' | 'empty' | 'ready' | 'error'>('loading');
   const [showWhy, setShowWhy] = useState(false);
   const [news, setNews] = useState<AnnouncementDto[]>([]);
+  const [fieldCount, setFieldCount] = useState(0);
 
   const load = useCallback(async (pick?: string) => {
     try {
@@ -30,6 +32,9 @@ export default function TodayScreen() {
       if (r) {
         void registerForPush(api);
         void loadAnnouncements(api, kv, r.field.id).then(setNews);
+        void kv.get(FIELDS_CACHE).then((raw) => {
+          setFieldCount(raw ? (JSON.parse(raw) as { fields: FieldDto[] }).fields.length : 1);
+        });
       }
     } catch {
       setState('error');
@@ -73,7 +78,14 @@ export default function TodayScreen() {
   const warn = frost.kind === 'warning' || frost.kind === 'watch';
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <View style={styles.actions}>
+          <Button label={t.askByVoice} style={{ flex: 1 }} />
+          <Button label={t.takePhoto} variant="secondary" />
+        </View>
+      }
+    >
       <Header />
 
       <Card style={styles.fieldRow}>
@@ -83,7 +95,9 @@ export default function TodayScreen() {
         </Text>
         <Icon name="chevronDown" size={22} />
       </Card>
-      <Button label={t.nextField} variant="secondary" onPress={() => void switchField()} />
+      {fieldCount > 1 ? (
+        <Button label={t.nextField} variant="secondary" onPress={() => void switchField()} />
+      ) : null}
 
       <View style={styles.weather}>
         <View>
@@ -146,20 +160,7 @@ export default function TodayScreen() {
         <View testID="bugun-duyurular" style={{ gap: spacing.md }}>
           <Text style={styles.strong}>{t.announcements}</Text>
           {news.map((a) => (
-            <Card key={a.id}>
-              <Text style={styles.taskLabel}>{a.title}</Text>
-              <Text style={styles.alertBody}>{a.body}</Text>
-              {a.needsBadge ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{t.announcementPending}</Text>
-                </View>
-              ) : null}
-              <Text style={styles.muted}>
-                {tr.common.source}: {a.sourceOrg} · {t.announcementPublished}:{' '}
-                {new Date(a.publishedAt).toLocaleDateString('tr-TR')}
-              </Text>
-              <Text style={styles.muted}>{a.why}</Text>
-            </Card>
+            <AnnouncementCard key={a.id} a={a} />
           ))}
         </View>
       ) : null}
@@ -169,11 +170,6 @@ export default function TodayScreen() {
       <Text style={styles.muted} testID="bugun-guncelleme">
         {t.lastUpdate}: {clock(data.at)} · {tr.common.source}: {today.weather.source}
       </Text>
-
-      <View style={styles.actions}>
-        <Button label={t.askByVoice} style={{ flex: 1 }} />
-        <Button label={t.takePhoto} variant="secondary" />
-      </View>
     </Screen>
   );
 }
@@ -274,5 +270,5 @@ const styles = StyleSheet.create({
   taskLabel: { fontFamily: fontFamily.extrabold, fontSize: 18, color: colors.forest },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
   strong: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
-  actions: { flexDirection: 'row', gap: 10, marginTop: spacing.sm },
+  actions: { flexDirection: 'row', gap: 10 },
 });

@@ -8,10 +8,12 @@ export function Button(props: {
   onPress?: () => void;
   variant?: ButtonVariant;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }) {
   const s = buttonStyle(props.variant);
   return (
     <Pressable
+      testID={props.testID}
       accessibilityRole="button"
       accessibilityLabel={props.label}
       onPress={props.onPress}
@@ -26,8 +28,16 @@ export function Button(props: {
   );
 }
 
-export function Card(props: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  return <View style={[styles.card, props.style]}>{props.children}</View>;
+export function Card(props: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  testID?: string;
+}) {
+  return (
+    <View testID={props.testID} style={[styles.card, props.style]}>
+      {props.children}
+    </View>
+  );
 }
 
 export function Chip(props: { label: string; selected?: boolean; onPress?: () => void }) {

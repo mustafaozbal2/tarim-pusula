@@ -110,6 +110,32 @@ export interface AnnouncementDto {
   why: string;
 }
 
+export interface CalendarEventDto {
+  templateId: string;
+  title: string;
+  detail: string;
+  stage: string | null;
+  /** YYYY-MM-DD */
+  start: string;
+  end: string;
+  ongoing: boolean;
+  needsBadge: boolean;
+  actionable: boolean;
+  source: string;
+  sourceVersion: string;
+  sourceDate: string;
+  why: string;
+}
+
+export interface CalendarDto {
+  fieldId: string;
+  today: string;
+  days: number;
+  cropId: string | null;
+  events: CalendarEventDto[];
+  note: string | null;
+}
+
 export interface TodayDto {
   fieldId: string;
   fieldName: string;
@@ -280,6 +306,8 @@ export function createApi(opts: ApiOptions) {
     revokeShare: (id: string) => request<undefined>('DELETE', `/me/shares/${q(id)}`),
     today: (fieldId: string) => request<TodayDto>('GET', `/fields/${q(fieldId)}/today`),
     ndvi: (fieldId: string) => request<NdviDto>('GET', `/fields/${q(fieldId)}/ndvi`),
+    calendar: (fieldId: string, days = 90) =>
+      request<CalendarDto>('GET', `/fields/${q(fieldId)}/calendar?days=${days}`),
     announcements: (fieldId: string) =>
       request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
     registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>

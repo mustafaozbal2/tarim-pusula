@@ -120,23 +120,27 @@ interface BullAdd {
 export class BullQueue implements NotificationQueue {
   constructor(private readonly redisUrl: string) {}
 
-  private connection() {
-    const u = new URL(this.redisUrl);
-    return {
-      host: u.hostname,
-      port: Number(u.port || 6379),
-      password: u.password || undefined,
-      maxRetriesPerRequest: null as null,
-    };
+  /** BullMQ 6 ESM'de ioredis'i kendisi yükleyemez; hazır bir istemci verilir. */
+  private async connection() {
+    const { default: IORedis } = await import('ioredis');
+    const c = new IORedis(this.redisUrl, { maxRetriesPerRequest: null });
+    this.conns.push(c);
+    return c;
   }
+
+  private conns: Array<{ quit(): Promise<unknown> }> = [];
 
   async enqueue(job: NotificationJob, opts: { delayMs?: number } = {}): Promise<void> {
     const { Queue } = await import('bullmq');
-    this.queue ??= new Queue(QUEUE_NAME, { connection: this.connection() });
+    this.queue ??= new Queue(QUEUE_NAME, { connection: await this.connection() });
     await (this.queue as unknown as BullAdd).add(job.kind, job, {
       delay: opts.delayMs,
       // Ertelenen iş aynı kimlikle yeniden eklenebilsin diye gecikme sonekiyle.
-      jobId: `${job.dedupeKey}:${job.userId}${opts.delayMs ? `:d${Date.now()}` : ''}`,
+      // BullMQ iş kimliğinde ':' yasak (gerçek Redis'te doğrulandı).
+      jobId: `${job.dedupeKey}|${job.userId}${opts.delayMs ? `|d${Date.now()}` : ''}`.replaceAll(
+        ':',
+        '_',
+      ),
       attempts: 5,
       backoff: { type: 'exponential', delay: 30_000 },
       removeOnComplete: 1000,
@@ -147,11 +151,12 @@ export class BullQueue implements NotificationQueue {
   async process(handler: (job: NotificationJob) => Promise<void>) {
     const { Worker } = await import('bullmq');
     const worker = new Worker(QUEUE_NAME, async (j) => handler(j.data as NotificationJob), {
-      connection: this.connection(),
+      connection: await this.connection(),
     });
     return async () => {
       await worker.close();
       await this.queue?.close();
+      await Promise.all(this.conns.splice(0).map((c) => c.quit().catch(() => undefined)));
     };
   }
 

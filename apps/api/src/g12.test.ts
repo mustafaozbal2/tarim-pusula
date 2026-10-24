@@ -8,7 +8,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
 import { importCropCatalog } from './crops';
-import { migrate, PgliteDb, systemTx } from './db/db';
+import { migrate, systemTx } from './db/db';
+import { createTestDb } from './db/testdb';
 import { parsePackTable } from './ingest/cropPack';
 import { docxToContent } from './ingest/docx';
 import { extractContent } from './ingest/extract';
@@ -17,7 +18,7 @@ import { makeDocx, makePdf, makeZip } from './ingest/testkit';
 import { readZip } from './ingest/zip';
 import { searchLibrary } from './library';
 
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 const sql = <T = Record<string, unknown>>(text: string, params: unknown[] = []) =>
   systemTx(db, (q) => q.query<T>(text, params));

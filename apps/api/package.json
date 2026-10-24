@@ -7,7 +7,8 @@
     "start": "tsx src/main.ts",
     "lint": "eslint .",
     "typecheck": "tsc -p .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run -c vitest.integration.config.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.10",
@@ -18,6 +19,7 @@
     "@tarim/device-sim": "workspace:*",
     "@tarim/schemas": "workspace:*",
     "@tarim/workers": "workspace:*",
+    "mqtt": "^5.16.1",
     "pdfjs-dist": "^6.4.299",
     "pg": "^8.23.1",
     "reflect-metadata": "^0.2.2",

@@ -5,11 +5,13 @@ import {
   HttpException,
   Inject,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import type { Role } from '@tarim/schemas';
 import { systemTx, type Db, type Principal } from '../db/db';
 import type { SmsProvider } from './sms';
+import { encKeyFrom, isSealed, open, seal } from './secretbox';
 import { newTotpSecret, otpauthUri, verifyTotp } from './totp';
 
 /** Panele girebilen roller. */
@@ -30,6 +32,8 @@ export interface AuthConfig {
   otpMaxRequests: number;
   otpRequestWindowSeconds: number;
   sessionTtlSeconds: number;
+  /** Veritabanındaki sırların şifre anahtarı (.env: SECRET_ENC_KEY). */
+  encKey: Buffer;
 }
 
 export const defaultAuthConfig = (env: NodeJS.ProcessEnv = process.env): AuthConfig => ({
@@ -44,6 +48,7 @@ export const defaultAuthConfig = (env: NodeJS.ProcessEnv = process.env): AuthCon
   otpMaxRequests: 5,
   otpRequestWindowSeconds: 600,
   sessionTtlSeconds: 30 * 24 * 3600,
+  encKey: encKeyFrom(env),
 });
 
 const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -187,7 +192,7 @@ export class AuthService {
       await q.query(
         `INSERT INTO user_mfa(user_id, secret) VALUES ($1, $2)
          ON CONFLICT (user_id) DO UPDATE SET secret = EXCLUDED.secret, last_step = 0`,
-        [p.userId, secret],
+        [p.userId, seal(this.cfg.encKey, secret)],
       );
       await q.query('SELECT set_config($1, $2, true)', ['app.user_id', p.userId]);
       await q.query('SELECT write_audit($1, $2, $3, $4)', [
@@ -230,7 +235,7 @@ export class AuthService {
       if (m.locked_until && m.locked_until > now) {
         throw new HttpException('Çok fazla deneme. Biraz bekleyip tekrar deneyin.', 429);
       }
-      const step = verifyTotp(m.secret, code, now, Number(m.last_step));
+      const step = verifyTotp(open(this.cfg.encKey, m.secret), code, now, Number(m.last_step));
       await q.query('SELECT set_config($1, $2, true)', ['app.user_id', p.userId]);
       if (step === null) {
         const failures = m.failures + 1;
@@ -252,6 +257,13 @@ export class AuthService {
            confirmed_at = coalesce(confirmed_at, $3) WHERE user_id = $1`,
         [p.userId, step, now],
       );
+      // Eski düz metin kayıt ilk başarılı girişte şifrelenir.
+      if (!isSealed(m.secret)) {
+        await q.query('UPDATE user_mfa SET secret = $2 WHERE user_id = $1', [
+          p.userId,
+          seal(this.cfg.encKey, m.secret),
+        ]);
+      }
       await q.query('UPDATE sessions SET mfa_at = $2 WHERE token_hash = $1', [sha256(token), now]);
       await q.query('SELECT write_audit($1, $2, $3, $4)', [
         'auth.mfa.ok',
@@ -262,6 +274,30 @@ export class AuthService {
       return true;
     });
     if (!ok) throw fail();
+  }
+
+  /**
+   * Yönetici, başka bir personelin ikinci adımını sıfırlar (telefon kaybı). Kayıt silinir, hedefin
+   * oturumları ikinci adımı kaybeder; kişi yeniden kurulum yapar. Kendi kaydını sıfırlayamaz.
+   */
+  async mfaReset(admin: Principal, targetUserId: string): Promise<void> {
+    if (admin.userId === targetUserId) {
+      throw new ConflictException('Kendi ikinci adımınızı sıfırlayamazsınız');
+    }
+    await systemTx(this.db, async (q) => {
+      const rows = await q.query('DELETE FROM user_mfa WHERE user_id = $1 RETURNING user_id', [
+        targetUserId,
+      ]);
+      if (!rows.length) throw new NotFoundException('Bu kişinin kurulu ikinci adımı yok');
+      await q.query('UPDATE sessions SET mfa_at = NULL WHERE user_id = $1', [targetUserId]);
+      await q.query('SELECT set_config($1, $2, true)', ['app.user_id', admin.userId]);
+      await q.query('SELECT write_audit($1, $2, $3, $4)', [
+        'auth.mfa.reset',
+        'user_mfa',
+        targetUserId,
+        '{}',
+      ]);
+    });
   }
 
   async logout(token: string, userId: string): Promise<void> {

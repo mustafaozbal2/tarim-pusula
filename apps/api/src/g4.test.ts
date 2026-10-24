@@ -9,11 +9,12 @@ import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
 import { importCalendarTemplates } from './calendar';
 import { importCropCatalog } from './crops';
-import { migrate, PgliteDb, systemTx } from './db/db';
+import { migrate, systemTx } from './db/db';
+import { createTestDb } from './db/testdb';
 import { Places } from './places';
 
 const NOW = new Date('2026-10-20T09:00:00Z');
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 let app: INestApplication;
 let base: string;

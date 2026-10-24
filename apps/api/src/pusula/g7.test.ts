@@ -7,7 +7,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../app.module';
 import { FakeSmsProvider } from '../auth/sms';
 import { importCropCatalog } from '../crops';
-import { migrate, PgliteDb, systemTx } from '../db/db';
+import { migrate, systemTx } from '../db/db';
+import { createTestDb } from '../db/testdb';
 import {
   EVAL_DOCS,
   loadQuestions,
@@ -25,7 +26,7 @@ import {
   type LlmTurn,
 } from './provider';
 
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 let app: INestApplication;
 let base: string;
@@ -258,7 +259,7 @@ describe('sağlayıcı', () => {
   it('anahtar yokken varsayılan sahte sağlayıcıyla çalışır (kural 5)', async () => {
     const saved = process.env['ANTHROPIC_API_KEY'];
     delete process.env['ANTHROPIC_API_KEY'];
-    const db2 = new PgliteDb();
+    const db2 = createTestDb();
     await migrate(db2);
     const app2 = await NestFactory.create(
       AppModule.register({ db: db2, sms, auth: { otpSecret: 't' } }),

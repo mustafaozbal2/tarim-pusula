@@ -17,6 +17,21 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// İlk ziyarette sayfa, çalışan devreye girmeden yüklenir; sayfa yüklediği dosyaların adresini bildirir
+// ve çalışan onları önbelleğe alır. Böylece ilk ziyaretten sonra uygulama çevrimdışı açılır.
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.type !== 'precache' || !Array.isArray(data.urls)) return;
+  const urls = data.urls.filter((u) => {
+    try {
+      return new URL(u, self.location.origin).origin === self.location.origin;
+    } catch (e) {
+      return false;
+    }
+  });
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(urls).catch(() => undefined)));
+});
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);

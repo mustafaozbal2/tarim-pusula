@@ -9,7 +9,9 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "verify": "turbo run lint typecheck test && prettier --check .",
-    "audit:deps": "pnpm audit --prod"
+    "audit:deps": "pnpm audit --prod",
+    "infra:test": "docker compose -f docker-compose.yml -f docker-compose.test.yml up -d --build --wait",
+    "test:integration": "pnpm --filter @tarim/api run test:integration"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",

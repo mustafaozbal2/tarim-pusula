@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { migrate, PgliteDb, systemTx, userTx, type Principal } from './db';
+import { migrate, systemTx, userTx, type Principal } from './db';
+import { createTestDb } from './testdb';
 
-const db = new PgliteDb();
+const db = createTestDb();
 let ali: Principal;
 let veli: Principal;
 let admin: Principal;

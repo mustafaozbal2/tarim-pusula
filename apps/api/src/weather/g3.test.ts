@@ -7,7 +7,8 @@ import { NotifyService } from './notify';
 import { AppModule } from '../app.module';
 import { FakeSmsProvider } from '../auth/sms';
 import { importCropCatalog } from '../crops';
-import { migrate, PgliteDb, systemTx } from '../db/db';
+import { migrate, systemTx } from '../db/db';
+import { createTestDb } from '../db/testdb';
 import {
   FakeWeatherProvider,
   OpenMeteoClient,
@@ -141,7 +142,7 @@ describe('OpenMeteoClient', () => {
 // ---------------------------------------------------------------------------
 // Bugün ucu, don olasılığı, bildirim
 // ---------------------------------------------------------------------------
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 const NOW = new Date('2026-10-21T20:00:00Z'); // yerel 23:00 (UTC+3)
 const queue = new InMemoryQueue();

@@ -11,7 +11,7 @@ import {
   ParseIntPipe,
   Post,
 } from '@nestjs/common';
-import { mfaCodeSchema, panelMenu, stageCreateSchema } from '@tarim/schemas';
+import { mfaCodeSchema, panelMenu, reasonSchema, stageCreateSchema } from '@tarim/schemas';
 import { Me, parse, RequireMfa, Roles, Token } from './auth/access';
 import { AuthService } from './auth/auth.service';
 import { DataService } from './data.service';
@@ -53,6 +53,17 @@ export class PanelMfaController {
   @HttpCode(200)
   async verify(@Me() me: Principal, @Token() token: string, @Body() body: unknown) {
     await this.auth.mfaVerify(me, token, parse(mfaCodeSchema, body).code);
+    return { ok: true };
+  }
+
+  /** Yönetici, telefonunu kaybeden personelin ikinci adımını sıfırlar; kişi yeniden kurar. */
+  @Post('reset/:userId')
+  @HttpCode(200)
+  @Roles('admin')
+  @RequireMfa()
+  async reset(@Me() me: Principal, @Param('userId') userId: string) {
+    if (!/^[0-9a-f-]{36}$/i.test(userId)) throw new BadRequestException('Geçersiz kullanıcı');
+    await this.auth.mfaReset(me, userId);
     return { ok: true };
   }
 }
@@ -151,6 +162,74 @@ export class PanelController {
       }),
     );
     return { id, reviewStatus: 'uzman-onayli' };
+  }
+
+  /** Taslak paketi reddeder (gerekçe zorunlu); reddedilen veri hiçbir öneriyi beslemez. */
+  @Post('packs/:id/reject')
+  @HttpCode(200)
+  @Roles('expert', 'admin')
+  async rejectPack(@Me() me: Principal, @Param('id') id: string, @Body() body: unknown) {
+    const { reason } = parse(reasonSchema, body);
+    await this.data.runOne(me, 'panel.pack.reject', id, (q) =>
+      guarded(async () => {
+        await q.query('SELECT reject_crop_pack($1, $2)', [id, reason]);
+        return true;
+      }),
+    );
+    return { id, reviewStatus: 'reddedildi' };
+  }
+
+  /** Onaylı paketin onayını geri çeker; taslağa döner, yeniden onaylanana dek öneri üretmez. */
+  @Post('packs/:id/revoke')
+  @HttpCode(200)
+  @Roles('expert', 'admin')
+  async revokePack(@Me() me: Principal, @Param('id') id: string, @Body() body: unknown) {
+    const { reason } = parse(reasonSchema, body);
+    await this.data.runOne(me, 'panel.pack.revoke', id, (q) =>
+      guarded(async () => {
+        await q.query('SELECT revoke_crop_pack($1, $2)', [id, reason]);
+        return true;
+      }),
+    );
+    return { id, reviewStatus: DRAFT };
+  }
+
+  @Post('packs/:id/stages/:seq/reject')
+  @HttpCode(200)
+  @Roles('expert', 'admin')
+  async rejectStage(
+    @Me() me: Principal,
+    @Param('id') id: string,
+    @Param('seq', ParseIntPipe) seq: number,
+    @Body() body: unknown,
+  ) {
+    const { reason } = parse(reasonSchema, body);
+    await this.data.runOne(me, 'panel.stage.reject', id, (q) =>
+      guarded(async () => {
+        await q.query('SELECT reject_crop_stage($1, $2, $3)', [id, seq, reason]);
+        return true;
+      }),
+    );
+    return { packId: id, seq, reviewStatus: 'reddedildi' };
+  }
+
+  @Post('packs/:id/stages/:seq/revoke')
+  @HttpCode(200)
+  @Roles('expert', 'admin')
+  async revokeStage(
+    @Me() me: Principal,
+    @Param('id') id: string,
+    @Param('seq', ParseIntPipe) seq: number,
+    @Body() body: unknown,
+  ) {
+    const { reason } = parse(reasonSchema, body);
+    await this.data.runOne(me, 'panel.stage.revoke', id, (q) =>
+      guarded(async () => {
+        await q.query('SELECT revoke_crop_stage($1, $2, $3)', [id, seq, reason]);
+        return true;
+      }),
+    );
+    return { packId: id, seq, reviewStatus: DRAFT };
   }
 
   @Post('packs/:id/stages')

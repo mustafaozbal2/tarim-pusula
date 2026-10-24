@@ -5,10 +5,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
 import { importCropCatalog } from './crops';
-import { migrate, PgliteDb, systemTx } from './db/db';
+import { migrate, systemTx } from './db/db';
+import { createTestDb } from './db/testdb';
 import { foldTr, Places } from './places';
 
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 let app: INestApplication;
 let base: string;

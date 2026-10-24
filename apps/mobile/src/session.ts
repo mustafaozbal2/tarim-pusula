@@ -1,12 +1,17 @@
 import { useSyncExternalStore } from 'react';
 import { createApi } from './api/client';
 import { kv } from './offline/kvStore';
+import { secure } from './offline/secureStore';
+import { createTokenStore } from './offline/tokenStore';
 import { OfflineQueue } from './offline/queue';
 
 const TOKEN_KEY = 'session.token';
 const API_URL_KEY = 'config.apiUrl';
 /** Android emülatöründe ana makine 10.0.2.2'dir; gerçek cihazda EXPO_PUBLIC_API_URL verilir. */
 const DEFAULT_API_URL = process.env['EXPO_PUBLIC_API_URL'] ?? 'http://localhost:3000';
+
+// Jeton cihazın güvenli deposunda; ayarlar ve önbellek düz depoda (kv).
+const tokenStore = createTokenStore(secure, kv, TOKEN_KEY);
 
 let token: string | null = null;
 let loaded: Promise<void> | null = null;
@@ -16,7 +21,7 @@ const emit = () => listeners.forEach((l) => l());
 
 /** Depodaki jetonu bir kez yükler. */
 export function loadSession(): Promise<void> {
-  loaded ??= kv.get(TOKEN_KEY).then((t) => {
+  loaded ??= tokenStore.get().then((t) => {
     token = t;
     ready = true;
     emit();
@@ -26,8 +31,8 @@ export function loadSession(): Promise<void> {
 
 export async function setToken(next: string | null): Promise<void> {
   token = next;
-  if (next) await kv.set(TOKEN_KEY, next);
-  else await kv.remove(TOKEN_KEY);
+  if (next) await tokenStore.set(next);
+  else await tokenStore.clear();
   emit();
 }
 

@@ -32,6 +32,7 @@ import {
   defaultMarketSources,
   type MarketSourceConfig,
 } from './market/collector';
+import { CleanupController, CleanupService } from './cleanup';
 import { MarketController, MarketJobsController } from './market/controller';
 import { MarketService } from './market/service';
 import { NdviController } from './ndvi/ndvi.controller';
@@ -127,6 +128,7 @@ export class AppModule {
         IrrigationController,
         MarketController,
         MarketJobsController,
+        CleanupController,
         SuitabilityController,
         SupportsController,
         WalletController,
@@ -163,6 +165,7 @@ export class AppModule {
         PusulaTools,
         PusulaService,
         NotifyService,
+        CleanupService,
         AuthService,
         DataService,
         { provide: APP_GUARD, useClass: AccessGuard },

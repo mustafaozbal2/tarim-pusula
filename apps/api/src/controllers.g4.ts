@@ -2,11 +2,13 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Inject,
   Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import {
@@ -19,7 +21,7 @@ import {
   type ReviewStatus,
   type Targeting,
 } from '@tarim/agro-core';
-import { announcementCreateSchema } from '@tarim/schemas';
+import { announcementCreateSchema, reasonSchema } from '@tarim/schemas';
 import { Me, parse, RequireMfa, Roles } from './auth/access';
 import { templatesForCrop } from './calendar';
 import { PLACES } from './controllers.g2';
@@ -145,7 +147,10 @@ export class FieldCalendarController {
     );
     const now = this.now();
     const cards = (extra as AnnouncementRow[])
-      .filter((a) => isActive(a, now) && matchesField(a.targeting, site))
+      .filter(
+        (a) =>
+          a.reviewStatus !== 'reddedildi' && isActive(a, now) && matchesField(a.targeting, site),
+      )
       .map((a) => ({
         id: a.id,
         sourceOrg: a.sourceOrg,
@@ -192,6 +197,89 @@ export class AnnouncementsController {
     return { id: row!.id, reviewStatus: 'taslak-uzman-onayi-bekliyor' };
   }
 
+  /**
+   * Duyuruyu düzenler. Sürüm artar ve duyuru taslağa döner (onaylı metin sessizce değişemez);
+   * sahibi ya da uzman/yönetici yapabilir.
+   */
+  @Put(':id')
+  @Roles('institution_admin', 'expert', 'admin')
+  async edit(@Me() me: Principal, @Param('id') id: string, @Body() body: unknown) {
+    const a = parse(announcementCreateSchema, body);
+    const version = await this.data.runOne(me, 'announcements.edit', id, async (q) => {
+      try {
+        const [r] = await q.query<{ v: number }>(
+          'SELECT edit_announcement($1,$2,$3,$4,$5,$6,$7,$8::jsonb) AS v',
+          [
+            id,
+            a.sourceOrg,
+            a.title,
+            a.body,
+            a.sourceUrl ?? null,
+            a.publishedAt,
+            a.expiresAt ?? null,
+            JSON.stringify(a.targeting),
+          ],
+        );
+        return r!.v;
+      } catch (e) {
+        if ((e as { code?: string }).code === 'P0002') return undefined;
+        throw e;
+      }
+    });
+    return { id, version, reviewStatus: 'taslak-uzman-onayi-bekliyor' };
+  }
+
+  @Delete(':id')
+  @HttpCode(200)
+  @Roles('institution_admin', 'expert', 'admin')
+  async remove(@Me() me: Principal, @Param('id') id: string) {
+    await this.data.runOne(me, 'announcements.delete', id, async (q) => {
+      try {
+        await q.query('SELECT delete_announcement($1)', [id]);
+        return true;
+      } catch (e) {
+        if ((e as { code?: string }).code === 'P0002') return undefined;
+        throw e;
+      }
+    });
+    return { id, deleted: true };
+  }
+
+  @Post(':id/reject')
+  @HttpCode(200)
+  @Roles('expert', 'admin')
+  async reject(@Me() me: Principal, @Param('id') id: string, @Body() body: unknown) {
+    const { reason } = parse(reasonSchema, body);
+    await this.data.runOne(me, 'announcements.reject', id, async (q) => {
+      try {
+        await q.query('SELECT reject_announcement($1, $2)', [id, reason]);
+        return true;
+      } catch (e) {
+        if ((e as { code?: string }).code === 'P0002') return undefined;
+        throw e;
+      }
+    });
+    return { id, reviewStatus: 'reddedildi' };
+  }
+
+  /** Onaylı duyurunun onayını geri çeker; taslağa döner, rozetli kalır. */
+  @Post(':id/revoke')
+  @HttpCode(200)
+  @Roles('expert', 'admin')
+  async revoke(@Me() me: Principal, @Param('id') id: string, @Body() body: unknown) {
+    const { reason } = parse(reasonSchema, body);
+    await this.data.runOne(me, 'announcements.revoke', id, async (q) => {
+      try {
+        await q.query('SELECT revoke_announcement($1, $2)', [id, reason]);
+        return true;
+      } catch (e) {
+        if ((e as { code?: string }).code === 'P0002') return undefined;
+        throw e;
+      }
+    });
+    return { id, reviewStatus: 'taslak-uzman-onayi-bekliyor' };
+  }
+
   @Post(':id/approve')
   @HttpCode(200)
   @Roles('expert', 'admin')
@@ -199,7 +287,7 @@ export class AnnouncementsController {
     await this.data.runOne(me, 'announcements.approve', id, async (q) => {
       const rows = await q.query(
         `UPDATE announcements SET review_status = 'uzman-onayli', reviewed_by = $2
-         WHERE id = $1 RETURNING id`,
+         WHERE id = $1 AND review_status = 'taslak-uzman-onayi-bekliyor' RETURNING id`,
         [id, me.userId],
       );
       return rows.length ? true : undefined;

@@ -178,6 +178,45 @@ async function main() {
         res.end('ok');
         return;
       }
+      if (url.pathname === '/__e2e/calendar-seed') {
+        // Test için: Antep fıstığı için bugünü kapsayan bir taslak iş ve 10 gün sonra başlayan bir iş.
+        const day = 86_400_000;
+        const md = (offset: number) => {
+          const d = new Date(Date.now() + 3 * 3_600_000 + offset * day);
+          return [d.getUTCMonth() + 1, d.getUTCDate()] as const;
+        };
+        const [sm, sd] = md(-5);
+        const [em, ed] = md(20);
+        const [lm, ld] = md(10);
+        const [xm, xd] = md(25);
+        await systemTx(db, async (q) => {
+          await q.query(
+            `INSERT INTO calendar_templates(crop_id, title, detail, start_month, start_day, end_month, end_day,
+               source, source_version, source_date) VALUES
+             ('antep-fistigi','Bahçe temizliği','Kuru dalları ve yabani otları temizle.',$1,$2,$3,$4,'e2e Rehberi','v1','2026-01-01'),
+             ('antep-fistigi','Budama','Kış budamasını yap.',$5,$6,$7,$8,'e2e Rehberi','v1','2026-01-01')
+             ON CONFLICT DO NOTHING`,
+            [sm, sd, em, ed, lm, ld, xm, xd],
+          );
+        });
+        res.end('ok');
+        return;
+      }
+      if (url.pathname === '/__e2e/announce') {
+        // Test için: Gaziantep'e hedefli duyuru (taslak; approve=1 ile onaylı).
+        const approve = url.searchParams.get('approve') === '1';
+        await systemTx(db, (q) =>
+          q.query(
+            `INSERT INTO announcements(source_org, title, body, published_at, targeting, review_status)
+             VALUES ('Gaziantep İl Tarım ve Orman Müdürlüğü', 'Sulama toplantısı duyurusu',
+               'Cuma günü il müdürlüğünde sulama toplantısı yapılacak.', now() - interval '1 day',
+               '{"places":[{"province":"Gaziantep"}],"circle":null,"cropIds":["antep-fistigi"]}'::jsonb, $1)`,
+            [approve ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor'],
+          ),
+        );
+        res.end('ok');
+        return;
+      }
       if (url.pathname === '/__e2e/health') {
         res.end('ok');
         return;

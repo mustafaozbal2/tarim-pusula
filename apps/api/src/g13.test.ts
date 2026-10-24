@@ -9,7 +9,8 @@ import type { Boundary } from '@tarim/schemas';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
-import { migrate, PgliteDb } from './db/db';
+import { migrate } from './db/db';
+import { createTestDb } from './db/testdb';
 import {
   AGGREGATION,
   CopernicusNdviClient,
@@ -141,7 +142,7 @@ describe('örnek seri', () => {
 
 // ---------------------------------------------------------------------------------------------
 
-const db = new PgliteDb();
+const db = createTestDb();
 const sms = new FakeSmsProvider();
 let app: INestApplication;
 let base: string;
