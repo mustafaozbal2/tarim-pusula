@@ -133,8 +133,14 @@ describe('panel girişi (ikinci adım)', () => {
   it('menü role göre gelir', async () => {
     const paths = async (t: string) =>
       ((await call('GET', '/panel/me', t)).body.menu as { path: string }[]).map((m) => m.path);
-    expect(await paths(inst.token)).toEqual(['/duyurular']);
-    expect(await paths(expert.token)).toEqual(['/duyurular', '/onay', '/paketler']);
+    const inst_ = await paths(inst.token);
+    expect(inst_).toContain('/duyurular');
+    expect(inst_).not.toContain('/onay');
+    expect(inst_).not.toContain('/paketler');
+    expect(inst_).not.toContain('/denetim');
+    const exp_ = await paths(expert.token);
+    expect(exp_).toEqual(expect.arrayContaining(['/duyurular', '/onay', '/paketler']));
+    expect(exp_).not.toContain('/denetim');
     expect(await paths(admin.token)).toContain('/denetim');
   });
 });

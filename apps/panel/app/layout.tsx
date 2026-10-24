@@ -11,9 +11,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         style={{
           margin: 0,
           fontFamily: 'system-ui, sans-serif',
-          fontSize: 18,
-          background: '#F4F6F0',
-          color: '#14392B',
+          fontSize: 14,
+          background: '#F1F3F4',
+          color: '#064D3B',
         }}
       >
         <Shell>{children}</Shell>

@@ -3,6 +3,7 @@
 Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Üretim"). Teknofest Tarım Teknolojileri, lisans üstü kategori. Jüri profesördür: her hesap matematiksel olarak dayanaklı ve test edilmiş olmalı.
 
 ## Her zaman oku
+
 - docs/PLAN.md (ana plan), docs/TASARIM_REFERANSI.md (görsel kaynak), docs/UX_KURALLARI.md, docs/tasks/Gx.md (sıradaki görev), docs/prototype/ (ESKİ kısa demo taslakları: YALNIZ akış mantığı için bak; görünüm için docs/TASARIM_REFERANSI.md geçerli)
 
 ## Çalışma düzeni

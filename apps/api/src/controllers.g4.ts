@@ -52,11 +52,18 @@ interface AnnouncementRow {
   targeting: Targeting;
   version: number;
   reviewStatus: ReviewStatus;
+  imageDataUrl: string | null;
 }
 
 const ANN_COLS = `id, source_org AS "sourceOrg", title, body, source_url AS "sourceUrl",
   published_at AS "publishedAt", expires_at AS "expiresAt", targeting, version,
-  review_status AS "reviewStatus"`;
+  review_status AS "reviewStatus", image_data_url AS "imageDataUrl"`;
+
+/** Liste görünümü: görselin kendisi dönmez (yük), yalnız var mı bilgisi. */
+const ANN_LIST_COLS = ANN_COLS.replace(
+  'image_data_url AS "imageDataUrl"',
+  '(image_data_url IS NOT NULL) AS "hasImage", created_by AS "createdBy"',
+);
 
 const iso = (v: Date | string) => new Date(v).toISOString();
 
@@ -160,6 +167,7 @@ export class FieldCalendarController {
         publishedAt: iso(a.publishedAt),
         expiresAt: a.expiresAt ? iso(a.expiresAt) : null,
         version: a.version,
+        imageDataUrl: a.imageDataUrl,
         needsBadge: needsDraftBadge(a.reviewStatus),
         why: explainMatch(a.targeting, site),
       }));
@@ -180,8 +188,8 @@ export class AnnouncementsController {
     const [row] = await this.data.run(me, 'announcements.create', (q) =>
       q.query<{ id: string }>(
         `INSERT INTO announcements(source_org, title, body, source_url, published_at, expires_at,
-           targeting, created_by)
-         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8) RETURNING id`,
+           targeting, created_by, image_data_url)
+         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9) RETURNING id`,
         [
           a.sourceOrg,
           a.title,
@@ -191,6 +199,7 @@ export class AnnouncementsController {
           a.expiresAt ?? null,
           JSON.stringify(a.targeting),
           me.userId,
+          a.imageDataUrl ?? null,
         ],
       ),
     );
@@ -208,7 +217,7 @@ export class AnnouncementsController {
     const version = await this.data.runOne(me, 'announcements.edit', id, async (q) => {
       try {
         const [r] = await q.query<{ v: number }>(
-          'SELECT edit_announcement($1,$2,$3,$4,$5,$6,$7,$8::jsonb) AS v',
+          'SELECT edit_announcement($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9) AS v',
           [
             id,
             a.sourceOrg,
@@ -218,6 +227,7 @@ export class AnnouncementsController {
             a.publishedAt,
             a.expiresAt ?? null,
             JSON.stringify(a.targeting),
+            a.imageDataUrl ?? null,
           ],
         );
         return r!.v;
@@ -295,6 +305,20 @@ export class AnnouncementsController {
     return { id, reviewStatus: 'uzman-onayli' };
   }
 
+  /** Tek duyuru (görselli, düzenleme formu için). Kurum yöneticisi yalnız kendi duyurusunu açar. */
+  @Get('managed/:id')
+  @Roles('institution_admin', 'expert', 'admin')
+  one(@Me() me: Principal, @Param('id') id: string) {
+    const all = me.roles.includes('expert') || me.roles.includes('admin');
+    return this.data.runOne(me, 'announcements.one', id, async (q) => {
+      const [r] = await q.query(
+        `SELECT ${ANN_COLS} FROM announcements WHERE id = $1 ${all ? '' : 'AND created_by = $2'}`,
+        all ? [id] : [id, me.userId],
+      );
+      return r;
+    });
+  }
+
   /** Yönetim görünümü: kurum yöneticisi yalnız kendi duyurularını, uzman/yönetici hepsini görür. */
   @Get('managed')
   @Roles('institution_admin', 'expert', 'admin')
@@ -302,7 +326,7 @@ export class AnnouncementsController {
     const all = me.roles.includes('expert') || me.roles.includes('admin');
     return this.data.run(me, 'announcements.managed', (q) =>
       q.query(
-        `SELECT ${ANN_COLS} FROM announcements
+        `SELECT ${ANN_LIST_COLS} FROM announcements
          ${all ? '' : 'WHERE created_by = $1'} ORDER BY published_at DESC LIMIT 200`,
         all ? [] : [me.userId],
       ),

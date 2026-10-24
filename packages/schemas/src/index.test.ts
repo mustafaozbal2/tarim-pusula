@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   canOpen,
+  PANEL_MENU,
   hasPanelAccess,
   kcRecordSchema,
   panelMenu,
@@ -94,9 +95,48 @@ describe('panel menüsü', () => {
   it('rol bazlı menü ve sayfa erişimi', () => {
     expect(panelMenu(['farmer'])).toEqual([]);
     expect(hasPanelAccess(['farmer', 'assistant'])).toBe(false);
-    expect(panelMenu(['institution_admin']).map((m) => m.path)).toEqual(['/duyurular']);
-    expect(panelMenu(['expert']).map((m) => m.path)).toEqual(['/duyurular', '/onay', '/paketler']);
-    expect(panelMenu(['admin']).map((m) => m.path)).toContain('/denetim');
+    expect(panelMenu(['institution_admin']).map((m) => m.path)).toEqual([
+      '/',
+      '/uretim/arz-talep',
+      '/uretim/verim',
+      '/uretim/urunler',
+      '/duyurular',
+    ]);
+    expect(panelMenu(['expert']).map((m) => m.path)).toEqual([
+      '/',
+      '/arazi',
+      '/uretim/arz-talep',
+      '/uretim/verim',
+      '/uretim/urunler',
+      '/duyurular',
+      '/onay',
+      '/paketler',
+      '/toprak',
+      '/uzman',
+    ]);
+    const admin = panelMenu(['admin']).map((m) => m.path);
+    expect(admin).toEqual(expect.arrayContaining(['/denetim', '/cihazlar', '/kullanicilar']));
+    // kurum yöneticisi yönetim sayfalarını göremez
+    for (const p of [
+      '/arazi',
+      '/onay',
+      '/paketler',
+      '/toprak',
+      '/uzman',
+      '/cihazlar',
+      '/denetim',
+      '/kullanicilar',
+    ])
+      expect(canOpen(p, ['institution_admin']), p).toBe(false);
+    expect(canOpen('/', ['institution_admin'])).toBe(true);
+    expect(canOpen('/cihazlar', ['expert'])).toBe(false);
+    expect(canOpen('/kullanicilar', ['expert'])).toBe(false);
+    // her öğenin ikonu var; gruplu öğeler aynı grupta ardışık
+    expect(PANEL_MENU.every((m) => m.icon)).toBe(true);
+    const groups = PANEL_MENU.map((m) => m.group).filter(Boolean);
+    expect(new Set(groups)).toEqual(
+      new Set(['Arazi işlemleri', 'Üretim planlama', 'Duyuru ve içerik']),
+    );
     expect(canOpen('/onay', ['institution_admin'])).toBe(false);
     expect(canOpen('/onay/x', ['expert'])).toBe(true);
     expect(canOpen('/denetim', ['expert'])).toBe(false);

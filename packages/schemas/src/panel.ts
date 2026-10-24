@@ -4,18 +4,82 @@ import type { Role } from './auth';
 /** Panele girebilen roller. Çiftçi/yardımcı/kooperatif/danışman panele giremez. */
 export const PANEL_ROLES: readonly Role[] = ['institution_admin', 'expert', 'admin'];
 
+export type PanelIcon =
+  | 'home'
+  | 'field'
+  | 'plan'
+  | 'megaphone'
+  | 'check'
+  | 'leaf'
+  | 'soil'
+  | 'chat'
+  | 'chip'
+  | 'audit'
+  | 'users';
+
 export interface PanelMenuItem {
   path: string;
   label: string;
   roles: readonly Role[];
+  icon: PanelIcon;
+  /** Açılır grup başlığı; yoksa tek başına bir menü öğesidir. */
+  group?: string;
 }
 
-/** Rol bazlı menü. Sayfa erişimi de aynı tablodan denetlenir (`canOpen`). */
+const STAFF_ROLES: readonly Role[] = ['institution_admin', 'expert', 'admin'];
+const REVIEWERS: readonly Role[] = ['expert', 'admin'];
+
+/** Rol bazlı menü (eski panel yapısı: Ana Sayfa, Arazi işlemleri, Üretim planlama...). Sayfa erişimi de aynı tablodan denetlenir (`canOpen`). */
 export const PANEL_MENU: readonly PanelMenuItem[] = [
-  { path: '/duyurular', label: 'Duyurular', roles: ['institution_admin', 'expert', 'admin'] },
-  { path: '/onay', label: 'Onay kuyruğu', roles: ['expert', 'admin'] },
-  { path: '/paketler', label: 'Bitki paketleri', roles: ['expert', 'admin'] },
-  { path: '/denetim', label: 'Denetim kaydı', roles: ['admin'] },
+  { path: '/', label: 'Ana sayfa', icon: 'home', roles: STAFF_ROLES },
+  {
+    path: '/arazi',
+    label: 'Arazi listele',
+    icon: 'field',
+    group: 'Arazi işlemleri',
+    roles: REVIEWERS,
+  },
+  {
+    path: '/uretim/arz-talep',
+    label: 'Ürün arz talep',
+    icon: 'plan',
+    group: 'Üretim planlama',
+    roles: STAFF_ROLES,
+  },
+  {
+    path: '/uretim/verim',
+    label: 'Verim haritası',
+    icon: 'plan',
+    group: 'Üretim planlama',
+    roles: STAFF_ROLES,
+  },
+  {
+    path: '/uretim/urunler',
+    label: 'Desteklenen ürünler',
+    icon: 'plan',
+    group: 'Üretim planlama',
+    roles: STAFF_ROLES,
+  },
+  {
+    path: '/duyurular',
+    label: 'Duyurular',
+    icon: 'megaphone',
+    group: 'Duyuru ve içerik',
+    roles: STAFF_ROLES,
+  },
+  {
+    path: '/onay',
+    label: 'Onay kuyruğu',
+    icon: 'check',
+    group: 'Duyuru ve içerik',
+    roles: REVIEWERS,
+  },
+  { path: '/paketler', label: 'Bitki paketleri (Kc)', icon: 'leaf', roles: REVIEWERS },
+  { path: '/toprak', label: 'Toprak türleri', icon: 'soil', roles: REVIEWERS },
+  { path: '/uzman', label: 'Soru / uzman kuyruğu', icon: 'chat', roles: REVIEWERS },
+  { path: '/cihazlar', label: 'Cihazlar', icon: 'chip', roles: ['admin'] },
+  { path: '/denetim', label: 'Denetim kaydı', icon: 'audit', roles: ['admin'] },
+  { path: '/kullanicilar', label: 'Kullanıcılar', icon: 'users', roles: ['admin'] },
 ];
 
 export const hasPanelAccess = (roles: readonly string[]) =>

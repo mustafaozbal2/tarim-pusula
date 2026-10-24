@@ -37,10 +37,15 @@
               return navigator.serviceWorker.ready;
             })
             .then(function (reg) {
-              var urls = performance.getEntriesByType('resource').map(function (e) {
-                return e.name;
-              });
-              if (reg.active) reg.active.postMessage({ type: 'precache', urls: urls });
+              var send = function () {
+                var urls = performance.getEntriesByType('resource').map(function (e) {
+                  return e.name;
+                });
+                if (reg.active) reg.active.postMessage({ type: 'precache', urls: urls });
+              };
+              // Sayfa yüklendikten sonra gelen (tembel) parçalar da kaçmasın: bir kez daha bildir.
+              send();
+              setTimeout(send, 2500);
             })
             .catch(function () {});
         });

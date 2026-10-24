@@ -56,11 +56,7 @@
         "CAMERA",
         "POST_NOTIFICATIONS"
       ],
-      "blockedPermissions": [
-        "RECORD_AUDIO",
-        "READ_CONTACTS",
-        "READ_SMS"
-      ],
+      "blockedPermissions": ["RECORD_AUDIO", "READ_CONTACTS", "READ_SMS"],
       "versionCode": 1
     },
     "splash": {

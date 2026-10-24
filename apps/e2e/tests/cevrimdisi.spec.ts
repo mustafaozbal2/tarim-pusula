@@ -35,6 +35,20 @@ test('İnternet kesilince uygulama kabuğu açılır, API yanıtı önbelleğe a
       }),
     )
     .toBeGreaterThan(2);
+  // Sayfanın yüklediği tüm aynı kaynaklı js/css dosyaları önbelleğe girene kadar bekle (yarış olmasın).
+  await expect
+    .poll(async () =>
+      page.evaluate(async () => {
+        const urls = performance
+          .getEntriesByType('resource')
+          .map((e) => e.name)
+          .filter((u) => u.startsWith(location.origin) && /\.(js|css)(\?|$)/.test(u));
+        const c = await caches.open('tp-kabuk-v1');
+        const cached = new Set((await c.keys()).map((r) => r.url));
+        return urls.filter((u) => !cached.has(u));
+      }),
+    )
+    .toEqual([]);
   const cachedUrls = await page.evaluate(async () => {
     const c = await caches.open('tp-kabuk-v1');
     return (await c.keys()).map((r) => r.url);

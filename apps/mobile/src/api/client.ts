@@ -130,6 +130,8 @@ export interface AnnouncementDto {
   publishedAt: string;
   needsBadge: boolean;
   why: string;
+  /** İsteğe bağlı küçük görsel (png/jpeg/webp veri adresi). */
+  imageDataUrl?: string | null;
 }
 
 export interface CalendarEventDto {

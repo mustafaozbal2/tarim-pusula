@@ -3,6 +3,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
 import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
@@ -82,7 +83,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   await importCalendarTemplates(db);
   await seedDemoData(db);
   const broker = new InMemoryBroker();
-  const app = await NestFactory.create(
+  const app = await NestFactory.create<NestExpressApplication>(
     AppModule.register({
       db,
       sms: new FakeSmsProvider(),
@@ -97,6 +98,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
     { logger: false },
   );
   app.enableCors();
+  app.useBodyParser('json', { limit: '1mb' }); // duyuru görseli (en çok ~300 KB)
   await app.listen(o.apiPort, o.host ?? '127.0.0.1');
   const base = `http://127.0.0.1:${o.apiPort}`;
 

@@ -29,7 +29,10 @@ self.addEventListener('message', (event) => {
       return false;
     }
   });
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(urls).catch(() => undefined)));
+  // Tek tek eklenir: bir dosya hata verirse (addAll hepsini atardı) diğerleri yine önbelleğe girer.
+  event.waitUntil(
+    caches.open(CACHE).then((c) => Promise.all(urls.map((u) => c.add(u).catch(() => undefined)))),
+  );
 });
 
 self.addEventListener('fetch', (event) => {

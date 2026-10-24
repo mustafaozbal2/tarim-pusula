@@ -3,6 +3,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
 import { AppModule } from '../api/src/app.module';
 import { FakeSmsProvider } from '../api/src/auth/sms';
@@ -72,7 +73,7 @@ async function main() {
       text: async () => (isRobots ? '' : bulletin),
     };
   }) as unknown as typeof fetch;
-  const app = await NestFactory.create(
+  const app = await NestFactory.create<NestExpressApplication>(
     AppModule.register({
       db,
       sms,
@@ -89,6 +90,7 @@ async function main() {
     },
   );
   app.enableCors();
+  app.useBodyParser('json', { limit: '1mb' });
   await app.listen(API_PORT);
 
   let counter = 0;

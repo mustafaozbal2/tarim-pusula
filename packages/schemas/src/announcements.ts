@@ -30,6 +30,16 @@ export const announcementCreateSchema = z
     title: text(160),
     body: text(2000),
     sourceUrl: z.url().max(500).optional(),
+    /** İsteğe bağlı görsel: küçük png/jpeg/webp veri adresi (en çok ~200 KB). */
+    imageDataUrl: z
+      .string()
+      .max(300_000)
+      .regex(
+        /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/,
+        'Görsel png, jpeg ya da webp olmalı',
+      )
+      .nullable()
+      .optional(),
     publishedAt: z.iso.datetime(),
     expiresAt: z.iso.datetime().optional(),
     targeting: targetingSchema.default({ places: [], circle: null, cropIds: [] }),

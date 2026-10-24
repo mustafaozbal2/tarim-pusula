@@ -19,6 +19,7 @@ import {
   FieldsController,
   MeController,
 } from './controllers';
+import { PanelOverviewController } from './controllers.g17';
 import {
   CropsController,
   NearbyController,
@@ -125,6 +126,7 @@ export class AppModule {
         PlacesController,
         CropsController,
         SoilsController,
+        PanelOverviewController,
         NearbyController,
         TodayController,
         NdviController,

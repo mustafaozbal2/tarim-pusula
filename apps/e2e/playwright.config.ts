@@ -33,7 +33,8 @@ export default defineConfig({
       command: 'pnpm exec tsx server.ts',
       url: `http://127.0.0.1:${WEB_PORT}/__e2e/health`,
       reuseExistingServer: !process.env['CI'],
-      timeout: 120_000,
+      // verify'da API/mobil/panel testleri aynı anda koşar; süreç içi Postgres'in açılışı yük altında yavaşlar.
+      timeout: 300_000,
       stdout: 'pipe',
     },
     {

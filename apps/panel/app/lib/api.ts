@@ -41,6 +41,8 @@ export async function api<T>(method: string, path: string, body?: unknown): Prom
 export interface MenuItem {
   path: string;
   label: string;
+  icon: string;
+  group?: string;
 }
 export interface PanelMe {
   userId: string;
