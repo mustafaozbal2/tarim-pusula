@@ -38,6 +38,8 @@ export interface DemoOptions {
   webPort: number;
   /** Mobil uygulamanın web paketi (expo export çıktısı). */
   webDir: string;
+  /** Dinlenen adres. Varsayılan yalnız bu bilgisayar (127.0.0.1); `--lan` için 0.0.0.0. */
+  host?: string;
 }
 
 export interface DemoHandle {
@@ -95,7 +97,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
     { logger: false },
   );
   app.enableCors();
-  await app.listen(o.apiPort);
+  await app.listen(o.apiPort, o.host ?? '127.0.0.1');
   const base = `http://127.0.0.1:${o.apiPort}`;
 
   const post = async (path: string, token: string | undefined, body?: unknown) => {
@@ -140,7 +142,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   await seedDemoMarket(app.get(MarketCollector));
 
   const web = serveStatic(resolve(o.webDir));
-  await new Promise<void>((ok) => web.listen(o.webPort, ok));
+  await new Promise<void>((ok) => web.listen(o.webPort, o.host ?? '127.0.0.1', ok));
   return {
     close: async () => {
       web.close();
@@ -154,7 +156,7 @@ if (process.argv[1] && /demo-server\.[tj]s$/.test(process.argv[1])) {
   const webPort = Number(process.env['DEMO_WEB_PORT'] ?? 8200);
   const webDir =
     process.env['DEMO_WEB_DIR'] ?? resolve(import.meta.dirname, '../../mobile/dist-demo');
-  startDemo({ apiPort, webPort, webDir })
+  startDemo({ apiPort, webPort, webDir, host: process.env['DEMO_HOST'] })
     .then(() => console.log(`demo hazır: api ${apiPort}, mobil web ${webPort}`))
     .catch((e) => {
       console.error(e);

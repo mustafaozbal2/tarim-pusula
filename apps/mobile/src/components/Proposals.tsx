@@ -59,7 +59,7 @@ export function PendingProposals({ onChanged }: { onChanged?: () => void }) {
 const styles = StyleSheet.create({
   card: { gap: 4, borderColor: colors.forest, borderWidth: 2 },
   kicker: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.textMuted },
-  name: { fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.forest },
+  name: { fontFamily: fontFamily.extrabold, fontSize: 17, color: colors.forest },
   detail: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
   row: { flexDirection: 'row', gap: 10, marginTop: 12 },
 });

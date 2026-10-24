@@ -110,7 +110,7 @@ export function Notice({
 
 export const titleStyle = {
   fontFamily: fontFamily.extrabold,
-  fontSize: 30,
+  fontSize: 22,
   color: colors.forest,
   lineHeight: 36,
 } as const;
@@ -127,10 +127,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: 16,
   },
-  back: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
+  back: { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   step: { fontFamily: fontFamily.extrabold, fontSize: fontSize.small, color: colors.textMuted },
   choice: {
-    minHeight: 92,
+    minHeight: 56,
     borderRadius: radius.card,
     borderWidth: 2,
     borderColor: colors.forest,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingHorizontal: spacing.xl,
   },
-  choiceTitle: { fontFamily: fontFamily.extrabold, fontSize: 22 },
+  choiceTitle: { fontFamily: fontFamily.extrabold, fontSize: 17 },
   choiceHint: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, marginTop: 2 },
   notice: {
     backgroundColor: colors.pistachio,

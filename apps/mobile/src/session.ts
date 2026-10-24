@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
-import { createApi } from './api/client';
+import { createApi, NetworkError } from './api/client';
+import { resolveApiUrl } from './config';
 import { kv } from './offline/kvStore';
 import { secure } from './offline/secureStore';
 import { createTokenStore } from './offline/tokenStore';
@@ -7,8 +8,8 @@ import { OfflineQueue } from './offline/queue';
 
 const TOKEN_KEY = 'session.token';
 const API_URL_KEY = 'config.apiUrl';
-/** Android emülatöründe ana makine 10.0.2.2'dir; gerçek cihazda EXPO_PUBLIC_API_URL verilir. */
-const DEFAULT_API_URL = process.env['EXPO_PUBLIC_API_URL'] ?? 'http://localhost:3000';
+/** Gerçek cihazda EXPO_PUBLIC_API_URL (derleme zamanı) ya da Ayarlar'dan yazılan adres kullanılır. */
+const ENV_API_URL = process.env['EXPO_PUBLIC_API_URL'];
 
 // Jeton cihazın güvenli deposunda; ayarlar ve önbellek düz depoda (kv).
 const tokenStore = createTokenStore(secure, kv, TOKEN_KEY);
@@ -49,9 +50,22 @@ export function useToken(): string | null | undefined {
   );
 }
 
+/** Etkin sunucu adresi; hiç ayarlanmadıysa `null`. */
+export async function currentApiUrl(): Promise<string | null> {
+  return resolveApiUrl(await kv.get(API_URL_KEY), ENV_API_URL);
+}
+
+export async function saveApiUrl(url: string): Promise<void> {
+  await kv.set(API_URL_KEY, url.trim());
+}
+
 export const api = createApi({
   // Adres depodan okunabilir (test ve saha kurulumu için); yoksa varsayılan.
-  baseUrl: async () => (await kv.get(API_URL_KEY)) ?? DEFAULT_API_URL,
+  baseUrl: async () => {
+    const url = await currentApiUrl();
+    if (!url) throw new NetworkError(); // adres yok: çökmeden "Sunucuya bağlanılamadı"
+    return url;
+  },
   getToken: async () => {
     await loadSession();
     return token;

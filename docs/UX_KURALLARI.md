@@ -1,3 +1,5 @@
+> **GÜNCEL: Tasarım kuralları için docs/TASARIM_REFERANSI.md geçerlidir.** Aşağıdaki "büyük yazı / 56 px / tek ana iş" ve eski renk kuralları KALDIRILDI (Mustafa 24 Ekim 2026 kararı). Konum belirleme 4 yolu, kaynak+tarih ve onaysız veri kuralları geçerli kalır.
+
 # UX Kuralları (çiftçi ve yaşlı kullanıcı için)
 
 - Ekran başına tek ana iş; ana düğme tek ve büyük (>=56 px yükseklik, çoğu yerde 60–64).

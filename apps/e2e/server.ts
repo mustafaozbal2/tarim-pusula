@@ -205,15 +205,20 @@ async function main() {
       if (url.pathname === '/__e2e/announce') {
         // Test için: Gaziantep'e hedefli duyuru (taslak; approve=1 ile onaylı).
         const approve = url.searchParams.get('approve') === '1';
-        await systemTx(db, (q) =>
-          q.query(
-            `INSERT INTO announcements(source_org, title, body, published_at, targeting, review_status)
-             VALUES ('Gaziantep İl Tarım ve Orman Müdürlüğü', 'Sulama toplantısı duyurusu',
-               'Cuma günü il müdürlüğünde sulama toplantısı yapılacak.', now() - interval '1 day',
-               '{"places":[{"province":"Gaziantep"}],"circle":null,"cropIds":["antep-fistigi"]}'::jsonb, $1)`,
-            [approve ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor'],
-          ),
-        );
+        const count = Math.min(Number(url.searchParams.get('n') ?? 1) || 1, 20);
+        for (let i = 1; i <= count; i++) {
+          const title =
+            count === 1 ? 'Sulama toplantısı duyurusu' : `Sulama toplantısı duyurusu ${i}`;
+          await systemTx(db, (q) =>
+            q.query(
+              `INSERT INTO announcements(source_org, title, body, published_at, targeting, review_status)
+               VALUES ('Gaziantep İl Tarım ve Orman Müdürlüğü', $2,
+                 'Cuma günü il müdürlüğünde sulama toplantısı yapılacak.', now() - ($3 || ' day')::interval,
+                 '{"places":[{"province":"Gaziantep"}],"circle":null,"cropIds":["antep-fistigi"]}'::jsonb, $1)`,
+              [approve ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor', title, String(i)],
+            ),
+          );
+        }
         res.end('ok');
         return;
       }

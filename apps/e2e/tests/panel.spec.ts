@@ -86,8 +86,10 @@ test('duyuru yayınla > uzman onayla > mobilde görünür', async ({ browser }) 
   await mobile.goto('/');
   const news = mobile.getByTestId('bugun-duyurular');
   await expect(news).toContainText('Fıstık bahçeleri için bilgilendirme');
-  await expect(news).toContainText('Gaziantep İl Tarım ve Orman Müdürlüğü');
   await expect(news).toContainText('Uzman onayı bekliyor');
+  // Satıra dokununca duyuru ayrıntısı (kaynak kurum) açılır.
+  await news.getByTestId('liste-satiri').filter({ hasText: 'Fıstık bahçeleri' }).click();
+  await expect(news).toContainText('Gaziantep İl Tarım ve Orman Müdürlüğü');
 
   // Uzman: onay kuyruğundan onaylar.
   const expert = await staff(expertPage, 'expert');

@@ -19,13 +19,18 @@ export type IconName =
   | 'village'
   | 'people'
   | 'back'
-  | 'target';
+  | 'target'
+  | 'calendar'
+  | 'chip'
+  | 'plan'
+  | 'settings'
+  | 'book';
 
 /** Prototipteki çizgi ikonları (24x24, çizgi kalınlığı 2). Anlam her zaman yazıyla da verilir. */
 export function Icon({
   name,
   size = 24,
-  color = '#14392B',
+  color = '#064D3B',
 }: {
   name: IconName;
   size?: number;
@@ -134,6 +139,42 @@ function shape(name: IconName) {
           <Circle cx={9} cy={8} r={3.5} />
           <Path d="M2 20c0-4 3-6 7-6s7 2 7 6" />
           <Path d="M17 5h5M19.5 2.5v5" />
+        </>
+      );
+    case 'calendar':
+      return (
+        <>
+          <Rect x={4} y={5} width={16} height={15} rx={2} />
+          <Path d="M4 10h16M8 3v4M16 3v4" />
+        </>
+      );
+    case 'chip':
+      return (
+        <>
+          <Rect x={7} y={7} width={10} height={10} rx={1.5} />
+          <Path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" />
+        </>
+      );
+    case 'plan':
+      return (
+        <>
+          <Path d="M5 4h14v16H5z" />
+          <Path d="M9 9h6M9 13h6M9 17h3" />
+        </>
+      );
+    case 'settings':
+      return (
+        <>
+          <Path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+          <Circle cx={16} cy={7} r={2} />
+          <Circle cx={8} cy={17} r={2} />
+        </>
+      );
+    case 'book':
+      return (
+        <>
+          <Path d="M4 5c3-1 5-1 8 1v14c-3-2-5-2-8-1z" />
+          <Path d="M20 5c-3-1-5-1-8 1v14c3-2 5-2 8-1z" />
         </>
       );
     case 'back':

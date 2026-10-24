@@ -91,7 +91,7 @@ export default function CropScreen() {
           <Button
             label={busy ? t.saving : t.save}
             onPress={busy ? undefined : () => void save()}
-            style={{ minHeight: 64 }}
+            style={{ minHeight: 48 }}
           />
         </>
       }
@@ -110,7 +110,7 @@ export default function CropScreen() {
             onChangeText={setSearch}
             placeholder={t.cropSearch}
             style={{
-              minHeight: 56,
+              minHeight: 44,
               borderRadius: radius.row,
               borderWidth: 1,
               borderColor: colors.forest,
@@ -147,7 +147,7 @@ export default function CropScreen() {
                 onPress={() => updateDraft((d) => ({ ...d, cropId: c.id }))}
                 style={{
                   width: '47.5%',
-                  minHeight: 96,
+                  minHeight: 56,
                   borderRadius: radius.card,
                   borderWidth: 2,
                   borderColor: colors.forest,
@@ -160,7 +160,7 @@ export default function CropScreen() {
                 <Text
                   style={{
                     fontFamily: fontFamily.extrabold,
-                    fontSize: 22,
+                    fontSize: 17,
                     color: colors.forest,
                     textAlign: 'center',
                   }}
@@ -176,7 +176,7 @@ export default function CropScreen() {
             onPress={() => setShowAll(true)}
             style={{
               width: '47.5%',
-              minHeight: 96,
+              minHeight: 56,
               borderRadius: radius.card,
               borderWidth: 2,
               borderStyle: 'dashed',
@@ -185,7 +185,7 @@ export default function CropScreen() {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.forest }}>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: colors.forest }}>
               {t.cropOther}
             </Text>
           </Pressable>
@@ -210,7 +210,7 @@ export default function CropScreen() {
             value={draft.name ?? defaultFieldName(draft)}
             onChangeText={(name) => updateDraft((d) => ({ ...d, name }))}
             style={{
-              minHeight: 56,
+              minHeight: 44,
               borderRadius: radius.row,
               borderWidth: 1,
               borderColor: colors.forest,

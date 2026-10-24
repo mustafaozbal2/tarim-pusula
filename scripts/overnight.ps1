@@ -4,7 +4,7 @@ param(
   [string]$Repo = (Split-Path -Parent $PSScriptRoot),
   [double]$WaitHours = 2.5,
   [int]$MaxFails = 3,
-  [string[]]$Tasks = @(0..16 | ForEach-Object { "G$_" })
+  [string[]]$Tasks = @(0..18 | ForEach-Object { "G$_" })
 )
 Set-Location $Repo
 New-Item -ItemType Directory -Force .overnight | Out-Null

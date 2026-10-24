@@ -24,7 +24,10 @@ const variants: Record<ButtonVariant, Omit<ButtonStyle, 'minHeight'>> = {
   water: { backgroundColor: colors.water, borderColor: colors.water, textColor: '#FFFFFF' },
 };
 
-export function buttonStyle(variant: ButtonVariant = 'primary', minHeight = 60): ButtonStyle {
+export function buttonStyle(
+  variant: ButtonVariant = 'primary',
+  minHeight = MIN_TOUCH_TARGET + 2,
+): ButtonStyle {
   return { minHeight: Math.max(minHeight, MIN_TOUCH_TARGET), ...variants[variant] };
 }
 
@@ -33,9 +36,9 @@ export type ChipState = 'idle' | 'selected';
 export function chipStyle(state: ChipState) {
   return {
     minHeight: MIN_TOUCH_TARGET,
-    backgroundColor: state === 'selected' ? colors.pistachio : colors.surface,
+    backgroundColor: state === 'selected' ? colors.forest : colors.surface,
     borderColor: state === 'selected' ? colors.forest : colors.border,
-    textColor: state === 'selected' ? colors.pistachioText : colors.forest,
+    textColor: state === 'selected' ? colors.onForest : colors.forest,
   };
 }
 
@@ -53,3 +56,35 @@ export const textStyles = {
 } as const;
 
 export const DRAFT_BADGE_TEXT = 'Uzman onayı bekliyor';
+
+/** gg/aa/yyyy (eski uygulamadaki tarih kutusu biçimi). */
+export function formatDateBox(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '--/--/----';
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
+
+export interface TabloSutunu {
+  key: string;
+  title: string;
+  flex?: number;
+}
+export type TabloSatiri = Record<string, string | number | boolean | null> & { id: string };
+
+/** Süzme: büyük/küçük harf (Türkçe) duyarsız, tüm sütunlarda arar. */
+export function tabloSuz(
+  rows: TabloSatiri[],
+  columns: TabloSutunu[],
+  query: string,
+): TabloSatiri[] {
+  const q = query.trim().toLocaleLowerCase('tr-TR');
+  if (!q) return rows;
+  return rows.filter((r) =>
+    columns.some((c) =>
+      String(r[c.key] ?? '')
+        .toLocaleLowerCase('tr-TR')
+        .includes(q),
+    ),
+  );
+}

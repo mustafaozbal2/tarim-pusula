@@ -131,9 +131,9 @@ export default function WalletScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fontFamily.extrabold, fontSize: 28, color: colors.forest },
-  section: { fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.forest, marginTop: 8 },
+  title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
+  section: { fontFamily: fontFamily.extrabold, fontSize: 17, color: colors.forest, marginTop: 8 },
   row: { gap: 2 },
-  name: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
+  name: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
 });

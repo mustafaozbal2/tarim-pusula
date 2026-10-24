@@ -35,7 +35,7 @@ export default function GpsScreen() {
         <Button
           label={busy ? t.gpsSearching : t.gpsAllow}
           onPress={busy ? undefined : () => void locate()}
-          style={{ minHeight: 64 }}
+          style={{ minHeight: 48 }}
         />
       }
     >
@@ -46,7 +46,7 @@ export default function GpsScreen() {
       <Text
         style={{
           fontFamily: fontFamily.semibold,
-          fontSize: 22,
+          fontSize: 17,
           lineHeight: 32,
           color: colors.forest,
         }}

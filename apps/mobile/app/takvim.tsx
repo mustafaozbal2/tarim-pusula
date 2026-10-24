@@ -141,11 +141,11 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fontFamily.extrabold, fontSize: 28, color: colors.forest },
+  title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
   body: { fontFamily: fontFamily.bold, fontSize: fontSize.body, color: colors.forest },
   small: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
-  when: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
-  groupTitle: { fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.forest },
+  when: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
+  groupTitle: { fontFamily: fontFamily.extrabold, fontSize: 17, color: colors.forest },
   group: { gap: spacing.md },
   card: { gap: spacing.sm },
 });

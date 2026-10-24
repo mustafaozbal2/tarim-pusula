@@ -12,6 +12,7 @@ import { Platform, View } from 'react-native';
 import { I18nextProvider } from 'react-i18next';
 import { i18n } from '../src/i18n';
 import { queue, useToken } from '../src/session';
+import { useSettings } from '../src/settings';
 
 /** Çevrimdışıyken sıraya alınan işleri bağlantı gelince gönderir. */
 const FLUSH_EVERY_MS = 20_000;
@@ -59,10 +60,12 @@ export default function RootLayout() {
   // Yazı tipi yüklenemese bile uygulama sistem yazısıyla açılır.
   useFonts({ Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
   useSessionGate();
+  // Yazı boyutu değişince ağaç yeniden kurulur (Text sarmalayıcısı yeni ölçeği okur).
+  const { textSize } = useSettings();
   return (
     <I18nextProvider i18n={i18n}>
       <StatusBar style="dark" />
-      <View style={webFrame}>
+      <View key={textSize} style={webFrame}>
         <Stack screenOptions={{ headerShown: false }} />
       </View>
     </I18nextProvider>

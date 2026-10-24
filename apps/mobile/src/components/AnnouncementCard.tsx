@@ -15,16 +15,18 @@ export function AnnouncementCard({ a }: { a: AnnouncementDto }) {
     <Card testID="duyuru-karti" style={styles.card}>
       <Text style={styles.title}>{a.title}</Text>
       <Text style={styles.body}>{a.body}</Text>
-      {a.needsBadge ? <Badge label={tr.today.announcementPending} /> : null}
+      <View style={styles.meta}>
+        {a.needsBadge ? <Badge label={tr.today.announcementPending} /> : <View />}
+        <Button
+          label={tr.today.why}
+          variant="secondary"
+          testID="duyuru-neden"
+          onPress={() => setOpen((v) => !v)}
+        />
+      </View>
       <Text style={styles.muted} testID="duyuru-kaynak">
         {announcementSource(a)}
       </Text>
-      <Button
-        label={tr.today.why}
-        variant="secondary"
-        testID="duyuru-neden"
-        onPress={() => setOpen((v) => !v)}
-      />
       {open ? (
         <View>
           <Text style={styles.muted} testID="duyuru-neden-metin">
@@ -38,7 +40,8 @@ export function AnnouncementCard({ a }: { a: AnnouncementDto }) {
 
 const styles = StyleSheet.create({
   card: { gap: spacing.sm },
-  title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
+  meta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  title: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
   body: { fontFamily: fontFamily.semibold, fontSize: fontSize.body, color: colors.forest },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
 });

@@ -4,6 +4,7 @@ import { Text, TextInput } from 'react-native';
 import { Button, colors, fontFamily, fontSize, radius } from '@tarim/ui';
 import { ApiError, NetworkError } from '../src/api/client';
 import { FlowScreen, Notice, subtitleStyle, titleStyle } from '../src/components/FlowParts';
+import { SunucuKarti } from '../src/components/SunucuKarti';
 import { DEMO_BUILD, demoCodeLine, loadDemoInfo, type DemoInfoDto } from '../src/demo';
 import { tr } from '../src/i18n/tr';
 import { api, setToken } from '../src/session';
@@ -11,14 +12,14 @@ import { api, setToken } from '../src/session';
 const t = tr.login;
 
 const input = {
-  minHeight: 64,
+  minHeight: 48,
   borderRadius: radius.row,
   borderWidth: 2,
   borderColor: colors.forest,
   backgroundColor: colors.surface,
   paddingHorizontal: 16,
   fontFamily: fontFamily.extrabold,
-  fontSize: 28,
+  fontSize: 20,
   color: colors.forest,
 } as const;
 
@@ -29,6 +30,7 @@ export default function LoginScreen() {
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [noServer, setNoServer] = useState(false);
   const [demo, setDemo] = useState<DemoInfoDto | null>(null);
 
   // Demo derlemesinde sunucuya sorulur; sunucu demo değilse kod hiç görünmez.
@@ -43,10 +45,12 @@ export default function LoginScreen() {
 
   async function run(fn: () => Promise<void>) {
     setError(null);
+    setNoServer(false);
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof NetworkError ? t.noNet : e instanceof ApiError ? e.message : t.wrong);
+      if (e instanceof NetworkError) setNoServer(true);
+      else setError(e instanceof ApiError ? e.message : t.wrong);
     }
   }
 
@@ -77,7 +81,7 @@ export default function LoginScreen() {
         )
       }
     >
-      <Text accessibilityRole="header" style={[titleStyle, { paddingTop: 48 }]}>
+      <Text accessibilityRole="header" style={[titleStyle, { paddingTop: 28 }]}>
         {t.title}
       </Text>
       <Text style={subtitleStyle}>{sent ? t.code : t.phone}</Text>
@@ -102,6 +106,7 @@ export default function LoginScreen() {
         />
       )}
       {error ? <Notice tone="warn">{error}</Notice> : null}
+      {noServer ? <SunucuKarti /> : null}
       {demoLine ? <Notice>{demoLine}</Notice> : null}
       <Text
         style={{

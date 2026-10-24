@@ -18,7 +18,8 @@
         }
       ],
       "@maplibre/maplibre-react-native",
-      "expo-secure-store"
+      "expo-secure-store",
+      "./plugins/with-cleartext"
     ],
     "web": {
       "bundler": "metro",
@@ -27,15 +28,15 @@
       "name": "Tarım Pusula",
       "shortName": "Tarım Pusula",
       "lang": "tr",
-      "themeColor": "#14392B",
-      "backgroundColor": "#F4F6F0"
+      "themeColor": "#064D3B",
+      "backgroundColor": "#F1F3F4"
     },
     "experiments": {
       "typedRoutes": false
     },
     "icon": "./assets/icon.png",
     "ios": {
-      "bundleIdentifier": "tr.tarimpusula.app",
+      "bundleIdentifier": "com.tarimpusula.app",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -44,10 +45,10 @@
       }
     },
     "android": {
-      "package": "tr.tarimpusula.app",
+      "package": "com.tarimpusula.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#14392B"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#064D3B"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -55,7 +56,17 @@
         "CAMERA",
         "POST_NOTIFICATIONS"
       ],
-      "blockedPermissions": ["RECORD_AUDIO", "READ_CONTACTS", "READ_SMS"]
+      "blockedPermissions": [
+        "RECORD_AUDIO",
+        "READ_CONTACTS",
+        "READ_SMS"
+      ],
+      "versionCode": 1
+    },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#064D3B"
     }
   }
 }

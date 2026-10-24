@@ -3,26 +3,37 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, fontFamily, fontSize, spacing } from '@tarim/ui';
 import { DemoBadge } from './DemoBadge';
 
-/** Ortak ekran iskeleti: zemin rengi, kenar boşluğu, kaydırma. Ekran başına tek ana iş. */
+/**
+ * Ortak ekran iskeleti: açık gri zemin, koyu yeşil başlık şeridi, sıkı kenar boşluğu (12 px), kaydırma.
+ * Bir ekranda birden fazla bilgi grubu (kart, tablo, liste) olabilir (TASARIM_REFERANSI yoğunluk kuralları).
+ */
 export function Screen({
   title,
   children,
   footer,
+  hero,
 }: {
   title?: string;
   children: ReactNode;
   /** Kaydırmadan bağımsız, alt menünün üstünde sabit duran ana eylem şeridi. */
   footer?: ReactNode;
+  /** Başlık şeridi yerine ekranın en üstünde tam genişlikte bölüm (Bugün: konum+hava). */
+  hero?: ReactNode;
 }) {
   const scroll = (
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-      <DemoBadge />
+      {hero}
       {title ? (
-        <Text accessibilityRole="header" style={styles.title}>
-          {title}
-        </Text>
+        <View style={styles.bar}>
+          <Text accessibilityRole="header" style={styles.title}>
+            {title}
+          </Text>
+        </View>
       ) : null}
-      <View style={styles.body}>{children}</View>
+      <View style={[styles.body, !hero && !title && { paddingTop: spacing.xl }]}>
+        <DemoBadge />
+        {children}
+      </View>
     </ScrollView>
   );
   if (!footer) return scroll;
@@ -36,11 +47,17 @@ export function Screen({
 
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: colors.background },
-  footer: { padding: spacing.xl, paddingTop: spacing.sm, backgroundColor: colors.background },
+  footer: { padding: spacing.lg, paddingTop: spacing.sm, backgroundColor: colors.background },
   root: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl, paddingTop: 48, gap: spacing.md },
-  title: { fontFamily: fontFamily.extrabold, fontSize: 28, color: colors.forest },
-  body: { gap: spacing.md },
+  content: { paddingBottom: spacing.xl },
+  bar: {
+    backgroundColor: colors.forest,
+    paddingHorizontal: spacing.xl,
+    paddingTop: 28,
+    paddingBottom: spacing.lg,
+  },
+  title: { fontFamily: fontFamily.extrabold, fontSize: fontSize.title, color: colors.onForest },
+  body: { padding: spacing.lg, gap: spacing.md },
 });
 
 export const bodyText = {

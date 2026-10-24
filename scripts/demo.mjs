@@ -1,21 +1,37 @@
 // Tek komutla demo: `pnpm run demo`. Docker ve dış ağ gerekmez.
 //   mobil web  http://localhost:8200   (API 8210)
 //   kurum paneli http://localhost:8201
-// Seçenekler: --rebuild (web paketlerini yeniden derle), --no-open (tarayıcıyı açma).
+// Seçenekler: --rebuild (web paketlerini yeniden derle), --no-open (tarayıcıyı açma),
+//   --lan (yerel ağda dinle: telefondaki APK/tarayıcı bilgisayarın IP'sine bağlanır; docs/APK_REHBERI.md).
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, writeFileSync } from 'node:fs';
+import { networkInterfaces } from 'node:os';
 import { resolve } from 'node:path';
+import { firewallCommand, lanIPv4 } from './lan.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const WEB = 8200;
 const PANEL = 8201;
 const API = 8210;
 const rebuild = process.argv.includes('--rebuild');
-const open = !process.argv.includes('--no-open');
+const lan = process.argv.includes('--lan');
+const open = !process.argv.includes('--no-open') && !lan;
 const shell = process.platform === 'win32';
+
+// --lan: bilgisayarın yerel ağ adresi bulunur; mobil web paketi API adresini buna göre derler.
+const lanList = lan ? lanIPv4(networkInterfaces()) : [];
+if (lan && lanList.length === 0) {
+  console.error('[demo] Yerel ağ adresi bulunamadı. Bilgisayarı Wi-Fi/ağa bağlayıp yeniden dene.');
+  process.exit(1);
+}
+const ip = lanList[0]?.address;
+const HOST = lan ? '0.0.0.0' : '127.0.0.1';
+const apiBase = lan ? `http://${ip}:${API}` : `http://localhost:${API}`;
+const webDirName = lan ? 'dist-demo-lan' : 'dist-demo';
 
 const env = {
   ...process.env,
+  DEMO_HOST: HOST,
   DEMO_MODE: '1',
   DEMO_API_PORT: String(API),
   DEMO_WEB_PORT: String(WEB),
@@ -32,24 +48,30 @@ function run(label, cmd, args, opts) {
 
 // 1) Mobil web paketi (demo adresi ve rozeti derlemeye gömülür).
 const mobileDir = resolve(root, 'apps/mobile');
-if (rebuild || !existsSync(resolve(mobileDir, 'dist-demo/index.html'))) {
-  run('Mobil web paketi derleniyor (ilk seferde birkaç dakika sürebilir)', 'pnpm', [
-    'exec', 'expo', 'export', '--platform', 'web', '--output-dir', 'dist-demo',
-  ], {
-    cwd: mobileDir,
-    env: { ...env, EXPO_PUBLIC_API_URL: `http://localhost:${API}`, EXPO_PUBLIC_DEMO: '1' },
-  });
+if (rebuild || !existsSync(resolve(mobileDir, `${webDirName}/index.html`))) {
+  run(
+    'Mobil web paketi derleniyor (ilk seferde birkaç dakika sürebilir)',
+    'pnpm',
+    ['exec', 'expo', 'export', '--platform', 'web', '--output-dir', webDirName],
+    {
+      cwd: mobileDir,
+      env: { ...env, EXPO_PUBLIC_API_URL: apiBase, EXPO_PUBLIC_DEMO: '1' },
+    },
+  );
 }
 
 // 2) Panel (üretim derlemesi, ayrı klasöre).
 const panelDir = resolve(root, 'apps/panel');
 const panelEnv = {
   ...env,
-  NEXT_PUBLIC_API_URL: `http://localhost:${API}`,
+  NEXT_PUBLIC_API_URL: apiBase,
   NEXT_PUBLIC_DEMO: '1',
-  NEXT_DIST_DIR: '.next-demo',
+  NEXT_DIST_DIR: lan ? '.next-demo-lan' : '.next-demo',
 };
-const panelMarker = resolve(panelDir, '.next-demo/.demo-built');
+const panelMarker = resolve(
+  panelDir,
+  lan ? '.next-demo-lan/.demo-built' : '.next-demo/.demo-built',
+);
 if (rebuild || !existsSync(panelMarker)) {
   run('Kurum paneli derleniyor', 'pnpm', ['exec', 'next', 'build'], {
     cwd: panelDir,
@@ -62,11 +84,15 @@ if (rebuild || !existsSync(panelMarker)) {
 const children = [
   spawn('pnpm', ['exec', 'tsx', 'src/demo-server.ts'], {
     cwd: resolve(root, 'apps/api'),
-    env: { ...env, NODE_ENV: 'development' },
+    env: {
+      ...env,
+      NODE_ENV: 'development',
+      DEMO_WEB_DIR: resolve(mobileDir, webDirName),
+    },
     stdio: 'inherit',
     shell,
   }),
-  spawn('pnpm', ['exec', 'next', 'start', '-p', String(PANEL), '-H', '127.0.0.1'], {
+  spawn('pnpm', ['exec', 'next', 'start', '-p', String(PANEL), '-H', HOST], {
     cwd: panelDir,
     env: panelEnv,
     stdio: 'inherit',

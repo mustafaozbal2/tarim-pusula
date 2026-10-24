@@ -110,8 +110,8 @@ describe('G14 mağaza paketi ve PWA', () => {
   const manifest = JSON.parse(read('public/manifest.webmanifest'));
 
   it('iOS ve Android kimlikleri ve izin metinleri Türkçe tanımlı', () => {
-    expect(app.ios.bundleIdentifier).toBe('tr.tarimpusula.app');
-    expect(app.android.package).toBe('tr.tarimpusula.app');
+    expect(app.ios.bundleIdentifier).toBe('com.tarimpusula.app');
+    expect(app.android.package).toBe('com.tarimpusula.app');
     expect(app.ios.infoPlist.ITSAppUsesNonExemptEncryption).toBe(false);
     expect(app.ios.infoPlist.NSCameraUsageDescription).toMatch(/fotoğraf/);
     expect(app.android.blockedPermissions).toEqual(
@@ -133,7 +133,7 @@ describe('G14 mağaza paketi ve PWA', () => {
   it('PWA bildirimi: Türkçe, bağımsız ekran, tema rengi ve 192/512 simge', () => {
     expect(manifest.lang).toBe('tr');
     expect(manifest.display).toBe('standalone');
-    expect(manifest.theme_color).toBe('#14392B');
+    expect(manifest.theme_color).toBe('#064D3B');
     const sizes = manifest.icons.map((i: { sizes: string }) => i.sizes);
     expect(sizes).toEqual(expect.arrayContaining(['192x192', '512x512']));
     for (const i of manifest.icons) {

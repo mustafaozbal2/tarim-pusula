@@ -2,6 +2,7 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Badge, Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
+import { BilgiKarti } from '../src/components/BilgiKarti';
 import { FlowHeader, FlowScreen, Notice } from '../src/components/FlowParts';
 import { tr } from '../src/i18n/tr';
 import { loadNdvi, type NdviResult } from '../src/ndvi/load';
@@ -19,6 +20,9 @@ import { nextFieldId } from '../src/today/load';
 import { clock } from '../src/today/model';
 
 const t = tr.ndvi;
+
+const cropName = (id: string | null) =>
+  id ? (tr.commonCrops.find((c) => c.id === id)?.name ?? id) : null;
 const CHART_HEIGHT = 160;
 
 /** Sade çubuk grafik: yükseklik doğrudan değerdir (0-1); her çubuğun altında sayı yazar. */
@@ -115,6 +119,29 @@ export default function NdviScreen() {
       {res.offline ? <Notice tone="warn">{t.offline}</Notice> : null}
       {s?.stale ? <Notice tone="warn">{t.stale}</Notice> : null}
 
+      <Card style={styles.card} testID="ndvi-tarla-bilgi">
+        <Text style={styles.body}>{t.fieldInfo}</Text>
+        <Text style={styles.small}>
+          {t.cropLabel}: {cropName(field.cropId) ?? t.notSet}
+        </Text>
+        <Text style={styles.small}>
+          {t.placeLabel}:{' '}
+          {[field.village, field.district, field.province].filter(Boolean).join(' · ') || t.notSet}
+        </Text>
+        <Text style={styles.small}>
+          {t.coordLabel}:{' '}
+          {field.lat !== null && field.lon !== null
+            ? `${field.lat.toFixed(4)}, ${field.lon.toFixed(4)}`
+            : t.notSet}
+        </Text>
+        <Text style={styles.small}>
+          {t.areaLabel}:{' '}
+          {field.areaDecare
+            ? `${field.areaDecare.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} dekar`
+            : t.notSet}
+        </Text>
+      </Card>
+
       {data.kind === 'none' ? (
         <Card style={styles.card}>
           <Text style={styles.body} testID="ndvi-yok">
@@ -170,16 +197,20 @@ export default function NdviScreen() {
           </Text>
         </>
       ) : null}
+      {data.kind === 'none' && data.reason === 'sinir-yok' ? (
+        <BilgiKarti title={t.stepsTitle} lines={[...t.steps]} />
+      ) : null}
+      <BilgiKarti title={t.howTitle} lines={[...t.how]} testID="ndvi-nasil" />
     </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fontFamily.extrabold, fontSize: 28, color: colors.forest },
+  title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
   body: { fontFamily: fontFamily.bold, fontSize: fontSize.body, color: colors.forest },
   small: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
-  big: { fontFamily: fontFamily.extrabold, fontSize: 36, color: colors.forest },
-  warnTitle: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.amberText },
+  big: { fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.forest },
+  warnTitle: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.amberText },
   card: { gap: spacing.sm },
   chart: {
     height: CHART_HEIGHT,

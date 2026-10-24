@@ -3,8 +3,7 @@
 Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Üretim"). Teknofest Tarım Teknolojileri, lisans üstü kategori. Jüri profesördür: her hesap matematiksel olarak dayanaklı ve test edilmiş olmalı.
 
 ## Her zaman oku
-
-- docs/PLAN.md (ana plan), docs/UX_KURALLARI.md, docs/tasks/Gx.md (sıradaki görev), docs/prototype/ (onaylı ekran tasarımları — birebir uy)
+- docs/PLAN.md (ana plan), docs/TASARIM_REFERANSI.md (görsel kaynak), docs/UX_KURALLARI.md, docs/tasks/Gx.md (sıradaki görev), docs/prototype/ (ESKİ kısa demo taslakları: YALNIZ akış mantığı için bak; görünüm için docs/TASARIM_REFERANSI.md geçerli)
 
 ## Çalışma düzeni
 
@@ -22,7 +21,7 @@ Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Ür
 4. TC kimlik no toplanmaz. Telefon SMS-OTP. KVKK veri minimizasyonu.
 5. Gizli anahtarlar yalnız .env (repoda yok; .env.example var). Anahtar yoksa sahte sağlayıcıyla çalış ve testler yine geçsin.
 6. Her veri kaynağı için kaynak + tarih + sürüm saklanır. Robots/lisans ihlal edilmez.
-7. Arayüz: Türkçe, büyük yazı (>=16, ana metin 18+), dokunma alanı >=56 px, ekran başına tek ana iş, emoji yok, çiftçi dili (jargon yok).
+7. Arayüz: Türkçe, emoji yok, çiftçi dili. Görünüm kuralları ve renkler YALNIZ docs/TASARIM_REFERANSI.md'den (eski uygulama temelli, yoğun, profesyonel). Eski "büyük yazı/56 px" kuralı iptal.
 
 ## Güvenlik sınırı
 

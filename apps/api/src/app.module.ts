@@ -19,7 +19,13 @@ import {
   FieldsController,
   MeController,
 } from './controllers';
-import { CropsController, NearbyController, PLACES, PlacesController } from './controllers.g2';
+import {
+  CropsController,
+  NearbyController,
+  PLACES,
+  PlacesController,
+  SoilsController,
+} from './controllers.g2';
 import { AnnouncementsController, FieldCalendarController } from './controllers.g4';
 import { PanelController, PanelMfaController } from './controllers.g5';
 import { SuitabilityController, SupportsController, WalletController } from './decision';
@@ -118,6 +124,7 @@ export class AppModule {
         AdminController,
         PlacesController,
         CropsController,
+        SoilsController,
         NearbyController,
         TodayController,
         NdviController,

@@ -1,8 +1,10 @@
 node_modules
 dist
 dist-demo
+dist-demo-lan
 .next
 .next-demo
+.next-demo-lan
 .expo
 .turbo
 coverage

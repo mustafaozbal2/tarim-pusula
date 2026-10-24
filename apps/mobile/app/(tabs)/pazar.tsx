@@ -158,14 +158,14 @@ function PlaceCard({ p, open, onWhy }: { p: MarketPlaceDto; open: boolean; onWhy
 
 const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  small: { fontFamily: fontFamily.semibold, fontSize: 16, color: colors.textMuted },
-  price: { fontFamily: fontFamily.extrabold, fontSize: 44, color: colors.forest },
-  trend: { fontFamily: fontFamily.bold, fontSize: 18, color: colors.pistachioText },
-  stale: { fontFamily: fontFamily.bold, fontSize: 16, color: colors.amberText },
-  section: { fontFamily: fontFamily.extrabold, fontSize: 18, color: colors.forest, marginTop: 8 },
+  small: { fontFamily: fontFamily.semibold, fontSize: 13, color: colors.textMuted },
+  price: { fontFamily: fontFamily.extrabold, fontSize: 26, color: colors.forest },
+  trend: { fontFamily: fontFamily.bold, fontSize: 15, color: colors.pistachioText },
+  stale: { fontFamily: fontFamily.bold, fontSize: 13, color: colors.amberText },
+  section: { fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.forest, marginTop: 8 },
   place: { gap: spacing.sm },
-  placeTop: { flexDirection: 'row', alignItems: 'center', minHeight: 64 },
-  placeName: { fontFamily: fontFamily.extrabold, fontSize: 18, color: colors.forest },
-  placePrice: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
-  net: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.water },
+  placeTop: { flexDirection: 'row', alignItems: 'center', minHeight: 48 },
+  placeName: { fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.forest },
+  placePrice: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
+  net: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.water },
 });

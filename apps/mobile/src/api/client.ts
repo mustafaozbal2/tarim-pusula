@@ -76,6 +76,28 @@ export interface CropDto {
   canDriveAdvice: boolean;
 }
 
+export interface KcRowDto {
+  id: string;
+  nameTr: string;
+  group: string;
+  kcIni: number | null;
+  kcMid: number | null;
+  kcEnd: number | null;
+  packVersion: number | null;
+  source: string | null;
+  retrievedAt: string | null;
+  needsBadge: boolean;
+}
+
+export interface SoilRowDto {
+  key: string;
+  nameTr: string;
+  thetaFc: number;
+  thetaWp: number;
+  source: string;
+  needsBadge: boolean;
+}
+
 export interface DailyDto {
   date: string;
   tMinC: number;
@@ -319,6 +341,8 @@ export function createApi(opts: ApiOptions) {
     registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>
       request<{ ok: boolean }>('POST', '/me/push-token', { token, platform }),
     crops: () => request<CropDto[]>('GET', '/crops'),
+    kcTable: () => request<KcRowDto[]>('GET', '/crops/kc-table'),
+    soils: () => request<SoilRowDto[]>('GET', '/soils'),
     devices: () => request<DeviceDto[]>('GET', '/devices'),
     deviceStatus: (id: string) => request<DeviceStatusDto>('GET', `/devices/${q(id)}/status`),
     /** Sulama komutu ASLA çevrimdışı sıraya alınmaz: geç icra edilen vana komutu tehlikelidir. */

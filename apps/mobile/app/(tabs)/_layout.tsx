@@ -12,13 +12,13 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.textMuted,
         tabBarActiveBackgroundColor: colors.pistachio,
         tabBarStyle: {
-          height: TAB_HEIGHT + 16,
-          paddingTop: 6,
-          paddingBottom: 10,
+          height: TAB_HEIGHT + 12,
+          paddingTop: 4,
+          paddingBottom: 6,
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
         },
-        tabBarItemStyle: { minHeight: TAB_HEIGHT, borderRadius: 16, marginHorizontal: 4 },
+        tabBarItemStyle: { minHeight: TAB_HEIGHT, borderRadius: 8, marginHorizontal: 4 },
         tabBarLabelStyle: { fontFamily: fontFamily.extrabold, fontSize: TAB_LABEL_FONT_SIZE },
       }}
     >

@@ -42,7 +42,7 @@ export default function NearbyScreen() {
             testID="kodum-var"
             accessibilityRole="button"
             onPress={() => router.push('/tarla-ekle/yakin-kod')}
-            style={{ minHeight: 56, justifyContent: 'center' }}
+            style={{ minHeight: 44, justifyContent: 'center' }}
           >
             <Text
               style={{
@@ -84,7 +84,7 @@ export default function NearbyScreen() {
               testID="yakin-kod"
               style={{
                 fontFamily: fontFamily.extrabold,
-                fontSize: 56,
+                fontSize: 28,
                 letterSpacing: 4,
                 color: colors.forest,
               }}
@@ -103,7 +103,7 @@ export default function NearbyScreen() {
           </>
         ) : (
           <View style={{ alignSelf: 'stretch' }}>
-            <Button label={t.nearbyGet} onPress={() => void getCode()} style={{ minHeight: 64 }} />
+            <Button label={t.nearbyGet} onPress={() => void getCode()} style={{ minHeight: 48 }} />
           </View>
         )}
       </Card>

@@ -1,19 +1,21 @@
-/** Tasarım belirteçleri — kaynak: docs/UX_KURALLARI.md ve docs/prototype/. */
+/** Tasarım belirteçleri — tek kaynak: docs/TASARIM_REFERANSI.md (eski uygulama temelli palet). */
 export const colors = {
-  forest: '#14392B', // ana
-  pistachio: '#E3EFD2', // seçili / güvenli
-  pistachioText: '#1F4D12',
-  water: '#1D5B7A', // sulama
+  forest: '#064D3B', // koyu yeşil: seçili sekme, kenar menü, başlık
+  pistachio: '#E3F2EC', // seçili / güvenli zemin
+  pistachioText: '#064D3B',
+  listGreen: '#1B7F5A', // liste satırı dolgusu (#24976E beyazla 3,7:1 kaldı; AA için koyulaştırıldı)
+  card: '#F3FAF9', // açık zemin kartı
+  water: '#1D5B7A', // yalnız sulama
   waterSoft: '#DCEBF3',
-  amber: '#F2C14E', // uyarı
+  amber: '#F2C14E', // yalnız uyarı
   amberSoft: '#FFF4DC',
   amberText: '#5A3D00',
-  brick: '#9B2F1E', // durdur / tehlike
-  brickSoft: '#F6E1DC',
+  brick: '#B01B4A', // tehlike / sil
+  brickSoft: '#FCE4EC',
   wheat: '#D9A441', // yalnız vurgu, metin değil
-  background: '#F4F6F0',
+  background: '#F1F3F4',
   surface: '#FFFFFF',
-  border: '#DCE3D5',
+  border: '#D9DEE0',
   textMuted: '#4F6258',
   onForest: '#FFFFFF',
 } as const;
@@ -26,13 +28,26 @@ export const fontFamily = {
 } as const;
 
 /** Kabul eşikleri: bunların altına inilemez (testle korunur). */
-export const MIN_TOUCH_TARGET = 56;
-export const MIN_FONT_SIZE = 16;
-export const MIN_BODY_FONT_SIZE = 18;
-/** Sekme etiketi prototipte 13'tür; dokunma alanı 60 px ile telafi edilir. */
-export const TAB_LABEL_FONT_SIZE = 13;
-export const TAB_HEIGHT = 60;
+export const MIN_TOUCH_TARGET = 44;
+export const MIN_FONT_SIZE = 12;
+export const MIN_BODY_FONT_SIZE = 14;
+export const TAB_LABEL_FONT_SIZE = 12;
+export const TAB_HEIGHT = 52;
+/** Liste satırı yüksekliği (44–48 px). */
+export const ROW_HEIGHT = 46;
 
-export const fontSize = { small: 16, body: 18, title: 24, display: 56 } as const;
-export const radius = { card: 24, row: 18, pill: 30 } as const;
-export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20 } as const;
+/** Sıkı tipografi ölçeği: gövde 14–15, satır başlığı 15–16, ikincil 12–13. */
+export const fontSize = {
+  small: 13,
+  caption: 12,
+  body: 15,
+  row: 15,
+  title: 18,
+  display: 28,
+} as const;
+export const radius = { card: 12, row: 8, pill: 10 } as const;
+export const spacing = { xs: 4, sm: 6, md: 8, lg: 12, xl: 14 } as const;
+
+/** "Yazı boyutu" ayarı: Büyük mod eskiden kabul edilen 18 px düzenine denk gelir (15 × 1,2). */
+export type TextSize = 'normal' | 'large';
+export const TEXT_SCALE: Record<TextSize, number> = { normal: 1, large: 1.2 };

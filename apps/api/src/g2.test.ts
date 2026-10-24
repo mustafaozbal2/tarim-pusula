@@ -223,6 +223,24 @@ describe('Bitki Bilgi Paketi', () => {
     expect(crops.map((c) => c.id)).toContain('incir');
   });
 
+  it('Kc tablosu ve toprak listesi salt okunur, taslaklar rozetli', async () => {
+    const kc = await call('GET', '/crops/kc-table', farmer.token);
+    expect(kc.status).toBe(200);
+    const rows = kc.body as { id: string; kcMid: number | null; needsBadge: boolean }[];
+    expect(rows.length).toBeGreaterThanOrEqual(40);
+    expect(rows.find((r) => r.id === 'zeytin')?.kcMid).not.toBeNull();
+    expect(rows.every((r) => r.needsBadge)).toBe(true); // tohum hep taslak
+    expect((await call('GET', '/crops/kc-table')).status).toBe(401);
+    const soils = (await call('GET', '/soils', farmer.token)).body as {
+      key: string;
+      thetaFc: number;
+      thetaWp: number;
+      needsBadge: boolean;
+    }[];
+    expect(soils.map((x) => x.key)).toEqual(['kumlu', 'tinli', 'killi']);
+    expect(soils.every((x) => x.thetaFc > x.thetaWp && x.needsBadge)).toBe(true);
+  });
+
   it('tohum içe aktarılır: 33 paket, hepsi taslak, rozet açık, karar yok', async () => {
     const packs = await sql<{ n: string; approved: string }>(
       `SELECT count(*)::text n, count(*) FILTER (WHERE review_status = 'uzman-onayli')::text approved

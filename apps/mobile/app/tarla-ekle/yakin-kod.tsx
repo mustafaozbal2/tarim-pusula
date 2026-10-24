@@ -25,7 +25,7 @@ export default function EnterCodeScreen() {
       footer={
         <Button
           label={t.next}
-          style={[{ minHeight: 64 }, digits.length !== 6 && { opacity: 0.45 }]}
+          style={[{ minHeight: 48 }, digits.length !== 6 && { opacity: 0.45 }]}
           onPress={
             digits.length === 6
               ? () => {
@@ -51,14 +51,14 @@ export default function EnterCodeScreen() {
         maxLength={7}
         placeholder="000 000"
         style={{
-          minHeight: 80,
+          minHeight: 56,
           borderRadius: radius.row,
           borderWidth: 2,
           borderColor: colors.forest,
           backgroundColor: colors.surface,
           paddingHorizontal: 16,
           fontFamily: fontFamily.extrabold,
-          fontSize: 40,
+          fontSize: 24,
           letterSpacing: 4,
           color: colors.forest,
           textAlign: 'center',

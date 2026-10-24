@@ -11,7 +11,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { canDriveAdvice, needsDraftBadge, waterNeedAdvice, type CropStage } from '@tarim/agro-core';
+import {
+  canDriveAdvice,
+  needsDraftBadge,
+  SOIL_SEED,
+  waterNeedAdvice,
+  type CropStage,
+} from '@tarim/agro-core';
 import {
   fieldCreateSchema,
   nearbyClaimSchema,
@@ -50,6 +56,22 @@ export class PlacesController {
   ) {
     if (!province || !district) throw new BadRequestException('İl ve ilçe yazılmadı');
     return this.places.villages(province, district, q).slice(0, 300);
+  }
+}
+
+/** Toprak türü + tarla kapasitesi / solma noktası (salt okunur, taslak: rozetli). */
+@Controller('soils')
+export class SoilsController {
+  @Get()
+  list() {
+    return SOIL_SEED.map((s) => ({
+      key: s.key,
+      nameTr: s.nameTr,
+      thetaFc: s.thetaFc,
+      thetaWp: s.thetaWp,
+      source: s.source,
+      needsBadge: needsDraftBadge(s.reviewStatus),
+    }));
   }
 }
 
@@ -142,6 +164,49 @@ export class CropsController {
         // Paket yoksa ya da onaysızsa rozet gösterilir ve karar üretilmez.
         needsBadge: r.reviewStatus === null ? true : needsDraftBadge(r.reviewStatus),
         canDriveAdvice: r.reviewStatus === null ? false : canDriveAdvice(r.reviewStatus),
+      }));
+    });
+  }
+
+  /**
+   * Bitki türü + Kc tablosu (salt okunur). Karar için onaylı sürüm, yoksa en yeni taslak (rozetli) gösterilir.
+   * Kc değerleri yalnız gösterimdir; `needsBadge` doluysa hiçbir hesap bu değere dayanmaz.
+   */
+  @Get('kc-table')
+  kcTable(@Me() me: Principal) {
+    return this.data.run(me, 'crops.kcTable', async (q) => {
+      const rows = await q.query<{
+        id: string;
+        nameTr: string;
+        group: string;
+        version: number | null;
+        reviewStatus: PackRow['reviewStatus'] | null;
+        kcIni: string | null;
+        kcMid: string | null;
+        kcEnd: string | null;
+        source: string | null;
+        retrievedAt: string | null;
+      }>(
+        `SELECT c.id, c.name_tr AS "nameTr", c.grp AS "group", p.version,
+                p.review_status AS "reviewStatus", p.kc_ini AS "kcIni", p.kc_mid AS "kcMid",
+                p.kc_end AS "kcEnd", p.source, p.retrieved_at AS "retrievedAt"
+         FROM crops c
+         LEFT JOIN LATERAL (
+           SELECT * FROM crop_pack_versions WHERE crop_id = c.id
+           ORDER BY (review_status = 'uzman-onayli') DESC, version DESC LIMIT 1) p ON true
+         ORDER BY c.name_tr`,
+      );
+      return rows.map((r) => ({
+        id: r.id,
+        nameTr: r.nameTr,
+        group: r.group,
+        kcIni: r.kcIni === null ? null : Number(r.kcIni),
+        kcMid: r.kcMid === null ? null : Number(r.kcMid),
+        kcEnd: r.kcEnd === null ? null : Number(r.kcEnd),
+        packVersion: r.version,
+        source: r.source,
+        retrievedAt: r.retrievedAt === null ? null : new Date(r.retrievedAt).toISOString(),
+        needsBadge: r.reviewStatus === null ? true : needsDraftBadge(r.reviewStatus),
       }));
     });
   }

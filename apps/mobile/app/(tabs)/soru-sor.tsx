@@ -1,9 +1,11 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as Speech from 'expo-speech';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { BigChoice, Button, Card, colors, fontFamily, spacing } from '@tarim/ui';
 import type { PusulaCardDto } from '../../src/api/client';
+import { useSettings } from '../../src/settings';
+import { BilgiKarti } from '../../src/components/BilgiKarti';
 import { Screen } from '../../src/components/Screen';
 import { tr } from '../../src/i18n/tr';
 import { kv } from '../../src/offline/kvStore';
@@ -29,6 +31,9 @@ export default function AskScreen() {
   const [showWhy, setShowWhy] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [fieldId, setFieldId] = useState<string | undefined>();
+  const settings = useSettings();
+  const guide = useRef(settings.voiceGuide);
+  guide.current = settings.voiceGuide;
 
   useEffect(() => {
     void kv.get(SELECTED).then((id) => {
@@ -51,6 +56,16 @@ export default function AskScreen() {
           ...(image ? { image } : {}),
         });
         setState({ s: 'done', card: r.card });
+        // Ses rehberi açıksa cevap kendiliğinden sesli okunur (Ayarlar).
+        if (guide.current) {
+          setSpeaking(true);
+          Speech.speak(speechText(r.card), {
+            language: 'tr-TR',
+            onDone: () => setSpeaking(false),
+            onStopped: () => setSpeaking(false),
+            onError: () => setSpeaking(false),
+          });
+        }
       } catch (e) {
         setState({ s: 'fail', msg: t[errorKey(e)] });
       }
@@ -183,22 +198,23 @@ export default function AskScreen() {
       {t.questions.map((q) => (
         <BigChoice key={q} title={q} onPress={() => void ask(q)} />
       ))}
+      <BilgiKarti title={t.howTitle} lines={[...t.how]} testID="pusula-nasil" />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  subtitle: { fontFamily: fontFamily.semibold, fontSize: 18, color: colors.textMuted },
-  voice: { minHeight: 80 },
-  section: { fontFamily: fontFamily.extrabold, fontSize: 18, color: colors.forest, marginTop: 8 },
+  subtitle: { fontFamily: fontFamily.semibold, fontSize: 15, color: colors.textMuted },
+  voice: { minHeight: 56 },
+  section: { fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.forest, marginTop: 8 },
   card: { gap: spacing.md },
   stop: { borderColor: colors.brick, borderWidth: 2, backgroundColor: colors.brickSoft },
   warn: { borderColor: colors.amber, borderWidth: 2, backgroundColor: colors.amberSoft },
-  step: { fontFamily: fontFamily.semibold, fontSize: 20, color: colors.forest, marginBottom: 8 },
-  muted: { fontFamily: fontFamily.medium, fontSize: 16, color: colors.textMuted },
-  error: { fontFamily: fontFamily.bold, fontSize: 18, color: colors.brick },
+  step: { fontFamily: fontFamily.semibold, fontSize: 16, color: colors.forest, marginBottom: 8 },
+  muted: { fontFamily: fontFamily.medium, fontSize: 13, color: colors.textMuted },
+  error: { fontFamily: fontFamily.bold, fontSize: 15, color: colors.brick },
   sourceRow: { gap: 6 },
-  source: { fontFamily: fontFamily.medium, fontSize: 16, color: colors.textMuted },
+  source: { fontFamily: fontFamily.medium, fontSize: 13, color: colors.textMuted },
   badge: {
     alignSelf: 'flex-start',
     backgroundColor: colors.amberSoft,
@@ -208,15 +224,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  badgeText: { fontFamily: fontFamily.bold, fontSize: 16, color: colors.amberText },
+  badgeText: { fontFamily: fontFamily.bold, fontSize: 13, color: colors.amberText },
   input: {
-    minHeight: 96,
+    minHeight: 56,
     borderWidth: 2,
     borderColor: colors.border,
-    borderRadius: 16,
+    borderRadius: 8,
     padding: 16,
     fontFamily: fontFamily.semibold,
-    fontSize: 18,
+    fontSize: 15,
     color: colors.forest,
     backgroundColor: colors.surface,
     textAlignVertical: 'top',

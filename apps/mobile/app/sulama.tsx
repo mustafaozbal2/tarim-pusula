@@ -272,7 +272,7 @@ export default function IrrigationScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fontFamily.extrabold, fontSize: 28, color: colors.forest },
+  title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
   big: { fontFamily: fontFamily.extrabold, fontSize: fontSize.title, color: colors.forest },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
   hero: {
@@ -282,8 +282,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  drop: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center' },
-  heroTitle: { fontFamily: fontFamily.extrabold, fontSize: 28, color: '#FFFFFF', marginTop: 8 },
+  drop: { width: 96, height: 96, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  heroTitle: { fontFamily: fontFamily.extrabold, fontSize: 20, color: '#FFFFFF', marginTop: 8 },
   heroSub: {
     fontFamily: fontFamily.semibold,
     fontSize: fontSize.small,
@@ -298,8 +298,8 @@ const styles = StyleSheet.create({
   modeRow: { flexDirection: 'row', gap: spacing.sm },
   mode: {
     flex: 1,
-    minHeight: 56,
-    borderRadius: 14,
+    minHeight: 44,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
@@ -326,8 +326,8 @@ const styles = StyleSheet.create({
   durations: { flexDirection: 'row', gap: spacing.sm },
   duration: {
     flex: 1,
-    minHeight: 56,
-    borderRadius: 14,
+    minHeight: 44,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',

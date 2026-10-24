@@ -47,6 +47,11 @@ test('Takvim: şimdi ve yaklaşan işler, rozet, kaynak, Neden?; duyuru kartı k
 
   // Bugün: duyuru kartı.
   await page.goto('/');
+  await page
+    .getByTestId('liste-satiri')
+    .filter({ hasText: 'Sulama toplantısı duyurusu' })
+    .first()
+    .click();
   const card = page
     .getByTestId('duyuru-karti')
     .filter({ hasText: 'Sulama toplantısı duyurusu' })

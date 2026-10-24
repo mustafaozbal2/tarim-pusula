@@ -31,7 +31,7 @@ const fold = (s: string) =>
     .replace(/ç/g, 'c');
 
 const inputStyle = {
-  minHeight: 56,
+  minHeight: 44,
   borderRadius: radius.row,
   borderWidth: 1,
   borderColor: colors.forest,
@@ -132,7 +132,7 @@ export default function VillageScreen() {
       {step === 'ilce' ? (
         <>
           <Text style={subtitleStyle}>{province}</Text>
-          <Text style={[titleStyle, { fontSize: 24 }]}>{t.whichDistrict}</Text>
+          <Text style={[titleStyle, { fontSize: 18 }]}>{t.whichDistrict}</Text>
           {districts.map((d) => (
             <BigChoice key={d} title={d} onPress={() => (setQuery(''), setDistrict(d))} />
           ))}
@@ -144,7 +144,7 @@ export default function VillageScreen() {
           <Text style={subtitleStyle}>
             {province} · {district}
           </Text>
-          <Text style={[titleStyle, { fontSize: 24 }]}>{t.whichVillage}</Text>
+          <Text style={[titleStyle, { fontSize: 18 }]}>{t.whichVillage}</Text>
           {typing ? (
             <View style={{ gap: 12 }}>
               <TextInput
