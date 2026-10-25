@@ -11,7 +11,8 @@ export interface CalendarResult {
 }
 
 const key = (id: string) => `cache.calendar.v1.${id}`;
-export const CALENDAR_DAYS = 90;
+/** Ay görünümü gelecek aylara bakabilsin diye bir yıl (sunucu üst sınırı 366). */
+export const CALENDAR_DAYS = 366;
 
 /**
  * Seçili tarlanın takvimi (Bugün ile aynı tarla seçimi). Sunucuya ulaşılamazsa son takvim

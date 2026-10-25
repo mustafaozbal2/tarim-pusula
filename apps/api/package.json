@@ -17,6 +17,7 @@
     "@nestjs/platform-express": "^12.2.0",
     "@tarim/agro-core": "workspace:*",
     "@tarim/device-sim": "workspace:*",
+    "@tarim/devices": "workspace:*",
     "@tarim/schemas": "workspace:*",
     "@tarim/workers": "workspace:*",
     "mqtt": "^5.16.1",

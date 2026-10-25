@@ -112,7 +112,7 @@ export class IrrigationService implements OnModuleInit, OnModuleDestroy {
   async provision(me: Principal, deviceId: string) {
     await this.data.runOne(me, 'devices.provision', deviceId, async (q) => {
       const [d] = await q.query<{ id: string }>(
-        `SELECT id FROM devices WHERE id = $1 AND can_access_field(field_id, 'write')`,
+        `SELECT id FROM devices WHERE id = $1 AND kind = 'sulama' AND can_access_field(field_id, 'write')`,
         [deviceId],
       );
       if (d)
@@ -150,7 +150,7 @@ export class IrrigationService implements OnModuleInit, OnModuleDestroy {
     const { row, fresh } = await this.data.runOne(me, 'irrigation.command', deviceId, async (q) => {
       // Yetki: cihazın tarlasına yazma izni. Yoksa satır görünmez (RLS) ya da koşul sağlanmaz.
       const [dev] = await q.query<{ id: string; field_id: string }>(
-        `SELECT id, field_id FROM devices WHERE id = $1 AND can_access_field(field_id, 'write')`,
+        `SELECT id, field_id FROM devices WHERE id = $1 AND kind = 'sulama' AND can_access_field(field_id, 'write')`,
         [deviceId],
       );
       if (!dev) return undefined;

@@ -68,12 +68,13 @@ describe('don kartı metni', () => {
     expect(frostWhen(0, '2026-10-21')).toBe('Bu sabah');
     expect(frostWhen(2, '2026-10-24')).toBe('Cuma gecesi');
   });
-  it('onaysız eşik: uyarı yok, rozetli sakin kart (kural 1)', () => {
+  it('onaysız eşik: uyarı yok, sakin "bilgi yok" metni (kural 1)', () => {
     const m = frostCardModel(
       frostDto({ assessment: { kind: 'none', reason: 'uzman-onayi-bekliyor', badge: true } }),
     );
     expect(m.kind).toBe('pending');
-    expect(m.title).toContain('uzman onayı bekliyor');
+    expect(m.title).toBe('Bu ürün için don bilgisi şu an yok');
+    expect(m.title).not.toMatch(/onayı bekl/i);
   });
   it('düşük olasılık sakin; veri yoksa "alınamadı"', () => {
     const calm = frostCardModel(

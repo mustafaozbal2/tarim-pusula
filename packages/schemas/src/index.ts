@@ -29,3 +29,4 @@ export * from './library';
 export * from './pusula';
 export * from './irrigation';
 export * from './wallet';
+export * from './devices';

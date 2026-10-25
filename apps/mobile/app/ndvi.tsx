@@ -183,8 +183,8 @@ export default function NdviScreen() {
               </Text>
             ) : null}
             <Text style={styles.body}>{trend.body}</Text>
-            {/* Düşüş kuralı uzman onaylı değil: rozetli, uyarı/komut üretmez. */}
-            <Badge label={t.pendingBadge} />
+            {/* Düşüş kuralı onaylı değil: yalnız bilgi etiketi, uyarı/komut üretmez. */}
+            <Badge label={t.infoOnly} />
           </Card>
 
           <Button label={t.why} variant="secondary" onPress={() => setWhy((v) => !v)} />

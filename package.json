@@ -4,6 +4,7 @@
   "packageManager": "pnpm@12.14.0",
   "scripts": {
     "demo": "node scripts/demo.mjs",
+    "images": "node scripts/sync-images.mjs",
     "dev:infra": "docker compose up -d",
     "format": "prettier --write .",
     "lint": "turbo run lint",

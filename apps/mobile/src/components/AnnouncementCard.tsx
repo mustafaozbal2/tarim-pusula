@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { Badge, Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
+import { Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
 import type { AnnouncementDto } from '../api/client';
 import { tr } from '../i18n/tr';
 import { announcementSource } from '../today/announcementText';
@@ -25,7 +25,7 @@ export function AnnouncementCard({ a }: { a: AnnouncementDto }) {
       ) : null}
       <Text style={styles.body}>{a.body}</Text>
       <View style={styles.meta}>
-        {a.needsBadge ? <Badge label={tr.today.announcementPending} /> : <View />}
+        <View />
         <Button
           label={tr.today.why}
           variant="secondary"

@@ -63,6 +63,75 @@ export function hasSource(p: MarketPlaceDto): boolean {
   return !!s && !!s.name.trim() && /^\d{4}-\d{2}-\d{2}$/.test(s.date) && !!s.version.trim();
 }
 
+const trLower = (s: string) => s.toLocaleLowerCase('tr-TR').trim();
+
+export interface CurrentPick {
+  place: MarketPlaceDto | null;
+  /** Fiyatın hangi konuma göre seçildiği (ekranda yazılır). */
+  basis: 'secilen-yer' | 'arazi-ili' | 'en-yeni-kayit' | 'yok';
+}
+
+/**
+ * Başlık fiyatının konumu: ÖNCE çiftçinin seçtiği satış yeri, yoksa SEÇİLİ ARAZİNİN ili. GPS konumuna
+ * göre seçim YAPILMAZ. İlde kayıt yoksa en yeni kayıt gösterilir ve bu açıkça yazılır.
+ */
+export function pickCurrent(
+  data: { current: MarketPlaceDto | null; places: MarketPlaceDto[]; national: MarketPlaceDto[] },
+  fieldProvince: string | null | undefined,
+  chosenPlaceId: string | null | undefined,
+): CurrentPick {
+  const all = [...data.places, ...data.national].filter(hasSource);
+  const chosen = chosenPlaceId ? all.find((p) => p.placeId === chosenPlaceId) : undefined;
+  if (chosen) return { place: chosen, basis: 'secilen-yer' };
+  if (fieldProvince) {
+    const inProvince = all
+      .filter((p) => p.province && trLower(p.province) === trLower(fieldProvince))
+      .sort((a, b) => b.date.localeCompare(a.date));
+    if (inProvince[0]) return { place: inProvince[0], basis: 'arazi-ili' };
+  }
+  const cur = data.current && hasSource(data.current) ? data.current : null;
+  return cur ? { place: cur, basis: 'en-yeni-kayit' } : { place: null, basis: 'yok' };
+}
+
+/**
+ * Yol tarifi bağlantısı (hedef koordinat). Android: geo: şeması cihazın harita uygulamasını açar;
+ * iOS: Apple Haritalar; web ve diğerleri: Google Haritalar yol tarifi adresi.
+ */
+export function directionsUrl(platform: string, lat: number, lon: number, label: string): string {
+  const ll = `${lat},${lon}`;
+  if (platform === 'android') return `geo:${ll}?q=${ll}(${encodeURIComponent(label)})`;
+  if (platform === 'ios') {
+    return `http://maps.apple.com/?daddr=${ll}&q=${encodeURIComponent(label)}`;
+  }
+  return `https://www.google.com/maps/dir/?api=1&destination=${ll}`;
+}
+
+/** Fiyat değişim oku: yön ve yüzde yazısı (renk tek başına anlam taşımaz). */
+export function changeArrow(trend: MarketTrendDto): { dir: 'up' | 'down' | 'flat'; text: string } {
+  if (trend.direction === 'up' || trend.direction === 'down') {
+    const pct =
+      trend.changePct30d === null
+        ? ''
+        : ` %${Math.abs(Math.round(trend.changePct30d * 10) / 10).toLocaleString('tr-TR')}`;
+    const word = trend.direction === 'up' ? 'Yükseldi' : 'Düştü';
+    return { dir: trend.direction, text: `${word}${pct}` };
+  }
+  return { dir: 'flat', text: trend.direction === 'flat' ? 'Yatay' : 'Veri yok' };
+}
+
+/** Ürün sırasına göre görsel yuvası: urun_1 ... urun_6 (6'dan sonra başa döner). */
+export function productImageName(index: number) {
+  const names = [
+    'urun_1.jpg',
+    'urun_2.jpg',
+    'urun_3.jpg',
+    'urun_4.jpg',
+    'urun_5.jpg',
+    'urun_6.jpg',
+  ] as const;
+  return names[Math.max(0, index) % names.length]!;
+}
+
 export function sourceLine(p: MarketPlaceDto): string {
   return `${t.source}: ${p.source.name} · ${dayText(p.source.date)}`;
 }

@@ -36,6 +36,11 @@ export interface WeatherBundle {
 
 export interface WeatherProvider {
   get(lat: number, lon: number): Promise<WeatherBundle>;
+  /**
+   * Geçmiş günlük gözlem/analiz (son `pastDays` gün, bugün hariç). Tasarruf raporu gibi dönem
+   * hesapları için. Sağlayıcı desteklemezse tanımsız olabilir.
+   */
+  history?(lat: number, lon: number, pastDays: number): Promise<WeatherBundle>;
 }
 
 export class WeatherUnavailableError extends Error {
@@ -85,6 +90,31 @@ export class OpenMeteoClient implements WeatherProvider {
       const bundle = await this.fetchBundle(lat, lon);
       this.cache.set(key, { at: this.now(), bundle });
       if (this.cache.size > 500) this.cache.delete(this.cache.keys().next().value as string);
+      return bundle;
+    } catch (e) {
+      if (hit) return { ...hit.bundle, stale: true };
+      throw e instanceof WeatherUnavailableError ? e : new WeatherUnavailableError(String(e));
+    }
+  }
+
+  /** Open-Meteo `past_days` ile geçmiş günlük veri (en çok 92 gün). */
+  async history(lat: number, lon: number, pastDays: number): Promise<WeatherBundle> {
+    const n = Math.max(1, Math.min(92, Math.floor(pastDays)));
+    const key = `h:${(Math.round(lat * 20) / 20).toFixed(2)},${(Math.round(lon * 20) / 20).toFixed(2)},${n}`;
+    const hit = this.cache.get(key);
+    if (hit && this.now() - hit.at < this.ttl) return hit.bundle;
+    try {
+      const forecast = await this.getJson('https://api.open-meteo.com', '/v1/forecast', {
+        latitude: String(lat),
+        longitude: String(lon),
+        timezone: 'auto',
+        daily: DAILY,
+        wind_speed_unit: 'ms',
+        past_days: String(n),
+        forecast_days: '1',
+      });
+      const bundle = parseBundle(forecast, null, 'none', new Date(this.now()).toISOString());
+      this.cache.set(key, { at: this.now(), bundle });
       return bundle;
     } catch (e) {
       if (hit) return { ...hit.bundle, stale: true };
@@ -205,6 +235,17 @@ export class FakeWeatherProvider implements WeatherProvider {
   async get(lat: number, lon: number): Promise<WeatherBundle> {
     this.calls++;
     return this.make(lat, lon);
+  }
+  /** Sahte geçmiş: belirlenimli, bugünden geriye `pastDays` gün (ET0 girdileri sabit). */
+  async history(lat: number, lon: number, pastDays: number): Promise<WeatherBundle> {
+    const b = this.make(lat, lon);
+    const base = b.days[0]!;
+    const end = new Date(`${base.date}T00:00:00Z`).getTime();
+    const days = Array.from({ length: Math.max(1, pastDays) }, (_, i) => {
+      const date = new Date(end - (pastDays - i) * 86_400_000).toISOString().slice(0, 10);
+      return { ...base, date };
+    });
+    return { ...b, days };
   }
 }
 

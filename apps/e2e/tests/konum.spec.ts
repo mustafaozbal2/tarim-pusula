@@ -297,7 +297,7 @@ test.describe('konum akışı (web)', () => {
     await p.getByTestId('giris-kod').fill(code);
     await p.getByRole('button', { name: 'Giriş yap' }).click();
     await expect(
-      p.getByRole('heading', { name: 'Tarlalarım' }).or(p.getByText('Bugün').first()),
+      p.getByRole('heading', { name: 'Tarlalarım' }).or(p.getByTestId('ana-bant')),
     ).toBeVisible();
     await context.close();
   });

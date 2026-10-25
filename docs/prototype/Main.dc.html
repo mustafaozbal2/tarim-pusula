@@ -1,98 +1,616 @@
 <!doctype html>
 <html lang="tr">
-<head>
-<meta charset="utf-8">
-<title>Bugün</title>
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
-<style>
-body{margin:0;font-family:'Manrope',system-ui,sans-serif}
-a{color:inherit;text-decoration:none}
-</style>
-</helmet>
-<div style="width:390px;height:844px;box-sizing:border-box;background:#F4F6F0;color:#14392B;font-family:'Manrope',system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bugün</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            font-family: 'Manrope', system-ui, sans-serif;
+          }
+          a {
+            color: inherit;
+            text-decoration: none;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          box-sizing: border-box;
+          background: #f4f6f0;
+          color: #14392b;
+          font-family: 'Manrope', system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px 8px;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div
+              style="
+                width: 36px;
+                height: 36px;
+                border-radius: 18px;
+                background: #14392b;
+                color: #f2c14e;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M15.5 8.5l-2 5-5 2 2-5z" />
+              </svg>
+            </div>
+            <div style="font-size: 19px; font-weight: 800">Tarım Pusula</div>
+          </div>
+          <button
+            aria-label="Bildirimler"
+            style="
+              position: relative;
+              width: 48px;
+              height: 48px;
+              border-radius: 24px;
+              border: 1px solid #dce3d5;
+              background: #ffffff;
+              color: #14392b;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7" />
+              <path d="M10 20a2 2 0 0 0 4 0" />
+            </svg>
+            <span
+              style="
+                position: absolute;
+                top: 10px;
+                right: 11px;
+                width: 10px;
+                height: 10px;
+                border-radius: 5px;
+                background: #c2410c;
+                border: 2px solid #ffffff;
+              "
+            ></span>
+          </button>
+        </div>
 
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 8px">
-    <div style="display:flex;align-items:center;gap:10px">
-      <div style="width:36px;height:36px;border-radius:18px;background:#14392B;color:#F2C14E;display:flex;align-items:center;justify-content:center">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
+        <a
+          href="Arazilerim.dc.html"
+          style="
+            margin: 4px 20px 0;
+            min-height: 56px;
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #dce3d5;
+            box-shadow: 0 1px 2px rgba(20, 57, 43, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 16px;
+            font-size: 18px;
+            font-weight: 800;
+          "
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#14392B"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z" />
+            <circle cx="12" cy="9.500" r="2.500" />
+          </svg>
+          <span style="flex: 1">Burç Köyü Fıstık Bahçesi</span>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </a>
+
+        <div
+          style="
+            margin: 12px 20px 0;
+            background: #14392b;
+            border-radius: 24px;
+            padding: 18px 20px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <div>
+            <div style="font-size: 56px; font-weight: 800; line-height: 1">12°</div>
+            <div style="font-size: 18px; color: #cfe0d6; margin-top: 6px; font-weight: 600">
+              Bugün hava parçalı bulutlu
+            </div>
+          </div>
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#F2C14E"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="9" cy="9" r="3.500" />
+            <path d="M9 2v1.500M2 9h1.500M4 4l1 1M14 4l-1 1" />
+            <path
+              d="M8 20h9a4 4 0 0 0 .5-8 5.500 5.500 0 0 0-10.500 1.500A3.300 3.300 0 0 0 8 20z"
+              stroke="#FFFFFF"
+            />
+          </svg>
+        </div>
+
+        <div
+          style="
+            margin: 12px 20px 0;
+            background: #fff4dc;
+            border: 2px solid #f2c14e;
+            border-radius: 24px;
+            padding: 18px 20px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              font-size: 14px;
+              font-weight: 800;
+              color: #5a3d00;
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3l10 18H2z" />
+              <path d="M12 10v5M12 18v.01" />
+            </svg>
+            DİKKAT
+          </div>
+          <div
+            style="
+              font-size: 24px;
+              font-weight: 800;
+              color: #3b2700;
+              margin-top: 6px;
+              line-height: 1.2;
+            "
+          >
+            Cuma gecesi don bekleniyor
+          </div>
+          <div
+            style="
+              font-size: 16px;
+              color: #5a3d00;
+              margin-top: 6px;
+              line-height: 1.45;
+              font-weight: 600;
+            "
+          >
+            Çiçek gözleri zarar görebilir. Önlem almak için başla.
+          </div>
+          <a
+            href="Cevap.dc.html"
+            style="
+              margin-top: 14px;
+              min-height: 56px;
+              border-radius: 28px;
+              background: #14392b;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 18px;
+              font-weight: 800;
+            "
+            >Ne yapmalıyım?</a
+          >
+          <div style="font-size: 14px; color: #5a3d00; margin-top: 10px; font-weight: 600">
+            Kaynak: Gaziantep İl Tarım Müdürlüğü
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin: 12px 20px 0">
+          <a
+            href="Cevap.dc.html"
+            style="
+              min-height: 64px;
+              border-radius: 18px;
+              background: #ffffff;
+              border: 1px solid #dce3d5;
+              display: flex;
+              align-items: center;
+              gap: 14px;
+              padding: 0 16px;
+              font-size: 18px;
+              font-weight: 800;
+            "
+          >
+            <span
+              style="
+                flex: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+                background: #e3efd2;
+                color: #1f4d12;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 21v-8" />
+                <path d="M12 13c0-4 3-7 8-7 0 5-3 7-8 7z" />
+                <path d="M12 15c0-3-2-5-6-5 0 4 2 5 6 5z" /></svg
+            ></span>
+            <span style="flex: 1">Gübre zamanı geldi</span>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#4F6258"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </a>
+          <a
+            href="Sulama.dc.html"
+            style="
+              min-height: 64px;
+              border-radius: 18px;
+              background: #ffffff;
+              border: 1px solid #dce3d5;
+              display: flex;
+              align-items: center;
+              gap: 14px;
+              padding: 0 16px;
+              font-size: 18px;
+              font-weight: 800;
+            "
+          >
+            <span
+              style="
+                flex: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+                background: #dcebf3;
+                color: #1d5b7a;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z" /></svg
+            ></span>
+            <span style="flex: 1">Sulama: bugün bekle</span>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#4F6258"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </a>
+        </div>
+
+        <div style="flex: 1"></div>
+
+        <div style="display: flex; gap: 10px; margin: 0 20px 10px">
+          <a
+            href="Pusula.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              border-radius: 30px;
+              background: #14392b;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 10px;
+              font-size: 18px;
+              font-weight: 800;
+            "
+          >
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="9" y="3" width="6" height="11" rx="3" />
+              <path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg
+            >Sesle sor</a
+          >
+          <a
+            href="Pusula.dc.html"
+            aria-label="Fotoğraf çek"
+            style="
+              width: 60px;
+              min-height: 60px;
+              border-radius: 30px;
+              background: #e3efd2;
+              color: #1f4d12;
+              border: 1px solid #cbd5c3;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+              <circle cx="12" cy="13" r="3.500" /></svg
+          ></a>
+        </div>
+
+        <nav
+          style="
+            display: flex;
+            background: #ffffff;
+            border-top: 1px solid #dce3d5;
+            padding: 6px 8px 12px;
+          "
+        >
+          <a
+            href="Main.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #14392b;
+              font-size: 13px;
+              font-weight: 800;
+            "
+          >
+            <span
+              style="
+                width: 60px;
+                height: 32px;
+                border-radius: 16px;
+                background: #e3efd2;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path
+                  d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"
+                /></svg></span
+            >Bugün</a
+          >
+          <a
+            href="Arazilerim.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #4f6258;
+              font-size: 13px;
+              font-weight: 700;
+            "
+          >
+            <span style="height: 32px; display: flex; align-items: center"
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" />
+                <path d="M9 4v14M15 6v14" /></svg></span
+            >Tarlalarım</a
+          >
+          <a
+            href="Pusula.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #4f6258;
+              font-size: 13px;
+              font-weight: 700;
+            "
+          >
+            <span style="height: 32px; display: flex; align-items: center"
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" /></svg></span
+            >Soru sor</a
+          >
+          <a
+            href="Pazar.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #4f6258;
+              font-size: 13px;
+              font-weight: 700;
+            "
+          >
+            <span style="height: 32px; display: flex; align-items: center"
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 19V5M4 19h16" />
+                <path d="M8 15l4-4 3 3 5-6" /></svg></span
+            >Pazar</a
+          >
+        </nav>
       </div>
-      <div style="font-size:19px;font-weight:800">Tarım Pusula</div>
-    </div>
-    <button aria-label="Bildirimler" style="position:relative;width:48px;height:48px;border-radius:24px;border:1px solid #DCE3D5;background:#FFFFFF;color:#14392B;display:flex;align-items:center;justify-content:center">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
-      <span style="position:absolute;top:10px;right:11px;width:10px;height:10px;border-radius:5px;background:#C2410C;border:2px solid #FFFFFF"></span>
-    </button>
-  </div>
-
-  <a href="Arazilerim.dc.html" style="margin:4px 20px 0;min-height:56px;border-radius:16px;background:#FFFFFF;border:1px solid #DCE3D5;box-shadow:0 1px 2px rgba(20,57,43,0.08);display:flex;align-items:center;gap:12px;padding:0 16px;font-size:18px;font-weight:800">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#14392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg>
-    <span style="flex:1">Burç Köyü Fıstık Bahçesi</span>
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-  </a>
-
-  <div style="margin:12px 20px 0;background:#14392B;border-radius:24px;padding:18px 20px;color:#FFFFFF;display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <div style="font-size:56px;font-weight:800;line-height:1">12°</div>
-      <div style="font-size:18px;color:#CFE0D6;margin-top:6px;font-weight:600">Bugün hava parçalı bulutlu</div>
-    </div>
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#F2C14E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.500"/><path d="M9 2v1.500M2 9h1.500M4 4l1 1M14 4l-1 1"/><path d="M8 20h9a4 4 0 0 0 .5-8 5.500 5.500 0 0 0-10.500 1.500A3.300 3.300 0 0 0 8 20z" stroke="#FFFFFF"/></svg>
-  </div>
-
-  <div style="margin:12px 20px 0;background:#FFF4DC;border:2px solid #F2C14E;border-radius:24px;padding:18px 20px">
-    <div style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:#5A3D00">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
-      DİKKAT
-    </div>
-    <div style="font-size:24px;font-weight:800;color:#3B2700;margin-top:6px;line-height:1.2">Cuma gecesi don bekleniyor</div>
-    <div style="font-size:16px;color:#5A3D00;margin-top:6px;line-height:1.45;font-weight:600">Çiçek gözleri zarar görebilir. Önlem almak için başla.</div>
-    <a href="Cevap.dc.html" style="margin-top:14px;min-height:56px;border-radius:28px;background:#14392B;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800">Ne yapmalıyım?</a>
-    <div style="font-size:14px;color:#5A3D00;margin-top:10px;font-weight:600">Kaynak: Gaziantep İl Tarım Müdürlüğü</div>
-  </div>
-
-  <div style="display:flex;flex-direction:column;gap:8px;margin:12px 20px 0">
-    <a href="Cevap.dc.html" style="min-height:64px;border-radius:18px;background:#FFFFFF;border:1px solid #DCE3D5;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:18px;font-weight:800">
-      <span style="flex:none;width:40px;height:40px;border-radius:12px;background:#E3EFD2;color:#1F4D12;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-8"/><path d="M12 13c0-4 3-7 8-7 0 5-3 7-8 7z"/><path d="M12 15c0-3-2-5-6-5 0 4 2 5 6 5z"/></svg></span>
-      <span style="flex:1">Gübre zamanı geldi</span>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4F6258" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
-    <a href="Sulama.dc.html" style="min-height:64px;border-radius:18px;background:#FFFFFF;border:1px solid #DCE3D5;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:18px;font-weight:800">
-      <span style="flex:none;width:40px;height:40px;border-radius:12px;background:#DCEBF3;color:#1D5B7A;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z"/></svg></span>
-      <span style="flex:1">Sulama: bugün bekle</span>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4F6258" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
-  </div>
-
-  <div style="flex:1"></div>
-
-  <div style="display:flex;gap:10px;margin:0 20px 10px">
-    <a href="Pusula.dc.html" style="flex:1;min-height:60px;border-radius:30px;background:#14392B;color:#FFFFFF;display:flex;align-items:center;justify-content:center;gap:10px;font-size:18px;font-weight:800">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Sesle sor</a>
-    <a href="Pusula.dc.html" aria-label="Fotoğraf çek" style="width:60px;min-height:60px;border-radius:30px;background:#E3EFD2;color:#1F4D12;border:1px solid #CBD5C3;display:flex;align-items:center;justify-content:center">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.500"/></svg></a>
-  </div>
-
-  <nav style="display:flex;background:#FFFFFF;border-top:1px solid #DCE3D5;padding:6px 8px 12px">
-    <a href="Main.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#14392B;font-size:13px;font-weight:800">
-      <span style="width:60px;height:32px;border-radius:16px;background:#E3EFD2;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg></span>Bugün</a>
-    <a href="Arazilerim.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#4F6258;font-size:13px;font-weight:700">
-      <span style="height:32px;display:flex;align-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span>Tarlalarım</a>
-    <a href="Pusula.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#4F6258;font-size:13px;font-weight:700">
-      <span style="height:32px;display:flex;align-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span>Soru sor</a>
-    <a href="Pazar.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#4F6258;font-size:13px;font-weight:700">
-      <span style="height:32px;display:flex;align-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-4 3 3 5-6"/></svg></span>Pazar</a>
-  </nav>
-</div>
-</x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-  renderVals() { return {}; }
-}
-</script>
-</body>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() { return {}; }
+      }
+    </script>
+  </body>
 </html>

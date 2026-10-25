@@ -1,0 +1,42 @@
+[
+  { "name": "amblem.png", "w": 256, "h": 256, "where": "Ana sayfa, sol üst: amblem" },
+  {
+    "name": "ciftci.png",
+    "w": 400,
+    "h": 560,
+    "where": "Ana sayfa, orta: çiftçi çizimi (saydam arka plan)"
+  },
+  { "name": "ikon_arazilerim.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Arazilerim" },
+  {
+    "name": "ikon_arazi_islemleri.png",
+    "w": 128,
+    "h": 128,
+    "where": "Ana sayfa ikonu: Arazi İşlemleri"
+  },
+  {
+    "name": "ikon_verim_haritasi.png",
+    "w": 128,
+    "h": 128,
+    "where": "Ana sayfa ikonu: Verim Haritası"
+  },
+  { "name": "ikon_hava.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Hava Durumu" },
+  { "name": "ikon_uzman.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Uzman Desteği" },
+  { "name": "ikon_bildirim.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Mobil Bildirim" },
+  { "name": "ikon_ayarlar.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Profil Ayarları" },
+  { "name": "kart_1.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 1. kart" },
+  { "name": "kart_2.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 2. kart" },
+  { "name": "kart_3.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 3. kart" },
+  { "name": "kart_4.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 4. kart" },
+  { "name": "kart_5.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 5. kart" },
+  {
+    "name": "urun_1.jpg",
+    "w": 240,
+    "h": 240,
+    "where": "Pazar: 1. ürün görseli (ürün sırasına göre)"
+  },
+  { "name": "urun_2.jpg", "w": 240, "h": 240, "where": "Pazar: 2. ürün görseli" },
+  { "name": "urun_3.jpg", "w": 240, "h": 240, "where": "Pazar: 3. ürün görseli" },
+  { "name": "urun_4.jpg", "w": 240, "h": 240, "where": "Pazar: 4. ürün görseli" },
+  { "name": "urun_5.jpg", "w": 240, "h": 240, "where": "Pazar: 5. ürün görseli" },
+  { "name": "urun_6.jpg", "w": 240, "h": 240, "where": "Pazar: 6. ürün görseli" }
+]

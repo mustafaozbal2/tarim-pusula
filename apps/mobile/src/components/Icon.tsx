@@ -24,7 +24,11 @@ export type IconName =
   | 'chip'
   | 'plan'
   | 'settings'
-  | 'book';
+  | 'book'
+  | 'arrowUp'
+  | 'arrowDown'
+  | 'arrowFlat'
+  | 'route';
 
 /** Prototipteki çizgi ikonları (24x24, çizgi kalınlığı 2). Anlam her zaman yazıyla da verilir. */
 export function Icon({
@@ -179,6 +183,20 @@ function shape(name: IconName) {
       );
     case 'back':
       return <Path d="M15 6l-6 6 6 6" />;
+    case 'arrowUp':
+      return <Path d="M12 20V5M6 11l6-6 6 6" />;
+    case 'arrowDown':
+      return <Path d="M12 4v15M6 13l6 6 6-6" />;
+    case 'arrowFlat':
+      return <Path d="M4 12h16M14 6l6 6-6 6" />;
+    case 'route':
+      return (
+        <>
+          <Circle cx={6} cy={18} r={2.5} />
+          <Circle cx={18} cy={6} r={2.5} />
+          <Path d="M8 17c6 0 2-10 8-10" />
+        </>
+      );
     case 'target':
       return (
         <>

@@ -8,14 +8,14 @@ En az 8 çiftçi (hedef 12): yaşları 25 altı / 25-50 / 50+ dengeli, en az 3 k
 
 ## Görevler (her biri en çok 3 dakika, yardım edilmez, tıkanma anı not edilir)
 
-| # | Görev | Başarı ölçütü |
-|---|---|---|
-| 1 | Giriş yap, tarlanı "Köyümü seçeyim" ile ekle | Tarla listesinde görünür |
-| 2 | Bugün ekranında su ihtiyacını ve don durumunu söyle | Doğru kartı gösterir ve ne yapacağını anlatır |
-| 3 | "Don olursa ne yapmalıyım?" diye Soru sor'dan sor, cevabın kaynağını göster | Kaynak satırını bulur |
-| 4 | Pazar'da bir ürünün fiyatını ve "nerede satarım"ı bul | Doğru ürün ve yer |
-| 5 | Sulama ekranından 10 dakikalık sulamayı başlat, sonra durdur | Onay adımını geçer, durdurur |
-| 6 | Verilerini indir | Dosya/paylaşım açılır |
+| #   | Görev                                                                       | Başarı ölçütü                                 |
+| --- | --------------------------------------------------------------------------- | --------------------------------------------- |
+| 1   | Giriş yap, tarlanı "Köyümü seçeyim" ile ekle                                | Tarla listesinde görünür                      |
+| 2   | Bugün ekranında su ihtiyacını ve don durumunu söyle                         | Doğru kartı gösterir ve ne yapacağını anlatır |
+| 3   | "Don olursa ne yapmalıyım?" diye Soru sor'dan sor, cevabın kaynağını göster | Kaynak satırını bulur                         |
+| 4   | Pazar'da bir ürünün fiyatını ve "nerede satarım"ı bul                       | Doğru ürün ve yer                             |
+| 5   | Sulama ekranından 10 dakikalık sulamayı başlat, sonra durdur                | Onay adımını geçer, durdurur                  |
+| 6   | Verilerini indir                                                            | Dosya/paylaşım açılır                         |
 
 Her görev için kaydet: başarı (evet/kısmen/hayır), süre (sn), hata sayısı, yüksek sesle söylediği yorum, yazı boyutu sorunu var mı.
 
@@ -38,9 +38,9 @@ Tek numaralı maddeler: (puan − 1). Çift numaralı maddeler: (5 − puan). To
 
 ## Sonuç tablosu (doldurulacak)
 
-| Katılımcı | Yaş | Telefon deneyimi | G1 | G2 | G3 | G4 | G5 | G6 | SUS |
-|---|---|---|---|---|---|---|---|---|---|
-| K1 | | | | | | | | | |
+| Katılımcı | Yaş | Telefon deneyimi | G1  | G2  | G3  | G4  | G5  | G6  | SUS |
+| --------- | --- | ---------------- | --- | --- | --- | --- | --- | --- | --- |
+| K1        |     |                  |     |     |     |     |     |     |     |
 
 ## Çiftçiye okunacak giriş metni
 

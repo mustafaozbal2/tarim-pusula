@@ -51,3 +51,20 @@ export const spacing = { xs: 4, sm: 6, md: 8, lg: 12, xl: 14 } as const;
 /** "Yazı boyutu" ayarı: Büyük mod eskiden kabul edilen 18 px düzenine denk gelir (15 × 1,2). */
 export type TextSize = 'normal' | 'large';
 export const TEXT_SCALE: Record<TextSize, number> = { normal: 1, large: 1.2 };
+
+/**
+ * Ana sayfa renkleri: docs/referans/anasayfa_hedef.png üzerinden piksel örneklenmiştir
+ * (docs/gorsel/ANASAYFA_FARK.md). Çakışmada hedef görsel kazanır (G19).
+ */
+export const homeColors = {
+  band: '#4DB4B5', // üst bant
+  bandStripe: '#5ABDBF', // köşegen açık şerit
+  page: '#F1F1F2', // sayfa zemini
+  tabSelected: '#3D8E8D', // seçili sekme (koyu turkuaz)
+  dateBox: '#82D4CA', // tarih kutusu
+  rowBox: '#AAE2D8', // satır metin kutusu
+  name: '#42918F', // arazi adı
+  text: '#231F20', // satır ve başlık metni
+  badge: '#EE3270', // bildirim sayı rozeti
+  badgeDot: '#C0392B', // Dikkat rozeti
+} as const;

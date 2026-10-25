@@ -10,14 +10,14 @@ Veri sorumlusu: [Tüzel kişi adı, adres, KEP/e-posta]. İletişim: [gizlilik e
 
 ## 2. Hangi verileri topluyoruz, neden
 
-| Veri | Neden | Dayanak |
-|---|---|---|
-| Telefon numarası | SMS ile giriş (şifre yok) | Sözleşmenin kurulması |
-| Tarla konumu, sınırı, ürünü, alanı | Hava, su ihtiyacı, don uyarısı, duyuru ve uydu yeşilliği | Açık rıza |
-| Cihaz bildirim kodu | Don ve duyuru bildirimi göndermek | Açık rıza |
-| Sulama komutları ve vana durumu | Vanayı güvenle açıp kapatmak, kayıt tutmak | Sözleşme / meşru menfaat |
-| Uzmana sorular ve eklediğiniz fotoğraf | Sorunuzu cevaplamak | Açık rıza |
-| Denetim kaydı (kim, ne zaman, ne yaptı) | Güvenlik ve hesap verebilirlik | Meşru menfaat, hukuki yükümlülük |
+| Veri                                    | Neden                                                    | Dayanak                          |
+| --------------------------------------- | -------------------------------------------------------- | -------------------------------- |
+| Telefon numarası                        | SMS ile giriş (şifre yok)                                | Sözleşmenin kurulması            |
+| Tarla konumu, sınırı, ürünü, alanı      | Hava, su ihtiyacı, don uyarısı, duyuru ve uydu yeşilliği | Açık rıza                        |
+| Cihaz bildirim kodu                     | Don ve duyuru bildirimi göndermek                        | Açık rıza                        |
+| Sulama komutları ve vana durumu         | Vanayı güvenle açıp kapatmak, kayıt tutmak               | Sözleşme / meşru menfaat         |
+| Uzmana sorular ve eklediğiniz fotoğraf  | Sorunuzu cevaplamak                                      | Açık rıza                        |
+| Denetim kaydı (kim, ne zaman, ne yaptı) | Güvenlik ve hesap verebilirlik                           | Meşru menfaat, hukuki yükümlülük |
 
 ## 3. Toplamadıklarımız
 

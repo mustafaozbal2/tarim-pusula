@@ -115,8 +115,12 @@ describe('G14 mağaza paketi ve PWA', () => {
     expect(app.ios.infoPlist.ITSAppUsesNonExemptEncryption).toBe(false);
     expect(app.ios.infoPlist.NSCameraUsageDescription).toMatch(/fotoğraf/);
     expect(app.android.blockedPermissions).toEqual(
-      expect.arrayContaining(['RECORD_AUDIO', 'READ_CONTACTS', 'READ_SMS']),
+      expect.arrayContaining(['READ_CONTACTS', 'READ_SMS']),
     );
+    // G20.6: yerel ses tanıma için mikrofon izni artık açık ve metni Türkçe (ses kaydı saklanmaz).
+    expect(app.android.blockedPermissions).not.toContain('RECORD_AUDIO');
+    expect(app.android.permissions).toContain('RECORD_AUDIO');
+    expect(app.ios.infoPlist.NSMicrophoneUsageDescription).toMatch(/saklanmaz/);
   });
 
   it('EAS: geliştirme, deneme ve yayın profili; yayın paketi app-bundle', () => {

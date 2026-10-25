@@ -11,6 +11,7 @@ export const EXPORT_COVERAGE: Record<string, { key: string } | { excluded: strin
   fields: { key: 'fields' },
   field_access: { key: 'fieldAccess' },
   devices: { key: 'devices' },
+  device_readings: { key: 'deviceReadings' },
   consents: { key: 'consents' },
   nearby_codes: { key: 'nearbyCodes' },
   nearby_proposals: { key: 'nearbyProposals' },
@@ -33,6 +34,8 @@ export const EXPORT_COVERAGE: Record<string, { key: string } | { excluded: strin
   calendar_templates: { excluded: 'kurum içeriği' },
   suitability_factors: { excluded: 'uzman/kurum içeriği' },
   supports: { excluded: 'uzman/kurum içeriği' },
+  soil_types: { excluded: 'uzman/kurum içeriği' },
+  crop_water_params: { excluded: 'uzman/kurum içeriği' },
 };
 
 /** Kategori özeti: Veri Cüzdanı ekranı için (kayıt sayısı + çiftçi dilinde ad). */
@@ -77,9 +80,17 @@ export async function buildExport(q: Queryable, me: Principal, profile: unknown)
       [me.userId],
     ),
     devices: await q.query(
-      `SELECT d.id, d.field_id AS "fieldId", d.name, d.kind, d.created_at AS "createdAt"
+      `SELECT d.id, d.field_id AS "fieldId", d.name, d.kind, d.manufacturer, d.model,
+              d.connection_method AS "connectionMethod", d.source, d.adapter_version AS "adapterVersion",
+              d.created_at AS "createdAt"
        FROM devices d JOIN fields f ON f.id = d.field_id WHERE f.owner_id = $1
        ORDER BY d.created_at, d.id`,
+      [me.userId],
+    ),
+    deviceReadings: await q.query(
+      `SELECT r.device_id AS "deviceId", r.at, r.metric, r.value, r.unit, r.source
+       FROM device_readings r JOIN fields f ON f.id = r.field_id WHERE f.owner_id = $1
+       ORDER BY r.at, r.id`,
       [me.userId],
     ),
     irrigationCommands: await q.query(

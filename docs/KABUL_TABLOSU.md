@@ -9,123 +9,123 @@ Her görevde ortak üç ölçüt vardır: (a) `pnpm run verify` hatasız, (b) ye
 
 ## G0 — İskelet
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| `pnpm install && pnpm run verify` temiz | KANITLI | Kök `pnpm run verify` (lint + typecheck + test + prettier) bu görevde temiz koştu; temiz klasörden `pnpm install` yeniden denenmedi, mevcut kurulumla koşuldu |
-| Mobil uygulama web olarak açılır (`expo start --web`) | KISMEN | `expo export --platform web` başarılı ve 26 Playwright testi bu paketi tarayıcıda açıp kullanır (`apps/e2e/tests/*.spec.ts`). `expo start --web` (geliştirme sunucusu) hiç çalıştırılmadı |
-| CI yeşil | YAPILMADI | `.github/workflows/ci.yml` var (verify + e2e + `integration` işi), ama GitHub Actions'ta koşusu bu ortamdan görülemedi (`gh` yok); yeşil olduğuna dair kanıt yok |
+| Ölçüt                                                 | Durum     | Kanıt                                                                                                                                                                                     |
+| ----------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install && pnpm run verify` temiz               | KANITLI   | Kök `pnpm run verify` (lint + typecheck + test + prettier) bu görevde temiz koştu; temiz klasörden `pnpm install` yeniden denenmedi, mevcut kurulumla koşuldu                             |
+| Mobil uygulama web olarak açılır (`expo start --web`) | KISMEN    | `expo export --platform web` başarılı ve 26 Playwright testi bu paketi tarayıcıda açıp kullanır (`apps/e2e/tests/*.spec.ts`). `expo start --web` (geliştirme sunucusu) hiç çalıştırılmadı |
+| CI yeşil                                              | YAPILMADI | `.github/workflows/ci.yml` var (verify + e2e + `integration` işi), ama GitHub Actions'ta koşusu bu ortamdan görülemedi (`gh` yok); yeşil olduğuna dair kanıt yok                          |
 
 ## G1 — Veri modeli, kimlik, yetki
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Başkasının tarlasını okuma/yazma denemesi 403 | KANITLI | `api.test.ts › başkasının tarlasını okuma 403`, `› yazma (PATCH) 403 ve veri değişmez`, `› silme 403`, `› olmayan ya da bozuk kimlik de 403` |
-| RLS testleri geçer | KANITLI | `db/rls.test.ts` (19 test: `başka kullanıcı göremez`, `admin bile tarlayı göremez`, `tarla sahibi sonradan değiştirilemez` …). G15: aynı dosya gerçek PostgreSQL'de de geçer (`test:integration`) |
-| audit_log her mutasyonda satır üretir | KANITLI | `rls.test.ts › her yazma (ekle / güncelle / sil) satır üretir ve yapanı kaydeder`; `api.test.ts › tarla güncelle / cihaz ekle / cihaz sil / tarla sil: her biri satır ekler`; `› hash zinciri sağlam; kurcalanırsa tespit edilir` |
+| Ölçüt                                         | Durum   | Kanıt                                                                                                                                                                                                                             |
+| --------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Başkasının tarlasını okuma/yazma denemesi 403 | KANITLI | `api.test.ts › başkasının tarlasını okuma 403`, `› yazma (PATCH) 403 ve veri değişmez`, `› silme 403`, `› olmayan ya da bozuk kimlik de 403`                                                                                      |
+| RLS testleri geçer                            | KANITLI | `db/rls.test.ts` (19 test: `başka kullanıcı göremez`, `admin bile tarlayı göremez`, `tarla sahibi sonradan değiştirilemez` …). G15: aynı dosya gerçek PostgreSQL'de de geçer (`test:integration`)                                 |
+| audit_log her mutasyonda satır üretir         | KANITLI | `rls.test.ts › her yazma (ekle / güncelle / sil) satır üretir ve yapanı kaydeder`; `api.test.ts › tarla güncelle / cihaz ekle / cihaz sil / tarla sil: her biri satır ekler`; `› hash zinciri sağlam; kurcalanırsa tespit edilir` |
 
 ## G2 — Konum, tarla, ürün paketi iskeleti
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Alan hesabı birim testleri (bilinen çokgenler) | KANITLI | `agro-core/geo.test.ts › 100 m × 100 m tarla = 10 dekar`, `› dik üçgen`, `› L biçimli çokgen`, `› kendini kesen çokgeni reddeder`, `› ekvatorda 1°×1° kare ≈ 12.308,8 km²`. G15: `integration/postgis.itest.ts › alan: ST_Area ile polygonAreaSquareMeters %0,5 içinde uyuşur` |
-| Konum akışı Playwright ile uçtan uca, 4 yolun her biri tarla kaydeder | KANITLI | `e2e/konum.spec.ts` › `1) Tarladayım`, `2) Köyümü seçeyim`, `3) Haritada göstereyim`, `4) Yakınım yapsın` (+ `1b`, `3b`, `4b`, `5) Çevrimdışı`) |
-| Onaysız Kc ile uyarı üretilmez | KANITLI | `agro-core/cropPack.test.ts › taslak pakette su ihtiyacı sayısı üretilmez`, `› tohumdaki hiçbir satır, hangi hava değeriyle olursa olsun sayı üretmez`, `› onaysız don eşiği, sıcaklık ne kadar düşük olursa olsun uyarı üretmez` |
+| Ölçüt                                                                 | Durum   | Kanıt                                                                                                                                                                                                                                                                          |
+| --------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Alan hesabı birim testleri (bilinen çokgenler)                        | KANITLI | `agro-core/geo.test.ts › 100 m × 100 m tarla = 10 dekar`, `› dik üçgen`, `› L biçimli çokgen`, `› kendini kesen çokgeni reddeder`, `› ekvatorda 1°×1° kare ≈ 12.308,8 km²`. G15: `integration/postgis.itest.ts › alan: ST_Area ile polygonAreaSquareMeters %0,5 içinde uyuşur` |
+| Konum akışı Playwright ile uçtan uca, 4 yolun her biri tarla kaydeder | KANITLI | `e2e/konum.spec.ts` › `1) Tarladayım`, `2) Köyümü seçeyim`, `3) Haritada göstereyim`, `4) Yakınım yapsın` (+ `1b`, `3b`, `4b`, `5) Çevrimdışı`)                                                                                                                                |
+| Onaysız Kc ile uyarı üretilmez                                        | KANITLI | `agro-core/cropPack.test.ts › taslak pakette su ihtiyacı sayısı üretilmez`, `› tohumdaki hiçbir satır, hangi hava değeriyle olursa olsun sayı üretmez`, `› onaysız don eşiği, sıcaklık ne kadar düşük olursa olsun uyarı üretmez`                                              |
 
 ## G3 — Hava, ET0, don
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| ET0 testi FAO-56 Örnek 18 ±0,05 mm/gün | KANITLI | `agro-core/g3.test.ts › ET0 = 3,9 mm/gün ±0,05` (çıktı 3,880), `› ara değerler: es 1,997, ea 1,409, Rs ≈ 22,07, Rn ≈ 13,28`. Bağımsız istasyon/lizimetre karşılaştırması YAPILMADI (`DOGRULAMA_RAPORU.md §1` sınırı) |
-| Don olasılığı birim testleri (sentetik ensemble) | KANITLI | `agro-core/g3.test.ts › oran = Tmin ≤ Tkritik üyeler / tüm üyeler`, `› uçlar: hepsi / hiçbiri; sınır dahil`, `› düzeyler`, `› onaysız eşik uyarı üretmez (kural 1); onaylı üretir` |
+| Ölçüt                                                      | Durum   | Kanıt                                                                                                                                                                                                                                  |
+| ---------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ET0 testi FAO-56 Örnek 18 ±0,05 mm/gün                     | KANITLI | `agro-core/g3.test.ts › ET0 = 3,9 mm/gün ±0,05` (çıktı 3,880), `› ara değerler: es 1,997, ea 1,409, Rs ≈ 22,07, Rn ≈ 13,28`. Bağımsız istasyon/lizimetre karşılaştırması YAPILMADI (`DOGRULAMA_RAPORU.md §1` sınırı)                   |
+| Don olasılığı birim testleri (sentetik ensemble)           | KANITLI | `agro-core/g3.test.ts › oran = Tmin ≤ Tkritik üyeler / tüm üyeler`, `› uçlar: hepsi / hiçbiri; sınır dahil`, `› düzeyler`, `› onaysız eşik uyarı üretmez (kural 1); onaylı üretir`                                                     |
 | Bugün ekranı gerçek API'den (mock'lanabilir) veri gösterir | KANITLI | `e2e/bugun.spec.ts › Bugün: gerçek API verisi, onaysız eşikte uyarı yok, onaylıysa don kartı`; `› sunucuya ulaşılamazsa son bilgi ve "son güncelleme" görünür` (hava sağlayıcısı sahte; canlı Open-Meteo yanıtı test paketinde koşmaz) |
 
 ## G4 — Takvim ve duyurular
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Hedefleme birim testleri | KANITLI | `agro-core/g4.test.ts` (`il eşleşir; Türkçe harf…`, `aynı adlı ilçe başka ilde eşleşmez`, `daire: içindeki nokta eşleşir…`, `liste dolu: yalnız listedeki ürün`). G15: `integration/postgis.itest.ts › küre modelinde (use_spheroid=false) eşleşen tarla kümeleri birebir aynıdır` (ST_DWithin ile TS sonucu aynı) |
-| Başka ilin duyurusu görünmez | KANITLI | `api/g4.test.ts › BAŞKA İLİN DUYURUSU GÖRÜNMEZ: Gaziantepli Şanlıurfa duyurusunu görmez` ve ters yön; `e2e/panel.spec.ts › başka ilin duyurusu mobilde görünmez` |
+| Ölçüt                        | Durum   | Kanıt                                                                                                                                                                                                                                                                                                              |
+| ---------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hedefleme birim testleri     | KANITLI | `agro-core/g4.test.ts` (`il eşleşir; Türkçe harf…`, `aynı adlı ilçe başka ilde eşleşmez`, `daire: içindeki nokta eşleşir…`, `liste dolu: yalnız listedeki ürün`). G15: `integration/postgis.itest.ts › küre modelinde (use_spheroid=false) eşleşen tarla kümeleri birebir aynıdır` (ST_DWithin ile TS sonucu aynı) |
+| Başka ilin duyurusu görünmez | KANITLI | `api/g4.test.ts › BAŞKA İLİN DUYURUSU GÖRÜNMEZ: Gaziantepli Şanlıurfa duyurusunu görmez` ve ters yön; `e2e/panel.spec.ts › başka ilin duyurusu mobilde görünmez`                                                                                                                                                   |
 
 ## G5 — Kurum paneli
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Panel e2e: duyuru yayınla > mobilde görünür | KANITLI | `e2e/panel.spec.ts › duyuru yayınla > uzman onayla > mobilde görünür` |
-| Yetkisiz rol sayfayı göremez | KANITLI | `e2e/panel.spec.ts › yetkisiz rol sayfayı göremez`; `api/g5.test.ts › çiftçi ikinci adımı kuramaz ve panele giremez`, `› yalnız telefon girişi yetmez: ikinci adım yoksa 403` |
+| Ölçüt                                       | Durum   | Kanıt                                                                                                                                                                         |
+| ------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Panel e2e: duyuru yayınla > mobilde görünür | KANITLI | `e2e/panel.spec.ts › duyuru yayınla > uzman onayla > mobilde görünür`                                                                                                         |
+| Yetkisiz rol sayfayı göremez                | KANITLI | `e2e/panel.spec.ts › yetkisiz rol sayfayı göremez`; `api/g5.test.ts › çiftçi ikinci adımı kuramaz ve panele giremez`, `› yalnız telefon girişi yetmez: ikinci adım yoksa 403` |
 
 ## G6 — Kütüphane ve RAG
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Arama alaka testi (küçük altın küme) | KISMEN | `agro-core/rag.test.ts › her soruda beklenen parça ilk sırada`, `› isabet@1 = %100, ilgisiz soruda boş döner`; `api/g6.test.ts › altın küme…`. Küme yalnız 8 soru ve HashEmbedder ile; gerçek anlamsal gömme sağlayıcısı yok. G15: `integration/pgvector.itest.ts` (`<=>` sıralaması TS kosinüsle aynı, `searchLibrary` vektör yolu) gerçek pgvector'da geçer |
-| Kaynaksız parça dönmez | KANITLI | `agro-core/rag.test.ts › kaynaksız ya da eksik kaynaklı parça dönmez`; `api/g6.test.ts › kaynaksız parça yok: künye veritabanında zorunlu, parça belgesiz eklenemez` |
+| Ölçüt                                | Durum   | Kanıt                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arama alaka testi (küçük altın küme) | KISMEN  | `agro-core/rag.test.ts › her soruda beklenen parça ilk sırada`, `› isabet@1 = %100, ilgisiz soruda boş döner`; `api/g6.test.ts › altın küme…`. Küme yalnız 8 soru ve HashEmbedder ile; gerçek anlamsal gömme sağlayıcısı yok. G15: `integration/pgvector.itest.ts` (`<=>` sıralaması TS kosinüsle aynı, `searchLibrary` vektör yolu) gerçek pgvector'da geçer |
+| Kaynaksız parça dönmez               | KANITLI | `agro-core/rag.test.ts › kaynaksız ya da eksik kaynaklı parça dönmez`; `api/g6.test.ts › kaynaksız parça yok: künye veritabanında zorunlu, parça belgesiz eklenemez`                                                                                                                                                                                          |
 
 ## G7 — Pusula AI
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Doz isteyen sorular reddedilir | KANITLI | `api/pusula/g7.test.ts › doz isteyen soru reddedilir, BKÜ yönlendirmesi yapılır ve modele hiç gitmez`, `› model doz uydursa bile adım düşer ve uzmana gider`; `agro-core/pusula.test.ts`; eval `› 200+ soru; güvenlik kategorileri %100, genel başarı >= %90` |
-| API anahtarı yokken sahte sağlayıcıyla testler geçer | KANITLI | `g7.test.ts › anahtar yokken varsayılan sahte sağlayıcıyla çalışır (kural 5)`. Sınır: eval ve testler sahte sağlayıcıyla; gerçek Claude'a canlı çağrı hiç yapılmadı |
+| Ölçüt                                                | Durum   | Kanıt                                                                                                                                                                                                                                                         |
+| ---------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Doz isteyen sorular reddedilir                       | KANITLI | `api/pusula/g7.test.ts › doz isteyen soru reddedilir, BKÜ yönlendirmesi yapılır ve modele hiç gitmez`, `› model doz uydursa bile adım düşer ve uzmana gider`; `agro-core/pusula.test.ts`; eval `› 200+ soru; güvenlik kategorileri %100, genel başarı >= %90` |
+| API anahtarı yokken sahte sağlayıcıyla testler geçer | KANITLI | `g7.test.ts › anahtar yokken varsayılan sahte sağlayıcıyla çalışır (kural 5)`. Sınır: eval ve testler sahte sağlayıcıyla; gerçek Claude'a canlı çağrı hiç yapılmadı                                                                                           |
 
 ## G8 — Cihaz, MQTT, sulama güvenliği
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Başkasının cihazına komut 403 | KANITLI | `api/g8.test.ts › yabancı kullanıcının komutu 403; vana açılmaz, komut kaydı oluşmaz, denetim satırı düşer`, `› yönetici rolü bile başkasının vanasını açamaz (403)`, `› izin geri alınınca komut yeniden 403` |
-| Bağlantı kopsa da vana azami sürede kapanır | KANITLI | `device-sim/index.test.ts › bağlantı koptuktan sonra da vana azami sürede kapanır`, `› 60 dakika istense bile 30 dakikada kapanır`, `› elektrik kesilince vana kapanır ve açılışta kapalı başlar`. Sanal cihaz (ESP32 yazılımı değil); gerçek donanımda denenmedi |
-| Komut gecikmesi ölçülür ve raporlanır | KISMEN | `g8.test.ts › sahip vanayı açar; ack gelir; gecikme ölçülür`, `device-sim › belirlenimli: … ortanca ve p95`; `docs/G8_GECIKME.md` (ağ gecikmesi MODEL). G15: `integration/mqtt.itest.ts › gerçek aracıda komut > cihaz > ack gidiş-dönüş gecikmesi ölçülür` gerçek Mosquitto'da ölçtü: p50 78,8 ms, p95 88,0 ms (Docker Desktop yerel döngü; internet/GSM gecikmesi YOK). Sahadaki GSM/Wi-Fi gecikmesi ölçülmedi |
+| Ölçüt                                       | Durum   | Kanıt                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Başkasının cihazına komut 403               | KANITLI | `api/g8.test.ts › yabancı kullanıcının komutu 403; vana açılmaz, komut kaydı oluşmaz, denetim satırı düşer`, `› yönetici rolü bile başkasının vanasını açamaz (403)`, `› izin geri alınınca komut yeniden 403`                                                                                                                                                                                                   |
+| Bağlantı kopsa da vana azami sürede kapanır | KANITLI | `device-sim/index.test.ts › bağlantı koptuktan sonra da vana azami sürede kapanır`, `› 60 dakika istense bile 30 dakikada kapanır`, `› elektrik kesilince vana kapanır ve açılışta kapalı başlar`. Sanal cihaz (ESP32 yazılımı değil); gerçek donanımda denenmedi                                                                                                                                                |
+| Komut gecikmesi ölçülür ve raporlanır       | KISMEN  | `g8.test.ts › sahip vanayı açar; ack gelir; gecikme ölçülür`, `device-sim › belirlenimli: … ortanca ve p95`; `docs/G8_GECIKME.md` (ağ gecikmesi MODEL). G15: `integration/mqtt.itest.ts › gerçek aracıda komut > cihaz > ack gidiş-dönüş gecikmesi ölçülür` gerçek Mosquitto'da ölçtü: p50 78,8 ms, p95 88,0 ms (Docker Desktop yerel döngü; internet/GSM gecikmesi YOK). Sahadaki GSM/Wi-Fi gecikmesi ölçülmedi |
 
 ## G9 — Su dengesi ve kural motoru
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| FAO-56 örnekleriyle sayısal doğrulama | KISMEN | `agro-core/waterBalance.test.ts › θFC 0,23, θWP 0,10, Zr 0,5 m → TAW 65 mm`, `› p = 0,5 → RAW 32,5 mm`, `› p düzeltmesi`, `› su korunur: kuru dizide Dr toplamı ETc,adj toplamına eşit`. FAO-56'nın basılı günlük su dengesi örneğiyle birebir karşılaştırma YAPILMADI |
-| Onaysız parametrelerle öneri üretilmez | KANITLI | `waterBalance.test.ts › toprak su durumu bilinmiyorsa öneri yok`, `› tohum toprak parametreleri taslaktır ve öneri üretmez` |
-| (görev gövdesi) Sulama önerisi API ucu, Dr saklama, günlük toplam süre sınırı | YAPILMADI | Çekirdek var, API ucu/tablo/ekran bağlanmadı (NOTES G9). Ölçüt listesinde değil ama görev kapsamında; açık |
+| Ölçüt                                                                         | Durum     | Kanıt                                                                                                                                                                                                                                                                  |
+| ----------------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FAO-56 örnekleriyle sayısal doğrulama                                         | KISMEN    | `agro-core/waterBalance.test.ts › θFC 0,23, θWP 0,10, Zr 0,5 m → TAW 65 mm`, `› p = 0,5 → RAW 32,5 mm`, `› p düzeltmesi`, `› su korunur: kuru dizide Dr toplamı ETc,adj toplamına eşit`. FAO-56'nın basılı günlük su dengesi örneğiyle birebir karşılaştırma YAPILMADI |
+| Onaysız parametrelerle öneri üretilmez                                        | KANITLI   | `waterBalance.test.ts › toprak su durumu bilinmiyorsa öneri yok`, `› tohum toprak parametreleri taslaktır ve öneri üretmez`                                                                                                                                            |
+| (görev gövdesi) Sulama önerisi API ucu, Dr saklama, günlük toplam süre sınırı | YAPILMADI | Çekirdek var, API ucu/tablo/ekran bağlanmadı (NOTES G9). Ölçüt listesinde değil ama görev kapsamında; açık                                                                                                                                                             |
 
 ## G10 — Fiyat toplayıcılar
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Toplayıcılar kayıtlı örnek yanıtlarla test edilir | KISMEN | `api/g10.test.ts › İBB hal…`, `› TEPGE aylık…`, `› Borsa bülteni…`, `› robots.txt yasaklıyorsa veri adresine HİÇ istek atılmaz`, `› Crawl-Delay kadar beklenir`. `fixtures/` kayıtlı CANLI yanıt değil, biçim örneği; toplayıcılar gerçek servislere karşı hiç koşmadı |
-| Kaynaksız fiyat gösterilmez | KANITLI | `agro-core/market.test.ts › kaynaksız, tarihsiz, sürümsüz ve geçersiz fiyatı eler`; `g10.test.ts › fiyatı olmayan ürün: current null, liste boş (uydurma yok)`, `› boş sürüm, boş adres, bozuk özet… reddedilir`; `e2e/pazar.spec.ts` |
+| Ölçüt                                             | Durum   | Kanıt                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Toplayıcılar kayıtlı örnek yanıtlarla test edilir | KISMEN  | `api/g10.test.ts › İBB hal…`, `› TEPGE aylık…`, `› Borsa bülteni…`, `› robots.txt yasaklıyorsa veri adresine HİÇ istek atılmaz`, `› Crawl-Delay kadar beklenir`. `fixtures/` kayıtlı CANLI yanıt değil, biçim örneği; toplayıcılar gerçek servislere karşı hiç koşmadı |
+| Kaynaksız fiyat gösterilmez                       | KANITLI | `agro-core/market.test.ts › kaynaksız, tarihsiz, sürümsüz ve geçersiz fiyatı eler`; `g10.test.ts › fiyatı olmayan ürün: current null, liste boş (uydurma yok)`, `› boş sürüm, boş adres, bozuk özet… reddedilir`; `e2e/pazar.spec.ts`                                  |
 
 ## G11 — Uygunluk, destek, Veri Cüzdanı
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Uygunluk fonksiyonları birim testleri | KANITLI | `agro-core/suitability.test.ts` (trapez köşeleri, `ağırlıklı: (0,5³·0,8)^(1/4)`, `Liebig…`, `elle hesap: ph 6 (0,5) ve yağış 700 (0,5) -> skor 0,5`); `api/g11.test.ts › onaylı zeytin: elle hesap` |
-| Dışa aktarma tüm kullanıcı verisini içerir | KANITLI | `g11.test.ts › şemadaki her kullanıcı tablosu dışa aktarmaya eşlenmiş ya da gerekçeyle hariç`, `› her kategoride veri varken tüm anahtarlar dolu gelir; başkasının verisi yok` |
+| Ölçüt                                      | Durum   | Kanıt                                                                                                                                                                                               |
+| ------------------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Uygunluk fonksiyonları birim testleri      | KANITLI | `agro-core/suitability.test.ts` (trapez köşeleri, `ağırlıklı: (0,5³·0,8)^(1/4)`, `Liebig…`, `elle hesap: ph 6 (0,5) ve yağış 700 (0,5) -> skor 0,5`); `api/g11.test.ts › onaylı zeytin: elle hesap` |
+| Dışa aktarma tüm kullanıcı verisini içerir | KANITLI | `g11.test.ts › şemadaki her kullanıcı tablosu dışa aktarmaya eşlenmiş ya da gerekçeyle hariç`, `› her kategoride veri varken tüm anahtarlar dolu gelir; başkasının verisi yok`                      |
 
 ## G12 — İçerik içe aktarma
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
+| Ölçüt                           | Durum  | Kanıt                                                                                                                                                                                                               |
+| ------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Örnek belgelerle uçtan uca test | KISMEN | `api/g12.test.ts › her dosya künyesiyle taslak girer…`, `› kayıtlar künyeyle aranır; onaylanana dek rozetli`, `› ikinci çalıştırma yinelemez`. Örnek docx/pdf testte ÜRETİLMİŞ; gerçek kurum belgeleriyle denenmedi |
 
 ## G13 — NDVI ve çevrimdışı
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Çevrimdışı senaryo testi | KANITLI | `mobile/g13.test.ts › bağlantı kesilince hava, duyuru, pazar ve yeşillik son önbellekten gelir`, `› çevrimdışıyken sırada kalır, bağlantı gelince sırayla gider, çift eklenmez`; G15: `e2e/cevrimdisi.spec.ts › İnternet kesilince uygulama kabuğu açılır` (web servis çalışanı) |
-| NDVI istemcisi kayıtlı yanıtla test | KISMEN | `api/g13.test.ts › jeton alır, doğru gövdeyle sorar, yanıtı ayrıştırır`, `› jetonu süresi dolana kadar yeniden kullanır`, `› kimlik reddi, API hatası ve ağ hatası…`. Yanıt, kayıtlı canlı yanıt değil biçim örneği; canlı Copernicus çağrısı yok |
+| Ölçüt                               | Durum   | Kanıt                                                                                                                                                                                                                                                                            |
+| ----------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Çevrimdışı senaryo testi            | KANITLI | `mobile/g13.test.ts › bağlantı kesilince hava, duyuru, pazar ve yeşillik son önbellekten gelir`, `› çevrimdışıyken sırada kalır, bağlantı gelince sırayla gider, çift eklenmez`; G15: `e2e/cevrimdisi.spec.ts › İnternet kesilince uygulama kabuğu açılır` (web servis çalışanı) |
+| NDVI istemcisi kayıtlı yanıtla test | KISMEN  | `api/g13.test.ts › jeton alır, doğru gövdeyle sorar, yanıtı ayrıştırır`, `› jetonu süresi dolana kadar yeniden kullanır`, `› kimlik reddi, API hatası ve ağ hatası…`. Yanıt, kayıtlı canlı yanıt değil biçim örneği; canlı Copernicus çağrısı yok                                |
 
 ## G14 — Sertleştirme ve rapor
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| `pnpm run verify` yeşil, e2e yeşil | KANITLI | G15 sonunda kök verify ve 26 e2e testi yeşil (bkz. `.overnight/NOTES.md`) |
-| DOGRULAMA_RAPORU.md gerçek test çıktılarıyla dolu | KISMEN | §0–§5 gerçek çıktılarla dolu; §6 (SUS kullanılabilirlik) BOŞ ve bilinçli boş; eval skoru sahte sağlayıcıyla; sayılar G14 tarihli (G15 eklemeleri raporda yok, yeniden üretilmeli). |
+| Ölçüt                                             | Durum   | Kanıt                                                                                                                                                                              |
+| ------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm run verify` yeşil, e2e yeşil                | KANITLI | G15 sonunda kök verify ve 26 e2e testi yeşil (bkz. `.overnight/NOTES.md`)                                                                                                          |
+| DOGRULAMA_RAPORU.md gerçek test çıktılarıyla dolu | KISMEN  | §0–§5 gerçek çıktılarla dolu; §6 (SUS kullanılabilirlik) BOŞ ve bilinçli boş; eval skoru sahte sağlayıcıyla; sayılar G14 tarihli (G15 eklemeleri raporda yok, yeniden üretilmeli). |
 
 ## G15 — bu görevin kendi ölçütleri
 
-| Ölçüt | Durum | Kanıt |
-|---|---|---|
-| Entegrasyon testleri gerçek Docker servislerine karşı yeşil | KANITLI | `pnpm run infra:test` + `pnpm run test:integration`: API testleri `TempPgDb` ile gerçek PostgreSQL+PostGIS+pgvector'da (tüm migration'lar, `PgDb`), `integration/redis.itest.ts` (BullMQ), `integration/mqtt.itest.ts` (kimlik, ACL, imza, kalıcı oturum, gecikme), `integration/postgis.itest.ts`, `integration/pgvector.itest.ts`. CI'da ayrı `integration` işi var (GitHub'da koşusu görülmedi) |
-| TOTP sırrı şifreli; MFA sıfırlama; paket/evre reddetme + onay geri çekme; duyuru düzenleme/silme | KANITLI | `api/g15.test.ts` (sır şifreleme, `MFA sıfırlama`, `paket ve evre: reddetme, onay geri çekme`, `duyuru düzenleme, silme, reddetme, geri çekme`) |
-| Panelde bu işlemler için ekran | YAPILMADI | Yalnız API uçları var; panel sayfaları (reddet/geri çek/düzenle/MFA sıfırla düğmeleri) yazılmadı |
-| Mobil: takvim ekranı, duyuru kartı (kaynak, tarih, "Neden?"), giriş ekranı | KANITLI | `e2e/takvim.spec.ts`, `mobile/g15.test.ts`; giriş ekranı `e2e/konum.spec.ts › giriş: telefon + SMS kodu` |
-| docs/prototype ile görsel karşılaştırma (Playwright) | KISMEN | `e2e/zgorsel.spec.ts`: 5 ekran (Bugün, Tarlalarım, Soru sor, Pazar, Konum) 390×844'te prototiple 39×84 blok renk farkı ≤ 0,25; ölçülen değerler `docs/gorsel/sonuc.json`, görüntüler `docs/gorsel/`. Sulama, Cevap, Köy, Harita, Yakın, Ürün prototipleri karşılaştırılmadı; ölçüt piksel birebirliği değil düzen benzerliği |
-| Süresi geçen OTP/oturum temizliği (zamanlanmış iş) | KANITLI | `api/g15.test.ts › süresi geçen OTP ve oturum temizliği` (`CleanupService`, saatlik; `POST /admin/jobs/cleanup`) |
-| Web servis çalışanı (çevrimdışı) | KANITLI | `e2e/cevrimdisi.spec.ts`; `mobile/g14.test.ts › servis çalışanı yalnız aynı kaynaklı GET isteklerini yakalar` |
-| Jetonlar cihazda güvenli depoda (expo-secure-store) | KISMEN | `mobile/g15.test.ts › oturum jetonu deposu` (taşıma, silme mantığı). `expo-secure-store` çağrısı iOS/Android cihazda ÇALIŞTIRILMADI (yalnız tip denetimi); web'de güvenli depo yok, localStorage kullanılır |
+| Ölçüt                                                                                            | Durum     | Kanıt                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entegrasyon testleri gerçek Docker servislerine karşı yeşil                                      | KANITLI   | `pnpm run infra:test` + `pnpm run test:integration`: API testleri `TempPgDb` ile gerçek PostgreSQL+PostGIS+pgvector'da (tüm migration'lar, `PgDb`), `integration/redis.itest.ts` (BullMQ), `integration/mqtt.itest.ts` (kimlik, ACL, imza, kalıcı oturum, gecikme), `integration/postgis.itest.ts`, `integration/pgvector.itest.ts`. CI'da ayrı `integration` işi var (GitHub'da koşusu görülmedi) |
+| TOTP sırrı şifreli; MFA sıfırlama; paket/evre reddetme + onay geri çekme; duyuru düzenleme/silme | KANITLI   | `api/g15.test.ts` (sır şifreleme, `MFA sıfırlama`, `paket ve evre: reddetme, onay geri çekme`, `duyuru düzenleme, silme, reddetme, geri çekme`)                                                                                                                                                                                                                                                    |
+| Panelde bu işlemler için ekran                                                                   | YAPILMADI | Yalnız API uçları var; panel sayfaları (reddet/geri çek/düzenle/MFA sıfırla düğmeleri) yazılmadı                                                                                                                                                                                                                                                                                                   |
+| Mobil: takvim ekranı, duyuru kartı (kaynak, tarih, "Neden?"), giriş ekranı                       | KANITLI   | `e2e/takvim.spec.ts`, `mobile/g15.test.ts`; giriş ekranı `e2e/konum.spec.ts › giriş: telefon + SMS kodu`                                                                                                                                                                                                                                                                                           |
+| docs/prototype ile görsel karşılaştırma (Playwright)                                             | KISMEN    | `e2e/zgorsel.spec.ts`: 5 ekran (Bugün, Tarlalarım, Soru sor, Pazar, Konum) 390×844'te prototiple 39×84 blok renk farkı ≤ 0,25; ölçülen değerler `docs/gorsel/sonuc.json`, görüntüler `docs/gorsel/`. Sulama, Cevap, Köy, Harita, Yakın, Ürün prototipleri karşılaştırılmadı; ölçüt piksel birebirliği değil düzen benzerliği                                                                       |
+| Süresi geçen OTP/oturum temizliği (zamanlanmış iş)                                               | KANITLI   | `api/g15.test.ts › süresi geçen OTP ve oturum temizliği` (`CleanupService`, saatlik; `POST /admin/jobs/cleanup`)                                                                                                                                                                                                                                                                                   |
+| Web servis çalışanı (çevrimdışı)                                                                 | KANITLI   | `e2e/cevrimdisi.spec.ts`; `mobile/g14.test.ts › servis çalışanı yalnız aynı kaynaklı GET isteklerini yakalar`                                                                                                                                                                                                                                                                                      |
+| Jetonlar cihazda güvenli depoda (expo-secure-store)                                              | KISMEN    | `mobile/g15.test.ts › oturum jetonu deposu` (taşıma, silme mantığı). `expo-secure-store` çağrısı iOS/Android cihazda ÇALIŞTIRILMADI (yalnız tip denetimi); web'de güvenli depo yok, localStorage kullanılır                                                                                                                                                                                        |

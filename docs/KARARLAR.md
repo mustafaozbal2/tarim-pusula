@@ -1,6 +1,7 @@
 # Kararlar
 
 ## 2026-10-20 · G0
+
 - **pnpm `node-linker=hoisted`**: Expo/Metro, pnpm'in simge bağlantılı yapısıyla sorun çıkarır; hoisted en az sürtünmeli seçenek. Metro `watchFolders` ve `nodeModulesPaths` monorepo kökünü içerir.
 - **TypeScript 5.9 (kök)**: npm'deki 7.x sürümü Expo SDK 58'in beklediği ~6.0 aralığının dışında ve ESLint eklentileriyle uyumu doğrulanmadı. `expo install --fix` ile `react`/`react-dom` 19.3.0'a sabitlendi (Expo beklentisi).
 - **`verify` = `turbo run lint typecheck test` + `prettier --check .`**: biçim denetimi de kabul ölçütüne dahil.
@@ -16,6 +17,7 @@
 - **Prototipte olup G0'da yapılmayanlar**: Pusula/Cevap/Sulama/Konum/Köy/Harita/Yakın/Ürün ekranları sonraki görevlerin işi; G0 yalnız 4 sekme.
 
 ## 2026-10-20 · G1
+
 - **Drizzle/Prisma yerine düz SQL migration** (`apps/api/src/db/migrations`): RLS, tetikleyici, SECURITY DEFINER işlevleri ve sütun bazlı yetkiler ORM şemasında ifade edilemiyor; güvenlik mantığı SQL'de olmalı. Basit `migrate()` çalıştırıcısı `schema_migrations` tablosunu tutar.
 - **Test veritabanı PGlite** (süreç içi gerçek Postgres/WASM): Docker olmadan RLS ve tetikleyiciler gerçek motorda test edilir. Üretim `pg` havuzuyla (`PgDb`); aynı SQL. PostGIS gerekmeyen G1 tablolarında `lat/lon` düz sütun (PostGIS G2'de parsel geometrisiyle gelir). `PgDb` bu oturumda gerçek sunucuya karşı denenmedi.
 - **Yetki iki katmanlı**: (1) tüm veri sorguları `SET LOCAL ROLE tp_app` altında çalışır; `tp_app` RLS'yi atlayamaz, yalnız gereken sütunlara yetkilidir (ör. `owner_id` güncellenemez). (2) API, RLS'nin reddini (42501 ya da 0 satır) **403**'e çevirir. Olmayan kayıt da 403 döner (varlık sızdırılmaz); reddedilen her deneme `access.denied` olarak denetlenir.
@@ -28,13 +30,14 @@
 - **Nest DI**: Vitest/esbuild `emitDecoratorMetadata` üretmediği için tüm bağımlılıklar `@Inject()` ile açıkça tanımlı.
 
 ## 2026-10-20 · G2
+
 - **Alan hesabı**: WGS84 elipsoidinde alan koruyan (Lambert eşit alanlı azimutal, Snyder §24) izdüşüm + Gauss formülü, `packages/agro-core/src/geo.ts`. Bilinen değerlerle doğrulandı (ekvatorda 1°×1° = 12 308 778 361 m², GeographicLib değeri; 100 m × 100 m = 10 dekar). Alan **sunucuda** sınırdan hesaplanır, istemcinin yazdığı `areaDecare` sınır varsa yok sayılır. Kendini kesen çokgen 400. PostGIS geometri sütunları (`geom`, `boundary_geom`) eklenti varsa migration'da koşullu eklenir; PGlite testlerinde PostGIS yok, o SQL gerçek PostGIS imajında denenmedi (hata verirse migration'ı bozmaz, NOTICE yazar).
 - **Nokta konum zorunlu, sınır isteğe bağlı**: `fieldCreateSchema` lat/lon ister (G1 testleri buna göre güncellendi). Sınır GeoJSON Polygon, `jsonb` olarak saklanır. Ada/parsel yalnız metin alanı; resmî kayıtla eşleştirilmez (PLAN bulgu 8).
 - **il>ilçe>köy verisi**: `data/yerlesim.csv` = GeoNames Türkiye dökümü (CC BY 4.0), 81 il, 52 135 yerleşim; TÜİK/MAKS resmî tablosu açık veri olarak bulunamadı. Kaynak/lisans/tarih `data/yerlesim.SOURCE.md`'de. Koordinatlar yerleşim merkezidir; "Burası mı?" adımında düzeltilir. Listede olmayan köy için ilçe köylerinin ortalaması yaklaşık nokta olur.
 - **Uydu altlığı**: varsayılan EOX Sentinel-2 cloudless (atıf ekranda). Lisansı (CC BY-NC-SA ailesi) ticari yayında doğrulanmalı; yayında sözleşmeli sağlayıcıya `EXPO_PUBLIC_TILE_URL` ile geçilir. Web'de `maplibre-gl`, cihazda `@maplibre/maplibre-react-native` (Expo Go'da çalışmaz, geliştirme derlemesi ister); ikisi aynı `FieldMap` arayüzünü paylaşır (`.web.tsx`). Cihaz haritası bu oturumda çalıştırılmadı, yalnız tip denetimi geçti.
 - **Konum akışı**: dört yol da aynı taslağı (`FieldDraft`) doldurur, hepsi "Burası mı?" ekranından geçer; işaret taşınırsa kaynak `harita` olur. GPS reddedilir ya da alınamazsa otomatik köy listesine düşer ve uyarı gösterilir.
 - **Yakınım yapsın**: kod 6 hane (uuid'den türetilen, etkin kodlar arasında benzersiz), 24 saat, yeni kod eskisini iptal eder. Yardım eden kodu kullanınca **`assistant` rolünü otomatik alır** (admin atamasını beklemek akışı kilitlerdi); bu rol tek başına hiçbir veriye erişim vermez, tarla yalnız çiftçi onaylayınca çiftçi adına oluşur ve yardımcı o tarlada yalnız **okuma** yetkisi alır (en az ayrıcalık). Kod tahmini: kullanıcı başına saatte 10 yanlış deneme, sonra 429 (doğru kod bile reddedilir). Her adım `audit_log`'a düşer (`nearby.code.create`, `nearby.claim`, `nearby.claim.denied`, `nearby.approve`, `nearby.reject`). Kod/öneri tabloları RLS altında; kod yazma/okuma `SECURITY DEFINER` işlevlerinden geçer.
-- **Çevrimdışı sıra**: kayıt her zaman önce yerel sıraya yazılır (cihazda expo-sqlite, web'de localStorage), sonra gönderilir. İstemci kimliği (`clientId`) sunucuda `(owner_id, client_id)` tekil indeksiyle çift kaydı önler. İlk bağlantı hatasında durur; 4xx kalıcı red sayılır ve sıradan çıkar; 5xx geçici. 20 sn'de bir ve `online` olayında yeniden denenir. Bilinen sınır: sunucuya ulaşıp yanıtı alınamayan *yakın kodu* talebi tekrar gönderilirse ikinci öneri oluşabilir (çiftçi onayında göze çarpar).
+- **Çevrimdışı sıra**: kayıt her zaman önce yerel sıraya yazılır (cihazda expo-sqlite, web'de localStorage), sonra gönderilir. İstemci kimliği (`clientId`) sunucuda `(owner_id, client_id)` tekil indeksiyle çift kaydı önler. İlk bağlantı hatasında durur; 4xx kalıcı red sayılır ve sıradan çıkar; 5xx geçici. 20 sn'de bir ve `online` olayında yeniden denenir. Bilinen sınır: sunucuya ulaşıp yanıtı alınamayan _yakın kodu_ talebi tekrar gönderilirse ikinci öneri oluşabilir (çiftçi onayında göze çarpar).
 - **Web çevrimdışı**: Expo web rota parçalarını gecikmeli yükler; servis çalışanı (service worker) yok, yani açılmamış ekranlar çevrimdışıyken açılamaz. Cihazda sorun yok. PWA önbelleği sonraki görevin işi.
 - **Bitki Bilgi Paketi**: `crops` + sürümlü `crop_pack_versions` (kaynak, kaynak sürümü, çekilme tarihi, onay durumu) + `crop_stages` (evre başına Kc / don eşiği, kendi onay durumu). Tohum CSV'si `importCropCatalog` ile içe aktarılır; aynı değerle tekrar çalışınca yeni sürüm açmaz, değer değişirse sürüm+1. Sürümün değerleri tetikleyiciyle değişmez (yalnız onay durumu). **Onay durumu içe aktarmada hiçbir zaman yükseltilmez**; `tp_app` rolü pakete yazamaz. Onay iş akışı (uzman ekranı) G5'te.
 - **Ürün kataloğu**: `data/crops_tr.csv`; 33 tohum satırı + Kc'si olmayan ürünler (incir, nar, fındık, çay, çilek, biber vb.) de listelenir ("tüm ürünler"), Kc yoksa rozet var ve karar yok. Yaygın 6 ürün: Antep fıstığı, Zeytin, Buğday, Pamuk, Domates, Arpa (prototipteki 5 + Arpa; Güneydoğu için). "Buğday" kutusu FAO'daki "kışlık buğday (donmayan toprak)" satırına bağlandı; donan toprak ve yazlık ayrı ürün olarak listede.
@@ -44,6 +47,7 @@
 - **CORS**: API'de açık; kimlik doğrulama çerezle değil Bearer jetonla olduğundan CSRF riski yok. Üretimde `CORS_ORIGINS` (virgüllü liste) ile daraltılır.
 
 ## 2026-10-20 · G3
+
 - **ET0 doğrulaması**: `packages/agro-core/src/et0.ts` FAO-56 Denk. 6'nın tam uygulaması (Ra, Rs, Rn, ea, es, Δ, γ, u2 yardımcılarıyla). Test FAO-56 Örnek 18'i (Uccle/Brüksel, 6 Temmuz: 3,9 mm/gün; ara değerler es 1,997, ea 1,409, Rs 22,07, Rn 13,28) ±0,05 ile geçer; ayrıca Örnek 2-3 ve Örnek 8 ara değerleri doğrulanır. Rs sırası: ölçülen → güneşlenmeden (Ångström 0,25/0,50) → Hargreaves; ea sırası: verilen → RHmax+RHmin → RHmean → Tmin−2. u2 alt sınırı 0,5 m/s (FAO-56 §3 notu).
 - **Sunucu ET0'ı Open-Meteo'nun ET0'ını kullanmaz**: kendi Penman-Monteith'imizi günlük Tmin/Tmax, kısa dalga radyasyon toplamı, ortalama nem ve 10 m ortalama rüzgârdan hesaplar (jüri için izlenebilir). Open-Meteo'nun değeri yalnız karşılaştırma alanı (`openMeteoMmPerDay`) olarak döner, karara girmez. Günlük ortalama girdilerle hesap, saatlik hesaptan biraz sapabilir; FAO-56 §4 günlük hesabı zaten bu girdilerle yapılır.
 - **Don olasılığı**: P = (Tmin ≤ Tkritik olan ensemble üyesi) / (geçerli üye). Ensemble: Open-Meteo `icon_seamless` (kontrol + üyeler). Düzeyler: ≥%50 "uyarı", ≥%20 "dikkat", altı sakin. Eşikler benim seçimim; uzman panelinde (G5) ayarlanabilir hale getirilmeli. Bildirim yalnız "uyarı" düzeyinde gider.
@@ -59,6 +63,7 @@
 - **Mobil**: Bugün ekranı prototipin yerleşimini korur; sabit örnek metinler kaldırıldı. "Gübre zamanı geldi" satırı gerçek veriye dayanmadığı için kaldırıldı (atıfsız iddia yok); sulama satırı "Bitkinin bugünkü su ihtiyacı (mm)" oldu. "Ne yapmalıyım?" düğmesi yerine "Neden?" (teknik ayrıntı arkasında): eşlik edecek onaylı öneri içeriği henüz yok, bu yüzden öneri vaat eden düğme koymadım. Tarlalar arası geçiş şimdilik "Başka tarla seç" düğmesiyle döngüsel. Son bilgi önbellekte (`cache.today.v1.<id>`), "son güncelleme" saati ve kaynak her zaman görünür. Bildirim izni Bugün ekranı açılınca istenir (web'de atlanır).
 
 ## G4 — Takvim ve duyurular (2026-10-20)
+
 - Hedefleme saf TS'de (`agro-core/targeting.ts`): yer (il/ilçe/köy) VEYA daire (PostGIS ST_DWithin karşılığı, haversine) ve ürün listesi; boş hedef = ulusal. Gerekçe: DB'siz birim test edilebilir, SQL ile aynı kural. Başka ilin duyurusu hiçbir koşulda eşleşmez (testli).
 - Hedefi olup tarla konumu bilinmeyen tarlaya duyuru gösterilmez (yanlış kişiye göstermek, kaçırmaktan kötü). Süresi geçmiş / yayımlanmamış duyuru gizlenir.
 - Her duyuru kartı kaynak kurum, yayın tarihi ve `why` ("Neden?") alanı taşır; `why` eşleşme kuralını düz Türkçeyle açıklar.
@@ -66,6 +71,7 @@
 - Duyuru yayımlama yalnız kurum rolü; başkasının duyurusunu yönetme 403 (testli). Migration 0004'te RLS + audit tetikleyicisi + GRANT.
 
 ## G5 — Kurum paneli (2026-10-20)
+
 - **Giriş (MFA)**: 1. adım telefon SMS-OTP (G1), 2. adım TOTP (RFC 6238, SHA-1, 6 hane, 30 sn, ±1 adım; RFC 4226/6238 test vektörleriyle testli, `auth/totp.ts`). SMS tek başına yetmez: kullanıcının SIM değişimi/kod ele geçirme riskine karşı panel rolleri (kurum yöneticisi, uzman, yönetici) için ikinci faktör zorunlu. İlk girişte anahtar ekranda gösterilir, doğrulayıcı uygulamaya eklenir; kurulum onaylanınca yeniden kurulamaz (oturumu çalınan biri anahtarı değiştiremesin; sıfırlama yönetici işi, sonraki görev). Aynı kod ikinci kez kullanılamaz (`last_step`), 5 hatada 5 dk kilit. Sır `user_mfa` tablosunda, uygulama rolüne hiçbir yetki yok. Sırrın veritabanında şifrelenmesi (KMS/uygulama anahtarı) sertleştirme görevine kaldı.
 - **Oturum ve MFA**: `sessions.mfa_at`; `@RequireMfa()` olan uçlar (tüm `/panel/*`, `/announcements/*`) ikinci adımı geçmemiş oturumu 403 ile reddeder. G4 testleri bu yüzden oturumlara `mfa_at` yazar. Çiftçi oturumunun panel uçlarına erişimi rol kontrolüyle zaten kapalı.
 - **Rol bazlı menü**: tek kaynak `packages/schemas/src/panel.ts` (menü + `canOpen`); sunucu `/panel/me` ile rolüne uygun menüyü döndürür, panel çerçevesi (`Shell`) yetkisiz yolda sayfa içeriğini hiç çizmez. Asıl koruma API'dedir (rol + MFA + RLS); arayüz yalnız kolaylıktır. Kurum yöneticisi: Duyurular; uzman: + Onay kuyruğu, Bitki paketleri; yönetici: hepsi + Denetim kaydı.
@@ -76,6 +82,7 @@
 - **Panel çalıştırma**: Next.js üretim derlemesi; API adresi `NEXT_PUBLIC_API_URL` (derleme anında gömülür). Jeton `sessionStorage`'da (sekme kapanınca silinir; kalıcı çerez/CSRF riski yok). e2e: `apps/e2e/panel-server.ts` derleyip `next start` ile 8112'de sunar; testler panel ↔ API ↔ mobil web zincirini çalıştırır.
 
 ## G6 — Kütüphane ve RAG (2026-10-20)
+
 - **Gömme sağlayıcısı**: anahtar yokken de çalışan, belirlenimci `HashEmbedder` (`agro-core/rag.ts`): sözcük + kök (ilk 5 harf) + karakter 3'lüleri, 512 boyut, L2 normlu. Gerekçe: kural 5 (anahtarsız sahte sağlayıcı, testler geçsin) ve Türkçe ek çeşitliliğine dayanıklılık. Anlamsal (eş anlamlı) eşleşme yapmaz; gerçek bir gömme sağlayıcısı `Embedder` arayüzüyle takılır, ama boyut 512 değişirse `vector(512)` sütunu ve mevcut parçalar yeniden gömülmelidir (`library_documents.embedder` hangi gömmeyle üretildiğini saklar).
 - **Parçalama**: cümle sınırından, en çok 800 karakter, 1 cümlelik (≤120 karakter) örtüşme; **parça sayfa sınırını aşmaz** (her parça tek sayfaya atıflı). Ondalık noktada (0.7) bölünmez. PDF metni `pdfjs-dist` ile sayfa sayfa çıkarılır; metinsiz (taranmış) PDF 400 ile reddedilir, OCR yok. Düz metinde sayfalar `\f` ile ayrılır.
 - **Kaynak künyesi zorunlu** (kural 6): başlık, yayıncı, tarih, sürüm, lisans notu `NOT NULL` + boş olmama `CHECK`; API şeması da ister. `rankChunks` künyesi eksik parçayı ayrıca eler (çift güvence): "kaynaksız parça dönmez". Aynı içerik+sürüm (SHA-256) ikinci kez girilemez (409). Lisans notu serbest metindir; telif denetimi insan işidir, robots/lisans ihlali yüklemeyi yapan kurumun sorumluluğunda ve kayıtlıdır.
@@ -86,6 +93,7 @@
 - **Sınır**: JSON gövde sınırı API sürecinde 30 MB (PDF base64). Çevrimdışı indirme, Yanlışı/Doğrusu ve Püf Noktası türleri ile mobil Kütüphane ekranı bu görevde yok.
 
 ## G7 — Pusula AI (2026-10-20)
+
 - **Mimari: model cevabı değil, "olgu"lar karta girer.** Araçlar (`apps/api/src/pusula/tools.ts`) kimlikli, kaynaklı olgular döner (`Fact`: metin, kaynak künyesi, onay durumu). Model yalnız adımları yazar ve her adımda `factIds` verir. Sunucu: olgusuz/uydurma kimlikli adımı, onaysız olguya dayanan adımı, doz benzeri ya da talimat içeren adımı **atar**; kaynakları modelin değil olguların künyesinden doldurur. Gerekçe: "atıfsız iddia yok" (kural 2) ve "onaysız bilgi öneri üretmez" (kural 1) modele güvenmeden, kodla sağlanır. Sonuç adımsızsa kart `handoff` olur.
 - **Doz/karışım**: `isDoseRequest` (agro-core `pusula.ts`) modelden ÖNCE çalışır; eşleşirse sabit metinle ret + BKÜ/etiket yönlendirmesi, model hiç çağrılmaz (testle sayılır). Çıktı tarafında `containsDose` ikinci kapıdır (kart adımı/başlığı/"Neden?"). Uzmanın cevabında bile doz yazılamaz (400): platform hiçbir yoldan miktar vermez. Bedeli: "gübre miktarı"/"kaç kilo" gibi meşru soru da reddedilir; çiftçiyi BKÜ ve toprak analizine yönlendirmek kabul edilen tavizdir. Hava/su ihtiyacı (mm, °C) doz sayılmaz.
 - **Prompt injection**: kullanıcı metni (`looksLikeInjection`, doz kontrolünden önce) ve kütüphane parçası (dolaylı enjeksiyon: parça hiç olguya dönüşmez) süzülür; sistem istemi araç sonuçlarını "güvenilmeyen veri" ilan eder. Düzenli ifade listesi kapsamlı değildir; asıl koruma yapısaldır (model araç çağırsa da veriyi sunucu üretir, tarla kimliği modele verilmez).
@@ -99,6 +107,7 @@
 - **Mobil**: "Soru sor" ekranı yazı/ses/fotoğraf girişi; kart = başlık + 1-3 adım + kaynak (ad · tarih · sayfa) + onaysızsa rozet + "Neden?" + "Sesli oku" (expo-speech, tr-TR). Ses GİRİŞİ yalnız web'de (tarayıcı konuşma tanıma); cihazda yerel tanıma yok, kullanıcıya klavye mikrofonu önerilir. Fotoğraf `expo-image-picker` (kalite 0,4, base64). `pnpm-workspace.yaml`'a `msgpackr-extract: false` eklendi (build betiği onayı yüzünden `pnpm install` ve `pnpm exec` hata veriyordu; yalnız isteğe bağlı hızlandırıcı).
 
 ## G8 — Cihaz simülatörü, MQTT, sulama güvenliği (2026-10-20)
+
 - **Savunma katmanları (hiçbiri tek başına yetmez):** (1) API'de oturum + `AccessGuard`; (2) yetki kararı veritabanında RLS ile (`can_access_field(field_id,'write')`): komut satırı, yazma yetkisi olmayan kullanıcı için eklenemez; (3) komutun HMAC-SHA256 imzası (cihaza özel anahtar) ve TTL; (4) cihazda imza, TTL, yinelenme ve "eski komut" denetimi; (5) cihazda 30 dk sert zamanlayıcı. Başkasının cihazına komut: 403 + `access.denied` denetim satırı + komut kaydı hiç oluşmaz (testli). Yalnız **okuma** izni olan, **yönetici** rolü, yabancı kullanıcı ve izni geri alınan kullanıcı komut veremez; paylaşımlı **yazma** izni olan verebilir.
 - **Kimin vanası?** Tarla sahibi ya da `write` izni olan kişi. Yönetici/uzman rolü vana açma yetkisi vermez (çiftçinin fiziksel varlığı; yönetici yalnız gecikme raporunu görür). Bilinmeyen / geçersiz / yetkisiz cihaz kimliği aynı 403'ü verir (cihaz varlığı sızdırılmaz).
 - **Cihaz kimliği:** cihaz başına rastgele 256 bit sır (`device_secrets`, uygulama rolüne hiçbir yetki yok). Sırdan iki ayrı anahtar türetilir: MQTT parolası ve komut imza anahtarı (biri sızsa diğeri açığa çıkmaz). Sır yalnız `POST /devices/:id/provision` yanıtında bir kez görünür; yeniden çağrı sırrı döndürür (eski kimlik düşer). Rest şifrelemesi (KMS) sertleştirme görevinde; TOTP sırrıyla aynı bilinen eksik.
@@ -114,6 +123,7 @@
 - **İşlem kilitlenmesi dersi:** PGlite tek bağlantılı olduğundan bir kullanıcı işlemi içinde ikinci bir sistem işlemi açmak kilitler; `IrrigationService.status` sır varlığını işlemin dışında sorar. PgDb havuzunda kilitlenme olmaz ama aynı kalıp korunur.
 
 ## G9 — Su dengesi ve kural motoru (2026-10-20)
+
 - **Kapsam:** `packages/agro-core/src/waterBalance.ts`: TAW (Denk. 82), RAW (83), p'nin ETc ile düzeltmesi (Tablo 22 notu, 0,1..0,8), Ks (84), günlük Dr dengesi (85) ve derine sızma (88); `decideIrrigation` kural motoru. ETc = Kc·ET0 ve evreye bağlı Kc eğrisi G0/G2'den (`kc.ts`) gelir.
 - **Doğrulama dürüstlüğü:** testler denklemleri elle hesaplanmış değerlerle (TAW 65 mm, RAW 32,5 mm, Ks 0,5 vb.), kuru dizide su korunumuyla ve sınır durumlarıyla doğrular. FAO-56'nın basılı bölüm örneklerinin sayıları bu oturumda kaynaktan kontrol edilemediği için **o örnek tablolara birebir atıf YAPILMADI**; ET0 için Örnek 18 testi G3'te var. Jüri için basılı bir su dengesi örneği (ör. Bölüm 8) eklenip karşılaştırılmalı.
 - **Kural:** sulama gerekir ⇔ gün başı Dr ≥ RAW veya gün sonu beklenen Dr (Dr + Ks·ETc − yağış) ≥ RAW. Çıktı "Neden?" için sıralı hesap adımlarını (etiket, formül, değer) taşır. Miktar tarla kapasitesine dönmek için net su derinliği (mm) olarak verilir; süre/debi hesaplanmaz (debi verisi yok, onaysız). Bu bir ilaç dozu değildir.
@@ -123,6 +133,7 @@
 - **Bağlama yapılmadı:** API ucu, Dr durumunun saklanması, sulama ekranındaki "Pusula önerisi" kartının bağlanması ve günlük toplam sulama süresi sınırı bu oturumda yapılmadı (bkz. NOTES).
 
 ## G10 — Fiyat toplayıcılar ve pazar (2026-10-20)
+
 - **Kaynaksız fiyat üç katmanda engellenir:** (1) veritabanı: `market_prices` sürüm, adres, ham yanıt özeti (SHA-256), pozitif fiyat ve `max >= min` için NOT NULL/CHECK taşır; uygulama rolü (`tp_app`) yalnız SELECT alır, yazma yalnız sistem bağlamındaki toplayıcıdan (testli); (2) sunucu: `sourcedOnly` (agro-core `market.ts`) künyesi (ad, `YYYY-MM-DD` tarih, sürüm) eksik satırı atar; (3) mobil: `hasSource` ikinci kapı. Fiyat yoksa ekran "kaynaklı fiyat bulamadık" der; rakam uydurulmaz. Önceki örnek rakamlı (285 ₺) sahte ekran kaldırıldı.
 - **Toplayıcı davranışı (robots/lisans, kural 6):** önce `robots.txt` (404 = kısıt yok; 5xx/401/403/ağ hatası = belirsiz, ÇEKME), RFC 9309 kuralları (en uzun eşleşme, Allow eşitlikte kazanır, `*` ve `$`), `Crawl-Delay` kadar beklenir, kaynak başına tekrar çekim aralığı 6 saat (`force` ile yönetici aşabilir ama robots yine uygulanır). Yasaklıysa veri adresine HİÇ istek atılmaz (testli). Kullanıcı aracısı `TarimPusulaBot`. Her kayıt: kaynak, geçerlilik günü, `biçim-sürümü@alım-günü`, adres, ham yanıt özeti. Aynı (yer, ürün, gün) yeniden gelirse güncellenir, çoğalmaz.
 - **Kaynak adresleri ortamdan gelir, uydurulmadı:** `MARKET_IBB_URL`, `MARKET_TEPGE_URL`, `MARKET_BORSA_URL` boşsa kaynak "disabled". Nedeni: İBB'nin açık veri sayfası (data.ibb.gov.tr) CKAN `/api/` yolunu robots.txt ile yasaklıyor (Crawl-Delay 10); veri kaynağı olarak listelenen asıl servis `halfiyatlaripublicdata.ibb.gov.tr` (Swagger) ve onun alan adlarını bu ortamda alamadım (şema yanıtı JSON değil). Bu yüzden CKAN API'si KULLANILMAZ. İBB lisansı (`ibb-license`) atıf ister; kaynak adı ve tarih her kartta yazılır. Zamanlayıcı `MARKET_COLLECT_INTERVAL_MIN` (boşsa kapalı); elle: `POST /admin/jobs/market-collect` (yönetici).
@@ -135,6 +146,7 @@
 - **Yapılmadı:** ürün seçici yalnız fiyatı olan ürünleri gösterir (kısıt yok); yer karşılaştırmasında "en çok kazandıran" sıralaması yok (mesafeye göre sıralı); hal için komisyon/rüsum oranları resmî kaynaktan doğrulanmadığı için hiçbir varsayılan konmadı; bölgeler arası fiyat farkı grafiği yok.
 
 ## G11 — Uygunluk, destekler, Veri Cüzdanı (2026-10-20)
+
 - **Uygunluk (agro-core `suitability.ts`):** faktör başına yamuk üyelik (a≤b≤c≤d; [b,c] ideal, dik kenar a=b / c=d desteklenir), faktörler arası ağırlıklı geometrik ortalama exp(Σw·ln m/Σw) (Liebig: bir faktör 0 ise skor 0). Testler elle hesaplanmış değerlerle (ör. m=0,5 ve 1 → √0,5; ağırlıklı (0,5³·0,8)^(1/4)). Sınıf eşikleri 0,75 / 0,5 / 0,25 (çok uygun / uygun / sınırda / uygun değil) **bizim seçimimizdir**, literatür eşiği değildir. Her faktör için "skoru ne kadar çekti" payı (`shareOfLoss`, w·|ln m| oranı) ve sınırlayıcı faktör döner ("Neden?" için).
 - **Eksik veri uydurulmaz:** ölçümü verilmeyen faktör hesaba girmez ve `missing` olarak bildirilir; en az 2 faktör yoksa skor yok. Değeri verilen faktörlerden biri bile taslaksa **hiç skor yok**, yalnız rozet (kural 1). Sıralamaya yalnız skoru olan ürünler girer; ekonomik aralık sıralamayı belirlemez.
 - **Ekonomik katman aralıklıdır:** net kazanç (TL/da) = [P10 fiyat·düşük verim − yüksek maliyet, P90 fiyat·yüksek verim − düşük maliyet]; köşe birleşimi bilerek geniş (bağımsızlık varsayılmaz). Fiyat örneği = son 90 günün günlük orta fiyatı (G10 kaynaklı tablo), en az 8 gün. Verim ve maliyet **kullanıcıdan** gelir (`yieldLow/High`, `costLow/High`); bizde onaylı verim/maliyet verisi olmadığından varsayılan yok, girilmezse "girin" notu. Bu bir öngörü aralığı değildir (`isPredictionInterval: false`).
@@ -146,6 +158,7 @@
 - **Mobil:** Tarlalarım altında "Veri cüzdanım" ekranı: kategori başına kayıt sayısı, paylaşımlar (kalan gün, "Paylaşımı kapat"), benimle paylaşılanlar, paylaşım kimliği, tek ana düğme "Verilerimi indir" (web'de dosya, cihazda paylaşım penceresi). Paylaşım OLUŞTURMA ekranı yok (yalnız API). Onaylı prototip bu ekranlar için yok; mevcut tasarım jetonları kullanıldı. Cihazda denenmedi.
 
 ## G12 — İçerik içe aktarma hattı (2026-10-20)
+
 - **Akış:** klasör (`CONTENT_INGEST_DIR`, varsayılan `data/icerik`) → biçim tanıma → metin/tablo çıkarma → künye doğrulama → TASLAK kayıt → `ingest_log`. Tetikleyici `POST /admin/jobs/content-ingest` (yalnız yönetici + MFA). Klasör istekten gelmez (keyfi dosya okuma yok); sembolik bağlantılar ve gizli klasörler izlenmez. Hat tek dosyada hata alsa diğerlerine devam eder.
 - **Künye zorunlu (kural 6):** her dosyanın yanında `<dosya>.kunye.json` (başlık, yayımcı, tarih, sürüm, lisans notu, düzey; isteğe bağlı adres). Künyesiz ya da geçersiz dosya atlanır ve sebebi raporlanır. Künye şeması katıdır (`strict`): onay durumu alanı yoktur, dolayısıyla hat hiçbir kaydı onaylı yapamaz (kural 1); onay yalnız mevcut uzman uçlarından.
 - **Biçimler (yeni bağımlılık yok):** PDF (mevcut pdfjs, sayfa atıflı), `.docx` (kendi minimal ZIP okuyucumuz + `word/document.xml`; paragraf, tablo, özel karakter), `.txt/.md` (UTF-8). Biçim uzantıya değil imzaya göre belirlenir. Eski `.doc` ve taranmış (metinsiz) PDF desteklenmez, sebebiyle atlanır (OCR yok). ZIP için açılmış toplam boyut sınırı 100 MB (zip bombası), dosya sınırı 40 MB; şifreli/zip64 reddedilir.
@@ -156,6 +169,7 @@
 - **Yapılmadı / sınırlar:** "Onaylı içerik takvime düşer" (PLAN) için takvim şablonlarının Word'den içe aktarımı yok (şablonlar `data/takvim_sablon.csv`); panelde yükleme/künye ekranı yok; kütüphane belgeleri `uploaded_by = NULL` (sistem) girer; gömme hâlâ hash tabanlı; Word'de başlık/liste yapısı düz metne indirgenir; zamanlanmış çalıştırma yok (elle uç).
 
 ## G13 — NDVI zaman serisi ve tam çevrimdışı mod (2026-10-20)
+
 - **NDVI kaynağı:** Copernicus Data Space Statistical API (Sentinel-2 L2A), OAuth `client_credentials` (`COPERNICUS_CLIENT_ID/SECRET`, yalnız `.env`; `.env.example` güncellendi). Anahtar yoksa `FakeNdviProvider` çalışır (kural 5) ve verisi AÇIKÇA işaretlidir: kaynak adı "Örnek veri (gerçek uydu verisi değil)", `sample: true`, mobilde sarı "ÖRNEK VERİ" bandı. Örnek seri çiftçiye gerçek gibi sunulmaz.
 - **İstek:** tarla sınırı (GeoJSON Polygon, EPSG:4326) + son 150 gün + haftalık toplama (`P7D`, son aralık kısaltılır) + evalscript. NDVI = (B08−B04)/(B08+B04); yalnız SCL 4 (bitki) ve 5 (çıplak toprak) pikselleri sayılır, bulut/gölge/kar/su elenir (noDataCount'a düşer). Çözünürlük derece cinsinden 0,0001° (≈10 m; enlemle değişir, yaklaşık). Çok büyük parsellerde API piksel sınırı doğrulanmadı.
 - **Sınır yoksa seri yok:** nokta konumdan uydurma kare üretilmez; `{kind:'none', reason:'sinir-yok'}` döner, mobil "sınırı çiz" der. Dolayısıyla sınırsız tarlada grafik çıkmaz (bilinçli).
@@ -168,6 +182,7 @@
 - **Yapılmadı / sınırlar:** (1) Canlı Copernicus çağrısı hiç yapılmadı; ücretsiz kota koşulları doğrulanmadı (PLAN uyarısı geçerli). (2) `field-update` için mobilde düzenleme ekranı YOK (sıra ve API ucu hazır, testli). (3) Web servis çalışanı yok: açılmamış ekranlar çevrimdışı açılmaz (G2 notu geçerli). (4) Yeşillik e2e (Playwright) eklenmedi; sunucu + model testleri var. (5) NDVI'dan bitki sağlığı teşhisi/sulama kararı çıkarılmaz. (6) Düşük bulut oranlı tek bir ölçüm yanlış alarm verebilir; çok bantlı doğrulama yok.
 
 ## G14 — Sertleştirme, erişilebilirlik, doğrulama raporu, mağaza paketi (2026-10-20)
+
 - **Erişilebilirlik denetimi koda gömüldü:** `apps/mobile/src/g14.test.ts` kaynak dosyaları tarar (yazı ≥ 16, `allowFontScaling={false}` yok, `minHeight/minWidth` ≥ 56, her `Pressable`'da `accessibilityRole`, ikon düğmelerinde etiket, emoji yok, 11 renk çifti WCAG AA ≥ 4,5, sesli okuma mevcut). İlk çalıştırmada ihlal çıkmadı; önceki görevlerdeki jeton testleri zaten eşikleri koruyordu. Denetim kaynak düzeyindedir; TalkBack/VoiceOver ve %200 yazı büyütmesiyle el testi yapılmadı (raporda yazılı). Test, `react-native` içe aktarmamak için `@tarim/ui`'nin saf modüllerini (`tokens`, `contrast`) doğrudan alır; mobil `tsconfig`'e `@types/node` eklendi (`types: ['node']`).
 - **Güvenlik başlıkları ve CORS:** `apps/api/src/security.ts`; API her yanıta `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`, sıkı CSP, `Permissions-Policy` koyar; `NODE_ENV=production` ise HSTS. **Üretimde `CORS_ORIGINS` yoksa sunucu açılmaz** (önceden "her yerden" idi; kimlik Bearer jetonla olduğundan CSRF riski yoktu ama yine de varsayılan daraltıldı). Panel için aynı başlıklar `next.config.mjs`'te.
 - **Gizli anahtar taraması test olarak:** `scanForSecrets` (Anthropic/OpenAI/AWS/GitHub/Google/Slack anahtarları, özel anahtar bloğu, localhost dışı parolalı bağlantı adresi, sabit gizli değer ataması). `git ls-files` ile izlenen her dosyayı tarar, `.env` izlenmesini yasaklar; bulgunun yeri yazılır, DEĞERİ yazılmaz. Ayrı bir araç/CI bağımlılığı eklenmedi (gitleaks yerine, çünkü indirilmiş ikili çalıştırmama kuralı). Sınır: geçmiş commit'ler taranmıyor, yalnız çalışma ağacı.
@@ -195,7 +210,6 @@
 - **Takvim ekranı ve duyuru kartı.** Takvim: "Şimdi / Yaklaşan", taslak şablon rozetli ve "yalnız bilgi" notlu, kaynak + sürüm + tarih, "Neden?". Duyuru kartı: kaynak + yayın tarihi, rozet, "Neden?". Ortak `Button`/`Card` bileşenlerine `testID` eklendi.
 - **Görsel karşılaştırma yöntemi.** Piksel birebirliği anlamsız (gerçek veri, yazı tipi, örnek veri farkı); iki ekran 39×84 bloğa indirilip ortalama renk farkı ölçülür, eşik 0,25. Ölçümde Bugün ekranında gerçek sapmalar bulundu ve düzeltildi: tek tarlada gereksiz "Başka tarla seç" düğmesi kaldırıldı, "Sesle sor/Fotoğraf çek" şeridi kaydırmadan bağımsız sabitlendi (prototipteki gibi). Bildirim zili, işlevsiz olacağı için eklenmedi. Spec adı `zgorsel` (z): Pazar testi fiyat gelmeden önceki durumu bekler.
 - **Kabul tablosu.** `docs/KABUL_TABLOSU.md`; durumlar KANITLI / KISMEN / YAPILMADI, kanıt test adıdır. Kanıtı olmayan: G0 CI koşusu, G9 sulama önerisi ucu bağlama işleri.
-
 
 ## DEMO (2026-10-24)
 
@@ -238,3 +252,11 @@
 - **Claude'un yapamadıkları rehberde açık yazıldı** (`docs/APK_REHBERI.md`): Expo hesabı, `eas login/init/build`, APK kurulumu, güvenlik duvarı kuralı. iOS yalnız PWA (Apple geliştirici hesabı gerekir).
 
 - **Servis çalışanı dayanıklılığı (G18 sırasında bulundu).** Önbelleğe alma `addAll` (atomik: bir dosya hata verirse hiçbiri girmez) yerine dosya dosya yapılıyor ve sayfa yüklemeden 2,5 sn sonra bir kez daha bildiriyor; çevrimdışı e2e testi sayfanın yüklediği tüm js/css dosyalarının önbellekte olmasını bekler. Gerekçe: yeni, daha büyük Tarlalarım düzeni verify yükü altında tembel parçaları kaçırıp testi aralıklı düşürüyordu. e2e sunucu açılış süresi 120 sn → 300 sn (verify tüm testleri aynı anda koşturur).
+
+## 2026-10-25 — G19 tamamlama
+
+- Önceki otomatik çalıştırma ana sayfa/ikonlar/images/sekmesiz gezinme/sağ menü/geliştirici modunu yazmıştı; bu turda e2e ve fark raporu tamamlandı. Gerekçe: görev kabul ölçütü e2e + görsel karşılaştırma ister.
+- Onaysız duyuru çiftçi ekranında hiç görünmez (kural 1 + G19 madde 7): eski e2e testleri "rozetli görünür" bekliyordu, "görünmez; onaydan sonra kart şeridinde görünür; geri çekince yeniden gizlenir" olarak güncellendi.
+- Ana sayfada varsayılan sekme "Hepsi" (hedef görselde seçili olan).
+- Marka yazısı "TARIM PUSULA" 12 pt + adjustsFontSizeToFit (390/360 px'te kesilmesin).
+- e2e verisi Gaziantep/Nizip (test duyuru tohumu Gaziantep'e hedefli); ekran görüntüsü yerel adı hedefteki "Kiraz Bahçesi".

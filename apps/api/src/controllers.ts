@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -15,6 +16,7 @@ import {
   accountDeleteSchema,
   consentCreateSchema,
   deviceCreateSchema,
+  deviceRegisterSchema,
   fieldAccessGrantSchema,
   fieldCreateSchema,
   fieldUpdateSchema,
@@ -25,6 +27,7 @@ import {
   roleSchema,
   type FieldUpdate,
 } from '@tarim/schemas';
+import { adapterFor, validateRegistration } from '@tarim/devices';
 import { FIELD_COLS, FIELD_COLUMN, insertField, withComputedArea } from './fields.logic';
 import { Me, parse, Public, Roles, Token } from './auth/access';
 import { AuthService } from './auth/auth.service';
@@ -149,24 +152,73 @@ export class FieldsController {
 export class DevicesController {
   constructor(@Inject(DataService) private readonly data: DataService) {}
 
+  /**
+   * Cihaz ekle (G21). `kind`/`method` verilmezse eski gövde ({fieldId, name}) sulama cihazı sayılır.
+   * Sahiplik veritabanında (RLS): tarlaya YAZMA yetkisi olmayan kullanıcı cihaz ekleyemez (403).
+   * Üretici/model/kaynak/adaptör sürümü künye olarak saklanır; üretici bulutu anahtarları yalnız sunucuda.
+   */
   @Post()
-  create(@Me() me: Principal, @Body() body: unknown) {
-    const d = parse(deviceCreateSchema, body);
-    return this.data.run(me, 'devices.create', async (q) => {
-      const [row] = await q.query(
-        `INSERT INTO devices(field_id, name) VALUES ($1,$2)
-         RETURNING id, field_id AS "fieldId", name, kind, created_at AS "createdAt"`,
-        [d.fieldId, d.name],
-      );
-      return row;
+  async create(@Me() me: Principal, @Body() body: unknown) {
+    const raw = (body ?? {}) as Record<string, unknown>;
+    if (raw['kind'] === undefined && raw['method'] === undefined) {
+      const d = parse(deviceCreateSchema, body);
+      return this.data.run(me, 'devices.create', async (q) => {
+        const [row] = await q.query(
+          `INSERT INTO devices(field_id, name) VALUES ($1,$2)
+           RETURNING id, field_id AS "fieldId", name, kind, created_at AS "createdAt"`,
+          [d.fieldId, d.name],
+        );
+        return row;
+      });
+    }
+    const d = parse(deviceRegisterSchema, body);
+    const v = validateRegistration(d);
+    if (!v.ok) throw new BadRequestException(v.message);
+    const adapter = adapterFor(d.method, process.env, d.providerId);
+    const res = await adapter.connect({
+      kind: d.kind,
+      ...(d.pairingCode ? { pairingCode: d.pairingCode } : {}),
+      ...(d.manufacturer ? { manufacturer: d.manufacturer } : {}),
+      ...(d.model ? { model: d.model } : {}),
     });
+    if (!res.ok) throw new BadRequestException(res.reason);
+    const row = await this.data.runOne(me, 'devices.create', d.fieldId, async (q) => {
+      // Tarla görünmüyorsa (başkasının ya da yok) satır dönmez: 403.
+      const [f] = await q.query('SELECT id FROM fields WHERE id = $1', [d.fieldId]);
+      if (!f) return undefined;
+      const [ins] = await q.query(
+        `INSERT INTO devices(field_id, name, kind, manufacturer, model, connection_method, provider_id,
+           external_id, source, adapter_version)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         RETURNING id, field_id AS "fieldId", name, kind, manufacturer, model,
+           connection_method AS "connectionMethod", provider_id AS "providerId", source,
+           adapter_version AS "adapterVersion", created_at AS "createdAt"`,
+        [
+          d.fieldId,
+          d.name,
+          d.kind,
+          d.manufacturer ?? null,
+          d.model ?? null,
+          d.method,
+          adapter.info.fake ? adapter.info.id : (d.providerId ?? null),
+          res.externalId,
+          adapter.info.id,
+          adapter.info.version,
+        ],
+      );
+      return ins;
+    });
+    return { ...(row as object), sample: adapter.info.fake, message: res.message };
   }
 
   @Get()
   list(@Me() me: Principal) {
     return this.data.run(me, 'devices.list', (q) =>
       q.query(
-        `SELECT id, field_id AS "fieldId", name, kind, created_at AS "createdAt" FROM devices ORDER BY created_at`,
+        `SELECT id, field_id AS "fieldId", name, kind, manufacturer, model,
+                connection_method AS "connectionMethod", provider_id AS "providerId", source,
+                adapter_version AS "adapterVersion", created_at AS "createdAt"
+         FROM devices ORDER BY created_at`,
       ),
     );
   }

@@ -39,8 +39,8 @@ const pct = (p: number) => `%${Math.round(p * 100)}`;
 const deg = (n: number) => `${n.toLocaleString('tr-TR', { maximumFractionDigits: 1 })}°`;
 
 /**
- * Bugün ekranının tek büyük don kartı. Onaysız eşikte uyarı üretilmez (değişmez kural 1):
- * yalnız "uzman onayı bekliyor" rozetli sakin kart çıkar.
+ * Don durumu modeli. Onaysız eşikte uyarı üretilmez (değişmez kural 1): çiftçiye "pending" türü
+ * yalnız sakin "bilgi yok" metni verir; onay durumu çiftçi ekranında yazılmaz.
  */
 export function frostCardModel(f: TodayDto['frost']): FrostCardModel {
   const a = f.assessment;
@@ -55,8 +55,8 @@ export function frostCardModel(f: TodayDto['frost']): FrostCardModel {
     return a.reason === 'uzman-onayi-bekliyor'
       ? {
           kind: 'pending',
-          title: 'Don uyarısı için uzman onayı bekliyor',
-          body: 'Onaylanana kadar bu ürün için don uyarısı vermiyoruz.',
+          title: 'Bu ürün için don bilgisi şu an yok',
+          body: 'Bilgi hazır olunca burada görünür.',
         }
       : {
           kind: 'quiet',

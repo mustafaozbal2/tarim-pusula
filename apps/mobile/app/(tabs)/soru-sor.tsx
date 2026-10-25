@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image as RNImage, StyleSheet, Text, TextInput, View } from 'react-native';
 import { BigChoice, Button, Card, colors, fontFamily, spacing } from '@tarim/ui';
 import type { PusulaCardDto } from '../../src/api/client';
 import { useSettings } from '../../src/settings';
@@ -10,7 +10,9 @@ import { Screen } from '../../src/components/Screen';
 import { tr } from '../../src/i18n/tr';
 import { kv } from '../../src/offline/kvStore';
 import { cardTone, errorKey, sourceLine, speechText } from '../../src/pusula/model';
-import { listenOnce, voiceSupported } from '../../src/pusula/voice';
+import { captionQuestion } from '../../src/pusula/model';
+import { listen } from '../../src/pusula/voice';
+import { voiceMessage } from '../../src/pusula/voiceTypes';
 import { api } from '../../src/session';
 import { SELECTED } from '../../src/today/load';
 
@@ -19,6 +21,7 @@ const t = tr.ask;
 type Image = { mime: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string };
 type State =
   | { s: 'idle' }
+  | { s: 'photo'; image: Image }
   | { s: 'busy'; label: string }
   | { s: 'done'; card: PusulaCardDto }
   | { s: 'fail'; msg: string };
@@ -74,11 +77,10 @@ export default function AskScreen() {
   );
 
   const voice = async () => {
-    if (!voiceSupported()) return setNote(t.voiceUnsupported);
     setNote(t.voiceListening);
-    const heard = await listenOnce();
-    setNote(null);
-    if (heard) void ask(heard);
+    const outcome = await listen();
+    setNote(voiceMessage(outcome, t.voiceIssues));
+    if (outcome.kind === 'text') void ask(outcome.text);
   };
 
   const photo = async () => {
@@ -93,7 +95,9 @@ export default function AskScreen() {
     if (!a?.base64) return;
     const mime =
       a.mimeType === 'image/png' || a.mimeType === 'image/webp' ? a.mimeType : 'image/jpeg';
-    void ask(text.trim() || 'Fotoğraftaki sorunu bakar mısın?', { mime, base64: a.base64 });
+    // Fotoğrafın altına açıklama yazılır; sonra gönderilir.
+    setNote(null);
+    setState({ s: 'photo', image: { mime, base64: a.base64 } });
   };
 
   const speak = (card: PusulaCardDto) => {
@@ -127,6 +131,37 @@ export default function AskScreen() {
     );
   }
 
+  if (state.s === 'photo') {
+    const img = state.image;
+    return (
+      <Screen title={t.photoTitle}>
+        <RNImage
+          source={{ uri: `data:${img.mime};base64,${img.base64}` }}
+          style={styles.preview}
+          resizeMode="cover"
+          accessibilityLabel={t.photoPreview}
+          testID="foto-onizleme"
+        />
+        <TextInput
+          value={text}
+          onChangeText={setText}
+          placeholder={t.captionPlaceholder}
+          accessibilityLabel={t.captionPlaceholder}
+          multiline
+          maxLength={500}
+          style={styles.input}
+          testID="foto-aciklama"
+        />
+        <Button
+          label={t.sendPhoto}
+          testID="foto-gonder"
+          onPress={() => void ask(captionQuestion(text), img)}
+        />
+        <Button label={t.cancelPhoto} variant="secondary" onPress={reset} />
+      </Screen>
+    );
+  }
+
   if (state.s === 'done') {
     const c = state.card;
     const tone = cardTone(c);
@@ -147,11 +182,6 @@ export default function AskScreen() {
               <Text style={styles.source}>
                 {t.source}: {sourceLine(s)}
               </Text>
-              {s.needsBadge ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{t.pendingBadge}</Text>
-                </View>
-              ) : null}
             </View>
           ))}
         </Card>
@@ -206,6 +236,7 @@ export default function AskScreen() {
 const styles = StyleSheet.create({
   subtitle: { fontFamily: fontFamily.semibold, fontSize: 15, color: colors.textMuted },
   voice: { minHeight: 56 },
+  preview: { width: '100%', height: 220, borderRadius: 10, backgroundColor: colors.card },
   section: { fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.forest, marginTop: 8 },
   card: { gap: spacing.md },
   stop: { borderColor: colors.brick, borderWidth: 2, backgroundColor: colors.brickSoft },
@@ -215,16 +246,6 @@ const styles = StyleSheet.create({
   error: { fontFamily: fontFamily.bold, fontSize: 15, color: colors.brick },
   sourceRow: { gap: 6 },
   source: { fontFamily: fontFamily.medium, fontSize: 13, color: colors.textMuted },
-  badge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.amberSoft,
-    borderColor: colors.amber,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  badgeText: { fontFamily: fontFamily.bold, fontSize: 13, color: colors.amberText },
   input: {
     minHeight: 56,
     borderWidth: 2,

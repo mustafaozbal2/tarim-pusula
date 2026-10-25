@@ -9,7 +9,6 @@ import { expect, test, type Page } from '@playwright/test';
  */
 const OUT = resolve(import.meta.dirname, '../../../docs/gorsel');
 const VIEW_H = 844;
-const TAB_BAR = 64;
 
 interface Shot {
   name: string;
@@ -36,16 +35,40 @@ const SHOTS: Shot[] = [
     name: 'bugun',
     title: 'Bugün (ana ekran)',
     route: '/',
-    tabs: true,
+    tabs: false,
     setup: 'alan',
     ref: SLAYT11,
-    ready: 'Duyurular',
+    ready: 'Faaliyet Zamanı',
+  },
+  {
+    name: 'arazi-islemleri',
+    title: 'Arazi İşlemleri',
+    route: '/arazi-islemleri',
+    tabs: false,
+    setup: 'alan',
+    ready: 'Tasarruf ve verim raporu',
+  },
+  {
+    name: 'hava',
+    title: 'Hava Durumu',
+    route: '/hava',
+    tabs: false,
+    setup: 'alan',
+    ready: 'Referans su kaybı',
+  },
+  {
+    name: 'bildirimler',
+    title: 'Bildirimler',
+    route: '/bildirimler',
+    tabs: false,
+    setup: 'alan',
+    ready: 'En düşük',
   },
   {
     name: 'tarlalarim',
     title: 'Tarlalarım (liste)',
     route: '/tarlalarim',
-    tabs: true,
+    tabs: false,
     setup: 'alan',
     ref: SLAYT13,
     ready: 'Burç Köyü Fıstık Bahçesi',
@@ -79,7 +102,7 @@ const SHOTS: Shot[] = [
     name: 'soru-sor',
     title: 'Soru sor (Pusula AI)',
     route: '/soru-sor',
-    tabs: true,
+    tabs: false,
     setup: 'alan',
     ready: 'Ne öğrenmek istiyorsun?',
   },
@@ -170,8 +193,8 @@ async function prepare(page: Page, kind: Shot['setup']) {
     },
   });
   expect(created.status()).toBe(201);
-  await page.request.get('/__e2e/calendar-seed');
-  await page.request.get('/__e2e/announce?n=7');
+  await page.request.get('/__e2e/calendar-seed?approve=1');
+  await page.request.get('/__e2e/announce?n=7&approve=1');
   await page.request.get('/__e2e/market-collect');
   await page.addInitScript(
     ([api, token]) => {
@@ -185,7 +208,7 @@ async function prepare(page: Page, kind: Shot['setup']) {
 /** DOM ölçümleri: içerik alt sınırı, dokunma hedefleri, etiketsiz düğmeler. */
 async function measure(page: Page, tabs: boolean) {
   return page.evaluate(
-    ([tabBar, hasTabs]) => {
+    ([, hasTabs]) => {
       const inTabBar = (el: Element) => !!el.closest('[role="tablist"]') && hasTabs;
       let bottom = 0;
       for (const el of Array.from(document.querySelectorAll('*'))) {
@@ -207,9 +230,9 @@ async function measure(page: Page, tabs: boolean) {
         if (r.height < 43.5 || r.width < 43.5)
           small.push(`${label.trim().slice(0, 24)} ${Math.round(r.width)}x${Math.round(r.height)}`);
       }
-      return { bottom, small, unnamed, usable: window.innerHeight - (hasTabs ? tabBar : 0) };
+      return { bottom, small, unnamed, usable: window.innerHeight };
     },
-    [TAB_BAR, tabs] as const,
+    [0, tabs] as const,
   );
 }
 
@@ -234,11 +257,14 @@ for (const shot of SHOTS) {
   });
 }
 
-test('görsel: Bugün 390x844 ekranda kaydırmadan en az 6 liste satırı', async ({ page }) => {
+test('görsel: ana sayfa 390x844 ekranda kaydırmadan sekmeli kartta en az 3 satır', async ({
+  page,
+}) => {
   await prepare(page, 'alan');
   await page.goto('/');
   await expect(page.getByTestId('liste-satiri').first()).toBeVisible();
   await page.waitForLoadState('networkidle');
+  await page.getByRole('tab', { name: 'Hepsi' }).click();
   const rows = await page
     .getByTestId('liste-satiri')
     .evaluateAll(
@@ -246,34 +272,30 @@ test('görsel: Bugün 390x844 ekranda kaydırmadan en az 6 liste satırı', asyn
         els
           .map((e) => e.getBoundingClientRect())
           .filter((r) => r.top >= 0 && r.bottom <= (limit as number)).length,
-      [VIEW_H - TAB_BAR],
+      [VIEW_H],
     );
-  expect(rows).toBeGreaterThanOrEqual(6);
-  // Bildirimler sekmesinde de en az 5 satır (onaysız veride uyarı satırı yok, yalnız bilgi).
-  await page.getByRole('tab', { name: 'Bildirimler' }).click();
-  await expect(page.getByTestId('bugun-bildirimler')).toBeVisible();
-  expect(
-    await page.getByTestId('bugun-bildirimler').getByTestId('liste-satiri').count(),
-  ).toBeGreaterThanOrEqual(5);
+  expect(rows).toBeGreaterThanOrEqual(3);
 });
 
-test('görsel: Bugün hızlı erişim şeridinde 6 simge ve konum başlığı', async ({ page }) => {
+test('görsel: ana sayfada 7 yuvarlak ikon, kayan kart şeridi ve arazi adı', async ({ page }) => {
   await prepare(page, 'alan');
   await page.goto('/');
-  const strip = page.getByTestId('bugun-hizli');
-  await expect(strip).toBeVisible();
   for (const label of [
-    'Arazi',
-    'Üretim planı',
-    'Takvim',
-    'Erken uyarı',
-    'Akıllı cihazlar',
-    'Uzmana sor',
+    'Arazilerim',
+    'Arazi İşlemleri',
+    'Verim Haritası',
+    'Hava Durumu',
+    'Uzman Desteği',
+    'Mobil Bildirim',
+    'Profil Ayarları',
   ]) {
-    await expect(strip.getByRole('button', { name: label })).toBeVisible();
+    await expect(page.getByRole('button', { name: new RegExp(`^${label}`) })).toBeVisible();
   }
-  await expect(page.getByTestId('konum-baslik')).toHaveText('BURÇ');
-  await expect(page.getByRole('img', { name: 'Çiftçi çizimi' })).toBeVisible();
+  await expect(page.getByTestId('kart-seridi')).toBeVisible();
+  await expect(page.getByTestId('kart-seridi-kart')).toHaveCount(5);
+  await expect(page.getByTestId('bugun-tarla')).toHaveText('Burç Köyü Fıstık Bahçesi');
+  await expect(page.getByTestId('arazi-yer')).toHaveText('Gaziantep, Nizip');
+  await expect(page.getByRole('img', { name: 'Çiftçi çizimi' }).first()).toBeVisible();
 });
 
 test('Ayarlar: Büyük yazı boyutu gövdeyi 15 px → 18 px yapar ve kalıcıdır', async ({ page }) => {
@@ -297,7 +319,8 @@ test('Bilgi listeleri: Kc tablosu aranır, taslaklar rozetli; toprak türleri', 
   await page.goto('/kc-listesi');
   const table = page.getByTestId('kc-tablosu');
   await expect(table.getByText('Zeytin', { exact: true })).toBeVisible();
-  await expect(page.getByText('Uzman onayı bekliyor').first()).toBeVisible();
+  await expect(page.getByText(/onayı bekl/i)).toHaveCount(0);
+  await expect(page.getByText('Taslak').first()).toBeVisible();
   await page.getByLabel('Bitki ara').fill('zeyt');
   await expect(table.getByText('Zeytin', { exact: true })).toBeVisible();
   await expect(table.getByText('Buğday', { exact: true })).toHaveCount(0);

@@ -9,13 +9,13 @@ Gerekenler: Windows bilgisayar (Node 24 ve pnpm kurulu, repo klasörü `D:\Tarim
 
 ---
 
-## 1. Ücretsiz Expo hesabı  (SEN YAP)
+## 1. Ücretsiz Expo hesabı (SEN YAP)
 
 1. Tarayıcıda https://expo.dev/signup adresini aç.
 2. E-posta, kullanıcı adı ve parola ile hesap aç. E-postana gelen doğrulama bağlantısına tıkla.
 3. Kullanıcı adını ve parolanı not et. Ücretsiz plan yeterlidir (ayda sınırlı sayıda ücretsiz derleme hakkı vardır; kuyruk bazen 10–30 dakika sürebilir).
 
-## 2. eas-cli kur ve giriş yap  (SEN YAP)
+## 2. eas-cli kur ve giriş yap (SEN YAP)
 
 PowerShell aç:
 
@@ -35,7 +35,7 @@ eas init
 
 Soruları `Y` (evet) ile onayla. Bu komut `app.json` içine `extra.eas.projectId` ekler; değişikliği commit'leyebilirsin.
 
-## 3. Sunucu adresini hazırla, sonra APK'yı derle  (SEN YAP)
+## 3. Sunucu adresini hazırla, sonra APK'yı derle (SEN YAP)
 
 APK, bilgisayardaki sunucuya **yerel ağ adresiyle** bağlanır (`localhost` telefonda çalışmaz).
 
@@ -49,10 +49,10 @@ cd D:\TarimPusula\apps\mobile
 eas build -p android --profile preview
 ```
 
-   - "Generate a new Android Keystore?" sorusuna `Y` de.
-   - Derleme Expo sunucularında yapılır ve 10–30 dakika sürebilir. Bitince terminalde bir **indirme bağlantısı** ve QR kod çıkar. Aynısını https://expo.dev → Projects → tarim-pusula → Builds sayfasında da bulursun.
+- "Generate a new Android Keystore?" sorusuna `Y` de.
+- Derleme Expo sunucularında yapılır ve 10–30 dakika sürebilir. Bitince terminalde bir **indirme bağlantısı** ve QR kod çıkar. Aynısını https://expo.dev → Projects → tarim-pusula → Builds sayfasında da bulursun.
 
-## 4. APK'yı telefona indir ve kur  (SEN YAP)
+## 4. APK'yı telefona indir ve kur (SEN YAP)
 
 1. Telefonda tarayıcıyı aç, bölüm 3'ün sonunda çıkan bağlantıyı aç (ya da QR kodu okut). `.apk` dosyası iner.
 2. İndirilen dosyaya dokun. Android "Bu kaynaktan uygulama yüklemeye izin verilmiyor" diyebilir:
@@ -60,7 +60,7 @@ eas build -p android --profile preview
 3. Play Protect "Uygulamayı yine de yükle" diyebilir: **Yine de yükle**.
 4. Uygulama listesinde **Tarım Pusula** simgesi (koyu yeşil zemin, pusula) görünür.
 
-## 5. Bilgisayarda sunucuyu yerel ağda aç, telefonu bağla  (SEN YAP)
+## 5. Bilgisayarda sunucuyu yerel ağda aç, telefonu bağla (SEN YAP)
 
 Bilgisayar ve telefon **aynı Wi-Fi'da** olmalı (misafir ağı ya da "istemci yalıtımı" açık modemlerde çalışmaz).
 
@@ -96,18 +96,18 @@ Uygulamayı aç → telefon numarası (demo: ekrandaki numara) → **Kod gönder
 
 ## 6. Sık hatalar ve çözümleri
 
-| Belirti | Neden | Çözüm |
-| --- | --- | --- |
+| Belirti                                              | Neden                                              | Çözüm                                                                                                                                                                                                       |
+| ---------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Uygulama açılınca **"Sunucuya bağlanılamadı"** kartı | Adres boş/yanlış, sunucu kapalı ya da farklı Wi-Fi | Bilgisayarda `pnpm run demo -- --lan` çalışıyor mu? Telefon aynı Wi-Fi'da mı? Karttaki kutuya `http://BİLGİSAYAR_IP:8210` yaz → **Adresi kaydet** → **Yeniden dene**. (Ayarlar ekranında da aynı kutu var.) |
-| Telefon tarayıcısında `…:8210/health` açılmıyor | Güvenlik duvarı ya da ağ "Genel" | Bölüm 5'teki `netsh` komutu (yönetici PowerShell) + ağı "Özel" yap |
-| IP adresi her gün değişiyor | Modem adresi dinamik dağıtıyor | Demo'yu her açışta ekrandaki adresi uygulamaya yeniden yaz; ya da modemde bilgisayara sabit IP (DHCP rezervasyonu) ver |
-| `eas build` "Not logged in" | Giriş yapılmadı | `eas login` (bölüm 2) |
-| `eas build` "project not configured" | `eas init` yapılmadı | `cd apps\mobile` → `eas init` |
-| Derleme kuyrukta uzun bekliyor | Ücretsiz plan kuyruğu | Bekle; ya da yeniden dene. Kota dolduysa bir sonraki aya kadar bekle |
-| APK kurulmuyor: "Uygulama yüklenemedi" | Eski sürüm farklı imzayla kurulu | Eski Tarım Pusula'yı kaldır, yeniden kur |
-| "Bilinmeyen kaynak" izni çıkmıyor | Dosyayı açan uygulama izinli değil | Dosyayı hangi uygulamadan (Chrome / Dosyalarım) açtıysan o uygulamaya izin ver |
-| Harita boş / grileşiyor | Uydu karoları internet ister | Telefonun internete çıkabildiğinden emin ol (Wi-Fi'ın dışa çıkışı) |
-| `http://` adres çalışmıyor | Eski derleme cleartext'i engelliyor | Bu proje `plugins/with-cleartext.js` ile http'ye izin verir; APK'yı **bu sürümden** derlediğinden emin ol |
+| Telefon tarayıcısında `…:8210/health` açılmıyor      | Güvenlik duvarı ya da ağ "Genel"                   | Bölüm 5'teki `netsh` komutu (yönetici PowerShell) + ağı "Özel" yap                                                                                                                                          |
+| IP adresi her gün değişiyor                          | Modem adresi dinamik dağıtıyor                     | Demo'yu her açışta ekrandaki adresi uygulamaya yeniden yaz; ya da modemde bilgisayara sabit IP (DHCP rezervasyonu) ver                                                                                      |
+| `eas build` "Not logged in"                          | Giriş yapılmadı                                    | `eas login` (bölüm 2)                                                                                                                                                                                       |
+| `eas build` "project not configured"                 | `eas init` yapılmadı                               | `cd apps\mobile` → `eas init`                                                                                                                                                                               |
+| Derleme kuyrukta uzun bekliyor                       | Ücretsiz plan kuyruğu                              | Bekle; ya da yeniden dene. Kota dolduysa bir sonraki aya kadar bekle                                                                                                                                        |
+| APK kurulmuyor: "Uygulama yüklenemedi"               | Eski sürüm farklı imzayla kurulu                   | Eski Tarım Pusula'yı kaldır, yeniden kur                                                                                                                                                                    |
+| "Bilinmeyen kaynak" izni çıkmıyor                    | Dosyayı açan uygulama izinli değil                 | Dosyayı hangi uygulamadan (Chrome / Dosyalarım) açtıysan o uygulamaya izin ver                                                                                                                              |
+| Harita boş / grileşiyor                              | Uydu karoları internet ister                       | Telefonun internete çıkabildiğinden emin ol (Wi-Fi'ın dışa çıkışı)                                                                                                                                          |
+| `http://` adres çalışmıyor                           | Eski derleme cleartext'i engelliyor                | Bu proje `plugins/with-cleartext.js` ile http'ye izin verir; APK'yı **bu sürümden** derlediğinden emin ol                                                                                                   |
 
 ## 7. Telefonda tarayıcıdan (PWA) — "Ana ekrana ekle"
 

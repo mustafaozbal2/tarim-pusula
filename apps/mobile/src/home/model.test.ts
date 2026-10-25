@@ -1,0 +1,214 @@
+import { describe, expect, it } from 'vitest';
+import type { AnnouncementDto, CalendarEventDto, SupportMatchDto, TodayDto } from '../api/client';
+import {
+  attentionCount,
+  buildHomeRows,
+  dateBox,
+  emptyText,
+  nextCardIndex,
+  placeLine,
+  rowsForTab,
+} from './model';
+
+const ev = (over: Partial<CalendarEventDto> = {}): CalendarEventDto => ({
+  templateId: 'bud',
+  title: 'Budama',
+  detail: 'Kış budamasını yap.',
+  stage: null,
+  start: '2026-11-02',
+  end: '2026-11-20',
+  ongoing: false,
+  needsBadge: false,
+  actionable: true,
+  source: 'GTHB',
+  sourceVersion: 'v1',
+  sourceDate: '2026-01-01',
+  why: 'Ürün evresine göre.',
+  ...over,
+});
+
+const frost = (level: 'none' | 'watch' | 'warning' | 'pending') =>
+  ({
+    generatedAt: '2026-10-25T08:00:00Z',
+    frost: {
+      assessment:
+        level === 'pending'
+          ? { kind: 'none', reason: 'uzman-onayi-bekliyor', badge: true }
+          : {
+              kind: 'frost',
+              level,
+              probability: 0.6,
+              members: 40,
+              thresholdC: -2,
+              medianMinC: -3,
+              minMemberC: -4,
+            },
+      date: '2026-10-26',
+      dayOffset: 1,
+      stageName: 'Çiçeklenme',
+      unavailable: false,
+      source: 'Open-Meteo',
+      fetchedAt: '2026-10-25T07:00:00Z',
+    },
+  }) as unknown as TodayDto;
+
+const support = (over: Partial<SupportMatchDto> = {}): SupportMatchDto => ({
+  support: {
+    id: 's1',
+    title: 'Bireysel sulama sistemlerine %50 hibe desteği',
+    summary: 'Kırsal kalkınma desteği.',
+    applyFrom: '2026-01-25',
+    applyTo: '2026-12-31',
+    source: 'TKDK',
+    sourceDate: '2026-01-01',
+    sourceVersion: 'v1',
+  },
+  why: ['ilinizde geçerli'],
+  badge: false,
+  status: 'acik',
+  ...over,
+});
+
+const ann = (over: Partial<AnnouncementDto> = {}): AnnouncementDto => ({
+  id: 'a1',
+  sourceOrg: 'İl Müdürlüğü',
+  title: 'Sulama toplantısı',
+  body: 'Cuma günü.',
+  sourceUrl: null,
+  publishedAt: '2026-10-20T09:00:00Z',
+  needsBadge: false,
+  why: 'İlinize uyar',
+  ...over,
+});
+
+const calendar = (events: CalendarEventDto[]) => ({
+  fieldId: 'f',
+  today: '2026-10-25',
+  days: 90,
+  cropId: 'kiraz',
+  events,
+  note: null,
+});
+
+describe('dateBox', () => {
+  it('ay / gün / yıl üç satır', () => {
+    expect(dateBox('2022-01-25')).toEqual({ month: 'Ocak', day: '25', year: '2022' });
+    expect(dateBox('2022-05-03T10:00:00Z')).toEqual({ month: 'Mayıs', day: '3', year: '2022' });
+    expect(dateBox('2022-06-10')).toEqual({ month: 'Haziran', day: '10', year: '2022' });
+  });
+});
+
+describe('buildHomeRows', () => {
+  it('onaysız takvim işi, taslak destek ve onaysız duyuru hiç satır olmaz', () => {
+    const rows = buildHomeRows({
+      calendar: calendar([ev({ needsBadge: true })]),
+      today: frost('pending'),
+      supports: [support({ badge: true, status: 'onay-bekliyor' })],
+      announcements: [ann({ needsBadge: true })],
+    });
+    expect(rows).toEqual([]);
+  });
+
+  it('onaysız eşikte erken uyarı üretilmez; Dikkat sayısı 0', () => {
+    const rows = buildHomeRows({
+      calendar: null,
+      today: frost('pending'),
+      supports: [],
+      announcements: [],
+    });
+    expect(rows.some((r) => r.kind === 'uyari')).toBe(false);
+    expect(attentionCount(rows)).toBe(0);
+  });
+
+  it('onaylı don uyarısı Erken Uyarılar sekmesine ve Dikkat rozetine düşer', () => {
+    const rows = buildHomeRows({
+      calendar: null,
+      today: frost('warning'),
+      supports: [],
+      announcements: [],
+    });
+    expect(rowsForTab(rows, 'uyari')).toHaveLength(1);
+    expect(attentionCount(rows)).toBe(1);
+    expect(rows[0]?.source).toContain('Open-Meteo');
+  });
+
+  it('"ihtimal" (watch) da aktif ve onaylı uyarıdır', () => {
+    const rows = buildHomeRows({
+      calendar: null,
+      today: frost('watch'),
+      supports: [],
+      announcements: [],
+    });
+    expect(attentionCount(rows)).toBe(1);
+  });
+
+  it('don beklenmiyorsa uyarı yok', () => {
+    const rows = buildHomeRows({
+      calendar: null,
+      today: frost('none'),
+      supports: [],
+      announcements: [],
+    });
+    expect(attentionCount(rows)).toBe(0);
+  });
+
+  it('sekmeler ayrı; Hepsi rehberi tekrarlamaz; tarihe göre sıralı', () => {
+    const rows = buildHomeRows({
+      calendar: calendar([
+        ev(),
+        ev({ templateId: 'gub', title: 'Gübreleme', start: '2026-10-30', end: '2026-10-30' }),
+      ]),
+      today: null,
+      supports: [support()],
+      announcements: [ann()],
+    });
+    expect(rowsForTab(rows, 'zaman')).toHaveLength(2);
+    expect(rowsForTab(rows, 'rehber')).toHaveLength(2);
+    expect(rowsForTab(rows, 'hibe')).toHaveLength(1);
+    const all = rowsForTab(rows, 'hepsi');
+    expect(all.some((r) => r.kind === 'rehber')).toBe(false);
+    expect(all).toHaveLength(4);
+    const dates = all.map((r) => r.date);
+    expect(dates).toEqual([...dates].sort());
+  });
+
+  it('her satırda kaynak etiketi vardır', () => {
+    const rows = buildHomeRows({
+      calendar: calendar([ev()]),
+      today: frost('warning'),
+      supports: [support()],
+      announcements: [ann()],
+    });
+    for (const r of rows) expect(r.source.length, r.id).toBeGreaterThan(5);
+  });
+
+  it('kapalı dönemli destek gösterilmez; hiçbir satırda "onay bekliyor" yazısı yok', () => {
+    const rows = buildHomeRows({
+      calendar: calendar([ev()]),
+      today: frost('warning'),
+      supports: [support({ status: 'kapali' }), support()],
+      announcements: [ann()],
+    });
+    expect(rowsForTab(rows, 'hibe')).toHaveLength(1);
+    expect(JSON.stringify(rows)).not.toMatch(/onayı bekl/i);
+  });
+});
+
+describe('yardımcılar', () => {
+  it('kayan şerit döngüsel ilerler; boş şeritte 0', () => {
+    expect(nextCardIndex(0, 5)).toBe(1);
+    expect(nextCardIndex(4, 5)).toBe(0);
+    expect(nextCardIndex(2, 0)).toBe(0);
+  });
+  it('il, ilçe satırı', () => {
+    expect(placeLine({ province: 'Isparta', district: 'Merkez', village: null })).toBe(
+      'Isparta, Merkez',
+    );
+    expect(placeLine({ province: null, district: null, village: 'Burç' })).toBe('Burç');
+  });
+  it('boş durum metinleri dürüst ve her sekme için vardır', () => {
+    for (const t of ['zaman', 'rehber', 'uyari', 'hibe', 'hepsi'] as const) {
+      expect(emptyText(t).length).toBeGreaterThan(10);
+    }
+  });
+});

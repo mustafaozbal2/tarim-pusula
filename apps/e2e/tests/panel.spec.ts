@@ -82,14 +82,11 @@ test('duyuru yayınla > uzman onayla > mobilde görünür', async ({ browser }) 
   await instPage.getByTestId('duyuru-yayinla').click();
   await expect(instPage.getByText('Uzman onayı bekliyor').first()).toBeVisible();
 
-  // Mobil: duyuru görünür, uzman onayı rozetiyle ve kaynağıyla.
+  // Mobil: onaysız duyuru çiftçi ekranında hiçbir yerde görünmez (rozetsiz gizlenir).
   await mobile.goto('/');
-  const news = mobile.getByTestId('bugun-duyurular');
-  await expect(news).toContainText('Fıstık bahçeleri için bilgilendirme');
-  await expect(news).toContainText('Uzman onayı bekliyor');
-  // Satıra dokununca duyuru ayrıntısı (kaynak kurum) açılır.
-  await news.getByTestId('liste-satiri').filter({ hasText: 'Fıstık bahçeleri' }).click();
-  await expect(news).toContainText('Gaziantep İl Tarım ve Orman Müdürlüğü');
+  await expect(mobile.getByTestId('bugun-tarla')).toHaveText('Nizip Fıstık Bahçesi');
+  await expect(mobile.getByText('Fıstık bahçeleri için bilgilendirme')).toHaveCount(0);
+  await expect(mobile.getByText('Uzman onayı bekliyor')).toHaveCount(0);
 
   // Uzman: onay kuyruğundan onaylar.
   const expert = await staff(expertPage, 'expert');
@@ -106,12 +103,15 @@ test('duyuru yayınla > uzman onayla > mobilde görünür', async ({ browser }) 
     expertPage.getByTestId('kuyruk-duyuru').filter({ hasText: 'Fıstık bahçeleri' }),
   ).toHaveCount(0);
 
-  // Mobil: onaydan sonra rozet kalkar, duyuru durur.
+  // Mobil: onaydan sonra duyuru kart şeridinde görünür; karta dokununca kaynak kurum açılır.
   await mobile.reload();
-  await expect(mobile.getByTestId('bugun-duyurular')).toContainText(
-    'Fıstık bahçeleri için bilgilendirme',
-  );
-  await expect(mobile.getByTestId('bugun-duyurular')).not.toContainText('Uzman onayı bekliyor');
+  const card = mobile
+    .getByTestId('kart-seridi-kart')
+    .filter({ hasText: 'Fıstık bahçeleri için bilgilendirme' });
+  await expect(card).toBeVisible();
+  await expect(mobile.getByText('Uzman onayı bekliyor')).toHaveCount(0);
+  await card.click();
+  await expect(mobile.getByText('Gaziantep İl Tarım ve Orman Müdürlüğü').first()).toBeVisible();
 
   await Promise.all([mobileCtx.close(), instCtx.close(), expertCtx.close()]);
 });
@@ -133,7 +133,7 @@ test('başka ilin duyurusu mobilde görünmez', async ({ browser }) => {
   );
   await page.goto('/');
   await expect(page.getByTestId('bugun-tarla')).toHaveText('Harran');
-  await expect(page.getByTestId('bugun-duyurular')).toHaveCount(0);
+  await expect(page.getByTestId('kart-seridi-kart')).toHaveCount(0);
   await ctx.close();
 });
 

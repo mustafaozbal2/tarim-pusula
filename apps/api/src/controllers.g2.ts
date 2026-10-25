@@ -11,13 +11,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  canDriveAdvice,
-  needsDraftBadge,
-  SOIL_SEED,
-  waterNeedAdvice,
-  type CropStage,
-} from '@tarim/agro-core';
+import { canDriveAdvice, needsDraftBadge, waterNeedAdvice, type CropStage } from '@tarim/agro-core';
 import {
   fieldCreateSchema,
   nearbyClaimSchema,
@@ -59,18 +53,33 @@ export class PlacesController {
   }
 }
 
-/** Toprak türü + tarla kapasitesi / solma noktası (salt okunur, taslak: rozetli). */
+/** Toprak türü + tarla kapasitesi / solma noktası (veritabanında; taslak: rozetli, uzman onaylar). */
 @Controller('soils')
 export class SoilsController {
+  constructor(@Inject(DataService) private readonly data: DataService) {}
+
   @Get()
-  list() {
-    return SOIL_SEED.map((s) => ({
+  async list(@Me() me: Principal) {
+    const rows = await this.data.run(me, 'soils.list', (q) =>
+      q.query<{
+        key: string;
+        nameTr: string;
+        thetaFc: number;
+        thetaWp: number;
+        source: string;
+        reviewStatus: 'taslak-uzman-onayi-bekliyor' | 'uzman-onayli';
+      }>(
+        `SELECT key, name_tr AS "nameTr", theta_fc::float8 AS "thetaFc", theta_wp::float8 AS "thetaWp",
+                source, review_status AS "reviewStatus" FROM soil_types ORDER BY theta_fc`,
+      ),
+    );
+    return rows.map((s) => ({
       key: s.key,
       nameTr: s.nameTr,
       thetaFc: s.thetaFc,
       thetaWp: s.thetaWp,
       source: s.source,
-      needsBadge: needsDraftBadge(s.reviewStatus),
+      needsBadge: s.reviewStatus !== 'uzman-onayli',
     }));
   }
 }

@@ -4,9 +4,26 @@ import type { TextSize } from '../../../packages/ui/src/tokens';
 export interface Settings {
   textSize: TextSize;
   voiceGuide: boolean;
+  /** Geliştirici modu: Ayarlar'da sürüm numarasına 7 dokunuşla açılır (sunucu adresi kartı yalnız bunda görünür). */
+  devMode: boolean;
 }
 
-export const DEFAULTS: Settings = { textSize: 'normal', voiceGuide: false };
+export const DEFAULTS: Settings = { textSize: 'normal', voiceGuide: false, devMode: false };
+
+/** Sürüm numarasına art arda dokunma sayacı (G19.8). */
+export const DEV_TAPS = 7;
+export const DEV_TAP_WINDOW_MS = 4000;
+export interface TapState {
+  count: number;
+  last: number;
+}
+/** Dokunuşlar arası en çok DEV_TAP_WINDOW_MS; aralık aşılırsa sayaç 1'den başlar. */
+export function nextTap(prev: TapState, now: number): { state: TapState; unlocked: boolean } {
+  const count = prev.count > 0 && now - prev.last <= DEV_TAP_WINDOW_MS ? prev.count + 1 : 1;
+  return count >= DEV_TAPS
+    ? { state: { count: 0, last: now }, unlocked: true }
+    : { state: { count, last: now }, unlocked: false };
+}
 
 export function parseSettings(raw: string | null): Settings {
   if (!raw) return DEFAULTS;
@@ -15,6 +32,7 @@ export function parseSettings(raw: string | null): Settings {
     return {
       textSize: o.textSize === 'large' ? 'large' : 'normal',
       voiceGuide: o.voiceGuide === true,
+      devMode: o.devMode === true,
     };
   } catch {
     return DEFAULTS;

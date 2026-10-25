@@ -2,6 +2,7 @@ import type { WalletDto } from '../wallet/model';
 import type {
   CommandCreate,
   CommandDto,
+  DeviceRegister,
   DeviceStatusDto,
   FieldCreate,
   FieldUpdate,
@@ -65,6 +66,90 @@ export interface DeviceDto {
   fieldId: string;
   name: string;
   kind: string;
+  manufacturer?: string | null;
+  model?: string | null;
+  connectionMethod?: string;
+  providerId?: string | null;
+  /** Veri kaynağı (adaptör kimliği). */
+  source?: string;
+  adapterVersion?: string;
+  createdAt?: string;
+}
+
+export interface ReadingsDto {
+  deviceId: string;
+  deviceName: string;
+  metric: string;
+  source: string;
+  readings: { at: string; value: number; unit: string }[];
+}
+
+export type ReminderDecisionDto =
+  | { kind: 'none'; reason: string }
+  | {
+      kind: 'due';
+      type: 'nem-esigi' | 'gunluk-sulama';
+      title: string;
+      body: string;
+      why: string[];
+    };
+
+export interface RemindersDto {
+  fieldId: string;
+  generatedAt: string;
+  hasSensor: boolean;
+  daily: ReminderDecisionDto;
+  moisture: ReminderDecisionDto;
+  basis: {
+    dailyIsEstimate: boolean;
+    note: string;
+    windowDays: number;
+    sinceIrrigation: string | null;
+  } | null;
+}
+
+export interface SourceStampDto {
+  name: string;
+  date: string;
+  version: string;
+}
+
+export type SavingsReportDto = {
+  kind: 'report';
+  days: number;
+  areaDecare: number;
+  traditionalMm: number;
+  pusulaMm: number;
+  traditionalM3: number;
+  pusulaM3: number;
+  savedM3: number;
+  savedPct: number;
+  traditionalBasis: 'olculen' | 'beyan' | 'varsayim';
+  pusulaBasis: 'olculen' | 'hesap';
+  isEstimate: boolean;
+  pusulaStressDays: number;
+  traditionalStressDays: number;
+  traditionalDeepPercolationMm: number;
+  pusulaDeepPercolationMm: number;
+  irrigationsPusula: number;
+  irrigationsTraditional: number;
+  assumptions: string[];
+};
+
+export interface SavingsDto {
+  fieldId: string;
+  fieldName: string;
+  generatedAt: string;
+  period: { from: string | null; to: string | null; days: number };
+  method: string;
+  sources: {
+    weather: SourceStampDto;
+    kc: SourceStampDto | null;
+    soil: SourceStampDto | null;
+    waterParams: SourceStampDto | null;
+  };
+  singleKcNote: string;
+  result: SavingsReportDto | { kind: 'none'; reason: string; missing: string[] };
 }
 
 export interface CropDto {
@@ -185,6 +270,24 @@ export interface TodayDto {
   };
 }
 
+export interface SupportMatchDto {
+  support: {
+    id: string;
+    title: string;
+    summary: string;
+    applyFrom?: string | null;
+    applyTo?: string | null;
+    source: string;
+    sourceUrl?: string | null;
+    sourceDate: string;
+    sourceVersion: string;
+  };
+  why: string[];
+  /** Taslak kayıt: çiftçi ekranında hiç gösterilmez. */
+  badge: boolean;
+  status: 'acik' | 'kapali' | 'donem-bilinmiyor' | 'onay-bekliyor';
+}
+
 export interface PlaceDto {
   name: string;
   lat: number;
@@ -224,6 +327,9 @@ export interface MarketNetDto {
 export interface MarketPlaceDto {
   placeId: string;
   name: string;
+  province?: string | null;
+  lat?: number | null;
+  lon?: number | null;
   product: string;
   price: number;
   priceMin: number;
@@ -338,6 +444,11 @@ export function createApi(opts: ApiOptions) {
     ndvi: (fieldId: string) => request<NdviDto>('GET', `/fields/${q(fieldId)}/ndvi`),
     calendar: (fieldId: string, days = 90) =>
       request<CalendarDto>('GET', `/fields/${q(fieldId)}/calendar?days=${days}`),
+    supports: (fieldId: string) =>
+      request<{ matches: SupportMatchDto[]; today: string }>(
+        'GET',
+        `/supports?fieldId=${q(fieldId)}`,
+      ),
     announcements: (fieldId: string) =>
       request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
     registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>
@@ -346,6 +457,21 @@ export function createApi(opts: ApiOptions) {
     kcTable: () => request<KcRowDto[]>('GET', '/crops/kc-table'),
     soils: () => request<SoilRowDto[]>('GET', '/soils'),
     devices: () => request<DeviceDto[]>('GET', '/devices'),
+    registerDevice: (body: DeviceRegister) =>
+      request<DeviceDto & { sample: boolean; message: string }>('POST', '/devices', body),
+    deleteDevice: (id: string) => request<undefined>('DELETE', `/devices/${q(id)}`),
+    readings: (id: string, metric = 'soil-moisture', hours = 72) =>
+      request<ReadingsDto>('GET', `/devices/${q(id)}/readings?metric=${q(metric)}&hours=${hours}`),
+    addReadings: (id: string, csv: string) =>
+      request<{ inserted: number; duplicates: number; rejected: number; errors: unknown[] }>(
+        'POST',
+        `/devices/${q(id)}/readings`,
+        { csv },
+      ),
+    reminders: (fieldId: string, params: string) =>
+      request<RemindersDto>('GET', `/fields/${q(fieldId)}/reminders?${params}`),
+    savings: (fieldId: string, params: string) =>
+      request<SavingsDto>('GET', `/fields/${q(fieldId)}/savings?${params}`),
     deviceStatus: (id: string) => request<DeviceStatusDto>('GET', `/devices/${q(id)}/status`),
     /** Sulama komutu ASLA çevrimdışı sıraya alınmaz: geç icra edilen vana komutu tehlikelidir. */
     sendCommand: (id: string, body: CommandCreate) =>

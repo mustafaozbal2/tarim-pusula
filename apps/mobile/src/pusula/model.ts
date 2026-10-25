@@ -32,3 +32,9 @@ export function speechText(c: PusulaCardDto): string {
 export function errorKey(e: unknown): 'offline' | 'error' {
   return e instanceof Error && e.name === 'NetworkError' ? 'offline' : 'error';
 }
+
+/** Fotoğraf açıklaması boşsa varsayılan soru; doluysa kırpılmış açıklama. */
+export function captionQuestion(caption: string): string {
+  const c = caption.trim();
+  return c.length > 0 ? c : 'Fotoğraftaki sorunu bakar mısın?';
+}

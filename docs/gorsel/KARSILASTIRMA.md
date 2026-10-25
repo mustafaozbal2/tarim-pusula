@@ -8,6 +8,9 @@ Renkler ve yoğunluk: docs/TASARIM_REFERANSI.md.
 | Ekran | Yeni uygulama | Eski uygulama (referans) |
 | --- | --- | --- |
 | Bugün (ana ekran) | ![bugun](./bugun.png) | ![eski uygulama](../referans/eski_uygulama_slayt11.jpg)<br/>Duyurular / Bildirimler, tarih kutulu yeşil satırlar |
+| Arazi İşlemleri | ![arazi-islemleri](./arazi-islemleri.png) | Eski uygulamada karşılığı yok; aynı tema (renk, yoğunluk) uygulandı. |
+| Hava Durumu | ![hava](./hava.png) | Eski uygulamada karşılığı yok; aynı tema (renk, yoğunluk) uygulandı. |
+| Bildirimler | ![bildirimler](./bildirimler.png) | Eski uygulamada karşılığı yok; aynı tema (renk, yoğunluk) uygulandı. |
 | Tarlalarım (liste) | ![tarlalarim](./tarlalarim.png) | ![eski uygulama](../referans/eski_uygulama_slayt13.jpg)<br/>Ana ekran şeması, 6 özellik |
 | Tarla ekle (4 konum yolu) | ![tarla-ekle](./tarla-ekle.png) | Eski uygulamada karşılığı yok; aynı tema (renk, yoğunluk) uygulandı. |
 | Takvim | ![takvim](./takvim.png) | ![eski uygulama](../referans/eski_uygulama_slayt13.jpg)<br/>Ana ekran şeması, 6 özellik |

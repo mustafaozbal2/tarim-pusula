@@ -1,9 +1,12 @@
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Badge, Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
+import { Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
 import type { CalendarEventDto } from '../src/api/client';
 import { eventSource, groupEvents, rangeText } from '../src/calendar/model';
+import { exportableEvents, type PhoneCalendarResult } from '../src/calendar/export';
+import { MonthView } from '../src/calendar/MonthView';
+import { addEventsToPhoneCalendar, shareIcs } from '../src/calendar/phone';
 import { loadCalendar, type CalendarResult } from '../src/calendar/load';
 import { FlowHeader, FlowScreen, Notice } from '../src/components/FlowParts';
 import { tr } from '../src/i18n/tr';
@@ -22,12 +25,6 @@ function EventCard({ e }: { e: CalendarEventDto }) {
       <Text style={styles.when}>{rangeText(e)}</Text>
       <Text style={styles.body}>{e.title}</Text>
       <Text style={styles.small}>{e.detail}</Text>
-      {e.needsBadge ? (
-        <>
-          <Badge label={t.pendingBadge} />
-          <Text style={styles.small}>{t.pendingNote}</Text>
-        </>
-      ) : null}
       <Text style={styles.small} testID="takvim-kaynak">
         {t.source}: {eventSource(e)}
       </Text>
@@ -41,6 +38,7 @@ export default function CalendarScreen() {
   const { fieldId } = useLocalSearchParams<{ fieldId?: string }>();
   const [res, setRes] = useState<CalendarResult | null | undefined>(undefined);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [exportMsg, setExportMsg] = useState<string | null>(null);
 
   const load = useCallback(
     async (pick?: string) => {
@@ -85,7 +83,16 @@ export default function CalendarScreen() {
   }
 
   const { field, data } = res;
-  const groups = groupEvents(data.events);
+  const approved = exportableEvents(data.events);
+  const groups = groupEvents(approved);
+  const exportText = (r: PhoneCalendarResult) =>
+    r.kind === 'added'
+      ? t.exportAdded.replace('{{n}}', String(r.count))
+      : r.kind === 'shared'
+        ? t.exportShared
+        : r.kind === 'downloaded'
+          ? t.exportDownloaded
+          : r.message;
   return (
     <FlowScreen
       footer={
@@ -108,11 +115,36 @@ export default function CalendarScreen() {
         <Text style={styles.body} testID="takvim-urun-yok">
           {t.noCrop}
         </Text>
-      ) : data.events.length === 0 ? (
+      ) : approved.length === 0 ? (
         <Text style={styles.body} testID="takvim-bos">
           {t.empty}
         </Text>
       ) : null}
+      <MonthView events={approved} today={data.today} />
+      <View style={styles.exportRow}>
+        <Button
+          label={t.addToPhone}
+          testID="takvim-telefona-ekle"
+          onPress={() =>
+            void addEventsToPhoneCalendar(approved, field.name).then((r) =>
+              setExportMsg(exportText(r)),
+            )
+          }
+        />
+        <Button
+          label={t.shareIcs}
+          variant="secondary"
+          testID="takvim-ics"
+          onPress={() =>
+            void shareIcs(approved, field.name).then((r) => setExportMsg(exportText(r)))
+          }
+        />
+        {exportMsg ? (
+          <Text style={styles.small} testID="takvim-aktarma-mesaji">
+            {exportMsg}
+          </Text>
+        ) : null}
+      </View>
       {groups.now.length > 0 ? (
         <View style={styles.group} testID="takvim-simdi">
           <Text accessibilityRole="header" style={styles.groupTitle}>
@@ -147,5 +179,6 @@ const styles = StyleSheet.create({
   when: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
   groupTitle: { fontFamily: fontFamily.extrabold, fontSize: 17, color: colors.forest },
   group: { gap: spacing.md },
+  exportRow: { gap: spacing.sm },
   card: { gap: spacing.sm },
 });

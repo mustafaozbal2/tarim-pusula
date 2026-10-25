@@ -5,17 +5,94 @@
   "launch": { "view": "canvas" },
   "pages": [],
   "boards": {
-    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Bugün", "is_interactive": true },
-    "Arazilerim.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Tarlalarım", "is_interactive": true },
-    "Pusula.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Soru sor", "is_interactive": true },
-    "Cevap.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Cevap", "is_interactive": true },
-    "Pazar.dc.html": { "x": 1880, "y": 0, "w": 390, "h": 844, "title": "Pazar", "is_interactive": true },
-    "Sulama.dc.html": { "x": 2350, "y": 0, "w": 390, "h": 844, "title": "Sulama (son faz)", "is_interactive": true },
-    "Konum.dc.html": { "x": 0, "y": 1300, "w": 390, "h": 844, "title": "1 · Tarlan nerede?", "is_interactive": true },
-    "Koy.dc.html": { "x": 470, "y": 1300, "w": 390, "h": 844, "title": "2a · Köyünü seç", "is_interactive": true },
-    "Harita.dc.html": { "x": 940, "y": 1300, "w": 390, "h": 844, "title": "2b · Haritada göster", "is_interactive": true },
-    "Yakin.dc.html": { "x": 1410, "y": 1300, "w": 390, "h": 844, "title": "2c · Yakınım yapsın", "is_interactive": true },
-    "Urun.dc.html": { "x": 1880, "y": 1300, "w": 390, "h": 844, "title": "3 · Ne ekili?", "is_interactive": true }
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Bugün",
+      "is_interactive": true
+    },
+    "Arazilerim.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Tarlalarım",
+      "is_interactive": true
+    },
+    "Pusula.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Soru sor",
+      "is_interactive": true
+    },
+    "Cevap.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Cevap",
+      "is_interactive": true
+    },
+    "Pazar.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Pazar",
+      "is_interactive": true
+    },
+    "Sulama.dc.html": {
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Sulama (son faz)",
+      "is_interactive": true
+    },
+    "Konum.dc.html": {
+      "x": 0,
+      "y": 1300,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Tarlan nerede?",
+      "is_interactive": true
+    },
+    "Koy.dc.html": {
+      "x": 470,
+      "y": 1300,
+      "w": 390,
+      "h": 844,
+      "title": "2a · Köyünü seç",
+      "is_interactive": true
+    },
+    "Harita.dc.html": {
+      "x": 940,
+      "y": 1300,
+      "w": 390,
+      "h": 844,
+      "title": "2b · Haritada göster",
+      "is_interactive": true
+    },
+    "Yakin.dc.html": {
+      "x": 1410,
+      "y": 1300,
+      "w": 390,
+      "h": 844,
+      "title": "2c · Yakınım yapsın",
+      "is_interactive": true
+    },
+    "Urun.dc.html": {
+      "x": 1880,
+      "y": 1300,
+      "w": 390,
+      "h": 844,
+      "title": "3 · Ne ekili?",
+      "is_interactive": true
+    }
   },
   "order": [
     "Main.dc.html",
@@ -32,9 +109,27 @@
   ],
   "notes": {
     "t1": { "x": 0, "y": -260, "text": "Ana ekranlar", "kind": "title1", "maxW": 2740 },
-    "t2": { "x": 0, "y": 1040, "text": "Yeni tarla ekleme: konumu 4 farklı yolla belirle", "kind": "title1", "maxW": 2270 },
-    "s1": { "x": 2830, "y": 0, "w": 400, "text": "Örnek veri: sayılar, tarihler ve fiyatlar gösterim amaçlıdır. Alt menü, düğmeler ve tarla ekleme akışı tıklanabilir.", "fill": "orange" },
-    "s2": { "x": 2360, "y": 1300, "w": 400, "text": "Kural: her ekranda tek ana iş, en az 18 punto yazı, en az 56 px düğme. Kaydetmeden önce konum her zaman düzeltilebilir.", "fill": "green" }
+    "t2": {
+      "x": 0,
+      "y": 1040,
+      "text": "Yeni tarla ekleme: konumu 4 farklı yolla belirle",
+      "kind": "title1",
+      "maxW": 2270
+    },
+    "s1": {
+      "x": 2830,
+      "y": 0,
+      "w": 400,
+      "text": "Örnek veri: sayılar, tarihler ve fiyatlar gösterim amaçlıdır. Alt menü, düğmeler ve tarla ekleme akışı tıklanabilir.",
+      "fill": "orange"
+    },
+    "s2": {
+      "x": 2360,
+      "y": 1300,
+      "w": 400,
+      "text": "Kural: her ekranda tek ana iş, en az 18 punto yazı, en az 56 px düğme. Kaydetmeden önce konum her zaman düzeltilebilir.",
+      "fill": "green"
+    }
   },
   "designSystems": []
 }

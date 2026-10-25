@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button, Card, colors, Durum, fontFamily, fontSize, Rozet, SekmeAnahtari } from '@tarim/ui';
 import type { DeviceDto, FieldDto } from '../../src/api/client';
 import FieldMap from '../../src/components/FieldMap';
-import { OzetKarolari } from '../../src/components/BilgiKarti';
+import { BilgiKarti, OzetKarolari } from '../../src/components/BilgiKarti';
 import { Notice } from '../../src/components/FlowParts';
 import { PendingProposals } from '../../src/components/Proposals';
 import { Screen } from '../../src/components/Screen';
@@ -201,34 +201,7 @@ export default function FieldsScreen() {
           router.push('/tarla-ekle');
         }}
       />
-      <View style={styles.actions}>
-        <Button
-          label={tr.wallet.open}
-          variant="secondary"
-          style={styles.action}
-          onPress={() => router.push('/veri-cuzdani')}
-        />
-        <Button
-          label={tr.settings.open}
-          variant="secondary"
-          style={styles.action}
-          onPress={() => router.push('/ayarlar')}
-        />
-      </View>
-      <View style={styles.actions}>
-        <Button
-          label={tr.lists.open}
-          variant="secondary"
-          style={styles.action}
-          onPress={() => router.push('/kc-listesi')}
-        />
-        <Button
-          label={tr.lists.openSoil}
-          variant="secondary"
-          style={styles.action}
-          onPress={() => router.push('/toprak-turleri')}
-        />
-      </View>
+      <BilgiKarti title={tf.howTitle} lines={[...tf.how]} testID="arazi-nasil" />
     </Screen>
   );
 }

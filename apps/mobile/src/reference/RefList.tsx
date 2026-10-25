@@ -47,7 +47,7 @@ export function RefList(props: {
   return (
     <Screen title={props.title}>
       <Text style={styles.note}>{props.note}</Text>
-      {drafts > 0 ? <Rozet /> : null}
+      {drafts > 0 ? <Rozet label={t.draftValues} /> : null}
       {failed ? (
         <Durum kind="hata" text={t.failed} action={{ label: t.retry, onPress: run }} />
       ) : rows === null ? (

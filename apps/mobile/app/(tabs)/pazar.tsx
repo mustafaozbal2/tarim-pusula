@@ -1,16 +1,22 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Card, Chip, Button, colors, fontFamily, spacing } from '@tarim/ui';
+import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { Button, Card, Chip, colors, fontFamily, spacing } from '@tarim/ui';
 import type { MarketPlaceDto } from '../../src/api/client';
+import { Icon } from '../../src/components/Icon';
+import { ImageSlot } from '../../src/components/ImageSlot';
 import { Screen } from '../../src/components/Screen';
 import { tr } from '../../src/i18n/tr';
-import { loadMarket, type MarketResult } from '../../src/market/load';
+import { chooseMarketPlace, loadMarket, type MarketResult } from '../../src/market/load';
 import {
+  changeArrow,
   dayText,
+  directionsUrl,
   distanceText,
   hasSource,
   netText,
+  pickCurrent,
+  productImageName,
   sourceLine,
   tl,
   trendText,
@@ -20,6 +26,18 @@ import { api } from '../../src/session';
 import { clock } from '../../src/today/model';
 
 const t = tr.market;
+
+function ChangeArrow({ p }: { p: MarketPlaceDto }) {
+  const a = changeArrow(p.trend);
+  const icon = a.dir === 'up' ? 'arrowUp' : a.dir === 'down' ? 'arrowDown' : 'arrowFlat';
+  const color = a.dir === 'up' ? colors.forest : a.dir === 'down' ? colors.brick : colors.textMuted;
+  return (
+    <View style={styles.arrow} testID="pazar-ok" accessibilityLabel={a.text}>
+      <Icon name={icon} size={18} color={color} />
+      <Text style={[styles.arrowText, { color }]}>{a.text}</Text>
+    </View>
+  );
+}
 
 export default function MarketScreen() {
   const [res, setRes] = useState<MarketResult | null>(null);
@@ -48,9 +66,28 @@ export default function MarketScreen() {
     );
   }
 
-  const cur = res.data?.current && hasSource(res.data.current) ? res.data.current : null;
   const places = (res.data?.places ?? []).filter(hasSource);
   const national = (res.data?.national ?? []).filter(hasSource);
+  const pick = res.data
+    ? pickCurrent(res.data, res.fieldProvince, res.chosenPlaceId)
+    : { place: null, basis: 'yok' as const };
+  const cur = pick.place;
+  const cropIndex = Math.max(
+    0,
+    res.crops.findIndex((c) => c.id === res.cropId),
+  );
+  const basisText =
+    pick.basis === 'secilen-yer'
+      ? t.basisChosen
+      : pick.basis === 'arazi-ili'
+        ? t.basisProvince.replace('{{il}}', res.fieldProvince ?? '')
+        : pick.basis === 'en-yeni-kayit'
+          ? t.basisLatest
+          : '';
+  const choose = async (id: string | null) => {
+    await chooseMarketPlace(kv, id);
+    setRes({ ...res, chosenPlaceId: id });
+  };
 
   return (
     <Screen title={t.title}>
@@ -65,12 +102,47 @@ export default function MarketScreen() {
         ))}
       </View>
 
+      <Text style={styles.section}>{t.sellPlaceTitle}</Text>
+      <View style={styles.chips} testID="pazar-satis-yeri">
+        <Chip
+          label={res.fieldProvince ? t.myProvince.replace('{{il}}', res.fieldProvince) : t.myField}
+          selected={res.chosenPlaceId === null}
+          onPress={() => void choose(null)}
+        />
+        {[...places, ...national].map((p) => (
+          <Chip
+            key={p.placeId}
+            label={p.name}
+            selected={res.chosenPlaceId === p.placeId}
+            onPress={() => void choose(p.placeId)}
+          />
+        ))}
+      </View>
+
       {cur ? (
         <Card>
+          <View style={styles.head}>
+            <ImageSlot
+              name={productImageName(cropIndex)}
+              label={res.data?.cropName ?? ''}
+              style={styles.product}
+              testID="pazar-urun-gorsel"
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.placeName}>{res.data?.cropName}</Text>
+              <Text style={styles.small} testID="pazar-konum">
+                {cur.name}
+              </Text>
+              <Text style={styles.small} testID="pazar-konum-neden">
+                {basisText}
+              </Text>
+            </View>
+          </View>
           <Text style={styles.small}>{t.priceLabel}</Text>
           <Text style={styles.price} testID="pazar-fiyat">
             {tl(cur.price)} <Text style={styles.small}>{t.unit}</Text>
           </Text>
+          <ChangeArrow p={cur} />
           <Text style={styles.small}>
             {t.range}: {tl(cur.priceMin)} - {tl(cur.priceMax)}
           </Text>
@@ -126,6 +198,7 @@ export default function MarketScreen() {
 function PlaceCard({ p, open, onWhy }: { p: MarketPlaceDto; open: boolean; onWhy: () => void }) {
   const net = netText(p.net);
   const dist = distanceText(p);
+  const canRoute = typeof p.lat === 'number' && typeof p.lon === 'number';
   return (
     <Card style={styles.place}>
       <View style={styles.placeTop}>
@@ -137,6 +210,7 @@ function PlaceCard({ p, open, onWhy }: { p: MarketPlaceDto; open: boolean; onWhy
         </View>
         <Text style={styles.placePrice}>{tl(p.price)}</Text>
       </View>
+      <ChangeArrow p={p} />
       <Text style={styles.small}>{trendText(p.trend)}</Text>
       <Text style={styles.small}>{t.netTitle}</Text>
       <Text style={styles.net} testID={`pazar-net-${p.placeId}`}>
@@ -146,6 +220,15 @@ function PlaceCard({ p, open, onWhy }: { p: MarketPlaceDto; open: boolean; onWhy
       <Text style={styles.small}>
         {sourceLine(p)} ({dayText(p.date)})
       </Text>
+      {canRoute ? (
+        <Button
+          label={t.directions}
+          testID={`pazar-yol-${p.placeId}`}
+          onPress={() => void Linking.openURL(directionsUrl(Platform.OS, p.lat!, p.lon!, p.name))}
+        />
+      ) : (
+        <Text style={styles.small}>{t.noCoords}</Text>
+      )}
       <Button label={t.netWhy} variant="secondary" onPress={onWhy} />
       {open ? (
         <Text style={styles.small}>
@@ -158,6 +241,8 @@ function PlaceCard({ p, open, onWhy }: { p: MarketPlaceDto; open: boolean; onWhy
 
 const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  head: { flexDirection: 'row', gap: spacing.lg, alignItems: 'center' },
+  product: { width: 64, height: 64, borderRadius: 10 },
   small: { fontFamily: fontFamily.semibold, fontSize: 13, color: colors.textMuted },
   price: { fontFamily: fontFamily.extrabold, fontSize: 26, color: colors.forest },
   trend: { fontFamily: fontFamily.bold, fontSize: 15, color: colors.pistachioText },
@@ -168,4 +253,6 @@ const styles = StyleSheet.create({
   placeName: { fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.forest },
   placePrice: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
   net: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.water },
+  arrow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  arrowText: { fontFamily: fontFamily.extrabold, fontSize: 13 },
 });

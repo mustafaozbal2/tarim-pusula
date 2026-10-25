@@ -8,6 +8,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import { networkInterfaces } from 'node:os';
 import { resolve } from 'node:path';
 import { firewallCommand, lanIPv4 } from './lan.mjs';
+import { syncImages } from './sync-images.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const WEB = 8200;
@@ -45,6 +46,9 @@ function run(label, cmd, args, opts) {
     process.exit(r.status ?? 1);
   }
 }
+
+// 0) images/ -> assets/images (yer tutucu ya da gerçek görseller)
+syncImages();
 
 // 1) Mobil web paketi (demo adresi ve rozeti derlemeye gömülür).
 const mobileDir = resolve(root, 'apps/mobile');

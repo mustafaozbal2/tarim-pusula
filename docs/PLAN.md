@@ -3,6 +3,7 @@
 Hazırlayan: Claude · 19 Ekim 2026 · Önceki sürüm: `TARIM_PUSULA_2_PROJE_PLANI.md` (v1)
 
 **v1'den farklar (kararların ve yeni bulguların işlenmesi):**
+
 - Teknoloji kararı verildi: **Expo (React Native) + TypeScript**. Flutter seçeneği kapandı.
 - Kapsam: **tüm ürünler** baştan kapsamda (pilot ürün yok). Bu, veri modelini "ürün-bağımsız" kurmayı gerektiriyor (§4).
 - Sıfırdan başlıyoruz: eski kod/şema yok.
@@ -14,18 +15,18 @@ Hazırlayan: Claude · 19 Ekim 2026 · Önceki sürüm: `TARIM_PUSULA_2_PROJE_PL
 
 ## 0. Önemli bulgular (kısa)
 
-| # | Bulgu | Etkisi |
-|---|---|---|
-| 1 | **MGM'nin açık API'si görünmüyor ve sitedeki içerik izinsiz kopyalanamıyor/yeniden yayımlanamıyor; atıf zorunlu.** | MGM verisini otomatik çekmeyeceğiz. Sayısal tahmin için Open-Meteo; resmî uyarılar için il müdürlüğü duyuruları + MGM'ye **resmî izin başvurusu** (KEP). Jüri için de "hukuka uygun veri" puan getirir. |
-| 2 | **Bitki Koruma Ürünleri (BKÜ) veri tabanı** Bakanlıkta var (ruhsatlı ürün, tavsiye arama, yasaklı aktif madde Excel'i). API bulamadım. | Yapay zekâ ilaç/doz **uydurmaz**; BKÜ'ye yönlendirir. Yasaklı aktif madde listesi (Excel) ile otomatik güvenlik kontrolü yaparız. |
-| 3 | **Tarım Cebimde** sulama modülü: sulama programını 30 yıllık veriyle çıkarıyor; sizin slayttaki gibi ürün başına **tek sabit Kc** yerine biz **evreye göre Kc** kullanacağız. | Sulamada bilimsel derinlik farkımız. |
-| 4 | FAO-56 Tablo 12'den **meyve ağaçları, tahıl, sebze, baklagil için Kc değerlerini doğrulayarak aldım** (`kc_fao56_seed.csv`). Zeytin, fıstık, badem, ceviz, üzüm, narenciye dahil. İncir ve nar tabloda bulunmadı. | Tüm ürün kapsamının ilk tohum verisi hazır; uzman onayı bekliyor. |
-| 5 | Sentinel-2 NDVI: Copernicus **Statistical API** ile poligon bazında zaman serisi alınabiliyor (OAuth istemcisi gerekir). Ücretsiz kota koşullarını doğrulamadım. | Parsel sağlık haritası mümkün. |
-| 6 | Yapay zekâ danışmanlığı (FarmerChat/Digital Green, Dünya Bankası): **ses**, yerel bağlam ve **insan denetimi** başarının anahtarı; halüsinasyon ciddi risk; çiftçiler en çok **fotoğrafla teşhis**, gübre, evreye özgü uygulama, hava ve **fiyat** soruyor. | Pusula AI'nın ilk günden ses + fotoğraf + fiyat + insan denetimi içermesi gerekiyor (§8). |
-| 7 | Wageningen yaklaşımı: arayüzler kullanıcıyla **birlikte tasarlanıyor**; öneriler **neden verildiğini açıklıyor** (açıklanabilir yapay zekâ). | Her öneri kartında "Neden?" düğmesi (formül/kaynak). |
-| 8 | **Parsel verisi:** TKGM'nin açık, resmî bir parsel API'sini bulamadım (yalnızca mobil uygulama/portal). | Çiftçi parseli haritada kendisi çizer; ada/parsel numarası isteğe bağlı alan. Resmî entegrasyon (ÇKS/TKGM) kurumsal izinle sonraya. |
-| 9 | **Teknofest takvimi:** 2026 yarışmasında son başvuru 28 Şubat 2026, ön değerlendirme formu 31 Mart, sunum 1 Temmuz, final 30 Eylül–4 Ekim (Şanlıurfa). Başvurular Ocak 2026'da açılmıştı. **2027 takvimi henüz yayımlanmamış görünüyor.** | "Aralık" kesin değil; Ocak–Şubat 2027 varsayımıyla geriye doğru plan yaptım (§10). Kesin tarih çıkınca güncelleriz. Üniversite ve üzeri/mezun kategorisi 2026'da 1. için 100.000 ₺. |
-| 10 | Fıstık slaytı: Türkiye dikili alanda dünya payı **%35**, üretimde **%12**; ağaç başı verim ABD **17 kg**, Türkiye **4 kg**; örnek bahçeler 2013'te **93 kg/da**, komşu bahçeler **19 kg/da**. | Jüri sunumunda "problem" slaytı için hazır, güçlü rakamlar (kaynağını rapora yazarız). |
+| #   | Bulgu                                                                                                                                                                                                                                                       | Etkisi                                                                                                                                                                                                  |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **MGM'nin açık API'si görünmüyor ve sitedeki içerik izinsiz kopyalanamıyor/yeniden yayımlanamıyor; atıf zorunlu.**                                                                                                                                          | MGM verisini otomatik çekmeyeceğiz. Sayısal tahmin için Open-Meteo; resmî uyarılar için il müdürlüğü duyuruları + MGM'ye **resmî izin başvurusu** (KEP). Jüri için de "hukuka uygun veri" puan getirir. |
+| 2   | **Bitki Koruma Ürünleri (BKÜ) veri tabanı** Bakanlıkta var (ruhsatlı ürün, tavsiye arama, yasaklı aktif madde Excel'i). API bulamadım.                                                                                                                      | Yapay zekâ ilaç/doz **uydurmaz**; BKÜ'ye yönlendirir. Yasaklı aktif madde listesi (Excel) ile otomatik güvenlik kontrolü yaparız.                                                                       |
+| 3   | **Tarım Cebimde** sulama modülü: sulama programını 30 yıllık veriyle çıkarıyor; sizin slayttaki gibi ürün başına **tek sabit Kc** yerine biz **evreye göre Kc** kullanacağız.                                                                               | Sulamada bilimsel derinlik farkımız.                                                                                                                                                                    |
+| 4   | FAO-56 Tablo 12'den **meyve ağaçları, tahıl, sebze, baklagil için Kc değerlerini doğrulayarak aldım** (`kc_fao56_seed.csv`). Zeytin, fıstık, badem, ceviz, üzüm, narenciye dahil. İncir ve nar tabloda bulunmadı.                                           | Tüm ürün kapsamının ilk tohum verisi hazır; uzman onayı bekliyor.                                                                                                                                       |
+| 5   | Sentinel-2 NDVI: Copernicus **Statistical API** ile poligon bazında zaman serisi alınabiliyor (OAuth istemcisi gerekir). Ücretsiz kota koşullarını doğrulamadım.                                                                                            | Parsel sağlık haritası mümkün.                                                                                                                                                                          |
+| 6   | Yapay zekâ danışmanlığı (FarmerChat/Digital Green, Dünya Bankası): **ses**, yerel bağlam ve **insan denetimi** başarının anahtarı; halüsinasyon ciddi risk; çiftçiler en çok **fotoğrafla teşhis**, gübre, evreye özgü uygulama, hava ve **fiyat** soruyor. | Pusula AI'nın ilk günden ses + fotoğraf + fiyat + insan denetimi içermesi gerekiyor (§8).                                                                                                               |
+| 7   | Wageningen yaklaşımı: arayüzler kullanıcıyla **birlikte tasarlanıyor**; öneriler **neden verildiğini açıklıyor** (açıklanabilir yapay zekâ).                                                                                                                | Her öneri kartında "Neden?" düğmesi (formül/kaynak).                                                                                                                                                    |
+| 8   | **Parsel verisi:** TKGM'nin açık, resmî bir parsel API'sini bulamadım (yalnızca mobil uygulama/portal).                                                                                                                                                     | Çiftçi parseli haritada kendisi çizer; ada/parsel numarası isteğe bağlı alan. Resmî entegrasyon (ÇKS/TKGM) kurumsal izinle sonraya.                                                                     |
+| 9   | **Teknofest takvimi:** 2026 yarışmasında son başvuru 28 Şubat 2026, ön değerlendirme formu 31 Mart, sunum 1 Temmuz, final 30 Eylül–4 Ekim (Şanlıurfa). Başvurular Ocak 2026'da açılmıştı. **2027 takvimi henüz yayımlanmamış görünüyor.**                   | "Aralık" kesin değil; Ocak–Şubat 2027 varsayımıyla geriye doğru plan yaptım (§10). Kesin tarih çıkınca güncelleriz. Üniversite ve üzeri/mezun kategorisi 2026'da 1. için 100.000 ₺.                     |
+| 10  | Fıstık slaytı: Türkiye dikili alanda dünya payı **%35**, üretimde **%12**; ağaç başı verim ABD **17 kg**, Türkiye **4 kg**; örnek bahçeler 2013'te **93 kg/da**, komşu bahçeler **19 kg/da**.                                                               | Jüri sunumunda "problem" slaytı için hazır, güçlü rakamlar (kaynağını rapora yazarız).                                                                                                                  |
 
 **Eksik kalan (dürüstlük):** Teknofest 2026 şartnamesinin puan ağırlıklarını okuyamadım (şartname PDF'sine erişim engelli). Fıstık için evreye özgü don eşiklerini doğrulayamadım; yalnızca zeytin için bir derlemeden değer aldım. İlgili alanlar uzman onayı bekliyor olarak işaretlenecek.
 
@@ -58,38 +59,49 @@ Tarım Cebimde'nin yaptığı genel hizmetleri (ÇKS, hayvan, balıkçılık) **
 ## 3. Kapsam (A'dan Z'ye modüller)
 
 **A. Hesap ve arazi**
+
 - Telefon + SMS OTP (TC kimlik no toplanmaz). Profil, bölge, ilgi alanı.
 - Parsel çizimi (harita), alan otomatik; çoklu arazi; ürün/çeşit/dikim yılı/sulama yöntemi/toprak; not ve fotoğraf; ekip üyesi ekleme (işçi, danışman).
 
 **B. Hava, risk, uyarı**
+
 - Parsel noktasına özel saatlik/günlük/16 gün tahmin; don, dolu, rüzgâr, sıcak dalga, yağış; ilaçlama penceresi.
 - Bildirim: push ve (kritikte) SMS.
 
 **C. Takvim ve duyurular**
+
 - Ürün + konum + fenolojik evreye göre kişisel takvim; kurum duyuruları (hedefli: il/ilçe/köy/ürün); otomatik görevler.
 
 **D. Pusula AI**
+
 - Metin, ses, fotoğraf; araçlarla (hava, takvim, arazi, fiyat, kütüphane) çalışır; kaynaklı cevap; kutu kutu görsel kartlar; video önerisi; uzmana devir.
 
 **E. Kütüphane**
+
 - Kitaplar, raporlar, bitki akademisi, Yanlışı/Doğrusu, Püf Noktası; arama; çevrimdışı indirme; telif/atıf kaydı.
 
 **F. Pazar**
+
 - Güncel fiyat (kaynak ve tarih etiketli), trend, bölgeler arası fark, nerede satarım, net kazanç hesaplayıcı.
 
 **G. Karar destek**
+
 - Ne ekeyim (uygunluk + ekonomi), çeşit önerisi, verim haritası, destek/hibe eşleştirme, maliyet-gelir defteri, hasat kaydı, tarla defteri.
 
 **H. Parsel sağlığı (uydu)**
+
 - Sentinel-2 NDVI zaman serisi, anormal düşüş uyarısı.
 
 **I. Cihazlar ve sulama (son faz, simülatörle başlar)**
+
 - Cihaz ekleme, durum, uzaktan başlat/durdur, zamanlama, otomatik kurallar, sulama geçmişi.
 
 **J. Kurum paneli (web)**
+
 - İçerik girişi, onay kuyruğu, soru yanıtlama, bölge analitiği.
 
 **K. Yönetim**
+
 - Admin, denetim kaydı, içerik/kaynak yönetimi, AI kalite paneli (👍/👎, uzman puanı).
 
 ---
@@ -120,23 +132,24 @@ Bitki (crop)
 
 ## 5. Teknoloji (kesinleşmiş)
 
-| Katman | Seçim |
-|---|---|
-| Mobil + web (masaüstü PWA) | **Expo (React Native) + TypeScript**, Expo Router |
-| Yerel veri / çevrimdışı | SQLite (expo-sqlite) + senkron kuyruğu |
-| Harita | MapLibre (açık kaynak) + açık harita altlığı |
-| Kurum/admin paneli | **Next.js (TypeScript)** |
-| API | **NestJS** modüler monolit, OpenAPI şeması, Zod doğrulama |
-| Veritabanı | **PostgreSQL + PostGIS + pgvector** (+ TimescaleDB, cihaz fazında) |
-| Kuyruk | Redis + BullMQ |
-| AI | **Claude API** (tool-use, görsel, ses metne dönüşüm ayrı servis) + pgvector RAG |
-| Bilimsel hesap | Başlangıçta TypeScript kütüphanesi (`packages/agro-core`); ML gerekirse Python FastAPI |
-| IoT | MQTT (EMQX/Mosquitto) + TLS, ESP32 (donanım gelince) |
-| Depolama | S3 uyumlu |
-| Altyapı | Docker, GitHub Actions CI, AB/Türkiye bölgesi |
-| Test | Vitest/Jest, Playwright (web), Maestro (mobil e2e) |
+| Katman                     | Seçim                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------- |
+| Mobil + web (masaüstü PWA) | **Expo (React Native) + TypeScript**, Expo Router                                      |
+| Yerel veri / çevrimdışı    | SQLite (expo-sqlite) + senkron kuyruğu                                                 |
+| Harita                     | MapLibre (açık kaynak) + açık harita altlığı                                           |
+| Kurum/admin paneli         | **Next.js (TypeScript)**                                                               |
+| API                        | **NestJS** modüler monolit, OpenAPI şeması, Zod doğrulama                              |
+| Veritabanı                 | **PostgreSQL + PostGIS + pgvector** (+ TimescaleDB, cihaz fazında)                     |
+| Kuyruk                     | Redis + BullMQ                                                                         |
+| AI                         | **Claude API** (tool-use, görsel, ses metne dönüşüm ayrı servis) + pgvector RAG        |
+| Bilimsel hesap             | Başlangıçta TypeScript kütüphanesi (`packages/agro-core`); ML gerekirse Python FastAPI |
+| IoT                        | MQTT (EMQX/Mosquitto) + TLS, ESP32 (donanım gelince)                                   |
+| Depolama                   | S3 uyumlu                                                                              |
+| Altyapı                    | Docker, GitHub Actions CI, AB/Türkiye bölgesi                                          |
+| Test                       | Vitest/Jest, Playwright (web), Maestro (mobil e2e)                                     |
 
 **Monorepo yapısı (`tarim-pusula`):**
+
 ```
 apps/mobile      Expo uygulaması (iOS, Android, web)
 apps/panel       Next.js kurum/admin paneli
@@ -168,6 +181,7 @@ docs/                 PLAN.md, ADR'ler, görev tanımları
 ## 7. Cihazlar (son faz) ve sanal simülatör
 
 Donanım yok; bu yüzden:
+
 - `packages/device-sim`: Node ile yazılmış **sanal ESP32**. Gerçek cihazla **aynı MQTT/TLS protokolü**, aynı komut/ack, toprak nemini su bütçesi modeline göre simüle eder.
 - Böylece uçtan uca (uygulama → API → MQTT → cihaz → ack → uygulama) hattı, güvenlik testleri ve kural motoru **donanımsız** geliştirilir ve CI'da test edilir.
 - Donanım geldiğinde yalnızca ESP32 yazılımı (C++/Arduino) yazılır; sunucu tarafı değişmez.
@@ -205,16 +219,16 @@ Donanım yok; bu yüzden:
 
 Varsayım: Teknofest 2027 başvurusu Ocak–Şubat 2027, ön değerlendirme formu Mart 2027. Takvim açıklanınca ayarlarız. Hedef: **Şubat 2027 başında çalışan, test edilmiş, demo edilebilir sürüm** (iOS/Android/web).
 
-| Hafta | Görev | Kabul ölçütü |
-|---|---|---|
-| 1–2 | **G0** Monorepo, CI, Docker, tasarım sistemi, `CLAUDE.md`, `agro-core` iskeleti · **G1** Şema, auth (OTP), RBAC, RLS, denetim | Boş uygulama 3 platformda açılır; yetkisiz erişim testleri geçer |
-| 3–4 | **G2** Arazi/parsel/harita/Bitki Bilgi Paketi altyapısı + Kc tohum yükleme · **G3** Hava (Open-Meteo), ET₀, don olasılığı, bildirim | Alan doğru; Kc paketi yüklü; don uyarısı simülasyonla çalışır |
-| 5–6 | **G4** Takvim + duyuru motoru + hedefleme · **G5** Kurum paneli (giriş, onay) | Hedefli duyuru doğru çiftçiye düşer |
-| 7–8 | **G6** Kütüphane + RAG (PDF→parça→vektör) · **G7** Pusula AI (metin/ses/foto, araçlar, kartlar) | Kaynaklı cevap; test seti ilk skor |
-| 9–10 | **G8** Cihaz simülatörü + MQTT + komut/ack + güvenlik · **G9** Su bütçesi motoru + kural motoru | Uzaktan başlat/durdur (sanal); yetkisiz deneme reddedilir |
-| 11–12 | **G10** Fiyat toplayıcılar + pazar ekranı · **G11** Ürün uygunluk + destek eşleştirme + defter | Fiyat kaynak/tarih etiketli; skor açıklanabilir |
-| 13–14 | **G12** İçerik toplama hattı (kaynak→etiket→onay) · **G13** NDVI, veri cüzdanı, çevrimdışı iyileştirme | Onaylı içerik takvime düşer; NDVI grafiği |
-| 15–16 | **G14** Güvenlik sertleştirme, performans, kullanıcı testi, mağaza paketleri, **doğrulama raporu**, proje detay raporu taslağı | Test paketi yeşil; AI skoru raporlanmış |
+| Hafta | Görev                                                                                                                               | Kabul ölçütü                                                     |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 1–2   | **G0** Monorepo, CI, Docker, tasarım sistemi, `CLAUDE.md`, `agro-core` iskeleti · **G1** Şema, auth (OTP), RBAC, RLS, denetim       | Boş uygulama 3 platformda açılır; yetkisiz erişim testleri geçer |
+| 3–4   | **G2** Arazi/parsel/harita/Bitki Bilgi Paketi altyapısı + Kc tohum yükleme · **G3** Hava (Open-Meteo), ET₀, don olasılığı, bildirim | Alan doğru; Kc paketi yüklü; don uyarısı simülasyonla çalışır    |
+| 5–6   | **G4** Takvim + duyuru motoru + hedefleme · **G5** Kurum paneli (giriş, onay)                                                       | Hedefli duyuru doğru çiftçiye düşer                              |
+| 7–8   | **G6** Kütüphane + RAG (PDF→parça→vektör) · **G7** Pusula AI (metin/ses/foto, araçlar, kartlar)                                     | Kaynaklı cevap; test seti ilk skor                               |
+| 9–10  | **G8** Cihaz simülatörü + MQTT + komut/ack + güvenlik · **G9** Su bütçesi motoru + kural motoru                                     | Uzaktan başlat/durdur (sanal); yetkisiz deneme reddedilir        |
+| 11–12 | **G10** Fiyat toplayıcılar + pazar ekranı · **G11** Ürün uygunluk + destek eşleştirme + defter                                      | Fiyat kaynak/tarih etiketli; skor açıklanabilir                  |
+| 13–14 | **G12** İçerik toplama hattı (kaynak→etiket→onay) · **G13** NDVI, veri cüzdanı, çevrimdışı iyileştirme                              | Onaylı içerik takvime düşer; NDVI grafiği                        |
+| 15–16 | **G14** Güvenlik sertleştirme, performans, kullanıcı testi, mağaza paketleri, **doğrulama raporu**, proje detay raporu taslağı      | Test paketi yeşil; AI skoru raporlanmış                          |
 
 **Her görev:** (1) iş tanımı + kabul ölçütleri + test listesi dosyası (`docs/tasks/Gx.md`), (2) Claude Code uygular, (3) CI yeşil olmadan kapanmaz, (4) ben gözden geçirip eksikleri yeni göreve yazarım. Bir görev bittiğinde çalışan, demo edilebilir bir şey olur.
 
@@ -224,18 +238,19 @@ Varsayım: Teknofest 2027 başvurusu Ocak–Şubat 2027, ön değerlendirme form
 
 ## 11. Riskler (v2)
 
-| Risk | Önlem |
-|---|---|
-| Tarım Cebimde benzerliği | Farkımız (§2); karşılaştırma tablosu raporda |
-| Onaysız bilimsel değer → yanlış uyarı | Onay durumu zorunlu; onaysız değer karar üretmez |
-| AI halüsinasyonu | RAG + araç + kaynak zorunluluğu + test/red-team + insan kuyruğu |
-| MGM verisi izinsiz kullanım | Çekmeyiz; izin başvurusu; Open-Meteo |
-| Open-Meteo ticari kullanım | Yarışmada uygun; ürünleşmede ticari lisans veya self-host |
-| Tüm ürün kapsamı = veri yükü | Ürün-bağımsız şema, tohum veri, onay iş akışı; kapsam derinliği ürün bazında "seviye 1–3" olarak etiketlenir |
-| Takvim belirsizliği | Haftalık plan; takvim netleşince güncelle |
-| Tek kişilik ekip yükü | Görev bazlı otomasyon, test zorunluluğu, kapsam dondurma noktası (Ocak sonu) |
+| Risk                                  | Önlem                                                                                                        |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Tarım Cebimde benzerliği              | Farkımız (§2); karşılaştırma tablosu raporda                                                                 |
+| Onaysız bilimsel değer → yanlış uyarı | Onay durumu zorunlu; onaysız değer karar üretmez                                                             |
+| AI halüsinasyonu                      | RAG + araç + kaynak zorunluluğu + test/red-team + insan kuyruğu                                              |
+| MGM verisi izinsiz kullanım           | Çekmeyiz; izin başvurusu; Open-Meteo                                                                         |
+| Open-Meteo ticari kullanım            | Yarışmada uygun; ürünleşmede ticari lisans veya self-host                                                    |
+| Tüm ürün kapsamı = veri yükü          | Ürün-bağımsız şema, tohum veri, onay iş akışı; kapsam derinliği ürün bazında "seviye 1–3" olarak etiketlenir |
+| Takvim belirsizliği                   | Haftalık plan; takvim netleşince güncelle                                                                    |
+| Tek kişilik ekip yükü                 | Görev bazlı otomasyon, test zorunluluğu, kapsam dondurma noktası (Ocak sonu)                                 |
 
 **Ürün kapsam seviyeleri (tüm ürünler için gerçekçi yaklaşım):**
+
 - Seviye 1 (tüm ürünler): ad, grup, Kc (FAO), genel iklim isteği, hava/don/sulama temel önerileri, kütüphane arama.
 - Seviye 2 (öne çıkan ürünler): evre bazlı takvim, GDD, zararlı/hastalık kartları.
 - Seviye 3 (derin): Fıstık ve zeytin gibi uzman içeriği zengin ürünler (elimizdeki rapor ve duyuru verisi).
@@ -268,6 +283,7 @@ Varsayım: Teknofest 2027 başvurusu Ocak–Şubat 2027, ön değerlendirme form
 - Zeytin don toleransı derlemesi: [PMC9144808](https://pmc.ncbi.nlm.nih.gov/articles/PMC9144808/)
 
 ---
+
 ## Ek (20 Ekim 2026): kararlar
 
 - **Sıra:** önce 2–3 ay yazılım + prototip; ziraat mühendisi görüşmeleri, MGM/kurum izin dilekçeleri yayına (go-live) yakın yapılır.

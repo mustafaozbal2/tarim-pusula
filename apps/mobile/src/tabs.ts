@@ -1,6 +1,6 @@
 import { tr } from './i18n/tr';
 
-/** Sekme sırası: Bugün · Tarlalarım · Soru sor · Pazar (docs/UX_KURALLARI.md). */
+/** Alt çubuk kaldırıldı (G19); bu liste yalnız rotaları kaydeder: Bugün · Arazilerim · Soru sor · Pazar. */
 export const TABS = [
   { route: 'index', label: tr.tabs.today, icon: 'sun' },
   { route: 'tarlalarim', label: tr.tabs.fields, icon: 'map' },

@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * G15: takvim ekranı ve duyuru kartı. Taslak şablon ve duyuru rozetli gelir ("Uzman onayı bekliyor"),
- * kaynak + tarih görünür, "Neden?" gerekçeyi açar.
+ * G15 + G19: takvim ekranı ve duyuru kartı. Onaysız şablon ve duyuru çiftçi ekranında hiç görünmez;
+ * onaylılarda kaynak + tarih görünür, "Neden?" gerekçeyi açar.
  */
 test('Takvim: şimdi ve yaklaşan işler, rozet, kaynak, Neden?; duyuru kartı kaynak + tarih + Neden?', async ({
   page,
@@ -22,8 +22,8 @@ test('Takvim: şimdi ve yaklaşan işler, rozet, kaynak, Neden?; duyuru kartı k
     },
   });
   expect(created.status()).toBe(201);
-  expect((await page.request.get('/__e2e/calendar-seed')).ok()).toBe(true);
-  expect((await page.request.get('/__e2e/announce')).ok()).toBe(true);
+  expect((await page.request.get('/__e2e/calendar-seed?approve=1')).ok()).toBe(true);
+  expect((await page.request.get('/__e2e/announce?approve=1')).ok()).toBe(true);
   await page.addInitScript(
     ([api, token]) => {
       localStorage.setItem('config.apiUrl', api!);
@@ -37,7 +37,7 @@ test('Takvim: şimdi ve yaklaşan işler, rozet, kaynak, Neden?; duyuru kartı k
   await expect(page.getByTestId('takvim-tarla')).toHaveText('Burç Köyü Fıstık Bahçesi');
   const now = page.getByTestId('takvim-simdi');
   await expect(now).toContainText('Bahçe temizliği');
-  await expect(now.getByText('Uzman onayı bekliyor', { exact: true })).toBeVisible();
+  await expect(page.getByText(/onayı bekl/i)).toHaveCount(0);
   await expect(now.getByTestId('takvim-kaynak')).toContainText('e2e Rehberi · v1 · 2026-01-01');
   const soon = page.getByTestId('takvim-yaklasan');
   await expect(soon).toContainText('Budama');
@@ -48,7 +48,7 @@ test('Takvim: şimdi ve yaklaşan işler, rozet, kaynak, Neden?; duyuru kartı k
   // Bugün: duyuru kartı.
   await page.goto('/');
   await page
-    .getByTestId('liste-satiri')
+    .getByTestId('kart-seridi-kart')
     .filter({ hasText: 'Sulama toplantısı duyurusu' })
     .first()
     .click();
@@ -57,7 +57,7 @@ test('Takvim: şimdi ve yaklaşan işler, rozet, kaynak, Neden?; duyuru kartı k
     .filter({ hasText: 'Sulama toplantısı duyurusu' })
     .first();
   await expect(card).toContainText('Sulama toplantısı duyurusu');
-  await expect(card.getByText('Uzman onayı bekliyor', { exact: true })).toBeVisible();
+  await expect(page.getByText(/onayı bekl/i)).toHaveCount(0);
   await expect(card.getByTestId('duyuru-kaynak')).toContainText(
     'Kaynak: Gaziantep İl Tarım ve Orman Müdürlüğü · Yayın:',
   );

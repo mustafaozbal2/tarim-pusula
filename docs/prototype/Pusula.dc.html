@@ -1,63 +1,336 @@
 <!doctype html>
 <html lang="tr">
-<head>
-<meta charset="utf-8">
-<title>Soru sor</title>
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
-<style>
-body{margin:0;font-family:'Manrope',system-ui,sans-serif}
-a{color:inherit;text-decoration:none}
-</style>
-</helmet>
-<div style="width:390px;height:844px;box-sizing:border-box;background:#F4F6F0;color:#14392B;font-family:'Manrope',system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden">
+  <head>
+    <meta charset="utf-8" />
+    <title>Soru sor</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            font-family: 'Manrope', system-ui, sans-serif;
+          }
+          a {
+            color: inherit;
+            text-decoration: none;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          box-sizing: border-box;
+          background: #f4f6f0;
+          color: #14392b;
+          font-family: 'Manrope', system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        "
+      >
+        <div style="padding: 20px 20px 0; font-size: 28px; font-weight: 800">
+          Ne öğrenmek istiyorsun?
+        </div>
+        <div style="padding: 6px 20px 0; font-size: 18px; color: #3e5247; font-weight: 600">
+          Konuş, fotoğraf çek ya da yaz.
+        </div>
 
-  <div style="padding:20px 20px 0;font-size:28px;font-weight:800">Ne öğrenmek istiyorsun?</div>
-  <div style="padding:6px 20px 0;font-size:18px;color:#3E5247;font-weight:600">Konuş, fotoğraf çek ya da yaz.</div>
+        <div style="display: flex; flex-direction: column; align-items: center; margin-top: 36px">
+          <a
+            href="Cevap.dc.html"
+            aria-label="Konuşarak sor"
+            style="
+              width: 148px;
+              height: 148px;
+              border-radius: 74px;
+              background: #14392b;
+              color: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 0 0 14px #e3efd2;
+            "
+          >
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="9" y="3" width="6" height="11" rx="3" />
+              <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+            </svg>
+          </a>
+          <div style="font-size: 22px; font-weight: 800; margin-top: 28px">Basılı tut ve konuş</div>
+        </div>
 
-  <div style="display:flex;flex-direction:column;align-items:center;margin-top:36px">
-    <a href="Cevap.dc.html" aria-label="Konuşarak sor" style="width:148px;height:148px;border-radius:74px;background:#14392B;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 14px #E3EFD2">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
-    </a>
-    <div style="font-size:22px;font-weight:800;margin-top:28px">Basılı tut ve konuş</div>
-  </div>
+        <div style="display: flex; gap: 12px; padding: 32px 20px 0">
+          <a
+            href="Cevap.dc.html"
+            style="
+              flex: 1;
+              min-height: 72px;
+              border-radius: 20px;
+              background: #ffffff;
+              border: 1px solid #dce3d5;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              font-size: 16px;
+              font-weight: 800;
+            "
+          >
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+              <circle cx="12" cy="13" r="3.5" /></svg
+            >Fotoğraf çek</a
+          >
+          <a
+            href="Cevap.dc.html"
+            style="
+              flex: 1;
+              min-height: 72px;
+              border-radius: 20px;
+              background: #ffffff;
+              border: 1px solid #dce3d5;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              font-size: 16px;
+              font-weight: 800;
+            "
+          >
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 20l4-1 11-11-3-3L5 16z" /></svg
+            >Yazarak sor</a
+          >
+        </div>
 
-  <div style="display:flex;gap:12px;padding:32px 20px 0">
-    <a href="Cevap.dc.html" style="flex:1;min-height:72px;border-radius:20px;background:#FFFFFF;border:1px solid #DCE3D5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:16px;font-weight:800">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Fotoğraf çek</a>
-    <a href="Cevap.dc.html" style="flex:1;min-height:72px;border-radius:20px;background:#FFFFFF;border:1px solid #DCE3D5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:16px;font-weight:800">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>Yazarak sor</a>
-  </div>
+        <div style="padding: 24px 20px 8px; font-size: 16px; font-weight: 800; color: #3e5247">
+          Sık sorulanlar
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 0 20px">
+          <a
+            href="Cevap.dc.html"
+            style="
+              min-height: 56px;
+              border-radius: 16px;
+              background: #ffffff;
+              border: 1px solid #dce3d5;
+              display: flex;
+              align-items: center;
+              padding: 0 16px;
+              font-size: 18px;
+              font-weight: 700;
+            "
+            >Zeytin ne zaman budanır?</a
+          >
+          <a
+            href="Cevap.dc.html"
+            style="
+              min-height: 56px;
+              border-radius: 16px;
+              background: #ffffff;
+              border: 1px solid #dce3d5;
+              display: flex;
+              align-items: center;
+              padding: 0 16px;
+              font-size: 18px;
+              font-weight: 700;
+            "
+            >Don olacak, ne yapayım?</a
+          >
+        </div>
 
-  <div style="padding:24px 20px 8px;font-size:16px;font-weight:800;color:#3E5247">Sık sorulanlar</div>
-  <div style="display:flex;flex-direction:column;gap:8px;padding:0 20px">
-    <a href="Cevap.dc.html" style="min-height:56px;border-radius:16px;background:#FFFFFF;border:1px solid #DCE3D5;display:flex;align-items:center;padding:0 16px;font-size:18px;font-weight:700">Zeytin ne zaman budanır?</a>
-    <a href="Cevap.dc.html" style="min-height:56px;border-radius:16px;background:#FFFFFF;border:1px solid #DCE3D5;display:flex;align-items:center;padding:0 16px;font-size:18px;font-weight:700">Don olacak, ne yapayım?</a>
-  </div>
+        <div style="flex: 1"></div>
 
-  <div style="flex:1"></div>
-
-  <nav style="display:flex;background:#FFFFFF;border-top:1px solid #DCE3D5;padding:6px 8px 12px">
-    <a href="Main.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#4F6258;font-size:13px;font-weight:700">
-      <span style="height:32px;display:flex;align-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg></span>Bugün</a>
-    <a href="Arazilerim.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#4F6258;font-size:13px;font-weight:700">
-      <span style="height:32px;display:flex;align-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span>Tarlalarım</a>
-    <a href="Pusula.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#14392B;font-size:13px;font-weight:800">
-      <span style="width:60px;height:32px;border-radius:16px;background:#E3EFD2;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span>Soru sor</a>
-    <a href="Pazar.dc.html" style="flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#4F6258;font-size:13px;font-weight:700">
-      <span style="height:32px;display:flex;align-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-4 3 3 5-6"/></svg></span>Pazar</a>
-  </nav>
-</div>
-</x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-  renderVals() { return {}; }
-}
-</script>
-</body>
+        <nav
+          style="
+            display: flex;
+            background: #ffffff;
+            border-top: 1px solid #dce3d5;
+            padding: 6px 8px 12px;
+          "
+        >
+          <a
+            href="Main.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #4f6258;
+              font-size: 13px;
+              font-weight: 700;
+            "
+          >
+            <span style="height: 32px; display: flex; align-items: center"
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path
+                  d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"
+                /></svg></span
+            >Bugün</a
+          >
+          <a
+            href="Arazilerim.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #4f6258;
+              font-size: 13px;
+              font-weight: 700;
+            "
+          >
+            <span style="height: 32px; display: flex; align-items: center"
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" />
+                <path d="M9 4v14M15 6v14" /></svg></span
+            >Tarlalarım</a
+          >
+          <a
+            href="Pusula.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #14392b;
+              font-size: 13px;
+              font-weight: 800;
+            "
+          >
+            <span
+              style="
+                width: 60px;
+                height: 32px;
+                border-radius: 16px;
+                background: #e3efd2;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" /></svg></span
+            >Soru sor</a
+          >
+          <a
+            href="Pazar.dc.html"
+            style="
+              flex: 1;
+              min-height: 60px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              color: #4f6258;
+              font-size: 13px;
+              font-weight: 700;
+            "
+          >
+            <span style="height: 32px; display: flex; align-items: center"
+              ><svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 19V5M4 19h16" />
+                <path d="M8 15l4-4 3 3 5-6" /></svg></span
+            >Pazar</a
+          >
+        </nav>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() { return {}; }
+      }
+    </script>
+  </body>
 </html>

@@ -16,6 +16,7 @@ import { CLOCK } from '../weather/tokens';
 interface Row {
   placeId: string;
   place: string;
+  province: string | null;
   lat: number | null;
   lon: number | null;
   approx: boolean;
@@ -31,6 +32,11 @@ interface Row {
 export interface PlacePrice {
   placeId: string;
   name: string;
+  /** Yerin ili (satış yeri seçici ve "arazimin ili" eşlemesi için). */
+  province: string | null;
+  /** Yerin koordinatı (Yol tarifi); yoksa null. */
+  lat: number | null;
+  lon: number | null;
   product: string;
   /** (alt + üst) / 2, TL/kg */
   price: number;
@@ -118,7 +124,7 @@ export class MarketService {
         [cropId],
       );
       const rows = await q.query<Row>(
-        `SELECT p.place_id AS "placeId", pl.name AS place, pl.lat, pl.lon, pl.approx,
+        `SELECT p.place_id AS "placeId", pl.name AS place, pl.province, pl.lat, pl.lon, pl.approx,
                 p.product_name AS product, p.price_min::float8 AS min, p.price_max::float8 AS max,
                 p.price_date::text AS date, p.source_version AS version, p.source_url AS url, s.name AS source
          FROM market_prices p
@@ -175,6 +181,9 @@ export class MarketService {
       items.push({
         placeId: latest.placeId,
         name: latest.place,
+        province: latest.province,
+        lat: latest.lat,
+        lon: latest.lon,
         product: latest.product,
         price: latest.price,
         priceMin: latest.min,

@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
-import { Badge, BigChoice, Button, colors, fontFamily, fontSize, radius } from '@tarim/ui';
+import { BigChoice, Button, colors, fontFamily, fontSize, radius } from '@tarim/ui';
 import {
   FlowHeader,
   FlowScreen,
@@ -57,7 +57,6 @@ export default function CropScreen() {
         : [...tr.commonCrops],
     [crops],
   );
-  const chosen = crops?.find((c) => c.id === draft.cropId);
   const list = (crops ?? []).filter((c) => !search || fold(c.nameTr).includes(fold(search)));
 
   async function save() {
@@ -125,7 +124,6 @@ export default function CropScreen() {
             <BigChoice
               key={c.id}
               title={c.nameTr}
-              hint={c.needsBadge ? t.pendingShort : undefined}
               selected={draft.cropId === c.id}
               onPress={() => {
                 updateDraft((d) => ({ ...d, cropId: c.id }));
@@ -198,7 +196,6 @@ export default function CropScreen() {
             tr.commonCrops.find((c) => c.id === draft.cropId)?.name}
         </Text>
       ) : null}
-      {chosen?.needsBadge && !showAll ? <Badge label={t.cropPending} /> : null}
       {missing && !draft.cropId ? <Notice tone="warn">{t.cropMissing}</Notice> : null}
 
       {!showAll ? (

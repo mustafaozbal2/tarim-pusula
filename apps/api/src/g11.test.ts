@@ -225,6 +225,11 @@ describe('veri cüzdanı: dışa aktarma tüm kullanıcı verisini içerir', () 
       )
     )[0]!;
     await sql(
+      `INSERT INTO device_readings(device_id, field_id, recorded_by, at, metric, value, unit, source)
+       VALUES ($1,$2,$3, now(), 'soil-moisture', 0.21, 'm3/m3', 'csv-elle')`,
+      [dev.id, aliField, ali.userId],
+    );
+    await sql(
       `INSERT INTO irrigation_commands(device_id, field_id, user_id, action, minutes, idempotency_key,
          created_at, expires_at) VALUES ($1,$2,$3,'open',10,'idem-12345678', now(), now() + interval '1 minute')`,
       [dev.id, aliField, ali.userId],

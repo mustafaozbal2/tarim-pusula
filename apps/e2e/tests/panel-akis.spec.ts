@@ -113,13 +113,11 @@ test('duyuru oluştur > düzenle > onayla > mobilde görünür > sil', async ({ 
     inst.getByTestId('duyuru-liste-satir').filter({ hasText: 'Zeytinde kış budaması (güncel)' }),
   ).toBeVisible();
 
-  // Mobil: taslak olarak rozetli görünür (satıra dokununca ayrıntı + görsel)
+  // Mobil: onaysız duyuru çiftçiye hiç gösterilmez (rozet de yok)
   await mobile.goto('/');
-  const news = mobile.getByTestId('bugun-duyurular');
-  await expect(news).toContainText('Zeytinde kış budaması (güncel)');
-  await expect(news).toContainText('Uzman onayı bekliyor');
-  await news.getByTestId('liste-satiri').filter({ hasText: 'güncel' }).click();
-  await expect(news.getByTestId('duyuru-gorsel')).toBeVisible();
+  await expect(mobile.getByTestId('bugun-tarla')).toHaveText('Efeler Zeytinliği');
+  await expect(mobile.getByText('Zeytinde kış budaması')).toHaveCount(0);
+  await expect(mobile.getByText('Uzman onayı bekliyor')).toHaveCount(0);
 
   // 3) Uzman onaylar
   const e = await staff(expert, 'expert');
@@ -129,14 +127,15 @@ test('duyuru oluştur > düzenle > onayla > mobilde görünür > sil', async ({ 
   await item.getByTestId('duyuru-onayla').click();
   await expect(expert.getByText('Duyuru onaylandı.')).toBeVisible();
 
-  // 4) Mobilde rozetsiz görünür
+  // 4) Mobilde kart şeridinde görünür; karta dokununca ayrıntı + görsel
   await mobile.reload();
-  await expect(mobile.getByTestId('bugun-duyurular')).toContainText(
-    'Zeytinde kış budaması (güncel)',
-  );
-  await expect(mobile.getByTestId('bugun-duyurular')).not.toContainText('Uzman onayı bekliyor');
+  const card = mobile
+    .getByTestId('kart-seridi-kart')
+    .filter({ hasText: 'Zeytinde kış budaması (güncel)' });
+  await expect(card).toBeVisible();
+  await expect(mobile.getByText('Uzman onayı bekliyor')).toHaveCount(0);
 
-  // 5) Onayı geri çek (gerekçeli): yeniden rozetli
+  // 5) Onayı geri çek (gerekçeli): çiftçiden yeniden gizlenir
   const approved = expert.getByTestId('onayli-duyuru').filter({ hasText: 'güncel' });
   await approved.getByTestId('duyuru-geri-cek').click();
   await expect(expert.getByTestId('onay-tamam')).toBeDisabled(); // gerekçe zorunlu
@@ -144,7 +143,8 @@ test('duyuru oluştur > düzenle > onayla > mobilde görünür > sil', async ({ 
   await expert.getByTestId('onay-tamam').click();
   await expect(expert.getByText('Onay geri çekildi')).toBeVisible();
   await mobile.reload();
-  await expect(mobile.getByTestId('bugun-duyurular')).toContainText('Uzman onayı bekliyor');
+  await expect(mobile.getByTestId('bugun-tarla')).toHaveText('Efeler Zeytinliği');
+  await expect(mobile.getByText('Zeytinde kış budaması')).toHaveCount(0);
 
   // 6) Sil: onay penceresi, vazgeçince kalır, onaylayınca gider
   await inst.reload();
@@ -163,7 +163,8 @@ test('duyuru oluştur > düzenle > onayla > mobilde görünür > sil', async ({ 
 
   // Mobil: silinen duyuru kalmadı
   await mobile.reload();
-  await expect(mobile.getByTestId('bugun-duyurular')).toHaveCount(0);
+  await expect(mobile.getByTestId('bugun-tarla')).toHaveText('Efeler Zeytinliği');
+  await expect(mobile.getByText('Zeytinde kış budaması')).toHaveCount(0);
 
   await Promise.all([mobileCtx.close(), instCtx.close(), expertCtx.close()]);
 });

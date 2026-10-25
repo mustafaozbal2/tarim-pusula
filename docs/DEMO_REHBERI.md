@@ -20,9 +20,9 @@ pnpm run demo
 
 ## Giriş bilgileri
 
-| Nerede | Telefon | Kod |
-| --- | --- | --- |
-| Mobil (çiftçi) | +905320000001 (kendiliğinden dolar) | Ekranın altında yazan "Demo kodu: 123456" |
+| Nerede                   | Telefon                             | Kod                                             |
+| ------------------------ | ----------------------------------- | ----------------------------------------------- |
+| Mobil (çiftçi)           | +905320000001 (kendiliğinden dolar) | Ekranın altında yazan "Demo kodu: 123456"       |
 | Panel (kurum yöneticisi) | +905320000002 (kendiliğinden dolar) | SMS adımında da, doğrulayıcı adımında da 123456 |
 
 Panelde ilk girişte doğrulayıcı kurulum ekranı çıkar; telefona uygulama kurmanız gerekmez, 123456 yazın.

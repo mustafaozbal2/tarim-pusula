@@ -30,6 +30,9 @@ const MIME: Record<string, string> = {
   '.json': 'application/json',
   '.ttf': 'font/ttf',
   '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.map': 'application/json',
 };
@@ -200,6 +203,11 @@ async function main() {
              ON CONFLICT DO NOTHING`,
             [sm, sd, em, ed, lm, ld, xm, xd],
           );
+          if (url.searchParams.get('approve') === '1') {
+            await q.query(
+              `UPDATE calendar_templates SET review_status = 'uzman-onayli' WHERE source = 'e2e Rehberi'`,
+            );
+          }
         });
         res.end('ok');
         return;

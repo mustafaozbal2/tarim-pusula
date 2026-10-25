@@ -14,3 +14,6 @@ export * from './market';
 export * from './suitability';
 export * from './supports';
 export * from './ndvi';
+export * from './ics';
+export * from './reminders';
+export * from './savings';

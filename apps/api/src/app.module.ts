@@ -29,6 +29,12 @@ import {
 } from './controllers.g2';
 import { AnnouncementsController, FieldCalendarController } from './controllers.g4';
 import { PanelController, PanelMfaController } from './controllers.g5';
+import {
+  DeviceReadingsController,
+  RemindersController,
+  SavingsController,
+  WaterParamsController,
+} from './controllers.g21';
 import { SuitabilityController, SupportsController, WalletController } from './decision';
 import { LibraryController } from './controllers.g6';
 import { defaultIngestDir, INGEST_DIR, IngestController } from './ingest/controller';
@@ -139,6 +145,10 @@ export class AppModule {
         LibraryController,
         PusulaController,
         IrrigationController,
+        DeviceReadingsController,
+        WaterParamsController,
+        SavingsController,
+        RemindersController,
         MarketController,
         MarketJobsController,
         CleanupController,

@@ -31,15 +31,12 @@ function today(over: Partial<TodayDto['frost']> = {}, water: TodayDto['waterNeed
 }
 
 describe('buildNotifications', () => {
-  it('onaysız eşikte uyarı satırı yoktur; yalnız bilgi', () => {
+  it('onaysız eşikte don ve su satırı hiç yoktur; "onay bekliyor" yazısı çıkmaz', () => {
     const rows = buildNotifications(today());
-    expect(rows.length).toBeGreaterThanOrEqual(5);
-    expect(rows.find((r) => r.id === 'don')).toMatchObject({
-      title: 'Don uyarısı için uzman onayı bekliyor',
-      tone: 'normal',
-    });
+    expect(rows.length).toBeGreaterThanOrEqual(3);
+    expect(rows.some((r) => r.id === 'don' || r.id === 'su')).toBe(false);
     expect(rows.some((r) => r.tone === 'warning')).toBe(false);
-    expect(rows.find((r) => r.id === 'su')?.title).toMatch(/uzman onayı/);
+    expect(JSON.stringify(rows)).not.toMatch(/onayı bekl/i);
   });
 
   it('sıcaklık satırı yuvarlanmış değer verir, yağış yokken yağış satırı yoktur', () => {

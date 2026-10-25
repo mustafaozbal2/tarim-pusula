@@ -11,27 +11,25 @@ export interface NotificationRow {
 
 /**
  * Bildirimler sekmesi satırları. Yalnız sunucunun ürettiği olgulardan türetilir; uzman onayı olmayan
- * veri uyarı satırı üretmez (değişmez kural 1): don/su satırı "uzman onayı bekliyor" bilgisi olarak kalır.
+ * veri uyarı satırı üretmez (değişmez kural 1) ve satır olarak da gösterilmez.
  */
 export function buildNotifications(today: TodayDto): NotificationRow[] {
   const date = today.generatedAt;
   const rows: NotificationRow[] = [];
   const frost = frostCardModel(today.frost);
-  rows.push({
-    id: 'don',
-    date,
-    title: frost.title,
-    tone: frost.kind === 'warning' || frost.kind === 'watch' ? 'warning' : 'normal',
-  });
+  // Onaysız bilgi satırı çiftçiye hiç gösterilmez (ne uyarı ne "onay bekliyor" yazısı).
+  if (frost.kind !== 'pending' && frost.kind !== 'unavailable') {
+    rows.push({
+      id: 'don',
+      date,
+      title: frost.title,
+      tone: frost.kind === 'warning' || frost.kind === 'watch' ? 'warning' : 'normal',
+    });
+  }
   const water = waterNeedText(today.waterNeed);
-  rows.push({
-    id: 'su',
-    date,
-    title: water
-      ? `Bitkinin bugünkü su ihtiyacı ${water}`
-      : 'Su ihtiyacı için uzman onayı bekleniyor',
-    tone: 'normal',
-  });
+  if (water) {
+    rows.push({ id: 'su', date, title: `Bitkinin bugünkü su ihtiyacı ${water}`, tone: 'normal' });
+  }
   rows.push({
     id: 'hava',
     date,

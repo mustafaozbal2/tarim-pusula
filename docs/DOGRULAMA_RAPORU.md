@@ -5,31 +5,31 @@ Aşağıdaki sayılar bu tarihte çalıştırılan komutların **gerçek çıkt�
 
 ## 0. Özet — kök `pnpm run verify`
 
-| Paket | Test dosyası | Test | Sonuç |
-|---|---:|---:|---|
-| @tarim/agro-core | 12 | 173 | geçti |
-| @tarim/api | 16 | 264 | geçti |
-| @tarim/mobile | 10 | 90 | geçti |
-| @tarim/device-sim | 1 | 24 | geçti |
-| @tarim/schemas | 1 | 19 | geçti |
-| @tarim/workers | 1 | 11 | geçti |
-| @tarim/ui | 1 | 10 | geçti |
-| @tarim/panel | 2 | 6 | geçti |
-| Playwright e2e (web paketi + panel) | — | 19 | 19 geçti (1,6 dk) |
-| **Toplam** | 44 | **597** (birim/API) + 19 e2e | **27/27 görev yeşil**, lint + typecheck + prettier temiz |
+| Paket                               | Test dosyası |                         Test | Sonuç                                                    |
+| ----------------------------------- | -----------: | ---------------------------: | -------------------------------------------------------- |
+| @tarim/agro-core                    |           12 |                          173 | geçti                                                    |
+| @tarim/api                          |           16 |                          264 | geçti                                                    |
+| @tarim/mobile                       |           10 |                           90 | geçti                                                    |
+| @tarim/device-sim                   |            1 |                           24 | geçti                                                    |
+| @tarim/schemas                      |            1 |                           19 | geçti                                                    |
+| @tarim/workers                      |            1 |                           11 | geçti                                                    |
+| @tarim/ui                           |            1 |                           10 | geçti                                                    |
+| @tarim/panel                        |            2 |                            6 | geçti                                                    |
+| Playwright e2e (web paketi + panel) |            — |                           19 | 19 geçti (1,6 dk)                                        |
+| **Toplam**                          |           44 | **597** (birim/API) + 19 e2e | **27/27 görev yeşil**, lint + typecheck + prettier temiz |
 
 ## 1. ET0 (FAO-56 Penman-Monteith) doğrulaması
 
 Kaynak: Allen vd. (1998), FAO Irrigation and Drainage Paper 56, **Örnek 18** (Uccle/Brüksel, 6 Temmuz; Tmin 12,3 / Tmax 21,5 °C; RH 84/63 %; rüzgâr 10 m'de 10 km/sa; güneşlenme 9,25 sa; 100 m; 50,8° K). Test: `packages/agro-core/src/g3.test.ts`.
 
-| Büyüklük | Kitap | Kodumuzun çıktısı | Fark |
-|---|---:|---:|---:|
-| ET0 (mm/gün) | 3,9 | **3,880** | 0,020 (ölçüt ±0,05) |
-| es (kPa) | 1,997 | 1,9975 | < 0,001 |
-| ea (kPa) | 1,409 | 1,4086 | < 0,001 |
-| Rs (MJ m⁻² gün⁻¹) | 22,07 | 22,072 | < 0,01 |
-| Rn (MJ m⁻² gün⁻¹) | 13,28 | 13,283 | < 0,01 |
-| Δ (kPa/°C) | 0,122 | 0,1221 | < 0,001 |
+| Büyüklük          | Kitap | Kodumuzun çıktısı |                Fark |
+| ----------------- | ----: | ----------------: | ------------------: |
+| ET0 (mm/gün)      |   3,9 |         **3,880** | 0,020 (ölçüt ±0,05) |
+| es (kPa)          | 1,997 |            1,9975 |             < 0,001 |
+| ea (kPa)          | 1,409 |            1,4086 |             < 0,001 |
+| Rs (MJ m⁻² gün⁻¹) | 22,07 |            22,072 |              < 0,01 |
+| Rn (MJ m⁻² gün⁻¹) | 13,28 |            13,283 |              < 0,01 |
+| Δ (kPa/°C)        | 0,122 |            0,1221 |             < 0,001 |
 
 Ara denklemler ayrıca kitap örnekleriyle sınanır: doygun buhar basıncı Ö.2-3 (e°(24,5)=3,075), basınç (100 m = 100,1 kPa), psikrometrik sabit, rüzgârın 2 m'ye indirilmesi (2,78 → 2,08), Ra Ö.8 (≈32,2), yılın günü (6 Temmuz = 187). Ek: GDD kırpması, 6,5 °C/km yükselti düzeltmesi, Tmax < Tmin hatası, negatif ET0 olmaması.
 Su dengesi çekirdeği (`waterBalance.test.ts`, ~30 test) ve don olasılığı (`g3.test.ts`) aynı pakette geçer: agro-core 173/173.
@@ -40,18 +40,18 @@ Su dengesi çekirdeği (`waterBalance.test.ts`, ~30 test) ve don olasılığı (
 Küme: `docs/eval/questions.jsonl`, 205 soru; koşucu `apps/api/src/pusula/eval.ts`; tam rapor `docs/eval/last-report.md` (bu görevde yeniden üretildi).
 Sağlayıcı: **`test` (belirlenimci SAHTE sağlayıcı)**. Gerçek Claude API'ye çağrı yapılmadı (anahtar yok).
 
-| Kategori | Soru | Geçen | Güvenlik kategorisi |
-|---|---:|---:|:---:|
-| doz / karışım isteği | 55 | 55 | evet |
-| prompt enjeksiyonu (doğrudan + kütüphane belgesinden) | 28 | 28 | evet |
-| yetkisiz (başkasının tarlası) | 20 | 20 | evet |
-| fotoğrafla teşhis | 10 | 10 | evet |
-| onaysız bilgi | 6 | 6 | evet |
-| kütüphane atıfı | 30 | 30 | |
-| hava / hava (tarlasız) | 15 / 4 | 15 / 4 | |
-| fiyat / video | 7 / 3 | 7 / 3 | |
-| kapsam dışı / uzmana devret | 19 / 8 | 19 / 8 | |
-| **Toplam** | **205** | **205 (%100)** | güvenlik: tek hata testi düşürür |
+| Kategori                                              |    Soru |          Geçen |       Güvenlik kategorisi        |
+| ----------------------------------------------------- | ------: | -------------: | :------------------------------: |
+| doz / karışım isteği                                  |      55 |             55 |               evet               |
+| prompt enjeksiyonu (doğrudan + kütüphane belgesinden) |      28 |             28 |               evet               |
+| yetkisiz (başkasının tarlası)                         |      20 |             20 |               evet               |
+| fotoğrafla teşhis                                     |      10 |             10 |               evet               |
+| onaysız bilgi                                         |       6 |              6 |               evet               |
+| kütüphane atıfı                                       |      30 |             30 |                                  |
+| hava / hava (tarlasız)                                |  15 / 4 |         15 / 4 |                                  |
+| fiyat / video                                         |   7 / 3 |          7 / 3 |                                  |
+| kapsam dışı / uzmana devret                           |  19 / 8 |         19 / 8 |                                  |
+| **Toplam**                                            | **205** | **205 (%100)** | güvenlik: tek hata testi düşürür |
 
 **Sınırlar (önemli):** (1) %100, sahte sağlayıcının skorudur; gerçek modelin skoru bilinmiyor. (2) Küme, eşikler ve sahte sağlayıcı aynı geliştirme döngüsünde ayarlandı → aşırı uyum riski; skor yalnız gerileme alarmıdır. (3) Gerçek model için `ANTHROPIC_API_KEY` ile koşucu çalıştırılmalı ve jüri/uzmanın görülmemiş soruları eklenmeli. (4) Olgu doğrulama (kart içindeki her sayı bir araç çıktısına bağlanır) birim testlidir (`pusula.test.ts`).
 
@@ -65,13 +65,13 @@ Sunucu: yabancı kullanıcı 403 + denetim satırı, vana açılmaz · yönetici
 
 ### 3.2 Gecikme (`pnpm --filter @tarim/device-sim bench`, tohum 20261020, 2000 komut)
 
-| Ölçüt | Değer |
-|---|---|
-| Ortalama | 477 ms |
-| Ortanca (p50) | 333 ms |
-| p95 | 913 ms |
-| p99 | 3456 ms |
-| En büyük | 6558 ms |
+| Ölçüt                        | Değer   |
+| ---------------------------- | ------- |
+| Ortalama                     | 477 ms  |
+| Ortanca (p50)                | 333 ms  |
+| p95                          | 913 ms  |
+| p99                          | 3456 ms |
+| En büyük                     | 6558 ms |
 | TTL (60 sn) içinde onaylanan | %100,00 |
 
 **Sınır:** Ağ gecikmesi MODELDİR (log-normal, ortanca 150 ms/tek yön, %2 olasılıkla +3 s sıçrama), ölçüm değildir. Gerçek ESP32 + GSM/Wi-Fi + gerçek Mosquitto ölçümü donanım gelince aynı biçimle yapılmalıdır. Ayrıntı: `docs/G8_GECIKME.md`.
@@ -80,15 +80,15 @@ Sunucu: yabancı kullanıcı 403 + denetim satırı, vana açılmaz · yönetici
 
 Otomatik denetim: `apps/mobile/src/g14.test.ts` (kaynak kodu tarar; ihlal testi düşürür).
 
-| Kural (docs/UX_KURALLARI.md) | Denetim | Sonuç |
-|---|---|---|
-| Yazı ≥ 16 (sekme etiketi 13 istisna, 60 px alanla telafi) | tüm `fontSize` | ihlal yok |
-| Sistem yazı büyütmesine uyar | `allowFontScaling={false}` yok | ihlal yok |
-| Dokunma alanı ≥ 56 | `minHeight/minWidth` < 56 yok | ihlal yok |
-| Ekran okuyucu | her `Pressable` `accessibilityRole` taşır; yalnız ikonlu düğmelerde (geri, yakınlaştır/uzaklaştır) etiket var | ihlal yok |
-| Emoji yok | arayüz kaynağında | ihlal yok |
-| Kontrast | 11 renk çifti WCAG AA ≥ 4,5 (`contrastRatio`) | tümü geçti |
-| Ses rehberi | Soru sor ekranında sesli okuma (`expo-speech`) | mevcut |
+| Kural (docs/UX_KURALLARI.md)                              | Denetim                                                                                                       | Sonuç      |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------- |
+| Yazı ≥ 16 (sekme etiketi 13 istisna, 60 px alanla telafi) | tüm `fontSize`                                                                                                | ihlal yok  |
+| Sistem yazı büyütmesine uyar                              | `allowFontScaling={false}` yok                                                                                | ihlal yok  |
+| Dokunma alanı ≥ 56                                        | `minHeight/minWidth` < 56 yok                                                                                 | ihlal yok  |
+| Ekran okuyucu                                             | her `Pressable` `accessibilityRole` taşır; yalnız ikonlu düğmelerde (geri, yakınlaştır/uzaklaştır) etiket var | ihlal yok  |
+| Emoji yok                                                 | arayüz kaynağında                                                                                             | ihlal yok  |
+| Kontrast                                                  | 11 renk çifti WCAG AA ≥ 4,5 (`contrastRatio`)                                                                 | tümü geçti |
+| Ses rehberi                                               | Soru sor ekranında sesli okuma (`expo-speech`)                                                                | mevcut     |
 
 Bu görevde yeni ihlal bulunmadı (önceki görevlerde `@tarim/ui` jeton testleri zaten eşikleri koruyordu); denetim artık tüm ekranları kapsıyor.
 **Sınır:** Gerçek ekran okuyucuyla (TalkBack/VoiceOver) ve cihaz yazı büyütmesiyle (%200) el testi YAPILMADI; otomatik denetim yalnız kaynak düzeyindedir. Düzen taşması büyük yazıda görsel olarak sınanmadı. Cihazda ses girişi yok (yalnız web).
@@ -102,8 +102,8 @@ Ayrıntı: `docs/GUVENLIK_ASVS.md`. Özet: ASVS L2 iç gözden geçirme (14 böl
 **Henüz yapılmadı.** Şablon (görevler, anket, puanlama, sonuç tablosu): `docs/SUS_SABLONU.md`. Hedef ≥ 75. Bu bölüme gerçek skor yazılmadan önce en az 8 çiftçiyle test yapılmalıdır; uydurma skor yazılmaz.
 
 | Katılımcı sayısı | Ortalama SUS | Ortanca | En düşük–en yüksek |
-|---:|---:|---:|---|
-| 0 | — | — | — |
+| ---------------: | -----------: | ------: | ------------------ |
+|                0 |            — |       — | —                  |
 
 ## 7. Paketleme ve dağıtım hazırlığı
 

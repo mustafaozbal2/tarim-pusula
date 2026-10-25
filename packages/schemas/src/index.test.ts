@@ -157,3 +157,39 @@ describe('panel menüsü', () => {
     );
   });
 });
+
+import { capabilitiesFor, deviceRegisterSchema, DEVICE_KINDS, KIND_METHODS } from './devices';
+
+describe('cihaz türleri ve yetenekler (G21)', () => {
+  it('cihaz yoksa yetenek yok: yalnız ana sayfa içerikleri', () => {
+    expect(capabilitiesFor([])).toEqual([]);
+  });
+  it('sulama cihazı Sulama kartını, sensör nem grafiği ve hatırlatıcıyı, drone görev kartını açar', () => {
+    expect(capabilitiesFor(['sulama'])).toEqual(['sulama-karti']);
+    expect(capabilitiesFor(['nem-sensoru'])).toEqual(['nem-grafigi', 'nem-hatirlaticisi']);
+    expect(capabilitiesFor(['drone'])).toEqual(['drone-gorevi']);
+  });
+  it('çıkarılınca yetenek kapanır; yinelenen tür tek sayılır; bilinmeyen tür yok sayılır', () => {
+    expect(capabilitiesFor(['sulama', 'sulama', 'bilinmeyen'])).toEqual(['sulama-karti']);
+    expect(capabilitiesFor(['drone', 'sulama', 'nem-sensoru'])).toEqual([
+      'sulama-karti',
+      'nem-grafigi',
+      'nem-hatirlaticisi',
+      'drone-gorevi',
+    ]);
+  });
+  it('her türün en az bir bağlantı yöntemi var', () => {
+    for (const k of DEVICE_KINDS) expect(KIND_METHODS[k].length, k).toBeGreaterThan(0);
+  });
+  it('cihaz ekleme gövdesi: kod biçimi ve tür doğrulanır', () => {
+    const base = {
+      fieldId: '3f2b8f0e-6f3c-4a4e-9a1b-0c2d3e4f5a6b',
+      name: 'Vana 1',
+      kind: 'sulama',
+      method: 'eslestirme-kodu',
+    };
+    expect(deviceRegisterSchema.safeParse({ ...base, pairingCode: 'ABC-123' }).success).toBe(true);
+    expect(deviceRegisterSchema.safeParse({ ...base, pairingCode: 'x' }).success).toBe(false);
+    expect(deviceRegisterSchema.safeParse({ ...base, kind: 'uzay-gemisi' }).success).toBe(false);
+  });
+});
