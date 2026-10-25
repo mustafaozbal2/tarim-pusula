@@ -21,6 +21,7 @@ import {
   CARD_INTERVAL_MS,
   dateBox,
   emptyText,
+  fitFontSize,
   HOME_TABS,
   nextCardIndex,
   type HomeCard,
@@ -178,6 +179,12 @@ export function CardStrip({ items, onOpen }: { items: HomeCard[]; onOpen: (c: Ho
   );
 }
 
+/** Uzun ad/il satırı tek satıra sığsın diye yazı küçülür (web'de adjustsFontSizeToFit yok). */
+function fitStyle(text: string, width: number) {
+  const size = fitFontSize(text, width);
+  return { fontSize: size, lineHeight: Math.round(size * 1.16) };
+}
+
 /** Çiftçi çizimi + arazi adı (büyük, turkuaz) ve il/ilçe; dokununca arazi değiştirici açılır. */
 export function FieldBlock({
   name,
@@ -209,10 +216,18 @@ export function FieldBlock({
           onPress={onPress}
           style={[styles.fieldText, { width: L.name.w * k, paddingTop: L.name.padTop * k }]}
         >
-          <Text style={styles.fieldName} numberOfLines={1} testID="bugun-tarla">
+          <Text
+            style={[styles.fieldName, fitStyle(name, L.name.w * k)]}
+            numberOfLines={1}
+            testID="bugun-tarla"
+          >
             {name}
           </Text>
-          <Text style={styles.fieldName} numberOfLines={1} testID="arazi-yer">
+          <Text
+            style={[styles.fieldName, fitStyle(place ?? '', L.name.w * k)]}
+            numberOfLines={1}
+            testID="arazi-yer"
+          >
             {place}
           </Text>
         </Pressable>

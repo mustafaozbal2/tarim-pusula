@@ -9,6 +9,7 @@ import {
   buildHomeRows,
   dateBox,
   emptyText,
+  fitFontSize,
   homeCards,
   nextCardIndex,
   placeLine,
@@ -276,6 +277,23 @@ describe('demo örnek içeriği (G22)', () => {
   it('örnek veri yoksa (gerçek mod) örnek satır ve kart üretilmez', () => {
     expect(buildHomeRows({ ...base, sample: null })).toHaveLength(0);
     expect(homeCards([], null)).toHaveLength(0);
+  });
+  it('duyuru + örnek kartta aynı görsel iki kez kullanılmaz', () => {
+    const a = {
+      id: 'a1',
+      title: 'Duyuru',
+      needsBadge: false,
+      imageDataUrl: null,
+    } as unknown as AnnouncementDto;
+    const cards = homeCards([a], ornek('zeytin'));
+    expect(cards).toHaveLength(5);
+    expect(new Set(cards.map((c) => c.image)).size).toBe(5);
+    expect(cards[0]!.announcementId).toBe('a1');
+  });
+  it('arazi adı yazı boyutu kutuya sığar (13-19 px)', () => {
+    expect(fitFontSize('Kiraz Bahçesi', 185)).toBe(19);
+    expect(fitFontSize('Burç Köyü Antep fıstığı', 185)).toBe(14);
+    expect(fitFontSize('x'.repeat(80), 185)).toBe(13);
   });
   it('kart görseli hiçbir zaman boş değildir', () => {
     const s = ornek('zeytin');

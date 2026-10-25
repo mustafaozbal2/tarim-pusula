@@ -134,24 +134,37 @@ export function homeCards(
   announcements: AnnouncementDto[],
   sample: OrnekIcerikDto | null | undefined,
 ): HomeCard[] {
-  const cards: HomeCard[] = announcements
-    .filter((a) => !a.needsBadge)
-    .slice(0, 5)
-    .map((a, i) => ({
-      id: `duyuru-${a.id}`,
-      title: a.title,
-      image: `kart_${(i % 5) + 1}.jpg` as ImageName,
-      uri: a.imageDataUrl,
-      announcementId: a.id,
-    }));
-  for (const [i, k] of (sample?.kartlar ?? []).entries()) {
-    if (cards.length >= 5) break;
-    const image = /^kart_[1-5]\.jpg$/.test(k.gorsel)
+  const anns = announcements.filter((a) => !a.needsBadge).slice(0, 5);
+  const samples = (sample?.kartlar ?? []).slice(0, Math.max(0, 5 - anns.length)).map((k, i) => ({
+    id: `ornek-kart-${i}`,
+    title: k.baslik,
+    image: /^kart_[1-5]\.jpg$/.test(k.gorsel)
       ? (k.gorsel as ImageName)
-      : (`kart_${(i % 5) + 1}.jpg` as ImageName);
-    cards.push({ id: `ornek-kart-${i}`, title: k.baslik, image, sampleIndex: i });
-  }
-  return cards;
+      : (`kart_${(i % 5) + 1}.jpg` as ImageName),
+    sampleIndex: i,
+  }));
+  // Duyurular, örnek kartların kullanmadığı görselleri alır: şeritte aynı görsel iki kez görünmez.
+  const used = new Set<string>(samples.map((c) => c.image));
+  const free = ([1, 2, 3, 4, 5] as const)
+    .map((n) => `kart_${n}.jpg` as ImageName)
+    .filter((f) => !used.has(f));
+  const cards: HomeCard[] = anns.map((a, i) => ({
+    id: `duyuru-${a.id}`,
+    title: a.title,
+    image: free[i % Math.max(1, free.length)] ?? 'kart_1.jpg',
+    uri: a.imageDataUrl,
+    announcementId: a.id,
+  }));
+  return [...cards, ...samples];
+}
+
+/**
+ * Arazi adının yazı boyutu: kutuya tek satırda sığacak en büyük boyut (19 px'ten 13 px'e kadar).
+ * Manrope orta kalınlıkta ortalama harf genişliği ≈ 0,55 x yazı boyutu (ölçülerek seçildi).
+ */
+export function fitFontSize(text: string, boxWidth: number, max = 19, min = 13): number {
+  const len = Math.max(1, [...text].length);
+  return Math.max(min, Math.min(max, Math.floor(boxWidth / (len * 0.55))));
 }
 
 /**

@@ -27,11 +27,18 @@ async function login(page: Page): Promise<User> {
   return user;
 }
 
-async function addField(page: Page, u: User, name: string, cropId: string, district: string) {
+async function addField(
+  page: Page,
+  u: User,
+  name: string,
+  cropId: string,
+  district: string,
+  province = 'Kahramanmaraş',
+) {
   const r = await page.request.post(`${u.api}/fields`, {
     headers: { authorization: `Bearer ${u.token}` },
     // Duyuru tohumları Gaziantep'e hedefli; ürün içeriğini ayrı sınamak için başka il.
-    data: { name, province: 'Kahramanmaraş', district, lat: 37.58, lon: 36.94, cropId },
+    data: { name, province, district, lat: 37.58, lon: 36.94, cropId },
   });
   expect(r.status()).toBe(201);
 }
@@ -133,7 +140,7 @@ const TARGET: Record<string, { x: number; y: number; w: number; h: number; label
 
 test('G22.2 ana sayfa hedefle ölçü karşılaştırması 390x844 (sapma < 2 px)', async ({ page }) => {
   const u = await login(page);
-  await addField(page, u, 'Kiraz Bahçesi', 'elma-kiraz-armut', 'Merkez');
+  await addField(page, u, 'Kiraz Bahçesi', 'elma-kiraz-armut', 'Merkez', 'Isparta');
   await page.goto('/');
   await expect(page.getByTestId('kart-seridi-kart')).toHaveCount(5);
   await expect(page.getByTestId('ikon-gorsel-arazilerim')).toBeVisible();

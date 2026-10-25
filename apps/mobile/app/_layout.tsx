@@ -8,7 +8,7 @@ import {
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, useWindowDimensions, View } from 'react-native';
 import { I18nextProvider } from 'react-i18next';
 import { i18n } from '../src/i18n';
 import { queue, useToken } from '../src/session';
@@ -41,20 +41,24 @@ function useSessionGate() {
   }, [token]);
 }
 
-/** Tarayıcıda telefon boyutunda, ortalanmış dar sütun; cihazda tam ekran. */
-const webFrame =
-  Platform.OS === 'web'
-    ? ({
-        flex: 1,
-        width: '100%',
-        maxWidth: 430,
-        alignSelf: 'center',
-        overflow: 'hidden',
-        borderLeftWidth: 1,
-        borderRightWidth: 1,
-        borderColor: '#D5DBCB',
-      } as const)
-    : ({ flex: 1 } as const);
+/**
+ * Tarayıcıda telefon boyutunda, ortalanmış dar sütun; cihazda tam ekran. Kenar çizgisi yalnız sütundan
+ * geniş ekranda çizilir: telefon tarayıcısında içerik 2 px daralıp ölçüler kaymasın (G22).
+ */
+function webFrame(windowWidth: number) {
+  if (Platform.OS !== 'web') return { flex: 1 } as const;
+  const framed = windowWidth > 430;
+  return {
+    flex: 1,
+    width: '100%',
+    maxWidth: 430,
+    alignSelf: 'center',
+    overflow: 'hidden',
+    borderLeftWidth: framed ? 1 : 0,
+    borderRightWidth: framed ? 1 : 0,
+    borderColor: '#D5DBCB',
+  } as const;
+}
 
 export default function RootLayout() {
   // Yazı tipi yüklenemese bile uygulama sistem yazısıyla açılır.
@@ -62,10 +66,11 @@ export default function RootLayout() {
   useSessionGate();
   // Yazı boyutu değişince ağaç yeniden kurulur (Text sarmalayıcısı yeni ölçeği okur).
   const { textSize } = useSettings();
+  const { width } = useWindowDimensions();
   return (
     <I18nextProvider i18n={i18n}>
       <StatusBar style="dark" />
-      <View key={textSize} style={webFrame}>
+      <View key={textSize} style={webFrame(width)}>
         <Stack screenOptions={{ headerShown: false }} />
       </View>
     </I18nextProvider>
