@@ -1,0 +1,11 @@
+
+=== 2026-10-25T17:30:29 ===
+G21 bitti ve `pnpm run verify` ye+þil. Commit at¦-ld¦-, ama e2e testleri bu turda ayr¦-ca ko+þulmad¦-.
+- **+ûnceden vard¦-:** cihaz adapt+Ârleri ve "Cihaz ekle" ekran¦-, tasarruf/verim raporu +ðekirde¦þi (`agro-core/savings.ts`) ve API u+ðlar¦- +Ânceki turlarda yaz¦-lm¦-+þt¦-. Bu turda yeniden yazmad¦-m. Cihaz ekle/+ð¦-kar ile g+Âr+-nen kartlar¦-n testini ve sulama g+-venlik kurallar¦-n¦- (yetki, TTL, ack, 30 dk, audit) ayr¦-ca do¦þrulamad¦-m.
+- **Bu turda eklenen:**
+  - `mapProvider.ts`: `EXPO_PUBLIC_MAP_PROVIDER` bayra¦þ¦-yla eox, esri, maptiler veya mapbox se+ðilir. Anahtar yoksa mevcut EOX altl¦-¦þ¦- kal¦-r.
+  - TKGM +ða¦þr¦-s¦- olmad¦-¦þ¦-n¦- denetleyen bir test.
+  - Ye+þillik (NDVI) ekran¦-ndan "tarla s¦-n¦-r¦- +ðiz" ifadesi kald¦-r¦-ld¦-.
+  - `docs/CIHAZ_ENTEGRASYON.md` ve `docs/ARASTIRMA_HARITA.md` yaz¦-ld¦-. `docs/KARARLAR.md` ile `.overnight/NOTES.md` g+-ncellendi.
+- **Do¦þrulanamayan:** Web sayfalar¦-n¦- a+ð¦-p okumad¦-m. Bu y+-zden iki belgedeki lisans, +-cret ve kota alanlar¦- "do¦þrulanamad¦-" yaz¦-yor. Altl¦-k sa¦þlay¦-c¦-lar¦-n¦- ger+ðek anahtarla veya g+Ârsel olarak denemedim.
+
