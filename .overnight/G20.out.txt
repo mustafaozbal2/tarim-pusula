@@ -1,0 +1,9 @@
+
+=== 2026-10-25T17:26:11 ===
+G20 tamam, bir madde hari+ð: 7. maddedeki tarla ekleme ak¦-+þ¦- sadele+þtirilmedi. `pnpm run verify` ye+þil (30/30 g+Ârev).
+- +ûnceki +ðal¦-+þt¦-rman¦-n yazd¦-¦þ¦- par+ðalar duruyor: takvim ay g+Âr+-n+-m+- ve .ics, hat¦-rlat¦-c¦- +ðekirde¦þi ve API ucu, Pazar sat¦-+þ yeri ve "Yol tarifi", Uzmana sor a+ð¦-klamas¦- ve ses, Kc/toprak arama tablolar¦-, hava kayna¦þ¦- ve saat.
+- Bu turda ekledim: Ayarlar'¦-n a+ðt¦-¦þ¦- ama olmayan iki ekran (`/hatirlaticilar`, `/entegrasyonlar`), `notify.ts`, giri+þ yard¦-mc¦-lar¦- ve testleri.
+- Hat¦-rlat¦-c¦- yaln¦-z uygulama a+ð¦-kken, elle "+Þimdi kontrol et" ile +ðal¦-+þ¦-yor; arka plan g+Ârevi yok. Ekranlar telefonda denenmedi.
+- +çKS'de ger+ðek +ða¦þr¦- yok; ekran "Resmi ba¦þlant¦- onayland¦-¦þ¦-nda a+ð¦-l¦-r." diyor.
+- Kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de. Commit `43a5405` (`dev`).
+
