@@ -1,0 +1,142 @@
+{
+  "urunId": "salatalik",
+  "urunAdi": "Salatalık",
+  "kaynak": "Örnek veri (demo)",
+  "tarih": "2026-10-25",
+  "surum": "ornek-icerik-v1",
+  "kartlar": [
+    {
+      "baslik": "Salatalık üretiminde stratejik konum",
+      "ozet": "Salatalık üretiminin bölge ve ülke içindeki yeri.",
+      "gorsel": "kart_1.jpg"
+    },
+    {
+      "baslik": "Salatalık için gübreleme yöntemleri",
+      "ozet": "Toprak analizine dayalı gübreleme neden önemlidir?",
+      "gorsel": "kart_2.jpg"
+    },
+    {
+      "baslik": "Drone ile salatalık takibi",
+      "ozet": "Drone ile alan gözlemi ve ilaçlama uygulamaları hakkında genel bilgi.",
+      "gorsel": "kart_3.jpg"
+    },
+    {
+      "baslik": "İklim krizi gıda krizinin habercisi",
+      "ozet": "Kuraklık ve sıcak dalgalarının salatalık üretimine etkisi.",
+      "gorsel": "kart_4.jpg"
+    },
+    {
+      "baslik": "Salatalık üretiminde planlama nasıl olmalı",
+      "ozet": "Ekimden hasada kadar işlerin takvimle planlanması.",
+      "gorsel": "kart_5.jpg"
+    }
+  ],
+  "faaliyetZamani": [
+    {
+      "baslik": "Salatalık için fide hazırlığı",
+      "ozet": "Sağlıklı ve sertifikalı fide temin edin.",
+      "gunFarki": 2
+    },
+    {
+      "baslik": "Salatalık fide dikimi",
+      "ozet": "Dikimi serin saatlerde yapıp can suyu verin.",
+      "gunFarki": 9
+    },
+    {
+      "baslik": "Salatalık tarlasında damla sulama kontrolü",
+      "ozet": "Hatları tıkanıklık ve kaçağa karşı kontrol edin.",
+      "gunFarki": 16
+    },
+    {
+      "baslik": "Salatalık tarlasında çapalama ve ot temizliği",
+      "ozet": "Bitki diplerini zedelemeden çapalayın.",
+      "gunFarki": 30
+    },
+    {
+      "baslik": "Salatalık hasadı ve ayıklama",
+      "ozet": "Olgun ürünü serin saatte toplayıp gölgede bekletin.",
+      "gunFarki": 45
+    }
+  ],
+  "faaliyetRehberi": [
+    {
+      "baslik": "Salatalık ekiminde sıra arası ve derinlik",
+      "ozet": "Ekim makinesini ayarlayıp tohumu eşit dağıtın.",
+      "gunFarki": 1
+    },
+    {
+      "baslik": "Toprak analiziyle salatalık gübre ihtiyacını belirleyin",
+      "ozet": "Toprak örneğini il/ilçe tarım müdürlüğüne ya da laboratuvara götürün.",
+      "gunFarki": 5
+    },
+    {
+      "baslik": "Salatalık sulamasında sabah ve akşam saatlerini seçin",
+      "ozet": "Öğle sıcağında su çabuk buharlaşır; toprağın nemini elle kontrol edin.",
+      "gunFarki": 12
+    },
+    {
+      "baslik": "Salatalık tarlasında hastalık ve zararlıyı erken tanıyın",
+      "ozet": "Yaprakları haftada bir kontrol edin, şüpheli durumda fotoğrafını uzmana gösterin.",
+      "gunFarki": 20
+    },
+    {
+      "baslik": "İlaçlama gerekiyorsa uzmana danışın",
+      "ozet": "İlaç seçimi, doz ve karışım için ziraat mühendisine ya da ilçe tarım müdürlüğüne başvurun.",
+      "gunFarki": 28
+    }
+  ],
+  "erkenUyarilar": [
+    {
+      "baslik": "Salatalık fidelerinde gece soğuğu riski",
+      "ozet": "Açık ve rüzgârsız gecelerde fideleri örtüyle koruyun.",
+      "gunFarki": 0
+    },
+    {
+      "baslik": "Salatalık tarlasında zararlı takibi",
+      "ozet": "Tuzakları ve yaprak altlarını düzenli kontrol edin.",
+      "gunFarki": 3
+    },
+    {
+      "baslik": "Sıcak ve kuru günlerde salatalık için su stresi riski",
+      "ozet": "Yapraklarda solma görülürse sulama aralığını gözden geçirin.",
+      "gunFarki": 6
+    },
+    {
+      "baslik": "Yoğun yağış sonrası salatalık için mantar hastalığı riski",
+      "ozet": "Yaprak ve meyvede leke görülürse uzmana danışın.",
+      "gunFarki": 10
+    },
+    {
+      "baslik": "Kuvvetli rüzgârda salatalık bitkilerinde zarar",
+      "ozet": "Destek ve bağlantıları kontrol edin, gevşek örtüleri sabitleyin.",
+      "gunFarki": 14
+    }
+  ],
+  "destekler": [
+    {
+      "baslik": "Bireysel sulama sistemlerine %50 hibe desteği (örnek)",
+      "ozet": "Damla ve yağmurlama sistemleri için örnek destek kaydı. Güncel şartları il/ilçe tarım müdürlüğünden öğrenin.",
+      "gunFarki": 4
+    },
+    {
+      "baslik": "Salatalık üreticilerine alan bazlı destek (örnek)",
+      "ozet": "Örnek destek kaydı. ÇKS kaydınızın güncel olması gerekir.",
+      "gunFarki": 15
+    },
+    {
+      "baslik": "Tarımsal kalkınma kooperatiflerine kredi desteği (örnek)",
+      "ozet": "Örnek kredi kaydı. Başvuru yeri ve şartları kurumdan teyit edilmelidir.",
+      "gunFarki": 25
+    },
+    {
+      "baslik": "Genç çiftçi projelerine hibe desteği (örnek)",
+      "ozet": "Örnek hibe kaydı. Yaş ve proje şartlarını il müdürlüğünden öğrenin.",
+      "gunFarki": 35
+    },
+    {
+      "baslik": "Tarım sigortası prim desteği (örnek)",
+      "ozet": "Salatalık için ürün sigortası hakkında örnek destek kaydı.",
+      "gunFarki": 50
+    }
+  ]
+}

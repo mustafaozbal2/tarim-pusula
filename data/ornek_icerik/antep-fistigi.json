@@ -1,0 +1,142 @@
+{
+  "urunId": "antep-fistigi",
+  "urunAdi": "Antep fıstığı",
+  "kaynak": "Örnek veri (demo)",
+  "tarih": "2026-10-25",
+  "surum": "ornek-icerik-v1",
+  "kartlar": [
+    {
+      "baslik": "Antep fıstığı üretiminde stratejik konum",
+      "ozet": "Antep fıstığı üretiminin bölge ve ülke içindeki yeri.",
+      "gorsel": "kart_1.jpg"
+    },
+    {
+      "baslik": "Antep fıstığı için gübreleme yöntemleri",
+      "ozet": "Toprak analizine dayalı gübreleme neden önemlidir?",
+      "gorsel": "kart_2.jpg"
+    },
+    {
+      "baslik": "Drone ile antep fıstığı takibi",
+      "ozet": "Drone ile alan gözlemi ve ilaçlama uygulamaları hakkında genel bilgi.",
+      "gorsel": "kart_3.jpg"
+    },
+    {
+      "baslik": "İklim krizi gıda krizinin habercisi",
+      "ozet": "Kuraklık ve sıcak dalgalarının antep fıstığı üretimine etkisi.",
+      "gorsel": "kart_4.jpg"
+    },
+    {
+      "baslik": "Antep fıstığı üretiminde planlama nasıl olmalı",
+      "ozet": "Ekimden hasada kadar işlerin takvimle planlanması.",
+      "gorsel": "kart_5.jpg"
+    }
+  ],
+  "faaliyetZamani": [
+    {
+      "baslik": "Antep fıstığı bahçesinde kış budaması",
+      "ozet": "Kuru ve hastalıklı dalları temizleyin.",
+      "gunFarki": 2
+    },
+    {
+      "baslik": "Antep fıstığı ağaçlarının dibinde toprak işleme",
+      "ozet": "Ağaç diplerini yüzeysel çapalayın.",
+      "gunFarki": 9
+    },
+    {
+      "baslik": "Antep fıstığı bahçesinde sulama sisteminin kontrolü",
+      "ozet": "Damlatıcı ve boruları tıkanıklığa karşı gözden geçirin.",
+      "gunFarki": 16
+    },
+    {
+      "baslik": "Antep fıstığı için kaliteyi artırıcı gübreleme",
+      "ozet": "Toprak analizi sonucuna göre gübre planlayın.",
+      "gunFarki": 30
+    },
+    {
+      "baslik": "Antep fıstığı hasadı için hazırlık",
+      "ozet": "Kasaları, merdiveni ve depolama yerini hazırlayın.",
+      "gunFarki": 45
+    }
+  ],
+  "faaliyetRehberi": [
+    {
+      "baslik": "Antep fıstığı budamasında dikkat edilecekler",
+      "ozet": "Kesimleri temiz aletle yapın, kalın dal yaralarını kapatın.",
+      "gunFarki": 1
+    },
+    {
+      "baslik": "Toprak analiziyle antep fıstığı gübre ihtiyacını belirleyin",
+      "ozet": "Toprak örneğini il/ilçe tarım müdürlüğüne ya da laboratuvara götürün.",
+      "gunFarki": 5
+    },
+    {
+      "baslik": "Antep fıstığı sulamasında sabah ve akşam saatlerini seçin",
+      "ozet": "Öğle sıcağında su çabuk buharlaşır; toprağın nemini elle kontrol edin.",
+      "gunFarki": 12
+    },
+    {
+      "baslik": "Antep fıstığı bahçesinde hastalık ve zararlıyı erken tanıyın",
+      "ozet": "Yaprakları haftada bir kontrol edin, şüpheli durumda fotoğrafını uzmana gösterin.",
+      "gunFarki": 20
+    },
+    {
+      "baslik": "İlaçlama gerekiyorsa uzmana danışın",
+      "ozet": "İlaç seçimi, doz ve karışım için ziraat mühendisine ya da ilçe tarım müdürlüğüne başvurun.",
+      "gunFarki": 28
+    }
+  ],
+  "erkenUyarilar": [
+    {
+      "baslik": "Antep fıstığı için çiçeklenme dönemi zirai don riski",
+      "ozet": "Hava Durumu sayfasındaki gece en düşük sıcaklığını takip edin.",
+      "gunFarki": 0
+    },
+    {
+      "baslik": "Antep fıstığı bahçesinde zararlı takibi",
+      "ozet": "Tuzakları ve yaprak altlarını düzenli kontrol edin.",
+      "gunFarki": 3
+    },
+    {
+      "baslik": "Sıcak ve kuru günlerde antep fıstığı için su stresi riski",
+      "ozet": "Yapraklarda solma görülürse sulama aralığını gözden geçirin.",
+      "gunFarki": 6
+    },
+    {
+      "baslik": "Yoğun yağış sonrası antep fıstığı için mantar hastalığı riski",
+      "ozet": "Yaprak ve meyvede leke görülürse uzmana danışın.",
+      "gunFarki": 10
+    },
+    {
+      "baslik": "Kuvvetli rüzgârda antep fıstığı ağaçlarında zarar",
+      "ozet": "Destek ve bağlantıları kontrol edin, gevşek örtüleri sabitleyin.",
+      "gunFarki": 14
+    }
+  ],
+  "destekler": [
+    {
+      "baslik": "Bireysel sulama sistemlerine %50 hibe desteği (örnek)",
+      "ozet": "Damla ve yağmurlama sistemleri için örnek destek kaydı. Güncel şartları il/ilçe tarım müdürlüğünden öğrenin.",
+      "gunFarki": 4
+    },
+    {
+      "baslik": "Antep fıstığı üreticilerine alan bazlı destek (örnek)",
+      "ozet": "Örnek destek kaydı. ÇKS kaydınızın güncel olması gerekir.",
+      "gunFarki": 15
+    },
+    {
+      "baslik": "Tarımsal kalkınma kooperatiflerine kredi desteği (örnek)",
+      "ozet": "Örnek kredi kaydı. Başvuru yeri ve şartları kurumdan teyit edilmelidir.",
+      "gunFarki": 25
+    },
+    {
+      "baslik": "Genç çiftçi projelerine hibe desteği (örnek)",
+      "ozet": "Örnek hibe kaydı. Yaş ve proje şartlarını il müdürlüğünden öğrenin.",
+      "gunFarki": 35
+    },
+    {
+      "baslik": "Tarım sigortası prim desteği (örnek)",
+      "ozet": "Antep fıstığı için ürün sigortası hakkında örnek destek kaydı.",
+      "gunFarki": 50
+    }
+  ]
+}

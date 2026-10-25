@@ -33,6 +33,15 @@ export function syncImages() {
     const hash = createHash('sha256').update(readFileSync(from)).digest('hex');
     placeholder[item.name] = reg2[item.name] === hash;
   }
+  // Gerçek görselle değiştirilmiş yuvalar kayıttan düşer (bir daha yer tutucu sayılmaz).
+  const pruned = Object.fromEntries(
+    Object.entries(reg2).filter(([name]) => placeholder[name] === true),
+  );
+  const prunedText = `${JSON.stringify(pruned, null, 2)}
+`;
+  if (!existsSync(regPath) || readFileSync(regPath, 'utf8') !== prunedText) {
+    writeFileSync(regPath, prunedText);
+  }
   const body = Object.entries(placeholder)
     .map(([k, v]) => `  '${k}': ${v},`)
     .join('\n');

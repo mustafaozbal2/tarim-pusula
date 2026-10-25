@@ -11,6 +11,7 @@ import {
 } from './auth/auth.service';
 import type { SmsProvider } from './auth/sms';
 import { DEMO_INFO, DemoController, type DemoInfo } from './demo';
+import { OrnekIcerikController } from './ornek-icerik';
 
 import {
   AdminController,
@@ -100,6 +101,8 @@ export interface AppOptions {
   now?: () => Date;
   /** Demo modu (yalnız `demoInfo(env)` döndürdüyse verilir): /demo/info ucu ve sabit kod. */
   demo?: DemoInfo;
+  /** Ana sayfa örnek içeriği ucu (/demo/ornek-icerik). Demo modunda kendiliğinden açıktır; e2e de açar. */
+  ornekIcerik?: boolean;
 }
 
 function defaultLlm(): LlmProvider {
@@ -157,6 +160,7 @@ export class AppModule {
         WalletController,
         IngestController,
         ...(opts.demo ? [DemoController] : []),
+        ...(opts.demo || opts.ornekIcerik ? [OrnekIcerikController] : []),
       ],
       providers: [
         { provide: DEMO_INFO, useValue: opts.demo },
