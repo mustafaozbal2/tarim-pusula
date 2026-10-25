@@ -99,3 +99,8 @@ Sonraki için: gerçek görselleri aynı adla `images/` içine koy, `pnpm run im
 Yapılan: takvim ay görünümü + .ics + telefon takvimi, hatırlatıcı çekirdeği (agro-core) + API ucu + mobil ekran `/hatirlaticilar`, ÇKS adaptör + sahte sağlayıcı + `/entegrasyonlar`, Veri cüzdanı Ayarlar'da, Pazar satış yeri + Yol tarifi, Uzmana sor açıklama + yerel ses, Kc/toprak arama tabloları, hava kaynağı/saat. Önceki çalıştırma çoğunu yazmıştı; bu turda eksik iki ekran + giriş yardımcıları + testler eklendi.
 Yarım: tarla ekleme akışı sadeleştirilmedi; hatırlatıcı yalnız uygulama açıkken/elle kontrol (arka plan görevi yok); ekranlar telefonda denenmedi.
 Sonraki: G21.
+
+## G21 (2026-10-25) — tamam (araştırma belgeleri okunmamış kaynaklara dayanır)
+Yapılan: önceki turlarda yazılan cihaz adaptörleri/ekle ekranı/tasarruf çekirdeği+API doğrulandı; bu turda harita sağlayıcı adaptörü (`mapProvider.ts`, bayrak + anahtarsız geri düşme + test), NDVI ekranındaki "sınır çiz" ifadesi kaldırıldı, `docs/CIHAZ_ENTEGRASYON.md`, `docs/ARASTIRMA_HARITA.md`, KARARLAR.
+Yarım: lisans/ücret koşulları "doğrulanamadı" (web sayfaları okunmadı); altlık sağlayıcıları gerçek anahtarla/görsel olarak denenmedi; gerçek üretici adaptörü yok; ekranlar telefonda denenmedi.
+Sonraki için: sağlayıcı koşulları okunup tablo güncellensin; TKGM izni gelirse ayrı adaptör + docs/ARASTIRMA_HARITA.md güncelle.

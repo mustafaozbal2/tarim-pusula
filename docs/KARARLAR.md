@@ -267,3 +267,11 @@
 - **Hatırlatıcılar:** karar mantığı agro-core'da (onay kapılı, sessiz saat, günlük sınır, tekrar aralığı), sunucu `GET /fields/:id/reminders`; mobil ekran (`/hatirlaticilar`) eşik/saat/sessiz saat ayarlatır, "Şimdi kontrol et" ile çalıştırır ve "Neden yok?" nedenlerini yazar. Arka planda zamanlı çalıştırma yapılmadı (uygulama açıkken kontrol); gerekçe: arka plan görevi gerçek cihazda denenemedi.
 - **Eşik girişi** yüzde olarak alınır (çiftçi dili), 0-1 orana çevrilir; geçersiz/boş = onaylı toprak verisinden otomatik eşik.
 - **Madde 7 (tarla ekleme bir adım sadeleştirme):** mevcut akış ve e2e kabul testleri korundu; ek adım çıkarma yapılmadı (riskli, kabul testleri aynı kalmalı). Açık iş.
+
+## 2026-10-25 — G21 tamamlama
+
+- **Kapsam durumu:** cihaz adaptörleri (`packages/devices`), cihaz ekle ekranı, ölçüm/ sulama kuralları, tasarruf çekirdeği (`agro-core/savings.ts`) ve API (`controllers.g21.ts`) önceki turlarda yazılmıştı; bu turda harita altlığı, NDVI metni ve araştırma belgeleri tamamlandı.
+- **Harita altlığı:** `mapProvider.ts` adaptörü, `EXPO_PUBLIC_MAP_PROVIDER` bayrağı (eox | esri | maptiler | mapbox). Anahtar gereken sağlayıcıda anahtar yoksa mevcut EOX altlığı kalır (çalışan ekranı bozmamak için). Varsayılan değişmedi; gerekçe: Esri/MapTiler/Mapbox üretim lisans koşulları okunmadı (`docs/ARASTIRMA_HARITA.md`, "doğrulanamadı").
+- **Parsel:** TKGM izni yok; kaynakta çağrı olmadığını mobil test tarar. Sınır arazi kaydından gelir, çiftçi arazi eklerken haritada işaretler.
+- **Erken uyarılar/yeşillik ekranı:** "tarla sınırı çiz" talimatı kaldırıldı; metin sınırın arazi kaydından geldiğini söyler.
+- **Cihaz araştırma notu:** `docs/CIHAZ_ENTEGRASYON.md`; sayfalar açılıp okunmadığı için lisans alanları "doğrulanamadı". Gerçek üretici adaptörü yok (`REAL_CLOUDS` boş).

@@ -1,11 +1,10 @@
+import { DEFAULT_ATTRIBUTION, DEFAULT_TILE_URL, resolveBasemap } from './mapProvider';
+
 /**
  * Uydu haritası altlığı. Varsayılan: EOX "Sentinel-2 cloudless" (Copernicus Sentinel verisi, atıf zorunlu).
  * Üretimde sözleşmeli bir sağlayıcıya geçmek için EXPO_PUBLIC_TILE_URL ve EXPO_PUBLIC_TILE_ATTRIBUTION verilir.
  */
-export const DEFAULT_TILE_URL =
-  'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/g/{z}/{y}/{x}.jpg';
-export const DEFAULT_ATTRIBUTION =
-  'Sentinel-2 cloudless — s2maps.eu, EOX IT Services GmbH (Copernicus Sentinel verisi, 2021)';
+export { DEFAULT_ATTRIBUTION, DEFAULT_TILE_URL };
 
 export interface RasterStyle {
   version: 8;
@@ -17,13 +16,22 @@ export interface RasterStyle {
 }
 
 export function satelliteStyle(
-  tileUrl = process.env['EXPO_PUBLIC_TILE_URL'] ?? DEFAULT_TILE_URL,
-  attribution = process.env['EXPO_PUBLIC_TILE_ATTRIBUTION'] ?? DEFAULT_ATTRIBUTION,
+  tileUrl?: string,
+  attribution?: string,
+  maxzoom?: number,
 ): RasterStyle {
+  if (tileUrl === undefined) {
+    const b = resolveBasemap();
+    tileUrl = b.tileUrl;
+    attribution ??= b.attribution;
+    maxzoom ??= b.maxzoom;
+  }
+  attribution ??= DEFAULT_ATTRIBUTION;
+  maxzoom ??= 14;
   return {
     version: 8,
     sources: {
-      uydu: { type: 'raster', tiles: [tileUrl], tileSize: 256, maxzoom: 14, attribution },
+      uydu: { type: 'raster', tiles: [tileUrl], tileSize: 256, maxzoom, attribution },
     },
     layers: [{ id: 'uydu', type: 'raster', source: 'uydu' }],
   };
