@@ -67,10 +67,11 @@ export class SoilsController {
         thetaFc: number;
         thetaWp: number;
         source: string;
+        hintTr: string | null;
         reviewStatus: 'taslak-uzman-onayi-bekliyor' | 'uzman-onayli';
       }>(
         `SELECT key, name_tr AS "nameTr", theta_fc::float8 AS "thetaFc", theta_wp::float8 AS "thetaWp",
-                source, review_status AS "reviewStatus" FROM soil_types ORDER BY theta_fc`,
+                source, hint_tr AS "hintTr", review_status AS "reviewStatus" FROM soil_types ORDER BY theta_fc, key`,
       ),
     );
     return rows.map((s) => ({
@@ -79,6 +80,7 @@ export class SoilsController {
       thetaFc: s.thetaFc,
       thetaWp: s.thetaWp,
       source: s.source,
+      hint: s.hintTr,
       needsBadge: s.reviewStatus !== 'uzman-onayli',
     }));
   }

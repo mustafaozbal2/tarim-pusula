@@ -1,4 +1,4 @@
-import { colors, fontFamily, fontSize, MIN_TOUCH_TARGET, radius, spacing } from './tokens';
+import { colors, elevation, fontFamily, fontSize, MIN_TOUCH_TARGET, radius, spacing } from './tokens';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'water';
 
@@ -47,6 +47,7 @@ export const cardStyle = {
   borderColor: colors.border,
   borderRadius: radius.card,
   padding: spacing.xl,
+  ...elevation.card,
 } as const;
 
 export const textStyles = {

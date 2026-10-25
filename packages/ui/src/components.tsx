@@ -20,7 +20,7 @@ import {
   type TabloSutunu,
 } from './styles';
 export { tabloSuz, type TabloSatiri, type TabloSutunu } from './styles';
-import { colors, fontFamily, fontSize, radius, ROW_HEIGHT, spacing } from './tokens';
+import { colors, elevation, fontFamily, fontSize, radius, ROW_HEIGHT, spacing } from './tokens';
 
 export function Button(props: {
   label: string;
@@ -329,6 +329,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
+    ...elevation.card,
   },
   buttonText: { fontFamily: fontFamily.bold, fontSize: fontSize.body },
   card: { ...cardStyle, borderWidth: 1 },

@@ -237,7 +237,18 @@ describe('Bitki Bilgi Paketi', () => {
       thetaWp: number;
       needsBadge: boolean;
     }[];
-    expect(soils.map((x) => x.key)).toEqual(['kumlu', 'tinli', 'killi']);
+    // G23: FAO-56 Tablo 19'un 9 doku sınıfı, tarla kapasitesine göre sıralı.
+    expect(soils.map((x) => x.key)).toEqual([
+      'kumlu',
+      'tinli-kum',
+      'kumlu-tin',
+      'tinli',
+      'siltli-tin',
+      'silt',
+      'siltli-killi-tin',
+      'killi',
+      'siltli-kil',
+    ]);
     expect(soils.every((x) => x.thetaFc > x.thetaWp && x.needsBadge)).toBe(true);
   });
 

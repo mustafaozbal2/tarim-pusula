@@ -6,6 +6,7 @@ import { MarketCollector, type MarketSourceConfig } from './market/collector';
 import { parseBorsaBulletin } from './market/parse';
 import { storeDocument, textToPages } from './library';
 import { systemTx, type Db } from './db/db';
+import { seedUzmanOrnek } from './uzman-ornek';
 
 /** Demo kodu: SMS ve doğrulayıcı (TOTP) yerine geçer. Yalnız DEMO_MODE=1 iken vardır. */
 export const DEMO_CODE = '123456';
@@ -148,6 +149,8 @@ export async function seedDemoData(db: Db, now = new Date()): Promise<void> {
          'uzman-onayli')`,
       [new Date(now.getTime() - day)],
     );
+    // G23: uzman test verileri (Güncel Haberler, Bilgilendirmeler, Yönlendirmeler, Önlemler, Teknoloji).
+    await seedUzmanOrnek(q, now);
     for (const d of DEMO_DOCS) {
       const { id } = await storeDocument(
         q,

@@ -279,7 +279,18 @@ describe('cihaz ölçümleri', () => {
 describe('toprak ve bitki su parametreleri: onay kapısı', () => {
   it('toprak türleri veritabanından gelir, hepsi taslak', async () => {
     const r = await call('GET', '/soils', ali.token);
-    expect(r.body.map((s: any) => s.key)).toEqual(['kumlu', 'tinli', 'killi']);
+    // G23: FAO-56 Tablo 19'un 9 doku sınıfı, tarla kapasitesine göre sıralı.
+    expect(r.body.map((s: any) => s.key)).toEqual([
+      'kumlu',
+      'tinli-kum',
+      'kumlu-tin',
+      'tinli',
+      'siltli-tin',
+      'silt',
+      'siltli-killi-tin',
+      'killi',
+      'siltli-kil',
+    ]);
     expect(r.body.every((s: any) => s.needsBadge)).toBe(true);
   });
 

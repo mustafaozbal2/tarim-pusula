@@ -1,10 +1,13 @@
-/** Tasarım belirteçleri — tek kaynak: docs/TASARIM_REFERANSI.md (eski uygulama temelli palet). */
+/**
+ * Tasarım belirteçleri — tek kaynak: docs/TASARIM_REFERANSI.md. G23: bütün sayfalar ana sayfanın turkuaz
+ * dilinde (Mustafa, 25 Ekim 2026). Adlar eski kodla uyum için korunur; değerler turkuazdır.
+ */
 export const colors = {
-  forest: '#064D3B', // koyu yeşil: seçili sekme, kenar menü, başlık
-  pistachio: '#E3F2EC', // seçili / güvenli zemin
-  pistachioText: '#064D3B',
-  listGreen: '#1B7F5A', // liste satırı dolgusu (#24976E beyazla 3,7:1 kaldı; AA için koyulaştırıldı)
-  card: '#F3FAF9', // açık zemin kartı
+  forest: '#1F6E6D', // koyu turkuaz: başlık, ana düğme, seçili öğe (beyazla 5,98:1)
+  pistachio: '#DDF1EE', // seçili / güvenli zemin (açık turkuaz)
+  pistachioText: '#1F6E6D',
+  listGreen: '#1C7472', // liste satırı dolgusu (beyazla 5,54:1)
+  card: '#EAF6F5', // açık zemin kartı
   water: '#1D5B7A', // yalnız sulama
   waterSoft: '#DCEBF3',
   amber: '#F2C14E', // yalnız uyarı
@@ -13,10 +16,10 @@ export const colors = {
   brick: '#B01B4A', // tehlike / sil
   brickSoft: '#FCE4EC',
   wheat: '#D9A441', // yalnız vurgu, metin değil
-  background: '#F1F3F4',
+  background: '#F1F1F2', // ana sayfa zemini ile aynı
   surface: '#FFFFFF',
-  border: '#D9DEE0',
-  textMuted: '#4F6258',
+  border: '#D3E6E3',
+  textMuted: '#4A5F5E',
   onForest: '#FFFFFF',
 } as const;
 
@@ -45,7 +48,26 @@ export const fontSize = {
   title: 18,
   display: 28,
 } as const;
-export const radius = { card: 12, row: 8, pill: 10 } as const;
+/** Yuvarlak köşeler (G23: ana sayfadaki gibi yumuşak). */
+export const radius = { card: 18, row: 12, pill: 14 } as const;
+
+/** Kabartı: kartların altında yumuşak gölge (iOS shadow*, Android elevation, web boxShadow). */
+export const elevation = {
+  card: {
+    shadowColor: '#1F6E6D',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  raised: {
+    shadowColor: '#1F6E6D',
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+  },
+} as const;
 export const spacing = { xs: 4, sm: 6, md: 8, lg: 12, xl: 14 } as const;
 
 /** "Yazı boyutu" ayarı: Büyük mod eskiden kabul edilen 18 px düzenine denk gelir (15 × 1,2). */

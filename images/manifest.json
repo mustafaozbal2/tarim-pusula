@@ -1,12 +1,22 @@
 [
-  { "name": "amblem.png", "w": 256, "h": 256, "where": "Ana sayfa, sol üst: amblem" },
+  {
+    "name": "amblem.png",
+    "w": 256,
+    "h": 256,
+    "where": "Ana sayfa, sol üst: amblem"
+  },
   {
     "name": "ciftci.png",
     "w": 400,
     "h": 560,
     "where": "Ana sayfa, orta: çiftçi çizimi (saydam arka plan)"
   },
-  { "name": "ikon_arazilerim.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Arazilerim" },
+  {
+    "name": "ikon_arazilerim.png",
+    "w": 128,
+    "h": 128,
+    "where": "Ana sayfa ikonu: Arazilerim"
+  },
   {
     "name": "ikon_arazi_islemleri.png",
     "w": 128,
@@ -19,24 +29,220 @@
     "h": 128,
     "where": "Ana sayfa ikonu: Verim Haritası"
   },
-  { "name": "ikon_hava.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Hava Durumu" },
-  { "name": "ikon_uzman.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Uzman Desteği" },
-  { "name": "ikon_bildirim.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Mobil Bildirim" },
-  { "name": "ikon_ayarlar.png", "w": 128, "h": 128, "where": "Ana sayfa ikonu: Profil Ayarları" },
-  { "name": "kart_1.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 1. kart" },
-  { "name": "kart_2.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 2. kart" },
-  { "name": "kart_3.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 3. kart" },
-  { "name": "kart_4.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 4. kart" },
-  { "name": "kart_5.jpg", "w": 300, "h": 480, "where": "Kayan şerit, 5. kart" },
+  {
+    "name": "ikon_hava.png",
+    "w": 128,
+    "h": 128,
+    "where": "Ana sayfa ikonu: Hava Durumu"
+  },
+  {
+    "name": "ikon_uzman.png",
+    "w": 128,
+    "h": 128,
+    "where": "Ana sayfa ikonu: Uzman Desteği"
+  },
+  {
+    "name": "ikon_bildirim.png",
+    "w": 128,
+    "h": 128,
+    "where": "Ana sayfa ikonu: Mobil Bildirim"
+  },
+  {
+    "name": "ikon_ayarlar.png",
+    "w": 128,
+    "h": 128,
+    "where": "Ana sayfa ikonu: Profil Ayarları"
+  },
+  {
+    "name": "kart_1.jpg",
+    "w": 300,
+    "h": 480,
+    "where": "Kayan şerit, 1. kart"
+  },
+  {
+    "name": "kart_2.jpg",
+    "w": 300,
+    "h": 480,
+    "where": "Kayan şerit, 2. kart"
+  },
+  {
+    "name": "kart_3.jpg",
+    "w": 300,
+    "h": 480,
+    "where": "Kayan şerit, 3. kart"
+  },
+  {
+    "name": "kart_4.jpg",
+    "w": 300,
+    "h": 480,
+    "where": "Kayan şerit, 4. kart"
+  },
+  {
+    "name": "kart_5.jpg",
+    "w": 300,
+    "h": 480,
+    "where": "Kayan şerit, 5. kart"
+  },
   {
     "name": "urun_1.jpg",
     "w": 240,
     "h": 240,
     "where": "Pazar: 1. ürün görseli (ürün sırasına göre)"
   },
-  { "name": "urun_2.jpg", "w": 240, "h": 240, "where": "Pazar: 2. ürün görseli" },
-  { "name": "urun_3.jpg", "w": 240, "h": 240, "where": "Pazar: 3. ürün görseli" },
-  { "name": "urun_4.jpg", "w": 240, "h": 240, "where": "Pazar: 4. ürün görseli" },
-  { "name": "urun_5.jpg", "w": 240, "h": 240, "where": "Pazar: 5. ürün görseli" },
-  { "name": "urun_6.jpg", "w": 240, "h": 240, "where": "Pazar: 6. ürün görseli" }
+  {
+    "name": "urun_2.jpg",
+    "w": 240,
+    "h": 240,
+    "where": "Pazar: 2. ürün görseli"
+  },
+  {
+    "name": "urun_3.jpg",
+    "w": 240,
+    "h": 240,
+    "where": "Pazar: 3. ürün görseli"
+  },
+  {
+    "name": "urun_4.jpg",
+    "w": 240,
+    "h": 240,
+    "where": "Pazar: 4. ürün görseli"
+  },
+  {
+    "name": "urun_5.jpg",
+    "w": 240,
+    "h": 240,
+    "where": "Pazar: 5. ürün görseli"
+  },
+  {
+    "name": "urun_6.jpg",
+    "w": 240,
+    "h": 240,
+    "where": "Pazar: 6. ürün görseli"
+  },
+  {
+    "name": "kart_6.jpg",
+    "w": 300,
+    "h": 500,
+    "where": "Kayan şerit, 6. kart (uzman: çilek hasadı)"
+  },
+  {
+    "name": "kart_7.jpg",
+    "w": 300,
+    "h": 500,
+    "where": "Kayan şerit, 7. kart (uzman: tarla gezisi)"
+  },
+  {
+    "name": "kart_8.jpg",
+    "w": 300,
+    "h": 500,
+    "where": "Kayan şerit, 8. kart (uzman: harman)"
+  },
+  {
+    "name": "kart_9.jpg",
+    "w": 300,
+    "h": 500,
+    "where": "Kayan şerit, 9. kart (uzman: hibe yönlendirme)"
+  },
+  {
+    "name": "kart_10.jpg",
+    "w": 300,
+    "h": 500,
+    "where": "Kayan şerit, 10. kart (uzman: tarla robotları)"
+  },
+  {
+    "name": "kart_11.jpg",
+    "w": 300,
+    "h": 500,
+    "where": "Kayan şerit, 11. kart (uzman: genç çiftçi)"
+  },
+  {
+    "name": "kart_12.jpg",
+    "w": 300,
+    "h": 500,
+    "where": "Kayan şerit, 12. kart (uzman: drone)"
+  },
+  {
+    "name": "ikon_toprak.png",
+    "w": 256,
+    "h": 256,
+    "where": "Toprak türleri ikonu"
+  },
+  {
+    "name": "ikon_cihaz.png",
+    "w": 256,
+    "h": 256,
+    "where": "Cihaz ekle ikonu"
+  },
+  {
+    "name": "ikon_rapor.png",
+    "w": 256,
+    "h": 256,
+    "where": "Tasarruf ve verim raporu ikonu"
+  },
+  {
+    "name": "ikon_tarla.png",
+    "w": 256,
+    "h": 256,
+    "where": "Arazilerim liste görseli"
+  },
+  {
+    "name": "ikon_arazi_ekle.png",
+    "w": 256,
+    "h": 256,
+    "where": "Arazi ekle/güncelle/sil ikonu"
+  },
+  {
+    "name": "ikon_konum.png",
+    "w": 256,
+    "h": 256,
+    "where": "Üretim planı / harita ikonu"
+  },
+  {
+    "name": "ikon_ekle.png",
+    "w": 256,
+    "h": 256,
+    "where": "Ekle düğmesi ikonu"
+  },
+  {
+    "name": "genis_ciftciler.jpg",
+    "w": 720,
+    "h": 405,
+    "where": "Sayfa başlığı görseli: çiftçiler"
+  },
+  {
+    "name": "genis_tarla.jpg",
+    "w": 720,
+    "h": 405,
+    "where": "Sayfa başlığı görseli: tarla"
+  },
+  {
+    "name": "genis_gubre.jpg",
+    "w": 720,
+    "h": 405,
+    "where": "Sayfa başlığı görseli: gübre/toprak"
+  },
+  {
+    "name": "genis_iklim.jpg",
+    "w": 720,
+    "h": 405,
+    "where": "Sayfa başlığı görseli: iklim"
+  },
+  {
+    "name": "genis_hizmet.jpg",
+    "w": 720,
+    "h": 405,
+    "where": "Sayfa başlığı görseli: tarım hizmetleri"
+  },
+  {
+    "name": "genis_fistik.jpg",
+    "w": 720,
+    "h": 405,
+    "where": "Verim haritası: AFAE fıstık projesi afişi"
+  },
+  {
+    "name": "logo_altin.png",
+    "w": 1024,
+    "h": 1024,
+    "where": "Uygulama simgesi kaynağı (altın pusula)"
+  }
 ]

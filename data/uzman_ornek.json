@@ -1,0 +1,88 @@
+{
+  "aciklama": "G23 uzman test verileri: demo'da onaylı uzman duyurusu olarak yüklenir (ana sayfa slaytı). Gerçek uzman girişi gelene kadar TEST verisidir. İlaç adı, doz, karışım oranı yok. Rakamlar yalnız kaynakta yazan değerlerdir.",
+  "kaynak": "Tarım Pusula Uzman Ekibi (test verisi)",
+  "tarih": "2026-10-25",
+  "surum": "uzman-ornek-v1",
+  "kayitlar": [
+    {
+      "kategori": "guncel",
+      "baslik": "Antep fıstığında örnek bahçelerde 3 kat verim artışı",
+      "metin": "Antepfıstığı Araştırma Enstitüsü (AFAE), Nestle Damak ve TEMA Vakfı ortak projesinde örnek bahçeler kuruldu. 8 yıl boyunca doğru tarımsal uygulamalar yapılan örnek bahçelerde verim artışı komşu bahçelere göre 3 kat fazla oldu. Doğru budama, toprak analizine göre gübreleme ve zamanında sulama verimin anahtarıdır.",
+      "kaynakNotu": "Kaynak: AFAE, Nestle Damak, TEMA - Antep Fıstığı Üretiminde Verim ve Kalitenin Artırılması Projesi afişi",
+      "gorsel": "kart_5.jpg",
+      "urunler": ["antep-fistigi"]
+    },
+    {
+      "kategori": "guncel",
+      "baslik": "Türkiye'de buğday verimi AB ortalamasının yarısı",
+      "metin": "TÜİK 2022 verilerine göre Türkiye'de buğday verimi hektarda 2.669,5 kg. Avrupa Birliği ortalaması 5.342,4 kg, Fransa 7.599,2 kg, Almanya 7.328,3 kg. Ekilen buğday alanı 2001'de 9 milyon 350 bin hektardı, 2021'de 6 milyon 744 bin hektara indi. Daha az alanda daha çok ürün için bilinçli tarım şart.",
+      "kaynakNotu": "Kaynak: TÜİK (2022), Türkiye Tarımsal Üretim İstatistikleri",
+      "gorsel": "kart_1.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "bilgilendirme",
+      "baslik": "Gübreden önce toprak analizi yaptırın",
+      "metin": "Toprağınızın neye ihtiyacı olduğunu bilmeden gübre atmak hem para hem toprak kaybıdır. Tarlanızın birkaç yerinden toprak örneği alıp il/ilçe tarım müdürlüğüne ya da yetkili laboratuvara götürün. Gübre çeşidi ve miktarını analiz sonucuna göre ziraat mühendisinizle belirleyin.",
+      "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi (test verisi)",
+      "gorsel": "kart_2.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "bilgilendirme",
+      "baslik": "Tarlanızı haftada bir gezin, erken fark edin",
+      "metin": "Haftada bir tarlanızın farklı yerlerini yürüyerek gezin. Yaprak rengi, leke, böcek ve kuruma belirtilerine bakın. Şüpheli bir şey görürseniz fotoğrafını çekip Uzman Desteği bölümünden sorun. Erken fark edilen sorun daha az zarar verir.",
+      "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi (test verisi)",
+      "gorsel": "kart_7.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "yonlendirme",
+      "baslik": "Hibe ve kredi başvurusu için nereye gidilir?",
+      "metin": "Tarımsal hibe ve desteklerin güncel şartlarını il/ilçe tarım ve orman müdürlüğünden öğrenebilirsiniz. Faizsiz ve düşük faizli tarım kredileri için Ziraat Bankası ve Tarım Kredi Kooperatifleri şubelerine başvurulur. Başvurudan önce ÇKS kaydınızın güncel olduğundan emin olun.",
+      "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi (test verisi)",
+      "gorsel": "kart_9.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "onlem",
+      "baslik": "İklim değişikliği tarım takvimini değiştiriyor",
+      "metin": "Sıcaklıklar ve yağışlar değişiyor; bitkilerin çiçeklenme, meyve ve hasat zamanları kayıyor. Bu yüzden eski alışkanlıkla değil, güncel hava tahminine göre iş planlayın. Uygulamadaki Hava Durumu ve Erken Uyarılar bölümlerini düzenli takip edin.",
+      "kaynakNotu": "Kaynak: Tarım Pusula afişi - İklim Değişikliğinin Tarıma Etkisi",
+      "gorsel": "kart_4.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "onlem",
+      "baslik": "Hasatta ürünü serin saatte toplayın",
+      "metin": "Meyve ve sebzeyi sabah serinliğinde ya da akşamüstü toplayın. Topladığınız ürünü güneşte bekletmeden gölgeye alın. Kasaları üst üste fazla yüklemeyin; ezilen ürün çabuk bozulur ve pazarda değer kaybeder.",
+      "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi (test verisi)",
+      "gorsel": "kart_6.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "teknoloji",
+      "baslik": "Drone ile tarla gözlemi",
+      "metin": "Drone ile büyük tarlalar kısa sürede yukarıdan görüntülenir; kuruyan, seyrek ya da hastalıklı alanlar erken fark edilir. Drone ile ilaçlama yalnız ruhsatlı ilaç ve yetkili uygulayıcı ile yapılır; ilaç ve doz için ziraat mühendisine danışın.",
+      "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi (test verisi)",
+      "gorsel": "kart_12.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "teknoloji",
+      "baslik": "Tarlada robotlar ve sensörler",
+      "metin": "Toprak nemi, sıcaklık ve bitki durumunu ölçen sensörler ve tarla robotları, çiftçinin karar vermesine yardım eder. Tarım Pusula'ya sensör ve sulama cihazı ekleyerek tarlanızın verisini telefondan izleyebilirsiniz.",
+      "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi (test verisi)",
+      "gorsel": "kart_10.jpg",
+      "urunler": []
+    },
+    {
+      "kategori": "yonlendirme",
+      "baslik": "Genç çiftçi projelerine başvuru",
+      "metin": "Tarımda iş kurmak isteyen gençler için zaman zaman hibe programları açılır. Programın açık olup olmadığını, yaş ve proje şartlarını il tarım ve orman müdürlüğünden öğrenin. Başvuru için iş planınızı ve arazi bilgilerinizi hazır tutun.",
+      "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi (test verisi)",
+      "gorsel": "kart_11.jpg",
+      "urunler": []
+    }
+  ]
+}

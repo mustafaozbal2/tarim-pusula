@@ -1,3 +1,4 @@
+import type { Places } from './places';
 import { BadRequestException } from '@nestjs/common';
 import { polygonAreaDecare, type LonLat } from '@tarim/agro-core';
 import type { FieldCreate, FieldUpdate } from '@tarim/schemas';
@@ -73,3 +74,15 @@ export const FIELD_COLUMN: Record<keyof FieldUpdate, string> = {
   cropId: 'crop_id',
   locationSource: 'location_source',
 };
+
+/**
+ * İl/ilçe boşsa ve konum varsa en yakın yerleşimden (data/yerlesim.csv, GeoNames) doldurur. Sınıra yakın
+ * noktada komşu ili verebilir; yalnız ekrandaki "İl, İlçe" yazısı içindir (hesapta kullanılmaz).
+ */
+export function withPlace<
+  T extends { province?: unknown; district?: unknown; lat?: unknown; lon?: unknown },
+>(f: T, places: Pick<Places, 'nearest'>): T {
+  if (f.province || typeof f.lat !== 'number' || typeof f.lon !== 'number') return f;
+  const p = places.nearest(f.lat, f.lon);
+  return p ? { ...f, province: p.province, district: f.district || p.district } : f;
+}

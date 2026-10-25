@@ -28,7 +28,9 @@ import {
   type FieldUpdate,
 } from '@tarim/schemas';
 import { adapterFor, validateRegistration } from '@tarim/devices';
-import { FIELD_COLS, FIELD_COLUMN, insertField, withComputedArea } from './fields.logic';
+import { PLACES } from './controllers.g2';
+import { FIELD_COLS, FIELD_COLUMN, insertField, withComputedArea, withPlace } from './fields.logic';
+import type { Places } from './places';
 import { Me, parse, Public, Roles, Token } from './auth/access';
 import { AuthService } from './auth/auth.service';
 import { DataService } from './data.service';
@@ -63,20 +65,26 @@ export class AuthController {
 
 @Controller('fields')
 export class FieldsController {
-  constructor(@Inject(DataService) private readonly data: DataService) {}
+  constructor(
+    @Inject(DataService) private readonly data: DataService,
+    @Inject(PLACES) private readonly places: Places,
+  ) {}
 
   @Post()
   create(@Me() me: Principal, @Body() body: unknown) {
     const f = parse(fieldCreateSchema, body);
-    const checked = withComputedArea(f); // geçersiz sınır burada 400 olur
+    // Konumla eklenen arazide il/ilçe boşsa en yakın yerleşimden doldurulur (G23.6).
+    const checked = withPlace(withComputedArea(f), this.places); // geçersiz sınır burada 400 olur
     return this.data.run(me, 'fields.create', (q) => insertField(q, me.userId, checked));
   }
 
   @Get()
-  list(@Me() me: Principal) {
-    return this.data.run(me, 'fields.list', (q) =>
-      q.query(`SELECT ${FIELD_COLS} FROM fields ORDER BY created_at`),
+  async list(@Me() me: Principal) {
+    const rows = await this.data.run(me, 'fields.list', (q) =>
+      q.query<Record<string, unknown>>(`SELECT ${FIELD_COLS} FROM fields ORDER BY created_at`),
     );
+    // Eski kayıtlarda il/ilçe yoksa yanıtta konumdan tahmin edilir (kayıt değişmez).
+    return rows.map((r) => withPlace(r, this.places));
   }
 
   @Get(':id')
