@@ -1,6 +1,8 @@
 # images/ — uygulama görselleri
 
-Her yuva için dosya ZATEN vardır: üzerinde "Resim N" yazan gri yer tutucu. Gerçek görseli **aynı adla üzerine yazın**; kod değişmez.
+Her yuva için dosya ZATEN vardır. 25 Ekim 2026 itibarıyla amblem, çiftçi, 7 ikon ve 5 kart **gerçek görseldir** (hedef görselden kesildi); `urun_*.jpg` hâlâ "Resim N" yer tutucusudur. Yeni görseli **aynı adla üzerine yazın**; kod değişmez. Hangi dosyanın yer tutucu sayıldığı `images/.placeholders.json` kaydındadır (dosya değişince `pnpm run images` kaydı kendiliğinden günceller).
+
+Not: `ikon_bildirim.png` içinde sabit "1" rozeti olduğundan uygulama zil için SVG çizer (gerçek okunmamış sayısı ayrı rozetle). Rozetsiz zil görseli konursa `HomeIcons.tsx` içindeki `glyphOnly` kaldırılır.
 
 Sonra çalıştırın: `pnpm run images` (görselleri `apps/mobile/assets/images/` içine kopyalar; `pnpm run demo` ve derleme öncesi kendiliğinden çalışır).
 
@@ -30,6 +32,7 @@ Sonra çalıştırın: `pnpm run images` (görselleri `apps/mobile/assets/images
 ## Kurallar
 
 - Yer tutucuyu üreten betik (`python scripts/gen-images.py`) var olan dosyayı ASLA ezmez.
-- İkon dosyaları (`ikon_*.png`) yer tutucuyken uygulama çizgi SVG ikonunu gösterir; dosyayı değiştirince sizin görseliniz görünür.
+- İkon dosyaları (`ikon_*.png`) yer tutucuyken uygulama çizgi SVG ikonunu gösterir; dosyayı değiştirince sizin görseliniz görünür (görsel beyaz daireyi kendisi içermelidir, tam çapta çizilir).
+- Görsel açılamazsa ekranda yazısız nötr kutu görünür; "Resim" ya da "fotoğraf yok" yazısı çıkmaz.
 - Yeni yuva eklemek: `images/manifest.json` + `apps/mobile/src/assets.ts` + `pnpm run images` (testler üçünün tutarlılığını denetler).
 - Yalnız kullanım hakkınız olan görselleri koyun.

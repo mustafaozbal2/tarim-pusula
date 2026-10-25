@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Card, colors, Durum, fontFamily, fontSize, Rozet, spacing } from '@tarim/ui';
 import { HavaSimgesi } from '../src/components/KonumHavaBasligi';
 import { BilgiKarti } from '../src/components/BilgiKarti';
@@ -120,13 +120,14 @@ export default function WeatherScreen() {
       <Text style={styles.small} testID="hava-guncelleme">
         {tr.today.lastUpdate}: {clock(w.fetchedAt)}
       </Text>
-      <Text
-        style={[styles.small, styles.link]}
+      <Pressable
         accessibilityRole="link"
+        accessibilityLabel={t.attribution}
         onPress={() => void Linking.openURL('https://open-meteo.com/')}
+        style={styles.linkTouch}
       >
-        {t.attribution}
-      </Text>
+        <Text style={[styles.small, styles.link]}>{t.attribution}</Text>
+      </Pressable>
       {data.offline ? <Text style={styles.small}>{tr.today.offline}</Text> : null}
       {w.stale && !data.offline ? <Text style={styles.small}>{tr.today.stale}</Text> : null}
       <BilgiKarti title={t.howTitle} lines={[...t.how]} testID="hava-nasil" />
@@ -154,10 +155,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   cellValue: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
-  fRow: { flexDirection: 'row', alignItems: 'center', minHeight: 28 },
+  fRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
   fDay: { flex: 1.2 },
   fMid: { flex: 1.4, textAlign: 'center' },
   fRain: { flex: 1, textAlign: 'right' },
   sample: { flexDirection: 'row' },
   link: { textDecorationLine: 'underline' },
+  linkTouch: { minHeight: 44, justifyContent: 'center' },
 });

@@ -30,7 +30,8 @@ async function login(page: Page): Promise<User> {
 async function addField(page: Page, u: User, name: string, cropId: string, district: string) {
   const r = await page.request.post(`${u.api}/fields`, {
     headers: { authorization: `Bearer ${u.token}` },
-    data: { name, province: 'Gaziantep', district, lat: 37.1, lon: 37.4, cropId },
+    // Duyuru tohumları Gaziantep'e hedefli; ürün içeriğini ayrı sınamak için başka il.
+    data: { name, province: 'Kahramanmaraş', district, lat: 37.58, lon: 36.94, cropId },
   });
   expect(r.status()).toBe(201);
 }
@@ -83,16 +84,20 @@ test('G22.4-5 ürüne göre içerik: Antep fıstığı, zeytin, domates', async 
       await page.getByTestId(`sekme-${tab}`).click();
       await expect(rows(page)).toHaveCount(5);
     }
+    // Onaylı gerçek takvim kaydı (başka testlerden) önce gelebilir; örnek satırlar ürüne göredir.
     await page.getByTestId('sekme-zaman').click();
-    await expect(rows(page).first()).toContainText(word);
+    await expect(rows(page).filter({ hasText: word }).first()).toBeVisible();
+    // Hepsi: dört sekmenin birleşimi (takvimden türeyen rehber satırı zamanı tekrar etmez).
     await page.getByTestId('sekme-hepsi').click();
-    await expect(rows(page)).toHaveCount(20);
-    await expect(page.getByTestId('kart-seridi-kart').first()).toContainText(word);
+    await expect.poll(() => rows(page).count()).toBeGreaterThanOrEqual(15);
+    expect(await rows(page).count()).toBeLessThanOrEqual(20);
+    // 5 kartın 4'ü ürün adını taşır (4. kart genel: "İklim krizi gıda krizinin habercisi").
+    await expect(page.getByTestId('kart-seridi-kart').filter({ hasText: word })).toHaveCount(4);
   };
   await check('Antep fıstığı');
 
   // Satır detayında kaynak + tarih etiketi ("Örnek veri (demo)").
-  await rows(page).first().click();
+  await rows(page).filter({ hasText: 'Antep fıstığı' }).first().click();
   await expect(page.getByTestId('satir-detay')).toContainText('Örnek veri (demo)');
 
   // Ürün değişince içerik değişir.

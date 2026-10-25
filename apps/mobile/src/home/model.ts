@@ -224,7 +224,20 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
     });
   }
   if (input.sample) rows.push(...sampleRows(rows, input.sample, input.todayIso ?? localIso()));
-  return rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.id < b.id ? -1 : 1));
+  // Tarihe göre; aynı günde gerçek (onaylı) kayıt örnek veriden önce gelir.
+  return rows.sort((a, b) =>
+    a.date !== b.date
+      ? a.date < b.date
+        ? -1
+        : 1
+      : Boolean(a.sample) !== Boolean(b.sample)
+        ? a.sample
+          ? 1
+          : -1
+        : a.id < b.id
+          ? -1
+          : 1,
+  );
 }
 
 /**

@@ -133,7 +133,9 @@ test('başka ilin duyurusu mobilde görünmez', async ({ browser }) => {
   );
   await page.goto('/');
   await expect(page.getByTestId('bugun-tarla')).toHaveText('Harran');
-  await expect(page.getByTestId('kart-seridi-kart')).toHaveCount(0);
+  // Şeritte yalnız (demo/e2e) ürün örnek kartları olabilir; Gaziantep'e hedefli duyuru görünmez.
+  await expect(page.getByTestId('kart-seridi-kart').first()).toBeVisible();
+  await expect(page.getByText(/Sulama toplantısı duyurusu/)).toHaveCount(0);
   await ctx.close();
 });
 
