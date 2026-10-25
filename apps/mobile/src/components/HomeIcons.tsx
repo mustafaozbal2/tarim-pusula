@@ -1,4 +1,12 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import { fontFamily } from '@tarim/ui';
 import { IMAGE_FILES, type ImageName } from '../assets';
@@ -8,7 +16,14 @@ export type HomeIconKey =
   'arazilerim' | 'arazi-islemleri' | 'verim-haritasi' | 'hava' | 'uzman' | 'bildirim' | 'ayarlar';
 
 /** Her ikonun görsel yuvası (images/ klasörü) ve ekran okuyucu adı. */
-export const HOME_ICONS: { key: HomeIconKey; file: ImageName; label: string; route: string }[] = [
+export const HOME_ICONS: {
+  key: HomeIconKey;
+  file: ImageName;
+  label: string;
+  route: string;
+  /** Görsel kullanılmaz, SVG çizilir. */
+  glyphOnly?: boolean;
+}[] = [
   { key: 'arazilerim', file: 'ikon_arazilerim.png', label: 'Arazilerim', route: '/tarlalarim' },
   {
     key: 'arazi-islemleri',
@@ -24,7 +39,15 @@ export const HOME_ICONS: { key: HomeIconKey; file: ImageName; label: string; rou
   },
   { key: 'hava', file: 'ikon_hava.png', label: 'Hava Durumu', route: '/hava' },
   { key: 'uzman', file: 'ikon_uzman.png', label: 'Uzman Desteği', route: '/soru-sor' },
-  { key: 'bildirim', file: 'ikon_bildirim.png', label: 'Mobil Bildirim', route: '/bildirimler' },
+  // Zil görselinde hedeften gelen sabit "1" rozeti var; yanlış sayı göstermemek için SVG zil çizilir,
+  // gerçek okunmamış sayısı ayrı rozetle gösterilir (docs/KARARLAR.md, G22).
+  {
+    key: 'bildirim',
+    file: 'ikon_bildirim.png',
+    label: 'Mobil Bildirim',
+    route: '/bildirimler',
+    glyphOnly: true,
+  },
   { key: 'ayarlar', file: 'ikon_ayarlar.png', label: 'Profil Ayarları', route: '/ayarlar' },
 ];
 
@@ -128,6 +151,7 @@ export function HomeIconButton({
   badge,
   size = 38,
   pitch = 41,
+  style,
 }: {
   item: (typeof HOME_ICONS)[number];
   onPress: () => void;
@@ -137,21 +161,31 @@ export function HomeIconButton({
   size?: number;
   /** Komşu ikonla merkezler arası mesafe; dokunma alanı 44 px, komşuyla hafif örtüşür. */
   pitch?: number;
+  /** Konum (ana sayfa bandında mutlak yerleşim). */
+  style?: StyleProp<ViewStyle>;
 }) {
-  const usePng = IMAGE_IS_PLACEHOLDER[item.file] === false;
+  const usePng = IMAGE_IS_PLACEHOLDER[item.file] === false && !item.glyphOnly;
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={badge && badge > 0 ? `${item.label}, ${badge} okunmamış` : item.label}
       testID={`ikon-${item.key}`}
       onPress={onPress}
-      style={[styles.touch, { marginHorizontal: (pitch - TOUCH) / 2 }]}
+      style={[styles.touch, { marginHorizontal: (pitch - TOUCH) / 2 }, style]}
     >
-      <View style={[styles.circle, { width: size, height: size, borderRadius: size / 2 }]}>
+      {/* Gerçek ikon görseli beyaz daireyi kendi içerir: tam çapta çizilir. */}
+      <View
+        style={[
+          styles.circle,
+          { width: size, height: size, borderRadius: size / 2 },
+          usePng && styles.clear,
+        ]}
+      >
         {usePng ? (
           <Image
+            testID={`ikon-gorsel-${item.key}`}
             source={IMAGE_FILES[item.file] as number}
-            style={{ width: size * 0.8, height: size * 0.8, borderRadius: size * 0.4 }}
+            style={{ width: size, height: size, borderRadius: size / 2 }}
           />
         ) : (
           <Glyph k={item.key} size={size * 0.72} />
@@ -172,6 +206,7 @@ const TOUCH = 44;
 const styles = StyleSheet.create({
   touch: { width: TOUCH, height: TOUCH, alignItems: 'center', justifyContent: 'center' },
   circle: { backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  clear: { backgroundColor: 'transparent' },
   badge: {
     position: 'absolute',
     top: 1,

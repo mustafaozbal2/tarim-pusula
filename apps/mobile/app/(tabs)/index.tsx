@@ -1,10 +1,9 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Durum, fontFamily, homeColors } from '@tarim/ui';
-import type { AnnouncementDto } from '../../src/api/client';
-import { DemoBadge } from '../../src/components/DemoBadge';
+import { fontFamily, homeColors } from '@tarim/ui';
 import { SunucuKarti } from '../../src/components/SunucuKarti';
+import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
 import { loadHome, type HomeData } from '../../src/home/load';
 import {
   AttentionBadge,
@@ -17,11 +16,15 @@ import {
 import {
   attentionCount,
   buildHomeRows,
+  homeCards,
+  localIso,
   placeLine,
   rowsForTab,
+  type HomeCard,
   type HomeTab,
 } from '../../src/home/model';
 import { tr } from '../../src/i18n/tr';
+import { withDeadline } from '../../src/load/deadline';
 import { kv } from '../../src/offline/kvStore';
 import { loadSeen, notificationItems, unreadCount } from '../../src/notifications/state';
 import { registerForPush } from '../../src/push';
@@ -31,8 +34,8 @@ const t = tr.today;
 
 /**
  * Ana sayfa (docs/ANASAYFA_SPEC.md, hedef: docs/referans/anasayfa_hedef.png): turkuaz bant + 7 ikon,
- * kayan kart şeridi, arazi adı, 5 sekmeli liste. Hava, don ve sulama özetleri ilgili ikonun altındaki
- * sayfalardadır (Hava Durumu, Arazi İşlemleri).
+ * kayan kart şeridi, arazi adı, 5 sekmeli liste. Arazi yokken hiçbir içerik gösterilmez (G22.3); arazi
+ * varken içerik o arazinin ÜRÜNÜNE göre gelir (demo'da örnek veriyle 5'er kayda tamamlanır, G22.4).
  */
 export default function HomeScreen() {
   const router = useRouter();
@@ -43,8 +46,10 @@ export default function HomeScreen() {
   const [seen, setSeen] = useState<string[]>([]);
 
   const load = useCallback(async (pick?: string) => {
+    setState((s) => (s === 'error' ? 'loading' : s));
     try {
-      const r = await loadHome(api, kv, pick);
+      // En geç 10 sn: ağ yavaşsa iskelette asılı kalmaz (G22.7).
+      const r = await withDeadline(loadHome(api, kv, pick));
       setData(r);
       setState(r ? 'ready' : 'empty');
       setSeen(await loadSeen(kv));
@@ -67,6 +72,8 @@ export default function HomeScreen() {
             today: data.base.today,
             supports: data.supports,
             announcements: data.announcements,
+            sample: data.sample,
+            todayIso: localIso(),
           })
         : [],
     [data],
@@ -75,10 +82,18 @@ export default function HomeScreen() {
     () => (data ? unreadCount(notificationItems(data.base.today, data.announcements), seen) : 0),
     [data, seen],
   );
-  const cards = useMemo(() => (data?.announcements ?? []).filter((a) => !a.needsBadge), [data]);
+  const cards = useMemo(() => (data ? homeCards(data.announcements, data.sample) : []), [data]);
 
-  const openCard = (a: AnnouncementDto) =>
-    router.push({ pathname: '/haber', params: { id: a.id, fieldId: data?.base.field.id } });
+  const openCard = (c: HomeCard) =>
+    c.announcementId
+      ? router.push({
+          pathname: '/haber',
+          params: { id: c.announcementId, fieldId: data?.base.field.id },
+        })
+      : router.push({
+          pathname: '/haber',
+          params: { ornek: data?.sample?.urunId ?? '', i: String(c.sampleIndex ?? 0) },
+        });
 
   const goSide = (key: 'arazi' | 'uretim' | 'takvim') => {
     const fieldId = data?.base.field.id;
@@ -92,21 +107,28 @@ export default function HomeScreen() {
     <View style={styles.root}>
       <ScrollView style={styles.root} contentContainerStyle={styles.content}>
         <TopBand unread={unread} />
-        <DemoBadge />
-        {state === 'loading' ? <Durum kind="yukleniyor" text={t.loading} /> : null}
-        {state === 'error' ? (
+        {state === 'loading' ? (
           <View style={styles.pad}>
+            <Iskelet rows={3} />
+          </View>
+        ) : null}
+        {state === 'error' ? (
+          <View style={[styles.pad, styles.gap]}>
+            <YuklemeHatasi onRetry={() => void load()} />
             <SunucuKarti onRetry={() => void load()} />
           </View>
         ) : null}
         {state === 'empty' ? (
-          <View style={styles.pad}>
-            <Durum
-              kind="bos"
-              text={`${t.noField} ${t.noFieldHint}`}
-              action={{ label: t.addField, onPress: () => router.push('/tarla-ekle') }}
+          <>
+            <CardStrip items={[]} onOpen={() => undefined} />
+            <FieldBlock />
+            <TabsCard
+              tab={tab}
+              onTab={setTab}
+              rows={[]}
+              empty={{ onAdd: () => router.push('/tarla-ekle') }}
             />
-          </View>
+          </>
         ) : null}
         {state === 'ready' && data && field ? (
           <>
@@ -153,6 +175,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: homeColors.page },
   content: { paddingBottom: 12 },
   pad: { padding: 12 },
+  gap: { gap: 12 },
   picker: {
     marginHorizontal: 24,
     backgroundColor: '#FFFFFF',

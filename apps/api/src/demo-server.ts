@@ -20,7 +20,13 @@ import {
 } from './demo';
 import { migrate, PgliteDb, systemTx } from './db/db';
 import { MarketCollector } from './market/collector';
-import { FakeWeatherProvider, sampleBundle } from './weather/openmeteo';
+import {
+  FakeWeatherProvider,
+  FallbackWeatherProvider,
+  OpenMeteoClient,
+  sampleBundle,
+  type WeatherProvider,
+} from './weather/openmeteo';
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -41,6 +47,27 @@ export interface DemoOptions {
   webDir: string;
   /** Dinlenen adres. Varsayılan yalnız bu bilgisayar (127.0.0.1); `--lan` için 0.0.0.0. */
   host?: string;
+  /**
+   * Hava sağlayıcısı. Verilmezse GERÇEK Open-Meteo (anahtarsız); ağ yoksa/hata olursa örnek veriye düşer
+   * ve ekranda "Örnek veri" yazar. `DEMO_WEATHER=ornek` ile hep örnek veri (testler ağsız çalışır).
+   */
+  weather?: WeatherProvider;
+}
+
+/** Demo örnek havası: ensemble üyelerinin hepsi -6 °C → güncel tarihli don uyarısı (dış ağ yok). */
+export function demoSampleWeather(): FakeWeatherProvider {
+  return new FakeWeatherProvider((lat, lon) =>
+    sampleBundle(lat, lon, { memberMinC: Array.from({ length: 20 }, () => -6) }),
+  );
+}
+
+/** Demo havası: varsayılan gerçek Open-Meteo + örnek veri yedeği. */
+export function demoWeather(env: NodeJS.ProcessEnv = process.env): WeatherProvider {
+  if (env['DEMO_WEATHER'] === 'ornek') return demoSampleWeather();
+  return new FallbackWeatherProvider(
+    new OpenMeteoClient({ timeoutMs: 6000, apiKey: env['OPEN_METEO_API_KEY'] || undefined }),
+    demoSampleWeather(),
+  );
 }
 
 export interface DemoHandle {
@@ -90,10 +117,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
       demo: info,
       broker,
       market: demoMarket(),
-      // Dış ağ yok: ensemble üyelerinin hepsi -6 °C → güncel tarihli don uyarısı.
-      weather: new FakeWeatherProvider((lat, lon) =>
-        sampleBundle(lat, lon, { memberMinC: Array.from({ length: 20 }, () => -6) }),
-      ),
+      weather: o.weather ?? demoWeather(),
     }),
     { logger: false },
   );

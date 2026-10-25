@@ -6,6 +6,7 @@ import { Button, Card, colors, Durum, fontFamily, fontSize, spacing } from '@tar
 import type { DeviceDto } from '../src/api/client';
 import { Icon } from '../src/components/Icon';
 import { Screen } from '../src/components/Screen';
+import { Iskelet, YuklemeHatasi } from '../src/components/Yukleme';
 import { SunucuKarti } from '../src/components/SunucuKarti';
 import { useToday } from '../src/hooks/useToday';
 import { hubCards } from '../src/hub/model';
@@ -41,8 +42,13 @@ export default function HubScreen() {
   if (state !== 'ready' || !data) {
     return (
       <Screen title={t.title}>
-        {state === 'loading' ? <Durum kind="yukleniyor" text={tr.today.loading} /> : null}
-        {state === 'error' ? <SunucuKarti onRetry={() => void reload()} /> : null}
+        {state === 'loading' ? <Iskelet /> : null}
+        {state === 'error' ? (
+          <>
+            <YuklemeHatasi onRetry={() => void reload()} />
+            <SunucuKarti onRetry={() => void reload()} />
+          </>
+        ) : null}
         {state === 'empty' ? (
           <Durum
             kind="bos"

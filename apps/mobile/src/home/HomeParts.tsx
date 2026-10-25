@@ -11,9 +11,8 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fontFamily, homeColors } from '@tarim/ui';
-import type { AnnouncementDto } from '../api/client';
-import type { ImageName } from '../assets';
+import { Button, fontFamily, homeColors } from '@tarim/ui';
+import { DemoBadge } from '../components/DemoBadge';
 import { HOME_ICONS, HomeIconButton } from '../components/HomeIcons';
 import { Icon } from '../components/Icon';
 import { ImageSlot } from '../components/ImageSlot';
@@ -24,155 +23,200 @@ import {
   emptyText,
   HOME_TABS,
   nextCardIndex,
+  type HomeCard,
   type HomeRow,
   type HomeTab,
 } from './model';
 
 const t = tr.home;
 
+/**
+ * Hedef görselden (docs/referans/anasayfa_hedef.png) ölçülen yerleşim, 390 px genişlik için. Ekran
+ * genişliğiyle orantılı ölçeklenir (en çok 430 px). Ölçüm yöntemi ve sapmalar: docs/gorsel/ANASAYFA_FARK.md.
+ */
+export const HOME_LAYOUT = {
+  bandH: 125,
+  emblem: { x: 7, y: 3, w: 77, h: 97 },
+  icon: { cx0: 116.1, pitch: 41.8, cy: 46.1, d: 39.6 },
+  strip: { top: 16.1, padL: 7.4, w: 71.2, h: 119.5, gap: 4.9, block: 155.8 },
+  farmer: { x: 84.3, w: 53, h: 104 },
+  name: { w: 185.4, padTop: 39.5 },
+  tabs: { gap: 7.7, ml: 8.7, mr: 7.4, headH: 52.6 },
+  rows: { padL: 8.6, padR: 8.1, padTop: 7.4, gap: 12.6, h: 61, date: 61.3, between: 5.6 },
+} as const;
+
+/** Ölçek: ekran genişliği / 390 (en çok 430 px'e göre). */
+export function useHomeScale(): number {
+  const { width } = useWindowDimensions();
+  return Math.min(width, 430) / 390;
+}
+
+const L = HOME_LAYOUT;
+
 /** Üst bant: amblem + 7 yuvarlak ikon. Üst boşluk safe-area'dan gelir (saat/çentik ile karışmaz). */
 export function TopBand({ unread }: { unread: number }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const w = Math.min(width, 430);
-  // Hedefte daire 38 px, merkezler arası 41 px; dar ekranda ikisi de küçülür.
-  const pitch = Math.min(41, Math.floor((w - 20 - 78) / 7));
-  const size = Math.min(38, pitch - 3);
+  const k = useHomeScale();
+  const top = insets.top;
+  const d = L.icon.d * k;
   return (
-    <View style={[styles.band, { paddingTop: Math.max(insets.top, 12) + 4 }]} testID="ana-bant">
-      <View style={styles.stripe} pointerEvents="none" />
-      <View style={styles.brand}>
-        <ImageSlot name="amblem.png" label={t.emblem} style={styles.emblem} testID="amblem" />
-        <Text
-          style={styles.brandText}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}
-        >
-          {tr.app.name.toLocaleUpperCase('tr-TR')}
-        </Text>
-      </View>
-      <View style={styles.icons}>
-        {HOME_ICONS.map((item) => (
-          <HomeIconButton
-            key={item.key}
-            item={item}
-            size={size}
-            pitch={pitch}
-            badge={item.key === 'bildirim' ? unread : undefined}
-            onPress={() => router.push(item.route as never)}
-          />
-        ))}
+    <View style={[styles.band, { height: L.bandH * k + top }]} testID="ana-bant">
+      {/* Hedefteki açık bölge: üstte x≈210'dan sağ kenarda y≈115'e inen köşegenin sağı. */}
+      <View
+        style={[
+          styles.stripe,
+          { left: 140 * k, top: top - 298 * k, width: 600 * k, height: 400 * k },
+        ]}
+        pointerEvents="none"
+      />
+      <ImageSlot
+        name="amblem.png"
+        label={`${t.emblem}: ${tr.app.name}`}
+        style={{
+          position: 'absolute',
+          left: L.emblem.x * k,
+          top: top + L.emblem.y * k,
+          width: L.emblem.w * k,
+          height: L.emblem.h * k,
+        }}
+        testID="amblem"
+      />
+      {HOME_ICONS.map((item, i) => (
+        <HomeIconButton
+          key={item.key}
+          item={item}
+          size={d}
+          pitch={44}
+          badge={item.key === 'bildirim' ? unread : undefined}
+          onPress={() => router.push(item.route as never)}
+          style={{
+            position: 'absolute',
+            left: (L.icon.cx0 + i * L.icon.pitch) * k - 22,
+            top: top + L.icon.cy * k - 22,
+          }}
+        />
+      ))}
+      <View style={styles.demo} pointerEvents="none">
+        <DemoBadge />
       </View>
     </View>
   );
 }
 
-/** Yatay kayan 5 kartlı şerit: ~4 sn'de bir kendiliğinden ilerler, dokununca/kaydırınca durur. */
-export function CardStrip({
-  items,
-  onOpen,
-}: {
-  items: AnnouncementDto[];
-  onOpen: (a: AnnouncementDto) => void;
-}) {
+/**
+ * Yatay kayan kart şeridi: ~4 sn'de bir bir kart ilerler, dokununca/kaydırınca durur. 5 kart ekrana
+ * sığdığı için liste bir kez daha (kopya) çizilir; sona gelince başa sessizce döner (sonsuz döngü).
+ * Kart yoksa (boş durum) yalnız yer tutar, içerik göstermez.
+ */
+export function CardStrip({ items, onOpen }: { items: HomeCard[]; onOpen: (c: HomeCard) => void }) {
   const ref = useRef<ComponentRef<typeof ScrollView>>(null);
   const [paused, setPaused] = useState(false);
   const index = useRef(0);
-  const { width } = useWindowDimensions();
-  const cardW = 76;
-  const gap = 6;
+  const k = useHomeScale();
+  const cardW = L.strip.w * k;
+  const gap = L.strip.gap * k;
   const step = cardW + gap;
   const shown = items.slice(0, 5);
-  const visible = Math.max(1, Math.floor((Math.min(width, 430) - 20) / step));
-  // Son kart görününce başa döner.
-  const slots = Math.max(1, shown.length - visible + 1);
+  const loop = shown.length > 1;
 
   useEffect(() => {
-    if (paused || shown.length <= visible) return;
+    if (paused || !loop) return;
     const timer = setInterval(() => {
-      index.current = nextCardIndex(index.current, slots);
+      index.current = nextCardIndex(index.current, shown.length + 1);
+      if (index.current === 0) {
+        ref.current?.scrollTo({ x: 0, animated: false });
+        index.current = 1;
+      }
       ref.current?.scrollTo({ x: index.current * step, animated: true });
     }, CARD_INTERVAL_MS);
     return () => clearInterval(timer);
-  }, [paused, shown.length, visible, slots, step]);
+  }, [paused, loop, shown.length, step]);
 
-  if (shown.length === 0) {
-    return (
-      <View style={styles.stripEmpty}>
-        <Text style={styles.stripEmptyText}>{t.noCards}</Text>
-      </View>
-    );
-  }
+  const block = { height: L.strip.block * k, marginTop: L.strip.top * k };
+  if (shown.length === 0) return <View style={block} testID="kart-seridi-bos" />;
+  const card = (c: HomeCard, i: number, copy: boolean) => (
+    <Pressable
+      key={`${copy ? 'k' : 'a'}-${c.id}`}
+      accessibilityRole="button"
+      accessibilityLabel={c.title}
+      accessibilityElementsHidden={copy}
+      importantForAccessibility={copy ? 'no-hide-descendants' : 'auto'}
+      testID={copy ? 'kart-seridi-kopya' : 'kart-seridi-kart'}
+      onPress={() => onOpen(c)}
+      style={{ width: cardW }}
+    >
+      <ImageSlot
+        name={c.image}
+        uri={c.uri}
+        label={c.title}
+        testID={copy ? undefined : `kart-gorsel-${i + 1}`}
+        style={{ width: cardW, height: L.strip.h * k, borderRadius: 9 * k }}
+      />
+      <Text style={styles.cardTitle} numberOfLines={3}>
+        {c.title}
+      </Text>
+    </Pressable>
+  );
   return (
     <ScrollView
       ref={ref}
       horizontal
       showsHorizontalScrollIndicator={false}
       testID="kart-seridi"
-      contentContainerStyle={{ paddingHorizontal: 10, gap }}
+      contentContainerStyle={{ paddingHorizontal: L.strip.padL * k, gap }}
       onTouchStart={() => setPaused(true)}
       onScrollBeginDrag={() => setPaused(true)}
       onMomentumScrollEnd={(e: NativeSyntheticEvent<NativeScrollEvent>) => {
         index.current = Math.round(e.nativeEvent.contentOffset.x / step);
       }}
-      style={styles.strip}
+      style={[styles.strip, block]}
     >
-      {shown.map((a, i) => (
-        <Pressable
-          key={a.id}
-          accessibilityRole="button"
-          accessibilityLabel={a.title}
-          testID="kart-seridi-kart"
-          onPress={() => onOpen(a)}
-          style={{ width: cardW }}
-        >
-          <ImageSlot
-            name={`kart_${i + 1}.jpg` as ImageName}
-            uri={a.imageDataUrl}
-            label={a.title}
-            style={styles.cardImage}
-          />
-          <Text style={styles.cardTitle} numberOfLines={3}>
-            {a.title}
-          </Text>
-        </Pressable>
-      ))}
+      {shown.map((c, i) => card(c, i, false))}
+      {loop ? shown.map((c, i) => card(c, i, true)) : null}
     </ScrollView>
   );
 }
 
-/** Arazi adı (büyük, turkuaz) + il/ilçe; dokununca arazi değiştirici açılır. */
+/** Çiftçi çizimi + arazi adı (büyük, turkuaz) ve il/ilçe; dokununca arazi değiştirici açılır. */
 export function FieldBlock({
   name,
   place,
   onPress,
   canSwitch,
 }: {
-  name: string;
-  place: string;
-  onPress: () => void;
-  canSwitch: boolean;
+  /** Arazi yoksa (boş durum) verilmez: yalnız çizim görünür. */
+  name?: string;
+  place?: string;
+  onPress?: () => void;
+  canSwitch?: boolean;
 }) {
+  const k = useHomeScale();
   return (
-    <View style={styles.fieldRow}>
-      <ImageSlot name="ciftci.png" label={t.farmer} style={styles.farmer} testID="ciftci" />
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={canSwitch ? `${t.switchField}: ${name}` : name}
-        testID="arazi-blogu"
-        disabled={!canSwitch}
-        onPress={onPress}
-        style={styles.fieldText}
-      >
-        <Text style={styles.fieldName} numberOfLines={2} testID="bugun-tarla">
-          {name}
-        </Text>
-        <Text style={styles.fieldPlace} numberOfLines={1} testID="arazi-yer">
-          {place}
-        </Text>
-      </Pressable>
+    <View style={[styles.fieldRow, { height: L.farmer.h * k, paddingLeft: L.farmer.x * k }]}>
+      <ImageSlot
+        name="ciftci.png"
+        label={t.farmer}
+        style={{ width: L.farmer.w * k, height: L.farmer.h * k }}
+        testID="ciftci"
+      />
+      {name ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={canSwitch ? `${t.switchField}: ${name}` : name}
+          testID="arazi-blogu"
+          disabled={!canSwitch}
+          onPress={onPress}
+          style={[styles.fieldText, { width: L.name.w * k, paddingTop: L.name.padTop * k }]}
+        >
+          <Text style={styles.fieldName} numberOfLines={1} testID="bugun-tarla">
+            {name}
+          </Text>
+          <Text style={styles.fieldName} numberOfLines={1} testID="arazi-yer">
+            {place}
+          </Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -182,16 +226,33 @@ export function TabsCard({
   tab,
   onTab,
   rows,
+  empty,
 }: {
   tab: HomeTab;
   onTab: (t: HomeTab) => void;
   rows: HomeRow[];
+  /** Arazi yokken: sekmeler görünür, gövdede kısa metin + "Tarla ekle" düğmesi (içerik yok). */
+  empty?: { onAdd: () => void };
 }) {
   const [open, setOpen] = useState<string | null>(null);
-  const weights: Record<HomeTab, number> = { zaman: 1, rehber: 1, uyari: 1, hibe: 1.5, hepsi: 0.9 };
+  const k = useHomeScale();
+  const weights: Record<HomeTab, number> = {
+    zaman: 1,
+    rehber: 1,
+    uyari: 1,
+    hibe: 1.65,
+    hepsi: 0.95,
+  };
+  const R = L.rows;
   return (
-    <View style={styles.tabsCard} testID="ana-sekmeli-kart">
-      <View style={styles.tabsHead}>
+    <View
+      style={[
+        styles.tabsCard,
+        { marginLeft: L.tabs.ml * k, marginRight: L.tabs.mr * k, marginTop: L.tabs.gap * k },
+      ]}
+      testID="ana-sekmeli-kart"
+    >
+      <View style={[styles.tabsHead, { height: L.tabs.headH * k }]} testID="ana-sekme-basligi">
         {HOME_TABS.map((x, i) => {
           const on = x.key === tab;
           return (
@@ -219,13 +280,26 @@ export function TabsCard({
           );
         })}
       </View>
-      <View style={styles.rows}>
-        {rows.length === 0 ? (
+      <View
+        style={{
+          paddingLeft: R.padL * k,
+          paddingRight: R.padR * k,
+          paddingTop: R.padTop * k,
+          paddingBottom: 10,
+          gap: R.gap * k,
+        }}
+      >
+        {empty ? (
+          <View style={styles.emptyBox} testID="ana-bos-durum">
+            <Text style={styles.empty}>{t.empty}</Text>
+            <Button label={t.addField} onPress={empty.onAdd} testID="ana-tarla-ekle" />
+          </View>
+        ) : rows.length === 0 ? (
           <Text style={styles.empty} testID="ana-bos">
             {emptyText(tab)}
           </Text>
         ) : (
-          rows.map((r) => {
+          rows.map((r, i) => {
             const d = dateBox(r.date);
             return (
               <View key={r.id}>
@@ -234,21 +308,27 @@ export function TabsCard({
                   accessibilityLabel={`${d.month} ${d.day} ${d.year}: ${r.title}`}
                   testID="liste-satiri"
                   onPress={() => setOpen(open === r.id ? null : r.id)}
-                  style={styles.row}
+                  style={[styles.row, { minHeight: R.h * k, gap: R.between * k }]}
                 >
-                  <View style={styles.dateBox}>
+                  <View
+                    style={[styles.dateBox, { width: R.date * k }]}
+                    testID={i === 0 ? 'tarih-kutusu' : undefined}
+                  >
                     <Text style={styles.dateText}>{d.month}</Text>
                     <Text style={styles.dateText}>{d.day}</Text>
                     <Text style={styles.dateText}>{d.year}</Text>
                   </View>
-                  <View style={styles.rowBox}>
+                  <View style={styles.rowBox} testID={i === 0 ? 'satir-kutusu' : undefined}>
                     <Text style={styles.rowText} numberOfLines={3}>
                       {r.title}
                     </Text>
                   </View>
                 </Pressable>
                 {open === r.id ? (
-                  <View style={styles.detail} testID="satir-detay">
+                  <View
+                    style={[styles.detail, { marginLeft: (R.date + R.between) * k }]}
+                    testID="satir-detay"
+                  >
                     {r.detail ? <Text style={styles.detailText}>{r.detail}</Text> : null}
                     <Text style={styles.detailSource}>
                       {tr.common.source}: {r.source}
@@ -267,6 +347,7 @@ export function TabsCard({
 /** Sol köşe "Dikkat" rozeti: yalnız aktif ve onaylı uyarı varken çizilir. */
 export function AttentionBadge({ count, onPress }: { count: number; onPress: () => void }) {
   const insets = useSafeAreaInsets();
+  const k = useHomeScale();
   if (count <= 0) return null;
   return (
     <Pressable
@@ -274,7 +355,7 @@ export function AttentionBadge({ count, onPress }: { count: number; onPress: () 
       accessibilityLabel={`${t.attention}: ${count}`}
       testID="dikkat-rozeti"
       onPress={onPress}
-      style={[styles.attentionTouch, { top: Math.max(insets.top, 12) + 4 + 100 }]}
+      style={[styles.attentionTouch, { top: insets.top + (L.bandH + 4) * k }]}
     >
       <View style={styles.attention}>
         <Icon name="warning" size={16} color="#FFFFFF" />
@@ -331,84 +412,39 @@ export function SideMenu({ onGo }: { onGo: (key: 'arazi' | 'uretim' | 'takvim') 
 }
 
 const styles = StyleSheet.create({
-  band: {
-    backgroundColor: homeColors.band,
-    paddingBottom: 14,
-    paddingHorizontal: 10,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    overflow: 'hidden',
-  },
+  band: { backgroundColor: homeColors.band, overflow: 'hidden' },
   stripe: {
     position: 'absolute',
-    left: -40,
-    right: -40,
-    top: 40,
-    height: 70,
     backgroundColor: homeColors.bandStripe,
-    transform: [{ rotate: '-8deg' }],
+    transform: [{ rotate: '32deg' }],
   },
-  brand: { alignItems: 'center', width: 78 },
-  emblem: { width: 62, height: 62, borderRadius: 31 },
-  brandText: {
-    fontFamily: fontFamily.extrabold,
-    fontSize: 12,
-    color: homeColors.text,
-    marginTop: 4,
-  },
-  icons: { flexDirection: 'row', alignItems: 'center', marginTop: 10, flexShrink: 1 },
-  strip: { flexGrow: 0, marginTop: 14 },
-  stripEmpty: { paddingHorizontal: 12, paddingVertical: 18 },
-  stripEmptyText: {
-    fontFamily: fontFamily.medium,
-    fontSize: 13,
-    color: homeColors.text,
-    textAlign: 'center',
-  },
-  cardImage: { width: 76, height: 118, borderRadius: 12 },
+  demo: { position: 'absolute', right: 6, bottom: 6 },
+  strip: { flexGrow: 0 },
   cardTitle: {
     fontFamily: fontFamily.medium,
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 11,
+    paddingTop: 4,
     color: homeColors.text,
     textAlign: 'center',
-    marginTop: 4,
   },
-  fieldRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 4,
-    gap: 16,
-    minHeight: 104,
-  },
-  farmer: { width: 72, height: 100 },
-  fieldText: { flex: 1, alignItems: 'center', minHeight: 44, justifyContent: 'center' },
+  fieldRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  fieldText: { alignItems: 'center' },
   fieldName: {
     fontFamily: fontFamily.medium,
-    fontSize: 20,
-    lineHeight: 24,
-    color: homeColors.name,
-    textAlign: 'center',
-  },
-  fieldPlace: {
-    fontFamily: fontFamily.medium,
-    fontSize: 20,
-    lineHeight: 24,
+    fontSize: 19,
+    lineHeight: 22,
     color: homeColors.name,
     textAlign: 'center',
   },
   tabsCard: {
-    marginHorizontal: 12,
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     overflow: 'hidden',
-    marginTop: 8,
     marginBottom: 12,
   },
-  tabsHead: { flexDirection: 'row', backgroundColor: homeColors.band, minHeight: 53 },
+  tabsHead: { flexDirection: 'row', backgroundColor: homeColors.band },
   tabBtn: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
   tabBtnOn: { backgroundColor: homeColors.tabSelected },
   tabDivider: { borderLeftWidth: 1, borderLeftColor: 'rgba(35,31,32,0.55)' },
@@ -420,10 +456,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   tabTextAll: { fontFamily: fontFamily.extrabold, fontSize: 14 },
-  rows: { padding: 10, gap: 10 },
-  row: { flexDirection: 'row', gap: 8, minHeight: 60 },
+  row: { flexDirection: 'row' },
   dateBox: {
-    width: 60,
     backgroundColor: homeColors.dateBox,
     borderRadius: 4,
     alignItems: 'center',
@@ -432,8 +466,8 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontFamily: fontFamily.medium,
-    fontSize: 12,
-    lineHeight: 15,
+    fontSize: 13,
+    lineHeight: 17,
     color: homeColors.text,
     textAlign: 'center',
   },
@@ -453,15 +487,16 @@ const styles = StyleSheet.create({
     color: homeColors.text,
     textAlign: 'center',
   },
-  detail: { marginTop: 6, marginLeft: 68, gap: 2 },
+  detail: { marginTop: 6, gap: 2 },
   detailText: { fontFamily: fontFamily.medium, fontSize: 13, color: homeColors.text },
   detailSource: { fontFamily: fontFamily.medium, fontSize: 12, color: '#4F6258' },
+  emptyBox: { gap: 12, paddingVertical: 12 },
   empty: {
     fontFamily: fontFamily.medium,
-    fontSize: 14,
+    fontSize: 15,
     color: homeColors.text,
     textAlign: 'center',
-    paddingVertical: 18,
+    paddingVertical: 6,
   },
   attentionTouch: {
     position: 'absolute',

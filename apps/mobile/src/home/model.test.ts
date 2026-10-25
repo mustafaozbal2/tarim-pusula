@@ -1,14 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import type { AnnouncementDto, CalendarEventDto, SupportMatchDto, TodayDto } from '../api/client';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import type { OrnekIcerikDto } from '../api/client';
 import {
+  addDays,
   attentionCount,
   buildHomeRows,
   dateBox,
   emptyText,
+  homeCards,
   nextCardIndex,
   placeLine,
   rowsForTab,
 } from './model';
+
+const ornek = (id: string) =>
+  JSON.parse(
+    readFileSync(resolve(__dirname, `../../../../data/ornek_icerik/${id}.json`), 'utf8'),
+  ) as OrnekIcerikDto;
 
 const ev = (over: Partial<CalendarEventDto> = {}): CalendarEventDto => ({
   templateId: 'bud',
@@ -210,5 +220,66 @@ describe('yardımcılar', () => {
     for (const t of ['zaman', 'rehber', 'uyari', 'hibe', 'hepsi'] as const) {
       expect(emptyText(t).length).toBeGreaterThan(10);
     }
+  });
+});
+
+describe('demo örnek içeriği (G22)', () => {
+  const base = { calendar: null, today: null, supports: [], announcements: [] };
+  it.each(['antep-fistigi', 'zeytin', 'domates'])(
+    '%s: 5 kart, her sekmede 5 satır, Hepsi 20 satır',
+    (id) => {
+      const sample = ornek(id);
+      const rows = buildHomeRows({ ...base, sample, todayIso: '2026-10-25' });
+      for (const t of ['zaman', 'rehber', 'uyari', 'hibe'] as const) {
+        expect(rowsForTab(rows, t)).toHaveLength(5);
+      }
+      expect(rowsForTab(rows, 'hepsi')).toHaveLength(20);
+      expect(homeCards([], sample)).toHaveLength(5);
+      for (const r of rows) expect(r.source).toContain('Örnek veri (demo)');
+      // Örnek uyarılar Dikkat rozeti yakmaz (onaylı uyarı değildir).
+      expect(attentionCount(rows)).toBe(0);
+    },
+  );
+  it('ürün değişince içerik değişir', () => {
+    const a = buildHomeRows({ ...base, sample: ornek('antep-fistigi'), todayIso: '2026-10-25' });
+    const z = buildHomeRows({ ...base, sample: ornek('zeytin'), todayIso: '2026-10-25' });
+    expect(a.map((r) => r.title)).not.toEqual(z.map((r) => r.title));
+  });
+  it('tarih demo gününe göre: kesin tarih iddiası yok', () => {
+    const rows = buildHomeRows({ ...base, sample: ornek('zeytin'), todayIso: '2026-10-25' });
+    const uyari = rowsForTab(rows, 'uyari');
+    expect(uyari[0]!.date).toBe('2026-10-25');
+    expect(addDays('2026-12-30', 5)).toBe('2027-01-04');
+  });
+  it('gerçek onaylı kayıt önce gelir, örnek veri 5e tamamlar', () => {
+    const rows = buildHomeRows({
+      ...base,
+      calendar: {
+        fieldId: 'f',
+        today: '2026-10-25',
+        days: 90,
+        cropId: 'zeytin',
+        events: [ev()],
+        note: null,
+      },
+      sample: ornek('zeytin'),
+      todayIso: '2026-10-25',
+    });
+    const zaman = rowsForTab(rows, 'zaman');
+    expect(zaman).toHaveLength(5);
+    expect(zaman.filter((r) => !r.sample)).toHaveLength(1);
+    // Takvimden gelen rehber satırı Hepsi'de tekrar etmez; örnek rehber satırları Hepsi'de vardır.
+    const all = rowsForTab(rows, 'hepsi');
+    expect(all.some((r) => r.kind === 'rehber' && !r.sample)).toBe(false);
+    expect(all.filter((r) => r.kind === 'rehber')).toHaveLength(4);
+  });
+  it('örnek veri yoksa (gerçek mod) örnek satır ve kart üretilmez', () => {
+    expect(buildHomeRows({ ...base, sample: null })).toHaveLength(0);
+    expect(homeCards([], null)).toHaveLength(0);
+  });
+  it('kart görseli hiçbir zaman boş değildir', () => {
+    const s = ornek('zeytin');
+    s.kartlar[0]!.gorsel = 'yok.jpg';
+    for (const c of homeCards([], s)) expect(c.image).toMatch(/^kart_[1-5]\.jpg$/);
   });
 });

@@ -8,6 +8,8 @@ import { BilgiKarti, OzetKarolari } from '../../src/components/BilgiKarti';
 import { Notice } from '../../src/components/FlowParts';
 import { PendingProposals } from '../../src/components/Proposals';
 import { Screen } from '../../src/components/Screen';
+import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
+import { withDeadline } from '../../src/load/deadline';
 import { resetDraft } from '../../src/flow/store';
 import { tr } from '../../src/i18n/tr';
 import { kv } from '../../src/offline/kvStore';
@@ -32,6 +34,8 @@ export default function FieldsScreen() {
   const { bilgi } = useLocalSearchParams<{ bilgi?: string }>();
   const [cache, setCache] = useState<Cache | null>(null);
   const [offline, setOffline] = useState(false);
+  /** İlk yükleme bitti mi (veri, önbellek ya da hata). Bitmeden boş durum gösterilmez. */
+  const [settled, setSettled] = useState(false);
   const [waiting, setWaiting] = useState<QueueItem[]>([]);
   const [devices, setDevices] = useState<DeviceDto[]>([]);
   const [view, setView] = useState<View2>('liste');
@@ -43,9 +47,14 @@ export default function FieldsScreen() {
     const raw = await kv.get(CACHE_KEY);
     if (raw) setCache(JSON.parse(raw) as Cache);
     try {
-      await queue.flush();
-      setWaiting(await queue.pending());
-      const fields = await api.fields();
+      // En geç 10 sn: ağ yavaşsa son liste ve "son güncelleme" saati görünür.
+      const fields = await withDeadline(
+        (async () => {
+          await queue.flush();
+          setWaiting(await queue.pending());
+          return api.fields();
+        })(),
+      );
       const fresh = { at: new Date().toISOString(), fields };
       await kv.set(CACHE_KEY, JSON.stringify(fresh));
       setCache(fresh);
@@ -53,6 +62,8 @@ export default function FieldsScreen() {
       setDevices(await api.devices().catch(() => []));
     } catch {
       setOffline(true); // son kaydedilen liste kalır, "son güncelleme" saati görünür
+    } finally {
+      setSettled(true);
     }
   }, []);
   useFocusEffect(
@@ -187,7 +198,11 @@ export default function FieldsScreen() {
         </Card>
       ))}
       {!empty && fieldsShown.length === 0 && query ? <Durum kind="bos" text={tf.noMatch} /> : null}
-      {empty ? <Durum kind="bos" text={`${t.empty} ${t.emptyHint}`} /> : null}
+      {!settled && !cache ? <Iskelet rows={2} /> : null}
+      {empty && settled && !(offline && !cache) ? (
+        <Durum kind="bos" text={`${t.empty} ${t.emptyHint}`} />
+      ) : null}
+      {offline && !cache ? <YuklemeHatasi onRetry={() => void load()} /> : null}
       {offline ? <Notice tone="warn">{t.offlineNote}</Notice> : null}
       {cache ? (
         <Text style={styles.detail}>

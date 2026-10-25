@@ -63,8 +63,11 @@ describe('G14 erişilebilirlik denetimi', () => {
   });
 
   it('yalnız ikon taşıyan düğmelerde etiket vardır (geri, yakınlaştır)', () => {
+    // Geri düğmesi ortak üst banttadır (Screen ve FlowHeader ikisi de UstBant kullanır, G22.8).
+    const bant = sources.find((s) => s.file.endsWith('UstBant.tsx'))!;
+    expect(bant.text).toMatch(/accessibilityLabel=\{tr\.flow\.back\}/);
     const flow = sources.find((s) => s.file.endsWith('FlowParts.tsx'))!;
-    expect(flow.text).toMatch(/accessibilityLabel=\{tr\.flow\.back\}/);
+    expect(flow.text).toMatch(/<UstBant /);
     const harita = sources.find((s) => s.file.endsWith('harita.tsx'))!;
     expect(harita.text).toMatch(/accessibilityLabel=\{t\.zoomIn\}/);
     expect(harita.text).toMatch(/accessibilityLabel=\{t\.zoomOut\}/);

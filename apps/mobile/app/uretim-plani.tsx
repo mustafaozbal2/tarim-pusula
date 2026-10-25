@@ -3,6 +3,8 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { Button, Card, colors, Durum, fontFamily, fontSize } from '@tarim/ui';
 import type { CalendarDto } from '../src/api/client';
+import { Iskelet, YuklemeHatasi } from '../src/components/Yukleme';
+import { withDeadline } from '../src/load/deadline';
 import { Screen } from '../src/components/Screen';
 import { loadCalendar } from '../src/calendar/load';
 import { rangeText } from '../src/calendar/model';
@@ -18,22 +20,26 @@ const t = tr.plan;
  */
 export default function PlanScreen() {
   const router = useRouter();
-  const [res, setRes] = useState<{ name: string; cal: CalendarDto } | null | undefined>(undefined);
-  useFocusEffect(
-    useCallback(() => {
-      void loadCalendar(api, kv)
-        .then((r) => setRes(r ? { name: r.field.name, cal: r.data } : null))
-        .catch(() => setRes(null));
-    }, []),
+  const [res, setRes] = useState<{ name: string; cal: CalendarDto } | null | undefined | 'error'>(
+    undefined,
   );
-  const events = (res?.cal.events ?? []).filter((e) => !e.needsBadge);
+  const load = useCallback(() => {
+    setRes(undefined);
+    void withDeadline(loadCalendar(api, kv))
+      .then((r) => setRes(r ? { name: r.field.name, cal: r.data } : null))
+      .catch(() => setRes('error'));
+  }, []);
+  useFocusEffect(load);
+  const plan = res === 'error' ? null : res;
+  const events = (plan?.cal.events ?? []).filter((e) => !e.needsBadge);
   return (
     <Screen title={t.title}>
-      {res === undefined ? <Durum kind="yukleniyor" text={t.loading} /> : null}
+      {res === undefined ? <Iskelet /> : null}
+      {res === 'error' ? <YuklemeHatasi onRetry={load} /> : null}
       {res === null ? <Durum kind="bos" text={t.noField} /> : null}
-      {res ? (
+      {plan ? (
         <>
-          <Text style={styles.title}>{res.name}</Text>
+          <Text style={styles.title}>{plan.name}</Text>
           {events.length === 0 ? <Durum kind="bos" text={t.noEvents} /> : null}
           {events.map((e) => (
             <Card key={`${e.templateId}-${e.start}`} style={styles.card} testID="plan-is">

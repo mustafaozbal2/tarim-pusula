@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
-import { tr } from '../i18n/tr';
 import { DemoBadge } from './DemoBadge';
 import { Icon, type IconName } from './Icon';
+import { UstBant } from './UstBant';
 
 /** Akış ekranı gövdesi: zemin rengi, kenar boşluğu, kaydırma. */
 export function FlowScreen({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
@@ -21,20 +20,11 @@ export function FlowScreen({ children, footer }: { children: ReactNode; footer?:
   );
 }
 
-/** Üst şerit: geri düğmesi (56 px) ve adım yazısı. */
+/** Üst şerit: ana sayfayla aynı turkuaz bant, geri düğmesi ve adım yazısı (kenar boşluğunu taşar). */
 export function FlowHeader({ step, onBack }: { step?: string; onBack?: () => void }) {
-  const router = useRouter();
   return (
     <View style={styles.header}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tr.flow.back}
-        onPress={onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/')))}
-        style={styles.back}
-      >
-        <Icon name="back" size={26} />
-      </Pressable>
-      {step ? <Text style={styles.step}>{step}</Text> : null}
+      <UstBant step={step} onBack={onBack} />
     </View>
   );
 }
@@ -121,14 +111,8 @@ export const subtitleStyle = {
 } as const;
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 16,
-  },
-  back: { width: 44, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  step: { fontFamily: fontFamily.extrabold, fontSize: fontSize.small, color: colors.textMuted },
+  // FlowScreen'in yatay kenar boşluğunu taşar: bant tam genişlikte durur.
+  header: { marginHorizontal: -spacing.xl },
   choice: {
     minHeight: 56,
     borderRadius: radius.card,

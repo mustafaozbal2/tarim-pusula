@@ -21,15 +21,34 @@ export interface EnsembleDay {
   minC: number[];
 }
 
+/** Şu anki hava (Open-Meteo `current`). Ek alanlar sağlayıcı vermezse null. */
+export interface CurrentWeather {
+  time: string;
+  tempC: number;
+  weatherCode: number;
+  /** Hissedilen sıcaklık (°C). */
+  apparentC?: number | null;
+  /** Bağıl nem (%). */
+  rhPct?: number | null;
+  /** 10 m rüzgâr hızı (m/s). */
+  windMs?: number | null;
+  /** Son saatteki yağış (mm). */
+  precipMm?: number | null;
+}
+
 export interface WeatherBundle {
   source: string;
+  /** Veri sürümü (API sürümü ve model); kaynak + tarih + sürüm birlikte saklanır (kural 6). */
+  version?: string;
+  /** Örnek veri: gerçek sağlayıcıya ulaşılamadı ya da demo/test sahte sağlayıcısı. */
+  sample?: boolean;
   fetchedAt: string;
   /** Sunucuya ulaşılamadı, önbellekteki eski veri döndü. */
   stale: boolean;
   /** Open-Meteo'nun bu nokta için kullandığı yükseklik (m). */
   elevationM: number;
   utcOffsetSeconds: number;
-  current: { time: string; tempC: number; weatherCode: number } | null;
+  current: CurrentWeather | null;
   days: DailyWeather[];
   ensemble: { model: string; elevationM: number; days: EnsembleDay[] } | null;
 }
@@ -147,7 +166,8 @@ export class OpenMeteoClient implements WeatherProvider {
       this.getJson('https://api.open-meteo.com', '/v1/forecast', {
         ...loc,
         daily: DAILY,
-        current: 'temperature_2m,weather_code',
+        current:
+          'temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weather_code',
         wind_speed_unit: 'ms',
         forecast_days: days,
       }),
@@ -212,13 +232,23 @@ export function parseBundle(
   }
   return {
     source: SOURCE,
+    version: `Open-Meteo API v1 (forecast; ensemble ${model})`,
+    sample: false,
     fetchedAt,
     stale: false,
     elevationM: num(forecast['elevation']) ?? 0,
     utcOffsetSeconds: num(forecast['utc_offset_seconds']) ?? 0,
     current:
       t !== null && code !== null
-        ? { time: String(cur?.['time'] ?? ''), tempC: t, weatherCode: code }
+        ? {
+            time: String(cur?.['time'] ?? ''),
+            tempC: t,
+            weatherCode: code,
+            apparentC: num(cur?.['apparent_temperature']),
+            rhPct: num(cur?.['relative_humidity_2m']),
+            windMs: num(cur?.['wind_speed_10m']),
+            precipMm: num(cur?.['precipitation']),
+          }
         : null,
     days,
     ensemble,
@@ -272,11 +302,21 @@ export function sampleBundle(_lat: number, _lon: number, o: SampleOptions = {}):
   });
   return {
     source: 'Open-Meteo (örnek veri)',
+    version: 'ornek-v1',
+    sample: true,
     fetchedAt: now.toISOString(),
     stale: false,
     elevationM: o.elevationM ?? 800,
     utcOffsetSeconds: offset,
-    current: { time: now.toISOString(), tempC: 12, weatherCode: 2 },
+    current: {
+      time: now.toISOString(),
+      tempC: 12,
+      weatherCode: 2,
+      apparentC: 11,
+      rhPct: 60,
+      windMs: 1.5,
+      precipMm: 0,
+    },
     days: days.map((d) => ({
       date: d.date,
       tMinC: 8,
@@ -289,4 +329,36 @@ export function sampleBundle(_lat: number, _lon: number, o: SampleOptions = {}):
     })),
     ensemble: { model: 'sample', elevationM: o.elevationM ?? 800, days },
   };
+}
+
+/**
+ * Önce gerçek sağlayıcı (Open-Meteo); hata ya da ağ yoksa yedek (örnek) pakete düşer. Yedek paket
+ * `sample: true` ve "Örnek veri" kaynağıyla döner; ekranda etiketlenir (demo sunucusu, G22.6).
+ */
+export class FallbackWeatherProvider implements WeatherProvider {
+  fallbacks = 0;
+  constructor(
+    private readonly primary: WeatherProvider,
+    private readonly fallback: WeatherProvider = new FakeWeatherProvider(),
+  ) {}
+  private mark(b: WeatherBundle): WeatherBundle {
+    this.fallbacks++;
+    return { ...b, sample: true, source: 'Örnek veri (Open-Meteo şu an erişilemedi)' };
+  }
+  async get(lat: number, lon: number): Promise<WeatherBundle> {
+    try {
+      return await this.primary.get(lat, lon);
+    } catch {
+      return this.mark(await this.fallback.get(lat, lon));
+    }
+  }
+  async history(lat: number, lon: number, pastDays: number): Promise<WeatherBundle> {
+    try {
+      if (!this.primary.history) throw new WeatherUnavailableError('geçmiş yok');
+      return await this.primary.history(lat, lon, pastDays);
+    } catch {
+      if (!this.fallback.history) throw new WeatherUnavailableError('geçmiş yok');
+      return this.mark(await this.fallback.history(lat, lon, pastDays));
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import type { CurrentDto } from '../today/weatherView';
 import type { WalletDto } from '../wallet/model';
 import type {
   CommandCreate,
@@ -45,6 +46,27 @@ export interface PusulaCardDto {
   why: string;
   expertQuestionId?: string;
   reason?: string;
+}
+
+/** Demo ana sayfa örnek kaydı: tarih demo gününe `gunFarki` eklenerek bulunur (kesin tarih iddiası yok). */
+export interface OrnekSatirDto {
+  baslik: string;
+  ozet: string;
+  gunFarki: number;
+}
+
+/** Ürün başına örnek ana sayfa içeriği (yalnız demo sunucusunda vardır; G22). */
+export interface OrnekIcerikDto {
+  urunId: string;
+  urunAdi: string;
+  kaynak: string;
+  tarih: string;
+  surum: string;
+  kartlar: { baslik: string; ozet: string; gorsel: string }[];
+  faaliyetZamani: OrnekSatirDto[];
+  faaliyetRehberi: OrnekSatirDto[];
+  erkenUyarilar: OrnekSatirDto[];
+  destekler: OrnekSatirDto[];
 }
 
 export interface FieldDto {
@@ -251,11 +273,17 @@ export interface TodayDto {
   generatedAt: string;
   weather: {
     source: string;
+    /** Veri sürümü (API ve model). Eski sunucuda yoktur. */
+    version?: string | null;
+    /** Örnek veri (gerçek sağlayıcıya ulaşılamadı ya da demo/test). */
+    sample?: boolean;
     fetchedAt: string;
     stale: boolean;
     elevationM: number;
-    current: { tempC: number; weatherCode: number } | null;
+    current: CurrentDto | null;
     today: DailyDto;
+    /** 5 günlük tahmin. */
+    days?: DailyDto[];
   };
   et0: { mmPerDay: number; method: string };
   waterNeed: WaterNeedDto;
@@ -423,6 +451,9 @@ export function createApi(opts: ApiOptions) {
         'GET',
         '/demo/info',
       ),
+    /** Ürünün örnek ana sayfa içeriği. Yalnız demo sunucusunda vardır; başka yerde 404 (ApiError). */
+    ornekIcerik: (cropId: string) =>
+      request<OrnekIcerikDto>('GET', `/demo/ornek-icerik/${q(cropId)}`),
     provinces: () => request<string[]>('GET', '/places/provinces'),
     districts: (province: string) =>
       request<string[]>('GET', `/places/districts?province=${q(province)}`),

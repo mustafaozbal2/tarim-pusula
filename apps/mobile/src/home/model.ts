@@ -1,4 +1,11 @@
-import type { AnnouncementDto, CalendarDto, SupportMatchDto, TodayDto } from '../api/client';
+import type {
+  AnnouncementDto,
+  CalendarDto,
+  OrnekIcerikDto,
+  SupportMatchDto,
+  TodayDto,
+} from '../api/client';
+import type { ImageName } from '../assets';
 import { dayText, rangeText } from '../calendar/model';
 import { frostCardModel } from '../today/model';
 
@@ -24,6 +31,10 @@ export interface HomeRow {
   /** Kaynak + tarih (+ sürüm) etiketi; atıfsız satır yoktur (değişmez kural 2). */
   source: string;
   tone: 'normal' | 'warning';
+  /** "Hepsi" sekmesinde gösterilmez (takvimden gelen rehber satırı, zaman satırının tekrarıdır). */
+  hideInAll?: boolean;
+  /** Demo örnek verisi (kaynak etiketi "Örnek veri (demo)"). */
+  sample?: boolean;
 }
 
 const MONTHS = [
@@ -52,6 +63,95 @@ export interface HomeInput {
   today: TodayDto | null;
   supports: SupportMatchDto[];
   announcements: AnnouncementDto[];
+  /** Ürünün demo örnek içeriği (yalnız demo sunucusu verir); gerçek modda null. */
+  sample?: OrnekIcerikDto | null;
+  /** Bugünün yerel tarihi (YYYY-MM-DD): örnek satırların tarihi buna göre hesaplanır. */
+  todayIso?: string;
+}
+
+/** Her sekmede gösterilecek kayıt sayısı; demo örnek verisi gerçek kaydı bu sayıya tamamlar. */
+export const ROWS_PER_TAB = 5;
+
+/** ISO tarihe gün ekler (UTC hesabı; saat dilimi kayması olmaz). */
+export function addDays(iso: string, n: number): string {
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+  return new Date(Date.UTC(y!, m! - 1, d! + n)).toISOString().slice(0, 10);
+}
+
+/** Yerel takvim günü (YYYY-MM-DD). */
+export function localIso(now = new Date()): string {
+  const p = (v: number) => String(v).padStart(2, '0');
+  return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
+}
+
+const SAMPLE_KINDS: [Exclude<HomeRow['kind'], 'duyuru'>, keyof OrnekIcerikDto][] = [
+  ['zaman', 'faaliyetZamani'],
+  ['rehber', 'faaliyetRehberi'],
+  ['uyari', 'erkenUyarilar'],
+  ['hibe', 'destekler'],
+];
+
+/**
+ * Demo: her sekmeyi gerçek (onaylı) kayıtlardan sonra örnek veriyle ROWS_PER_TAB'a tamamlar.
+ * Örnek satırlar uyarı tonunda DEĞİLDİR (Dikkat rozeti yakmaz) ve kaynakları "Örnek veri (demo)"dur.
+ */
+function sampleRows(rows: HomeRow[], sample: OrnekIcerikDto, todayIso: string): HomeRow[] {
+  const out: HomeRow[] = [];
+  const src = `${sample.kaynak} · ${sample.surum} · ${sample.tarih}`;
+  for (const [kind, key] of SAMPLE_KINDS) {
+    const have = rows.filter((r) => r.kind === kind).length;
+    const list = sample[key] as OrnekIcerikDto['faaliyetZamani'];
+    list.slice(0, Math.max(0, ROWS_PER_TAB - have)).forEach((r, i) => {
+      out.push({
+        id: `ornek-${kind}-${sample.urunId}-${i}`,
+        kind,
+        date: addDays(todayIso, r.gunFarki),
+        title: r.baslik,
+        detail: r.ozet,
+        source: src,
+        tone: 'normal',
+        sample: true,
+      });
+    });
+  }
+  return out;
+}
+
+/** Kayan şerit kartı: onaylı duyuru ya da demo örnek kartı. */
+export interface HomeCard {
+  id: string;
+  title: string;
+  /** images/ yuvası (kart_1..5); duyurunun kendi görseli varsa `uri` öncelikli. */
+  image: ImageName;
+  uri?: string | null;
+  /** Duyuru kartıysa duyuru kimliği; örnek kartsa sıra numarası. */
+  announcementId?: string;
+  sampleIndex?: number;
+}
+
+/** Şerit: önce onaylı duyurular, demo'da örnek kartlarla 5'e tamamlanır. Görsel her zaman vardır. */
+export function homeCards(
+  announcements: AnnouncementDto[],
+  sample: OrnekIcerikDto | null | undefined,
+): HomeCard[] {
+  const cards: HomeCard[] = announcements
+    .filter((a) => !a.needsBadge)
+    .slice(0, 5)
+    .map((a, i) => ({
+      id: `duyuru-${a.id}`,
+      title: a.title,
+      image: `kart_${(i % 5) + 1}.jpg` as ImageName,
+      uri: a.imageDataUrl,
+      announcementId: a.id,
+    }));
+  for (const [i, k] of (sample?.kartlar ?? []).entries()) {
+    if (cards.length >= 5) break;
+    const image = /^kart_[1-5]\.jpg$/.test(k.gorsel)
+      ? (k.gorsel as ImageName)
+      : (`kart_${(i % 5) + 1}.jpg` as ImageName);
+    cards.push({ id: `ornek-kart-${i}`, title: k.baslik, image, sampleIndex: i });
+  }
+  return cards;
 }
 
 /**
@@ -80,6 +180,7 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
       detail: e.why,
       source: src,
       tone: 'normal',
+      hideInAll: true,
     });
   }
   if (input.today) {
@@ -122,12 +223,16 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
       tone: 'normal',
     });
   }
+  if (input.sample) rows.push(...sampleRows(rows, input.sample, input.todayIso ?? localIso()));
   return rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.id < b.id ? -1 : 1));
 }
 
-/** Sekmeye göre satırlar. "Hepsi", rehberi çıkarır (rehber, zamanla aynı işin açıklamasıdır; tekrar olmasın). */
+/**
+ * Sekmeye göre satırlar. "Hepsi" hepsini birleştirir; yalnız takvimden gelen rehber satırları çıkar
+ * (onlar aynı işin açıklamasıdır; tekrar olmasın).
+ */
 export function rowsForTab(rows: HomeRow[], tab: HomeTab): HomeRow[] {
-  if (tab === 'hepsi') return rows.filter((r) => r.kind !== 'rehber');
+  if (tab === 'hepsi') return rows.filter((r) => !r.hideInAll);
   return rows.filter((r) => r.kind === tab);
 }
 

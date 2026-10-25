@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Image, type ImageStyle, StyleSheet, Text, View, type StyleProp } from 'react-native';
-import { colors, fontFamily, fontSize } from '@tarim/ui';
+import { Image, type ImageStyle, StyleSheet, View, type StyleProp } from 'react-native';
 import { IMAGE_FILES, type ImageName } from '../assets';
 
 /**
- * images/ klasöründeki görsel yuvası. Dosya "Resim N" yer tutucusuysa o görünür; Mustafa aynı adlı
- * dosyayı üzerine yazınca gerçek görsel görünür, kod değişmez. Yüklenemezse "Resim" kutusu çizilir.
+ * images/ klasöründeki görsel yuvası. Verilen görsel (`uri`) açılmazsa yuvanın dosyası, o da açılmazsa
+ * yazısız nötr kutu görünür: ekranda hiçbir zaman "fotoğraf yok" ya da "Resim" yazısı çıkmaz (G22.4).
  */
 export function ImageSlot({
   name,
@@ -22,17 +21,17 @@ export function ImageSlot({
   /** Verilirse (ör. duyuru görseli) dosya yerine bu görsel kullanılır. */
   uri?: string | null;
 }) {
-  const [failed, setFailed] = useState(false);
-  if (failed) {
+  // 0: uri (varsa), 1: yuva dosyası, 2: nötr kutu
+  const [stage, setStage] = useState(uri ? 0 : 1);
+  const file = IMAGE_FILES[name] as number | undefined;
+  if (stage >= 2 || (stage === 1 && file === undefined)) {
     return (
       <View
         accessibilityRole="image"
         accessibilityLabel={label}
         testID={testID}
         style={[styles.box, style as object]}
-      >
-        <Text style={styles.text}>Resim</Text>
-      </View>
+      />
     );
   }
   return (
@@ -40,15 +39,14 @@ export function ImageSlot({
       accessibilityRole="image"
       accessibilityLabel={label}
       testID={testID}
-      source={uri ? { uri } : (IMAGE_FILES[name] as number)}
+      source={stage === 0 && uri ? { uri } : (file as number)}
       resizeMode="cover"
-      onError={() => setFailed(true)}
+      onError={() => setStage((s) => s + 1)}
       style={style}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  box: { backgroundColor: '#D6DADC', alignItems: 'center', justifyContent: 'center' },
-  text: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.textMuted },
+  box: { backgroundColor: '#CFE3DF' },
 });

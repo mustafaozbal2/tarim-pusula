@@ -9,6 +9,8 @@ import { MonthView } from '../src/calendar/MonthView';
 import { addEventsToPhoneCalendar, shareIcs } from '../src/calendar/phone';
 import { loadCalendar, type CalendarResult } from '../src/calendar/load';
 import { FlowHeader, FlowScreen, Notice } from '../src/components/FlowParts';
+import { Iskelet, YuklemeHatasi } from '../src/components/Yukleme';
+import { withDeadline } from '../src/load/deadline';
 import { tr } from '../src/i18n/tr';
 import { kv } from '../src/offline/kvStore';
 import { api } from '../src/session';
@@ -42,8 +44,9 @@ export default function CalendarScreen() {
 
   const load = useCallback(
     async (pick?: string) => {
+      setState((s) => (s === 'error' ? 'loading' : s));
       try {
-        setRes(await loadCalendar(api, kv, pick ?? fieldId));
+        setRes(await withDeadline(loadCalendar(api, kv, pick ?? fieldId)));
         setState('ready');
       } catch {
         setState('error');
@@ -69,7 +72,7 @@ export default function CalendarScreen() {
     return (
       <FlowScreen>
         {header}
-        <Text style={styles.small}>{state === 'error' ? t.error : t.loading}</Text>
+        {state === 'error' ? <YuklemeHatasi onRetry={() => void load()} /> : <Iskelet />}
       </FlowScreen>
     );
   }

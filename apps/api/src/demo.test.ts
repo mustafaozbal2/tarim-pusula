@@ -8,7 +8,7 @@ import { AppModule } from './app.module';
 import { FakeSmsProvider } from './auth/sms';
 import { PgliteDb, migrate } from './db/db';
 import { DEMO_QUESTIONS, demoInfo } from './demo';
-import { startDemo, type DemoHandle } from './demo-server';
+import { demoSampleWeather, startDemo, type DemoHandle } from './demo-server';
 
 describe('demoInfo: demo kodu yalnız DEMO_MODE=1 iken', () => {
   it('ortam değişkeni yoksa kapalı', () => {
@@ -71,7 +71,8 @@ describe('demo sunucusu', () => {
     vi.stubEnv('DEMO_MODE', '1');
     const dir = mkdtempSync(join(tmpdir(), 'demo-web-'));
     writeFileSync(join(dir, 'index.html'), '<html>demo</html>');
-    h = await startDemo({ apiPort: API, webPort: WEB, webDir: dir });
+    // Testler ağsız: hava örnek veriden (gerçek Open-Meteo çağrılmaz).
+    h = await startDemo({ apiPort: API, webPort: WEB, webDir: dir, weather: demoSampleWeather() });
     const phone = '+905320000001';
     const json = { 'content-type': 'application/json' };
     await api('/auth/otp/request', {

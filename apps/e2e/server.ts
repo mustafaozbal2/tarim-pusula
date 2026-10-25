@@ -84,6 +84,8 @@ async function main() {
       broker,
       market: { fetch: marketFetch, sources: marketSources },
       // Dış ağ yok: hava sahte, ensemble üyelerinin hepsi -6 °C (don olasılığı %100).
+      // Ana sayfa örnek içeriği (/demo/ornek-icerik): demo ile aynı davranışı sınamak için açık (G22).
+      ornekIcerik: true,
       weather: new FakeWeatherProvider((lat, lon) =>
         sampleBundle(lat, lon, { memberMinC: Array.from({ length: 20 }, () => -6) }),
       ),

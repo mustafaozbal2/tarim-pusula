@@ -163,6 +163,8 @@ export interface TodayResponse {
   generatedAt: string;
   weather: {
     source: string;
+    version: string | null;
+    sample: boolean;
     fetchedAt: string;
     stale: boolean;
     elevationM: number;
@@ -199,6 +201,8 @@ export function buildToday(i: TodayInput): TodayResponse {
     generatedAt: i.now.toISOString(),
     weather: {
       source: bundle.source,
+      version: bundle.version ?? null,
+      sample: bundle.sample ?? false,
       fetchedAt: bundle.fetchedAt,
       stale: bundle.stale,
       elevationM: elevation,
