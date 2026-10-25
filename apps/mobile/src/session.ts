@@ -8,6 +8,8 @@ import { OfflineQueue } from './offline/queue';
 
 const TOKEN_KEY = 'session.token';
 const API_URL_KEY = 'config.apiUrl';
+/** Adres kaydedilirken geçerli olan derleme adresi (eski kurulumdan kalan adresi ayırt etmek için). */
+const API_URL_ENV_KEY = 'config.apiUrl.env';
 /** Gerçek cihazda EXPO_PUBLIC_API_URL (derleme zamanı) ya da Ayarlar'dan yazılan adres kullanılır. */
 const ENV_API_URL = process.env['EXPO_PUBLIC_API_URL'];
 
@@ -52,11 +54,12 @@ export function useToken(): string | null | undefined {
 
 /** Etkin sunucu adresi; hiç ayarlanmadıysa `null`. */
 export async function currentApiUrl(): Promise<string | null> {
-  return resolveApiUrl(await kv.get(API_URL_KEY), ENV_API_URL);
+  return resolveApiUrl(await kv.get(API_URL_KEY), ENV_API_URL, await kv.get(API_URL_ENV_KEY));
 }
 
 export async function saveApiUrl(url: string): Promise<void> {
   await kv.set(API_URL_KEY, url.trim());
+  await kv.set(API_URL_ENV_KEY, ENV_API_URL ?? '');
 }
 
 export const api = createApi({

@@ -11,9 +11,17 @@ export function normalizeApiUrl(raw: string | null | undefined): string | null {
   }
 }
 
+/**
+ * `storedForEnv`: adres kaydedilirken uygulamanın derleme adresi. Yeni bir APK (farklı derleme adresi)
+ * eskisinin üstüne kurulunca eski kayıtlı adres geçersiz sayılır; yoksa telefon eski bilgisayar
+ * adresine bağlanmaya çalışıp her işte "internet yok" der (G23.1).
+ */
 export function resolveApiUrl(
   stored: string | null | undefined,
   env: string | undefined,
+  storedForEnv?: string | null,
 ): string | null {
-  return normalizeApiUrl(stored) ?? normalizeApiUrl(env);
+  const envUrl = normalizeApiUrl(env);
+  const stale = envUrl !== null && normalizeApiUrl(storedForEnv) !== envUrl;
+  return (stale ? null : normalizeApiUrl(stored)) ?? envUrl;
 }
