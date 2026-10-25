@@ -94,3 +94,8 @@ Sonraki için: gerçek telefon denemesi sonrası Mustafa'nın notları girdi ols
 Yapılan: ana sayfa hedefe göre (turkuaz bant + 7 SVG ikon, otomatik kayan 5 kart şeridi, arazi bloğu, 5 sekmeli kart, sol "Dikkat" rozeti, sağ kenar menü), alt sekme çubuğu kalktı (rotalar duruyor), ikon yönlendirmeleri, Ayarlar tek giriş + sunucu kartı yalnız geliştirici modunda (7 dokunuş), `images/` yer tutucuları + `pnpm run images` + `assets.ts`; e2e `anasayfa.spec.ts` (yerleşim, 390x844 ve 360x780 görüntü, ikon rotaları, şerit kayması, yan menü, sunucu kartı); onaysız duyuru artık çiftçide görünmez (eski e2e güncellendi); `docs/gorsel/ANASAYFA_FARK.md`. verify yeşil (52 e2e).
 Yarım: gerçek telefonda denenmedi; hedefle fark raporu renk örneklemesi + yerleşim düzeyinde (piksel piksel otomatik fark yok); sürüm 7 dokunuş e2e'si yok (birim testi var); G9 bağlama işleri açık.
 Sonraki için: gerçek görselleri aynı adla `images/` içine koy, `pnpm run images`. G20/G21 dosyaları çalışma ağacında; bu turda yalnız G19 doğrulandı.
+
+## G20 (2026-10-25) — tamam (madde 7 sadeleştirme hariç)
+Yapılan: takvim ay görünümü + .ics + telefon takvimi, hatırlatıcı çekirdeği (agro-core) + API ucu + mobil ekran `/hatirlaticilar`, ÇKS adaptör + sahte sağlayıcı + `/entegrasyonlar`, Veri cüzdanı Ayarlar'da, Pazar satış yeri + Yol tarifi, Uzmana sor açıklama + yerel ses, Kc/toprak arama tabloları, hava kaynağı/saat. Önceki çalıştırma çoğunu yazmıştı; bu turda eksik iki ekran + giriş yardımcıları + testler eklendi.
+Yarım: tarla ekleme akışı sadeleştirilmedi; hatırlatıcı yalnız uygulama açıkken/elle kontrol (arka plan görevi yok); ekranlar telefonda denenmedi.
+Sonraki: G21.

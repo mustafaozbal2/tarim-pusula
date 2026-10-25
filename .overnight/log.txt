@@ -58,3 +58,5 @@
 2026-10-25T14:44:08  BASLA G19,G20,G21 (basarisiz deneme: 0)
 2026-10-25T14:44:17  G19,G20,G21 : limit/baglanti sorunu. 2.5 saat bekleniyor.
 2026-10-25T16:57:12  BASLA G19 (basarisiz deneme: 0)
+2026-10-25T17:22:17  G19 TAMAM
+2026-10-25T17:22:17  BASLA G20 (basarisiz deneme: 0)

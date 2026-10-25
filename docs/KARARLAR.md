@@ -260,3 +260,10 @@
 - Ana sayfada varsayılan sekme "Hepsi" (hedef görselde seçili olan).
 - Marka yazısı "TARIM PUSULA" 12 pt + adjustsFontSizeToFit (390/360 px'te kesilmesin).
 - e2e verisi Gaziantep/Nizip (test duyuru tohumu Gaziantep'e hedefli); ekran görüntüsü yerel adı hedefteki "Kiraz Bahçesi".
+
+## 2026-10-25 — G20 tamamlama
+
+- **ÇKS:** resmi erişim izni/protokolü olmadığından yalnız adaptör arayüzü (`CksProvider`) + sahte sağlayıcı; ağa hiç çıkmaz, parsel uydurmaz. Ekran (`/entegrasyonlar`) dürüst metin gösterir: "Resmi bağlantı onaylandığında açılır." Gerçek adaptör aynı arayüzü uygulayacak.
+- **Hatırlatıcılar:** karar mantığı agro-core'da (onay kapılı, sessiz saat, günlük sınır, tekrar aralığı), sunucu `GET /fields/:id/reminders`; mobil ekran (`/hatirlaticilar`) eşik/saat/sessiz saat ayarlatır, "Şimdi kontrol et" ile çalıştırır ve "Neden yok?" nedenlerini yazar. Arka planda zamanlı çalıştırma yapılmadı (uygulama açıkken kontrol); gerekçe: arka plan görevi gerçek cihazda denenemedi.
+- **Eşik girişi** yüzde olarak alınır (çiftçi dili), 0-1 orana çevrilir; geçersiz/boş = onaylı toprak verisinden otomatik eşik.
+- **Madde 7 (tarla ekleme bir adım sadeleştirme):** mevcut akış ve e2e kabul testleri korundu; ek adım çıkarma yapılmadı (riskli, kabul testleri aynı kalmalı). Açık iş.
