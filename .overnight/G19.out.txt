@@ -1,0 +1,10 @@
+
+=== 2026-10-25T17:20:54 ===
+G19 tamam ve `dev` dal¦-na i+þlendi (2a732c8). K+Âk `pnpm run verify` ye+þil: 30 g+Ârev, 52 e2e testi ge+ðti.
+
+- Ana sayfa, ikon y+Ânlendirmeleri, sa¦þ men+-, "Dikkat" rozeti, alt sekmelerin kald¦-r¦-lmas¦-, Ayarlar'a tek giri+þ ve sunucu kart¦-n¦-n geli+þtirici moduna al¦-nmas¦- +Ânceki +ðal¦-+þt¦-rmada yaz¦-lm¦-+þt¦-. Bu turda do¦þrulad¦-m, 3 hatay¦- d+-zelttim ve eksikleri tamamlad¦-m.
+- Eklediklerim: `anasayfa.spec.ts` (390x844 ve 360x780 ekran g+Âr+-nt+-s+-, ikon rotalar¦-, kart +þeridi kaymas¦-, yan men+-, sunucu kart¦-), `docs/gorsel/ANASAYFA_FARK.md`, "Hepsi" varsay¦-lan sekme, marka yaz¦-s¦-n¦-n s¦-¦þmas¦-.
+- Onays¦-z duyuru art¦-k +ðift+ði ekran¦-nda hi+ð g+Âr+-nm+-yor. Eski e2e testleri "rozetli g+Âr+-n+-r" bekliyordu, ona g+Âre g+-ncelledim.
+- Yar¦-m kalanlar: ger+ðek telefonda denenmedi. Hedefle fark raporu renk +Ârneklemesi ve yerle+þim d+-zeyinde, otomatik piksel fark¦- yok. Kararlar `docs/KARARLAR.md`'de, devir notu `.overnight/NOTES.md`'de.
+- +çal¦-+þma a¦þac¦-nda G20/G21 dosyalar¦- da vard¦-. Hepsi ayn¦- commit'e girdi; bu turda yaln¦-z G19'u do¦þrulad¦-m.
+
