@@ -2,4 +2,4 @@
 param([string]$Mesaj = "guncelleme")
 Set-Location (Join-Path (Split-Path -Parent $PSScriptRoot) "apps\mobile")
 $env:EXPO_PUBLIC_API_URL = "http://192.168.1.21:8210"
-npx eas-cli update --channel preview --message $Mesaj --non-interactive
+npx eas-cli update --channel preview --environment preview --message $Mesaj --non-interactive
