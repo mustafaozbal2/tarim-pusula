@@ -32,9 +32,12 @@
         {
           "microphonePermission": "Sesle soru sormak için mikrofon izni istenir. Ses kaydı saklanmaz.",
           "speechRecognitionPermission": "Sesini yazıya çevirmek için konuşma tanıma izni istenir.",
-          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
         }
-      ]
+      ],
+      "expo-updates"
     ],
     "web": {
       "bundler": "metro",
@@ -77,7 +80,10 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "RECORD_AUDIO"
       ],
-      "blockedPermissions": ["READ_CONTACTS", "READ_SMS"],
+      "blockedPermissions": [
+        "READ_CONTACTS",
+        "READ_SMS"
+      ],
       "versionCode": 1
     },
     "splash": {
@@ -95,6 +101,14 @@
         "projectId": "eeedaf04-d003-4304-acbc-081656c29df5"
       }
     },
-    "owner": "kumsal27s-team"
+    "owner": "kumsal27s-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/eeedaf04-d003-4304-acbc-081656c29df5",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 3000
+    }
   }
 }
