@@ -36,6 +36,7 @@
     "expo-speech-recognition": "58.0.0",
     "expo-sqlite": "~58.0.13",
     "expo-status-bar": "^58.0.3",
+    "expo-updates": "~58.0.18",
     "i18next": "^26.5.2",
     "maplibre-gl": "^6.15.0",
     "react": "19.3.0",

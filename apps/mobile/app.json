@@ -32,9 +32,7 @@
         {
           "microphonePermission": "Sesle soru sormak için mikrofon izni istenir. Ses kaydı saklanmaz.",
           "speechRecognitionPermission": "Sesini yazıya çevirmek için konuşma tanıma izni istenir.",
-          "androidSpeechServicePackages": [
-            "com.google.android.googlequicksearchbox"
-          ]
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
         }
       ],
       "expo-updates"
@@ -80,10 +78,7 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "RECORD_AUDIO"
       ],
-      "blockedPermissions": [
-        "READ_CONTACTS",
-        "READ_SMS"
-      ],
+      "blockedPermissions": ["READ_CONTACTS", "READ_SMS"],
       "versionCode": 1
     },
     "splash": {
