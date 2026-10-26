@@ -62,20 +62,20 @@ test('Ana sayfa: 7 ikon, arazi adı, 5 sekme; onaysız eşikte uyarı ve onay ya
   await page.getByRole('button', { name: 'Hava Durumu' }).click();
   await expect(page.getByTestId('hava-sicaklik')).toHaveText('12°'); // sahte sağlayıcının anlık sıcaklığı
   await expect(page.getByText('Bugün hava parçalı bulutlu')).toBeVisible();
-  await expect(page.getByTestId('hava-kaynak')).toContainText('Kaynak: Open-Meteo');
+  // G23: kaynak ve saat çiftçi ekranında değil, Ayarlar > Hakkında > Kaynaklar'da.
+  await expect(page.getByTestId('hava-kaynak')).toHaveCount(0);
   await expect(page.getByTestId('hava-don')).toHaveCount(0);
   await expect(page.getByText(/onayı bekl/i)).toHaveCount(0);
 });
 
-test('Onaylanınca: Dikkat rozeti, Erken Uyarılar satırı, Hava ve Arazi İşlemleri', async ({
-  page,
-}) => {
+test('Onaylanınca: Erken Uyarılar satırı, Hava ve Arazi İşlemleri', async ({ page }) => {
   await setup(page);
   expect((await page.request.get('/__e2e/approve-frost')).ok()).toBe(true);
   await page.goto('/');
   await expect(page.getByTestId('bugun-tarla')).toBeVisible();
-  await expect(page.getByTestId('dikkat-rozeti')).toBeVisible();
-  await page.getByTestId('dikkat-rozeti').click();
+  // G23: kırmızı "Dikkat" rozeti kaldırıldı; uyarı Erken Uyarılar sekmesinde ilk sırada.
+  await expect(page.getByTestId('dikkat-rozeti')).toHaveCount(0);
+  await page.getByTestId('sekme-uyari').click();
   await expect(page.getByTestId('liste-satiri').first()).toContainText('don bekleniyor');
   await page.getByTestId('liste-satiri').first().click();
   await expect(page.getByTestId('satir-detay')).toContainText('Kaynak: Open-Meteo');
@@ -107,19 +107,20 @@ test('Ana sayfa: sunucuya ulaşılamazsa son bilgi görünür', async ({ page })
   await expect(page.getByTestId('hava-sicaklik')).toHaveText('12°');
 });
 
-test('Alt sayfalardan geri tuşuyla ana sayfaya dönülür; sağ menü açılır ve gider', async ({
+test('Alt sayfalardan geri tuşuyla ana sayfaya dönülür; takvime Arazi İşlemleri kartından gidilir', async ({
   page,
 }) => {
   await setup(page);
   await page.goto('/');
   await expect(page.getByTestId('bugun-tarla')).toBeVisible();
+  // G23: sağ kenar menüsü kaldırıldı.
+  await expect(page.getByTestId('yan-menu-tutamac')).toHaveCount(0);
   await page.getByRole('button', { name: 'Arazi İşlemleri' }).click();
   await expect(page.getByRole('heading', { name: 'Arazi İşlemleri' })).toBeVisible();
-  await page.getByTestId('geri').click();
+  await page.locator('[data-testid="geri"]:visible').first().click();
   await expect(page.getByTestId('bugun-tarla')).toBeVisible();
 
-  await page.getByTestId('yan-menu-tutamac').click();
-  await expect(page.getByTestId('yan-menu-panel')).toBeVisible();
-  await page.getByTestId('yan-takvim').click();
+  await page.getByRole('button', { name: 'Arazi İşlemleri' }).click();
+  await page.getByTestId('hub-takvim').click();
   await expect(page.getByRole('heading', { name: 'Tarla takvimi' })).toBeVisible();
 });

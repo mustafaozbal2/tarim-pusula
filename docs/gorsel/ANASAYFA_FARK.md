@@ -1,4 +1,9 @@
-# Ana sayfa: hedef ile fark raporu (G22)
+# Ana sayfa: hedef ile fark raporu (G22, G23 güncellemesi)
+
+> **G23 (26 Ekim 2026, Mustafa'nın isteği):** ikonlar 39,6 → 42 px, slayt kartları 71x119,5 → 76x136 px
+> büyütüldü; sağ kenar menüsü ve "Dikkat" rozeti kaldırıldı. Amblem ve bant hedefteki gibi kalır; çiftçi,
+> sekmeli kart ve satırlar kart büyümesi kadar (17,2 px) aşağıdadır. e2e ölçüm testi yeni değerleri denetler
+> (2 px üstü sapma kırmızı). Aşağıdaki G22 tablosu hedefle birebir karşılaştırmadır.
 
 Hedef: `docs/referans/anasayfa_hedef.png`. Telefon ekranının içi x 322..951 (630 px) ve y 376'dan başlar; 390 px genişliğe ölçeklenir (ölçek 390 / 630 = 0,619).
 Uygulama: `anasayfa_390x844.png` (Playwright, `apps/e2e/tests/g22.spec.ts`; her e2e koşusunda yeniden üretilir).

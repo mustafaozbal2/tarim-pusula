@@ -19,3 +19,7 @@ Durum: sayfalar bu turda açılıp okunmadı; koşullar "doğrulanamadı" işare
 Seçim: `EXPO_PUBLIC_MAP_PROVIDER=eox|esri|maptiler|mapbox` (`apps/mobile/src/location/mapProvider.ts`). Anahtar gereken sağlayıcıda anahtar yoksa EOX altlığı kalır. `EXPO_PUBLIC_TILE_URL` verilirse o kullanılır. Mapbox/MapTiler anahtarı uygulamaya gömülür (istemci anahtarı); URL kısıtlı, düşük yetkili anahtar kullanılmalı.
 
 En net görüntü için öneri (doğrulanmadı, yan yana görsel denemesi yapılmadı): Esri/MapTiler/Mapbox çoğu bölgede EOX'tan daha yüksek zoom ve güncel görüntü verir; EOX 2021, zoom 14 sınırlı.
+
+## G23 (2026-10-26): varsayılan altlık Esri World Imagery
+
+Mustafa yakında bulanıklığı (EOX Sentinel-2, en çok 14. seviye) istemedi. Varsayılan Esri World Imagery (18. seviye, anahtarsız, atıf: "Esri, Maxar, Earthstar Geographics ve GIS User Community"). Harita kaynağın 1 üstünden fazla yakınlaşmaz. **Doğrulanamadı:** Esri World Imagery kullanım koşulları bu oturumda okunmadı; ticari yayından önce Esri lisansı okunmalı ya da sözleşmeli sağlayıcıya (MapTiler/Mapbox anahtarı) geçilmeli. EOX hâlâ `EXPO_PUBLIC_MAP_PROVIDER=eox` ile seçilebilir.

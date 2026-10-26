@@ -653,7 +653,7 @@ export const tr = {
     loading: 'Liste alınıyor',
     failed: 'Liste alınamadı. İnternet gelince yeniden dene.',
     retry: 'Yeniden dene',
-    open: 'Bitki Kc listesi',
+    open: 'Bitkinin su ihtiyacı',
     openSoil: 'Toprak türleri',
     source: 'Kaynak',
     draftValues: 'Taslak değerler var',

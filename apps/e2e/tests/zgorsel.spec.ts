@@ -292,7 +292,9 @@ test('görsel: ana sayfada 7 yuvarlak ikon, kayan kart şeridi ve arazi adı', a
     await expect(page.getByRole('button', { name: new RegExp(`^${label}`) })).toBeVisible();
   }
   await expect(page.getByTestId('kart-seridi')).toBeVisible();
-  await expect(page.getByTestId('kart-seridi-kart')).toHaveCount(5);
+  // G23: şeritte en az 5 (ürün örnek kartları), en çok 12 kart (onaylı duyurular önce gelir).
+  await expect.poll(() => page.getByTestId('kart-seridi-kart').count()).toBeGreaterThanOrEqual(5);
+  expect(await page.getByTestId('kart-seridi-kart').count()).toBeLessThanOrEqual(12);
   await expect(page.getByTestId('bugun-tarla')).toHaveText('Burç Köyü Fıstık Bahçesi');
   await expect(page.getByTestId('arazi-yer')).toHaveText('Gaziantep, Nizip');
   await expect(page.getByRole('img', { name: 'Çiftçi çizimi' }).first()).toBeVisible();

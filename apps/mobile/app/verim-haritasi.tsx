@@ -76,7 +76,9 @@ export default function YieldMapScreen() {
                     <View style={[styles.rank, { backgroundColor: g.color }]}>
                       <Text style={styles.rankText}>{i + 1}</Text>
                     </View>
-                    <Text style={styles.cropName}>{c?.nameTr ?? id}</Text>
+                    <Text style={styles.cropName}>
+                      {(c?.nameTr ?? id).replace(/\s*\(.*\)\s*$/, '')}
+                    </Text>
                     <Text style={styles.cropGroup}>{mine ? t.yours : g.label}</Text>
                   </View>
                 );

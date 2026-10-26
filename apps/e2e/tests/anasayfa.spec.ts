@@ -101,7 +101,7 @@ test('ana sayfa: her ikon doğru sayfaya gider', async ({ browser }) => {
   await ctx.close();
 });
 
-test('ana sayfa: kart şeridi kendiliğinden kayar, sağ menü açılır, sekme değişir', async ({
+test('ana sayfa: kart şeridi kendiliğinden kayar, arazi seçici açılır, sekme değişir', async ({
   browser,
 }) => {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -114,11 +114,12 @@ test('ana sayfa: kart şeridi kendiliğinden kayar, sağ menü açılır, sekme 
   const x0 = await strip.evaluate((el) => el.scrollLeft);
   await expect.poll(() => strip.evaluate((el) => el.scrollLeft), { timeout: 12_000 }).not.toBe(x0);
 
-  await expect(page.getByTestId('yan-menu-panel')).toHaveCount(0);
-  await page.getByTestId('yan-menu-tutamac').click();
-  await expect(page.getByTestId('yan-menu-panel')).toBeVisible();
-  await page.getByTestId('yan-takvim').click();
-  await expect(page).toHaveURL(/\/takvim(\?.*)?$/);
+  // G23: sağ kenar menüsü yok; arazi adına dokununca (tek arazide de) seçici ve "Arazi ekle" açılır.
+  await expect(page.getByTestId('yan-menu-tutamac')).toHaveCount(0);
+  await page.getByTestId('arazi-blogu').click();
+  await expect(page.getByTestId('arazi-secici')).toBeVisible();
+  await page.getByTestId('arazi-secici-ekle').click();
+  await expect(page).toHaveURL(/\/tarla-ekle/);
 
   await page.goto('/');
   await page.getByTestId('sekme-hepsi').click();

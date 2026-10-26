@@ -1,6 +1,10 @@
 node_modules
 dist
 dist-demo
+dist-demo-lan
+.next-demo-lan
+Tarım Pusula
+tarım pusula kullanıcı giriş responsive
 .next
 .next-demo
 .expo

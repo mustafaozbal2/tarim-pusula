@@ -126,16 +126,18 @@ test('G22.4-5 ürüne göre içerik: Antep fıstığı, zeytin, domates', async 
 /**
  * Hedef görselden (docs/referans/anasayfa_hedef.png, telefon ekranı x 322..951 = 630 px → 390 px)
  * piksel örneklemesiyle ölçülen kutular. Yöntem: docs/gorsel/ANASAYFA_FARK.md.
+ * G23 (Mustafa, 26 Ekim): ikonlar (39,6 → 42) ve slayt kartları (71x119,5 → 76x136) "bir tık" büyütüldü;
+ * amblem ve bant hedefteki gibi kalır, alttaki öğeler kart büyümesi kadar (17,2 px) aşağı kayar.
  */
 const TARGET: Record<string, { x: number; y: number; w: number; h: number; label: string }> = {
   amblem: { x: 6.7, y: 2.8, w: 77, h: 97, label: 'Amblem (TARIM PUSULA yazısı dahil)' },
-  'ikon-gorsel-arazilerim': { x: 96.6, y: 26.6, w: 39.6, h: 39.6, label: 'İkon 1 (Arazilerim)' },
-  'ikon-gorsel-ayarlar': { x: 347.3, y: 26.6, w: 39.6, h: 39.6, label: 'İkon 7 (Profil Ayarları)' },
-  'kart-gorsel-1': { x: 7.4, y: 141.1, w: 71.2, h: 119.5, label: 'Kart 1 görseli' },
-  'kart-gorsel-2': { x: 83.6, y: 141.1, w: 71.2, h: 119.5, label: 'Kart 2 görseli' },
-  ciftci: { x: 84.3, y: 296.9, w: 53, h: 104, label: 'Çiftçi görseli' },
-  'ana-sekme-basligi': { x: 8.7, y: 408.6, w: 373.9, h: 52.6, label: 'Sekme başlığı' },
-  'tarih-kutusu': { x: 17.3, y: 468.6, w: 61.3, h: 61.3, label: '1. satır tarih kutusu' },
+  'ikon-gorsel-arazilerim': { x: 84.8, y: 25.1, w: 42, h: 42, label: 'İkon 1 (Arazilerim)' },
+  'ikon-gorsel-ayarlar': { x: 344, y: 25.1, w: 42, h: 42, label: 'İkon 7 (Profil Ayarları)' },
+  'kart-gorsel-1': { x: 7.4, y: 141.1, w: 76, h: 136, label: 'Kart 1 görseli' },
+  'kart-gorsel-2': { x: 89.4, y: 141.1, w: 76, h: 136, label: 'Kart 2 görseli' },
+  ciftci: { x: 84.3, y: 314.1, w: 53, h: 104, label: 'Çiftçi görseli' },
+  'ana-sekme-basligi': { x: 8.7, y: 425.8, w: 373.9, h: 52.6, label: 'Sekme başlığı' },
+  'tarih-kutusu': { x: 17.3, y: 485.8, w: 61.3, h: 61.3, label: '1. satır tarih kutusu' },
 };
 
 test('G22.2 ana sayfa hedefle ölçü karşılaştırması 390x844 (sapma < 2 px)', async ({ page }) => {
@@ -196,17 +198,21 @@ const PAGES: { name: string; open: (p: Page) => Promise<void>; url: RegExp }[] =
       await p.getByTestId(`ikon-${key}`).click();
     },
   })),
+  // G23: sağ kenar menüsü kaldırıldı; aynı sayfalar Arazi İşlemleri kartlarından açılır.
   ...(
     [
-      ['yan-arazi', /\/tarlalarim$/],
-      ['yan-uretim', /\/uretim-plani$/],
-      ['yan-takvim', /\/takvim(\?.*)?$/],
+      ['hub-plan', /\/uretim-plani(\?.*)?$/],
+      ['hub-takvim', /\/takvim(\?.*)?$/],
+      ['hub-tasarruf', /\/tasarruf(\?.*)?$/],
+      ['hub-guncelle', /\/arazi-duzenle(\?.*)?$/],
+      ['hub-toprak', /\/toprak-turleri(\?.*)?$/],
+      ['hub-kc', /\/kc-listesi(\?.*)?$/],
     ] as const
   ).map(([key, url]) => ({
     name: key,
     url,
     open: async (p: Page) => {
-      await p.getByTestId('yan-menu-tutamac').click();
+      await p.getByTestId('ikon-arazi-islemleri').click();
       await p.getByTestId(key).click();
     },
   })),
