@@ -185,6 +185,26 @@ export const tr = {
   },
   yieldMap: {
     title: 'Verim Haritası',
+    hero: 'Bölgende hangi ürünler öne çıkıyor, verim nasıl artar? Bilgiler burada.',
+    region: 'Bölgen',
+    regionUnknown: 'Bölgende öne çıkan ürünler',
+    regionMissing:
+      'Arazinin ili bilinmiyor. Arazine konum eklersen bölgende öne çıkan ürünler burada görünür.',
+    regionNote:
+      'Bu liste bölgede yaygın yetişen ürünlerin genel bilgisidir; il bazında verim rakamı değildir. TÜİK il verisi bağlanınca gerçek rakamlar gelir.',
+    yours: 'Senin ürünün',
+    wheatTitle: 'Buğdayda verim karşılaştırması',
+    wheatNote:
+      'Türkiye buğday verimi AB ortalamasının yaklaşık yarısı. Doğru gübreleme, sulama ve zamanında iş verimi artırır.',
+    afaeTitle: 'Bilinçli tarımla verim artar',
+    afaeBig: 'Örnek bahçelerde 3 kat fazla verim artışı',
+    afaeText:
+      'Antep fıstığında 8 yıl doğru tarımsal uygulamalar yapılan örnek bahçelerde verim artışı, komşu bahçelere göre 3 kat fazla oldu.',
+    afaeSource:
+      'AFAE, Nestle Damak ve TEMA - Antep Fıstığı Üretiminde Verim ve Kalitenin Artırılması Projesi',
+    more: 'Tarlanı izle',
+    ndviHint: 'Uydudan bitkinin yeşilliği',
+    deviceHint: 'Drone ya da sensör bağla',
     waiting:
       'Veri bekleniyor. Drone ya da verim ölçümü bağlanınca harita burada görünür. Veri uydurmuyoruz.',
     addDevice: 'Cihaz ekle',
