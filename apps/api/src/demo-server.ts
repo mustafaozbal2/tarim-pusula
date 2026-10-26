@@ -167,18 +167,20 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   );
   await seedDemoMarket(app.get(MarketCollector));
 
-  const web = serveStatic(resolve(o.webDir));
-  await new Promise<void>((ok) => web.listen(o.webPort, o.host ?? '127.0.0.1', ok));
+  // webPort 0: yalnız API (bulut: mobil web ayrı statik sitede, tek kapı açılır).
+  const web = o.webPort > 0 ? serveStatic(resolve(o.webDir)) : null;
+  if (web) await new Promise<void>((ok) => web.listen(o.webPort, o.host ?? '127.0.0.1', ok));
   return {
     close: async () => {
-      web.close();
+      web?.close();
       await app.close();
     },
   };
 }
 
 if (process.argv[1] && /demo-server\.[tj]s$/.test(process.argv[1])) {
-  const apiPort = Number(process.env['DEMO_API_PORT'] ?? 8210);
+  // Bulutta (Render) kapı PORT ortam değişkeniyle verilir.
+  const apiPort = Number(process.env['DEMO_API_PORT'] ?? process.env['PORT'] ?? 8210);
   const webPort = Number(process.env['DEMO_WEB_PORT'] ?? 8200);
   const webDir =
     process.env['DEMO_WEB_DIR'] ?? resolve(import.meta.dirname, '../../mobile/dist-demo');
