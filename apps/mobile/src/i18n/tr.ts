@@ -336,6 +336,13 @@ export const tr = {
   ],
   ask: {
     title: 'Ne öğrenmek istiyorsun?',
+    heroTitle: 'Uzmana sor',
+    whichField: 'Hangi arazi için soruyorsun?',
+    general: 'Genel soru',
+    how3: 'Nasıl sormak istersin?',
+    voiceHint: 'Konuş, yazıya biz çevirelim',
+    photoHint: 'Bitkinin fotoğrafını çek, uzmana gitsin',
+    typeHint: 'Sorunu kısaca yaz',
     subtitle: 'Konuş, fotoğraf çek ya da yaz.',
     voice: 'Sesle sor',
     voiceListening: 'Dinliyorum... Konuş',
@@ -643,6 +650,8 @@ export const tr = {
     devOff: 'Geliştirici modu kapandı.',
   },
   fieldsScreen: {
+    hero: 'Arazilerin burada. Birine dokunup seç; değiştirmek için Güncelle.',
+    edit: 'Güncelle',
     howTitle: 'Arazilerim nasıl kullanılır?',
     how: [
       'Bir araziye dokunarak seçersin; ana sayfa ve diğer ekranlar seçili araziyi gösterir.',

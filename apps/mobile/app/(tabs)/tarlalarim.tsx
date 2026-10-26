@@ -1,7 +1,19 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Button, Card, colors, Durum, fontFamily, fontSize, Rozet, SekmeAnahtari } from '@tarim/ui';
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Button,
+  Card,
+  colors,
+  Durum,
+  fontFamily,
+  fontSize,
+  homeColors,
+  Rozet,
+  SekmeAnahtari,
+} from '@tarim/ui';
+import { IMAGE_FILES } from '../../src/assets';
+import { SayfaGorseli } from '../../src/components/Gorsel';
 import type { DeviceDto, FieldDto } from '../../src/api/client';
 import FieldMap from '../../src/components/FieldMap';
 import { BilgiKarti, OzetKarolari } from '../../src/components/BilgiKarti';
@@ -26,9 +38,6 @@ interface Cache {
   fields: FieldDto[];
 }
 
-const clock = (iso: string) =>
-  new Date(iso).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-
 export default function FieldsScreen() {
   const router = useRouter();
   const { bilgi } = useLocalSearchParams<{ bilgi?: string }>();
@@ -41,6 +50,13 @@ export default function FieldsScreen() {
   const [view, setView] = useState<View2>('liste');
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [cropNames, setCropNames] = useState<Record<string, string>>({});
+  useEffect(() => {
+    api.crops().then(
+      (list) => setCropNames(Object.fromEntries(list.map((c) => [c.id, c.nameTr]))),
+      () => undefined,
+    );
+  }, []);
 
   const load = useCallback(async () => {
     setWaiting(await queue.pending());
@@ -93,6 +109,7 @@ export default function FieldsScreen() {
 
   return (
     <Screen title={t.title}>
+      <SayfaGorseli image="genis_tarla.jpg" text={tf.hero} />
       {bilgi ? <Notice>{bilgi}</Notice> : null}
       <PendingProposals onChanged={() => void load()} />
       <OzetKarolari
@@ -152,24 +169,28 @@ export default function FieldsScreen() {
             accessibilityRole="button"
             accessibilityLabel={`${tf.selected}: ${f.name}`}
             onPress={() => setSelectedId(f.id)}
-            style={{ minHeight: 44, justifyContent: 'center' }}
+            style={styles.head}
           >
-            <Text style={styles.name} testID="tarla-karti">
-              {f.name}
-            </Text>
-            <Text style={styles.detail}>
-              {[f.village, f.district, f.province].filter(Boolean).join(' · ')}
-              {f.areaDecare
-                ? ` · ${f.areaDecare.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} ${t.area}`
-                : ''}
-            </Text>
-            <Text style={styles.detail}>
-              {tr.ndvi.cropLabel}:{' '}
-              {tr.commonCrops.find((c) => c.id === f.cropId)?.name ?? f.cropId ?? tr.ndvi.notSet}
-              {f.lat !== null && f.lon !== null
-                ? ` · ${f.lat.toFixed(3)}, ${f.lon.toFixed(3)}`
-                : ''}
-            </Text>
+            <View style={styles.no}>
+              <Text style={styles.noText}>{(cache?.fields.indexOf(f) ?? 0) + 1}</Text>
+            </View>
+            <Image source={IMAGE_FILES['ikon_tarla.png'] as number} style={styles.pic} />
+            <View style={styles.headText}>
+              <Text style={styles.name} testID="tarla-karti">
+                {f.name}
+              </Text>
+              <Text style={styles.detail}>
+                {[f.village, f.district, f.province].filter(Boolean).join(' · ')}
+              </Text>
+              <Text style={styles.cropLine}>
+                {cropNames[f.cropId ?? ''] ??
+                  tr.commonCrops.find((c) => c.id === f.cropId)?.name ??
+                  tr.ndvi.notSet}
+                {f.areaDecare
+                  ? ` · ${f.areaDecare.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} ${t.area}`
+                  : ''}
+              </Text>
+            </View>
           </Pressable>
           <View style={styles.actions}>
             <Button
@@ -185,6 +206,12 @@ export default function FieldsScreen() {
               onPress={() => router.push({ pathname: '/takvim', params: { fieldId: f.id } })}
             />
           </View>
+          <Button
+            label={tf.edit}
+            variant="secondary"
+            testID="tarla-guncelle"
+            onPress={() => router.push({ pathname: '/arazi-duzenle', params: { fieldId: f.id } })}
+          />
           {devices
             .filter((d) => d.fieldId === f.id)
             .map((d) => (
@@ -204,11 +231,6 @@ export default function FieldsScreen() {
       ) : null}
       {offline && !cache ? <YuklemeHatasi onRetry={() => void load()} /> : null}
       {offline ? <Notice tone="warn">{t.offlineNote}</Notice> : null}
-      {cache ? (
-        <Text style={styles.detail}>
-          {t.lastUpdate}: {clock(cache.at)}
-        </Text>
-      ) : null}
       <Button
         label={t.add}
         onPress={() => {
@@ -222,7 +244,20 @@ export default function FieldsScreen() {
 }
 
 const styles = StyleSheet.create({
-  card: { gap: 4 },
+  card: { gap: 8 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
+  no: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: homeColors.band,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noText: { fontFamily: fontFamily.extrabold, fontSize: 15, color: homeColors.text },
+  pic: { width: 54, height: 54 },
+  headText: { flex: 1, gap: 2 },
+  cropLine: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.forest },
   mapCard: { gap: 6, padding: 6 },
   map: { height: 190, borderRadius: 8, overflow: 'hidden' },
   name: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },

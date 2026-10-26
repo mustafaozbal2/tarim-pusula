@@ -1,9 +1,20 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Image as RNImage, StyleSheet, Text, TextInput, View } from 'react-native';
-import { BigChoice, Button, Card, colors, fontFamily, spacing } from '@tarim/ui';
-import type { PusulaCardDto } from '../../src/api/client';
+import { Image as RNImage, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Button,
+  Card,
+  colors,
+  elevation,
+  fontFamily,
+  homeColors,
+  radius,
+  spacing,
+} from '@tarim/ui';
+import { IMAGE_FILES } from '../../src/assets';
+import { Bolum, IkonKart } from '../../src/components/Gorsel';
+import type { FieldDto, PusulaCardDto } from '../../src/api/client';
 import { useSettings } from '../../src/settings';
 import { BilgiKarti } from '../../src/components/BilgiKarti';
 import { Screen } from '../../src/components/Screen';
@@ -14,7 +25,7 @@ import { captionQuestion } from '../../src/pusula/model';
 import { listen } from '../../src/pusula/voice';
 import { voiceMessage } from '../../src/pusula/voiceTypes';
 import { api } from '../../src/session';
-import { SELECTED } from '../../src/today/load';
+import { FIELDS_CACHE, SELECTED } from '../../src/today/load';
 
 const t = tr.ask;
 
@@ -34,6 +45,8 @@ export default function AskScreen() {
   const [showWhy, setShowWhy] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [fieldId, setFieldId] = useState<string | undefined>();
+  /** G23.13: soru hangi arazi için? Birden çok arazide çiftçi seçer; "Genel soru" araziye bağlanmaz. */
+  const [fields, setFields] = useState<FieldDto[]>([]);
   const settings = useSettings();
   const guide = useRef(settings.voiceGuide);
   guide.current = settings.voiceGuide;
@@ -42,6 +55,10 @@ export default function AskScreen() {
     void kv.get(SELECTED).then((id) => {
       if (id) setFieldId(id);
     });
+    void kv.get(FIELDS_CACHE).then((raw) => {
+      if (raw) setFields((JSON.parse(raw) as { fields: FieldDto[] }).fields);
+    });
+    void api.fields().then(setFields, () => undefined);
     return () => void Speech.stop();
   }, []);
 
@@ -201,41 +218,151 @@ export default function AskScreen() {
 
   return (
     <Screen title={t.title}>
-      <Text style={styles.subtitle}>{t.subtitle}</Text>
-      {!fieldId ? <Text style={styles.muted}>{t.noField}</Text> : null}
+      <View style={styles.hero}>
+        <RNImage source={IMAGE_FILES['ikon_uzman.png'] as number} style={styles.heroIcon} />
+        <View style={styles.heroText}>
+          <Text style={styles.heroTitle}>{t.heroTitle}</Text>
+          <Text style={styles.heroSub}>{t.subtitle}</Text>
+        </View>
+      </View>
+
+      <Bolum title={t.whichField}>
+        <View style={styles.chips} testID="soru-arazi">
+          {fields.map((f) => (
+            <Pressable
+              key={f.id}
+              accessibilityRole="button"
+              accessibilityState={{ selected: f.id === fieldId }}
+              accessibilityLabel={f.name}
+              onPress={() => setFieldId(f.id)}
+              style={[styles.chip, f.id === fieldId && styles.chipOn]}
+            >
+              <Text style={[styles.chipText, f.id === fieldId && styles.chipTextOn]}>{f.name}</Text>
+            </Pressable>
+          ))}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: fieldId === undefined }}
+            accessibilityLabel={t.general}
+            onPress={() => setFieldId(undefined)}
+            style={[styles.chip, fieldId === undefined && styles.chipOn]}
+          >
+            <Text style={[styles.chipText, fieldId === undefined && styles.chipTextOn]}>
+              {t.general}
+            </Text>
+          </Pressable>
+        </View>
+      </Bolum>
+
       {state.s === 'fail' ? <Text style={styles.error}>{state.msg}</Text> : null}
       {note ? <Text style={styles.muted}>{note}</Text> : null}
-      <Button label={t.voice} style={styles.voice} onPress={() => void voice()} />
-      <Button label={t.photo} variant="secondary" onPress={() => void photo()} />
-      {typing ? (
-        <>
-          <TextInput
-            value={text}
-            onChangeText={setText}
-            placeholder={t.placeholder}
-            accessibilityLabel={t.placeholder}
-            multiline
-            maxLength={500}
-            style={styles.input}
-            testID="soru-girdi"
+
+      <Bolum title={t.how3}>
+        <IkonKart wide icon="mic" title={t.voice} hint={t.voiceHint} onPress={() => void voice()} />
+        <IkonKart
+          wide
+          icon="camera"
+          title={t.photo}
+          hint={t.photoHint}
+          onPress={() => void photo()}
+        />
+        {typing ? (
+          <Card style={styles.card}>
+            <TextInput
+              value={text}
+              onChangeText={setText}
+              placeholder={t.placeholder}
+              accessibilityLabel={t.placeholder}
+              multiline
+              maxLength={500}
+              style={styles.input}
+              testID="soru-girdi"
+            />
+            <Button label={t.send} onPress={() => void ask(text)} />
+          </Card>
+        ) : (
+          <IkonKart
+            wide
+            icon="book"
+            title={t.type}
+            hint={t.typeHint}
+            onPress={() => setTyping(true)}
           />
-          <Button label={t.send} onPress={() => void ask(text)} />
-        </>
-      ) : (
-        <Button label={t.type} variant="secondary" onPress={() => setTyping(true)} />
-      )}
-      <Text style={styles.section}>{t.frequent}</Text>
-      {t.questions.map((q) => (
-        <BigChoice key={q} title={q} onPress={() => void ask(q)} />
-      ))}
+        )}
+      </Bolum>
+
+      <Bolum title={t.frequent}>
+        {t.questions.map((q) => (
+          <Pressable
+            key={q}
+            accessibilityRole="button"
+            accessibilityLabel={q}
+            onPress={() => void ask(q)}
+            style={({ pressed }) => [styles.faq, pressed && styles.pressed]}
+          >
+            <View style={styles.faqDot}>
+              <Text style={styles.faqMark}>?</Text>
+            </View>
+            <Text style={styles.faqText}>{q}</Text>
+          </Pressable>
+        ))}
+      </Bolum>
       <BilgiKarti title={t.howTitle} lines={[...t.how]} testID="pusula-nasil" />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  hero: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: homeColors.band,
+    borderRadius: radius.card,
+    padding: 14,
+    ...elevation.raised,
+  },
+  heroIcon: { width: 68, height: 68 },
+  heroText: { flex: 1, gap: 2 },
+  heroTitle: { fontFamily: fontFamily.extrabold, fontSize: 18, color: homeColors.text },
+  heroSub: { fontFamily: fontFamily.medium, fontSize: 14, color: homeColors.text },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: {
+    minHeight: 44,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  chipOn: { backgroundColor: colors.forest, borderColor: colors.forest },
+  chipText: { fontFamily: fontFamily.bold, fontSize: 14, color: colors.forest },
+  chipTextOn: { color: '#FFFFFF' },
+  faq: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    minHeight: 52,
+    paddingHorizontal: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.row,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...elevation.card,
+  },
+  pressed: { opacity: 0.85 },
+  faqDot: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: colors.pistachio,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  faqMark: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
+  faqText: { flex: 1, fontFamily: fontFamily.bold, fontSize: 15, color: colors.forest },
   subtitle: { fontFamily: fontFamily.semibold, fontSize: 15, color: colors.textMuted },
-  voice: { minHeight: 56 },
   preview: { width: '100%', height: 220, borderRadius: 10, backgroundColor: colors.card },
   section: { fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.forest, marginTop: 8 },
   card: { gap: spacing.md },
