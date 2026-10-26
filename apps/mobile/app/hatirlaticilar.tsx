@@ -63,10 +63,7 @@ export default function RemindersScreen() {
 
   return (
     <FlowScreen footer={<Button label={t.save} onPress={() => void save()} testID="hat-kaydet" />}>
-      <FlowHeader />
-      <Text accessibilityRole="header" style={styles.title}>
-        {t.title}
-      </Text>
+      <FlowHeader title={t.title} />
       <Text style={styles.muted}>{t.intro}</Text>
       {info ? <Notice>{info}</Notice> : null}
 

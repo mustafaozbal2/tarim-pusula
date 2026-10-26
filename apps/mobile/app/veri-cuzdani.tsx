@@ -78,10 +78,7 @@ export default function WalletScreen() {
   const now = Date.now();
   return (
     <FlowScreen footer={<Button label={t.download} onPress={() => void download()} />}>
-      <FlowHeader />
-      <Text accessibilityRole="header" style={styles.title}>
-        {t.title}
-      </Text>
+      <FlowHeader title={t.title} />
       <Text style={styles.muted}>{t.intro}</Text>
       {error ? <Notice tone="warn">{error}</Notice> : null}
       {info ? <Notice>{info}</Notice> : null}

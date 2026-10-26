@@ -41,7 +41,8 @@ test('Takvim: şimdi ve yaklaşan işler, rozet, kaynak, Neden?; duyuru kartı k
   await expect(now.getByTestId('takvim-kaynak')).toContainText('e2e Rehberi · v1 · 2026-01-01');
   const soon = page.getByTestId('takvim-yaklasan');
   await expect(soon).toContainText('Budama');
-  await expect(page.getByTestId('takvim-guncelleme')).toContainText('Son güncelleme');
+  // G23: "Son güncelleme" çiftçi ekranında gösterilmez.
+  await expect(page.getByTestId('takvim-guncelleme')).toHaveCount(0);
   await now.getByRole('button', { name: 'Neden?' }).click();
   await expect(now).toContainText('ürününüze göre');
 

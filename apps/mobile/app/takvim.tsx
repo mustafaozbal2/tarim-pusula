@@ -9,13 +9,13 @@ import { MonthView } from '../src/calendar/MonthView';
 import { addEventsToPhoneCalendar, shareIcs } from '../src/calendar/phone';
 import { loadCalendar, type CalendarResult } from '../src/calendar/load';
 import { FlowHeader, FlowScreen, Notice } from '../src/components/FlowParts';
+import { SayfaGorseli } from '../src/components/Gorsel';
 import { Iskelet, YuklemeHatasi } from '../src/components/Yukleme';
 import { withDeadline } from '../src/load/deadline';
 import { tr } from '../src/i18n/tr';
 import { kv } from '../src/offline/kvStore';
 import { api } from '../src/session';
 import { nextFieldId } from '../src/today/load';
-import { clock } from '../src/today/model';
 
 const t = tr.calendar;
 
@@ -60,14 +60,7 @@ export default function CalendarScreen() {
     }, [load]),
   );
 
-  const header = (
-    <>
-      <FlowHeader />
-      <Text accessibilityRole="header" style={styles.title}>
-        {t.title}
-      </Text>
-    </>
-  );
+  const header = <FlowHeader title={t.title} />;
   if (state !== 'ready' || res === undefined) {
     return (
       <FlowScreen>
@@ -109,10 +102,10 @@ export default function CalendarScreen() {
       }
     >
       {header}
+      <SayfaGorseli image="genis_tarla.jpg" text={t.intro} />
       <Text style={styles.body} testID="takvim-tarla">
         {field.name}
       </Text>
-      <Text style={styles.small}>{t.intro}</Text>
       {res.offline ? <Notice tone="warn">{t.offline}</Notice> : null}
       {data.cropId === null ? (
         <Text style={styles.body} testID="takvim-urun-yok">
@@ -168,15 +161,11 @@ export default function CalendarScreen() {
           ))}
         </View>
       ) : null}
-      <Text style={styles.small} testID="takvim-guncelleme">
-        {t.lastUpdate}: {clock(res.at)}
-      </Text>
     </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
   body: { fontFamily: fontFamily.bold, fontSize: fontSize.body, color: colors.forest },
   small: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
   when: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },

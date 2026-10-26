@@ -108,9 +108,7 @@ export default function HubScreen() {
           title={t.remove}
           hint={t.removeHint}
           testID="hub-sil"
-          onPress={() =>
-            router.push({ pathname: '/arazi-duzenle', params: { fieldId, sil: '1' } })
-          }
+          onPress={() => router.push({ pathname: '/arazi-duzenle', params: { fieldId, sil: '1' } })}
         />
       </Bolum>
 

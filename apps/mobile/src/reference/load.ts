@@ -46,3 +46,23 @@ export function soilRows(rows: SoilRowDto[]) {
     durum: r.needsBadge ? 'Taslak' : 'Onaylı',
   }));
 }
+
+/**
+ * G23.16 çiftçi dili: Kc sayısını "az / orta / çok su içer" diye okutur. Eşikler: Kc < 0,6 az (çıplak
+ * toprağa yakın), 0,6-0,95 orta, > 0,95 çok (FAO-56'da tam gelişmiş tarla bitkileri 1,0-1,2).
+ */
+export function kcLevel(kc: number | null): 'az' | 'orta' | 'çok' | null {
+  if (kc === null) return null;
+  if (kc < 0.6) return 'az';
+  if (kc <= 0.95) return 'orta';
+  return 'çok';
+}
+
+/**
+ * Toprağın faydalı su tutması (mm/m) 1-5 yıldız: FAO-56 Tablo 19 aralığında kumlu ~75, tınlı ~140,
+ * killi ~140-160 mm/m. Eşikler: <90, <120, <140, <160, ve üstü.
+ */
+export function soilStars(thetaFc: number, thetaWp: number): number {
+  const taw = Math.round(1000 * (thetaFc - thetaWp));
+  return taw < 90 ? 1 : taw < 120 ? 2 : taw < 140 ? 3 : taw < 160 ? 4 : 5;
+}

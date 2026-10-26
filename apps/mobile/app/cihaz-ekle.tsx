@@ -4,7 +4,9 @@ import { StyleSheet, Text } from 'react-native';
 import { BigChoice, Button, Card, colors, Durum, FormAlani, fontFamily, fontSize } from '@tarim/ui';
 import type { ConnectionMethod, DeviceKind } from '@tarim/schemas';
 import type { FieldDto } from '../src/api/client';
+import { SayfaGorseli } from '../src/components/Gorsel';
 import { Screen } from '../src/components/Screen';
+import { Iskelet } from '../src/components/Yukleme';
 import {
   buildRegisterBody,
   CONNECTION_METHOD_LABELS,
@@ -85,7 +87,8 @@ export default function AddDeviceScreen() {
 
   return (
     <Screen title={t.title}>
-      {field === undefined ? <Durum kind="yukleniyor" text={tr.today.loading} /> : null}
+      <SayfaGorseli image="kart_10.jpg" text={t.hero} />
+      {field === undefined ? <Iskelet rows={2} /> : null}
       {field === null ? (
         <Durum
           kind="bos"

@@ -17,7 +17,9 @@ import {
 import { kv } from '../src/offline/kvStore';
 import { api } from '../src/session';
 import { nextFieldId } from '../src/today/load';
-import { clock } from '../src/today/model';
+import { SayfaGorseli } from '../src/components/Gorsel';
+import { Icon } from '../src/components/Icon';
+import { ndviLevel } from '../src/ndvi/level';
 
 const t = tr.ndvi;
 
@@ -70,14 +72,7 @@ export default function NdviScreen() {
     }, [load]),
   );
 
-  const header = (
-    <>
-      <FlowHeader />
-      <Text accessibilityRole="header" style={styles.title}>
-        {t.title}
-      </Text>
-    </>
-  );
+  const header = <FlowHeader title={t.title} />;
   if (state !== 'ready' || res === undefined) {
     return (
       <FlowScreen>
@@ -100,6 +95,8 @@ export default function NdviScreen() {
   const src = s ? sourceLine(s) : null;
   const trend = s ? trendText(s) : null;
   const latest = s ? latestPoint(s) : null;
+  const lastMean = s?.points[s.points.length - 1]?.mean;
+  const level = typeof lastMean === 'number' ? ndviLevel(lastMean) : null;
   return (
     <FlowScreen
       footer={
@@ -113,6 +110,7 @@ export default function NdviScreen() {
       }
     >
       {header}
+      <SayfaGorseli image="genis_tarla.jpg" text={t.intro} />
       <Text style={styles.body} testID="ndvi-tarla">
         {field.name}
       </Text>
@@ -127,12 +125,6 @@ export default function NdviScreen() {
         <Text style={styles.small}>
           {t.placeLabel}:{' '}
           {[field.village, field.district, field.province].filter(Boolean).join(' · ') || t.notSet}
-        </Text>
-        <Text style={styles.small}>
-          {t.coordLabel}:{' '}
-          {field.lat !== null && field.lon !== null
-            ? `${field.lat.toFixed(4)}, ${field.lon.toFixed(4)}`
-            : t.notSet}
         </Text>
         <Text style={styles.small}>
           {t.areaLabel}:{' '}
@@ -155,7 +147,12 @@ export default function NdviScreen() {
 
       {s && src && trend ? (
         <>
-          <Text style={styles.small}>{t.intro}</Text>
+          {level ? (
+            <View style={[styles.level, { backgroundColor: level.color }]} testID="ndvi-duzey">
+              <Icon name="leaf" size={22} color="#FFFFFF" />
+              <Text style={styles.levelText}>{level.text}</Text>
+            </View>
+          ) : null}
           {s.sample ? (
             <Notice tone="warn">
               <Text testID="ndvi-ornek">{t.sampleBadge}</Text>
@@ -189,12 +186,6 @@ export default function NdviScreen() {
 
           <Button label={t.why} variant="secondary" onPress={() => setWhy((v) => !v)} />
           {why ? <Text style={styles.small}>{t.whyBody}</Text> : null}
-          <Text style={styles.small} testID="ndvi-kaynak">
-            {t.source}: {src}
-          </Text>
-          <Text style={styles.small}>
-            {t.lastUpdate}: {clock(res.at)}
-          </Text>
         </>
       ) : null}
       {data.kind === 'none' && data.reason === 'sinir-yok' ? (
@@ -206,7 +197,14 @@ export default function NdviScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
+  level: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderRadius: 14,
+    padding: 12,
+  },
+  levelText: { fontFamily: fontFamily.extrabold, fontSize: 17, color: '#FFFFFF' },
   body: { fontFamily: fontFamily.bold, fontSize: fontSize.body, color: colors.forest },
   small: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
   big: { fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.forest },

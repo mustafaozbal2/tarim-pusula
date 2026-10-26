@@ -21,10 +21,19 @@ export function FlowScreen({ children, footer }: { children: ReactNode; footer?:
 }
 
 /** Üst şerit: ana sayfayla aynı turkuaz bant, geri düğmesi ve adım yazısı (kenar boşluğunu taşar). */
-export function FlowHeader({ step, onBack }: { step?: string; onBack?: () => void }) {
+export function FlowHeader({
+  step,
+  onBack,
+  title,
+}: {
+  step?: string;
+  onBack?: () => void;
+  /** Sayfa başlığı bantta (G23: bütün sayfalarda aynı yerde). */
+  title?: string;
+}) {
   return (
     <View style={styles.header}>
-      <UstBant step={step} onBack={onBack} />
+      <UstBant step={step} onBack={onBack} title={title} />
     </View>
   );
 }

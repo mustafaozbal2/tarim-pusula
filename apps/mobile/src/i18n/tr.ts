@@ -77,6 +77,7 @@ export const tr = {
   },
   deviceAdd: {
     title: 'Cihaz ekle',
+    hero: 'Sulama vanası, nem sensörü ya da drone ekle; tarlanı telefondan izle.',
     noField: 'Cihaz eklemek için önce bir arazi ekle.',
     kindTitle: 'Cihaz türü',
     methodTitle: 'Bağlantı yöntemi',
@@ -104,7 +105,15 @@ export const tr = {
   cks: {
     open: 'ÇKS bağlantısı',
     title: 'ÇKS bağlantısı',
-    intro: 'Çiftçi Kayıt Sistemi parsellerini uygulamaya almak için bağlantı hazırlığı yapılıyor.',
+    intro: 'Devletteki çiftçi kaydınla Tarım Pusula’yı eşleştir; parsellerini tek tek girme.',
+    whatTitle: 'ÇKS nedir?',
+    what: 'ÇKS (Çiftçi Kayıt Sistemi), Tarım ve Orman Bakanlığı’nın çiftçi ve arazi kaydıdır. Destek ve hibelerin çoğu bu kayda göre ödenir. Kaydını il/ilçe tarım müdürlüğünde yaptırır ya da güncellersin.',
+    gainTitle: 'Bağlanınca ne olacak?',
+    gains: [
+      'ÇKS’deki parsellerin Tarım Pusula’ya kendiliğinden gelir; elle girmezsin.',
+      'Arazi büyüklüğü ve ürün bilgin kayıtla aynı olur; hesaplar doğru çıkar.',
+      'Sana uyan destek ve hibeler kaydına göre listelenir.',
+    ],
     stateLabel: 'Durum',
     statePending: 'Bağlantı hazırlığı',
     noCall: 'Şu an ÇKS için hiçbir istek gönderilmez, parsel bilginiz alınmaz.',
@@ -216,6 +225,10 @@ export const tr = {
     noEvents: 'Önümüzdeki aylar için kayıtlı iş yok.',
     market: 'Nerede satarım? (Pazar)',
     calendar: 'Tarla takvimi',
+    hero: 'Ekimden hasada kadar işlerini sırayla gör; ürününü nerede satacağını öğren.',
+    next: 'sıradaki işler',
+    marketHint: 'Fiyatlar ve satış yerleri',
+    calendarHint: 'Ay ay yapılacak işler',
   },
   fields: {
     title: 'Tarlalarım',
@@ -537,6 +550,7 @@ export const tr = {
   },
   market: {
     title: 'Pazar',
+    hero: 'Ürününün fiyatını gör, en yakın satış yerini bul.',
     priceLabel: 'Son fiyat',
     unit: 'kilo',
     whereTitle: 'Nerede satarım?',
@@ -597,12 +611,22 @@ export const tr = {
     saved: 'Adres kaydedildi.',
   },
   lists: {
-    kcTitle: 'Bitki türü ve Kc',
+    kcTitle: 'Bitkinin su ihtiyacı',
+    kcHero: 'Her bitki aynı suyu içmez. Kartta bitkinin hangi dönemde ne kadar su istediği yazar.',
+    kcIni: 'Başlangıçta',
+    kcMid: 'En büyük halinde',
+    kcEnd: 'Hasat öncesi',
+    kcLevel: {
+      az: 'Az su içer.',
+      orta: 'Orta miktarda su içer.',
+      çok: 'Büyüyünce çok su içer.',
+    },
     kcSearch: 'Bitki ara',
     kcNote:
       'Kc: bitkinin su ihtiyacı katsayısı. Kaynak: FAO-56. Taslak değerler karar için kullanılmaz.',
     kcHow: 'Kc nasıl okunur?',
     kcHowLines: [
+      'Kartlardaki sayıya Kc denir. 1 ise bitki kısa çim kadar su içer; 1,2 ise biraz daha fazla.',
       'Bitkinin günlük su ihtiyacı (ETc) = Kc × referans buharlaşma (ET0). Örnek: Kc 0,70 ve ET0 5 mm ise ETc 3,5 mm.',
       'Kc ilk: gelişme başı, Kc orta: tam gelişme, Kc son: olgunlaşma dönemi değeridir.',
       'Kaynak: FAO-56, Tablo 12. Onaylanmamış değer "Taslak" yazar; hesapta ve önerilerde kullanılmaz.',
@@ -615,7 +639,9 @@ export const tr = {
       'Kaynak: FAO-56, Tablo 19 (aralık orta değeri). Taslak değerler hesapta kullanılmaz.',
     ],
     whc: 'Faydalı su (mm/m)',
-    soilTitle: 'Toprak türü',
+    soilTitle: 'Toprak türleri',
+    soilHero: 'Toprağını elinde sık: dağılıyor mu, top mu oluyor? Kartlardan toprağını bul.',
+    holdsWater: 'Suyu tutması:',
     soilSearch: 'Toprak türü ara',
     soilNote:
       'Tarla kapasitesi ve solma noktası hacim oranıdır (m³/m³). Taslak değerler karar için kullanılmaz.',

@@ -5,6 +5,7 @@ import { Button, Card, Chip, colors, fontFamily, spacing } from '@tarim/ui';
 import type { MarketPlaceDto } from '../../src/api/client';
 import { Icon } from '../../src/components/Icon';
 import { ImageSlot } from '../../src/components/ImageSlot';
+import { SayfaGorseli } from '../../src/components/Gorsel';
 import { Screen } from '../../src/components/Screen';
 import { tr } from '../../src/i18n/tr';
 import { chooseMarketPlace, loadMarket, type MarketResult } from '../../src/market/load';
@@ -91,6 +92,7 @@ export default function MarketScreen() {
 
   return (
     <Screen title={t.title}>
+      <SayfaGorseli image="kart_6.jpg" text={t.hero} />
       <View style={styles.chips}>
         {res.crops.map((c) => (
           <Chip
