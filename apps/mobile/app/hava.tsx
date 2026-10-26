@@ -1,7 +1,19 @@
 import { useRouter } from 'expo-router';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Card, colors, Durum, fontFamily, fontSize, Rozet, spacing } from '@tarim/ui';
-import { HavaSimgesi } from '../src/components/KonumHavaBasligi';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Card,
+  colors,
+  Durum,
+  elevation,
+  fontFamily,
+  fontSize,
+  homeColors,
+  radius,
+  Rozet,
+} from '@tarim/ui';
+import { IMAGE_FILES } from '../src/assets';
+import { Bolum } from '../src/components/Gorsel';
+import { Icon, type IconName } from '../src/components/Icon';
 import { BilgiKarti } from '../src/components/BilgiKarti';
 import { Screen } from '../src/components/Screen';
 import { Iskelet, YuklemeHatasi } from '../src/components/Yukleme';
@@ -10,14 +22,15 @@ import { useToday } from '../src/hooks/useToday';
 import { placeLine } from '../src/home/model';
 import { tr } from '../src/i18n/tr';
 import { localIso } from '../src/home/model';
-import { clock, frostCardModel, weatherText } from '../src/today/model';
+import { frostCardModel, weatherText } from '../src/today/model';
 import { currentRows, forecastRows } from '../src/today/weatherView';
 
 const t = tr.weather;
 
 /**
- * Hava Durumu: seçili arazinin KOORDİNATI için tahmin. Kaynak ve saat her zaman görünür;
- * demo derlemesinde "Örnek veri" etiketi vardır. Don durumu burada; onaysız eşikte satır hiç çıkmaz.
+ * Hava Durumu: seçili arazinin KOORDİNATI için tahmin. G23: kaynak, saat ve atıf çiftçi ekranında değil,
+ * Ayarlar > Hakkında > Kaynaklar'da (veriyle birlikte saklanır, kural 6). Gerçek sağlayıcıya ulaşılamazsa
+ * "Örnek veri" rozeti görünür. Don durumu burada; onaysız eşikte satır hiç çıkmaz.
  */
 export default function WeatherScreen() {
   const router = useRouter();
@@ -50,56 +63,76 @@ export default function WeatherScreen() {
   const temp = w.current?.tempC;
   const now = currentRows(w.current);
   const days = forecastRows(w.days ?? [w.today], localIso());
+  const metricIcon: Record<string, IconName> = {
+    Sıcaklık: 'sun',
+    Hissedilen: 'people',
+    Nem: 'drop',
+    Rüzgâr: 'route',
+    Yağış: 'drop',
+  };
   return (
     <Screen title={t.title}>
-      <Card style={styles.card} testID="hava-ozet">
-        <Text style={styles.place}>
+      <View style={styles.hero} testID="hava-ozet">
+        <Text style={styles.heroPlace} numberOfLines={1}>
           {field.name}
-          {placeLine(field) ? ` · ${placeLine(field)}` : ''}
         </Text>
-        <Text style={styles.small}>
-          {t.coordinate}: {field.lat?.toFixed(3)}, {field.lon?.toFixed(3)}
-        </Text>
-        <View style={styles.tempRow}>
-          <Text style={styles.temp} testID="hava-sicaklik">
-            {temp === undefined ? '--' : `${Math.round(temp)}°`}
-          </Text>
-          <HavaSimgesi size={36} />
-          <Text style={[styles.body, styles.flex]}>{weatherText(w.current?.weatherCode)}</Text>
+        {placeLine(field) ? <Text style={styles.heroSub}>{placeLine(field)}</Text> : null}
+        <View style={styles.heroRow}>
+          <Image source={IMAGE_FILES['ikon_hava.png'] as number} style={styles.heroIcon} />
+          <View style={styles.heroTempBox}>
+            <Text style={styles.heroTemp} testID="hava-sicaklik">
+              {temp === undefined ? '--' : `${Math.round(temp)}°`}
+            </Text>
+            <Text style={styles.heroText}>{weatherText(w.current?.weatherCode)}</Text>
+          </View>
         </View>
-        <Text style={styles.label}>{t.now}</Text>
+        <Text style={styles.heroSub}>
+          {tr.today.minMax
+            .replace('{{min}}', String(Math.round(w.today.tMinC)))
+            .replace('{{max}}', String(Math.round(w.today.tMaxC)))}
+        </Text>
+      </View>
+
+      <Bolum title={t.now}>
         <View style={styles.grid} testID="hava-simdi">
-          {now.map((r) => (
+          {now.slice(1).map((r) => (
             <View key={r.label} style={styles.cell}>
+              <Icon name={metricIcon[r.label] ?? 'sun'} size={22} color={homeColors.tabSelected} />
               <Text style={styles.cellValue}>{r.value}</Text>
-              <Text style={styles.small}>{r.label}</Text>
+              <Text style={styles.cellLabel}>{r.label}</Text>
             </View>
           ))}
         </View>
-      </Card>
+      </Bolum>
 
-      <Card style={styles.card} testID="hava-tahmin">
-        <Text style={styles.label}>{t.forecast}</Text>
-        <View style={styles.fRow}>
-          <Text style={[styles.small, styles.fDay]}>{t.day}</Text>
-          <Text style={[styles.small, styles.fMid]}>{t.minMax}</Text>
-          <Text style={[styles.small, styles.fRain]}>{t.rainShort}</Text>
-        </View>
-        {days.map((d) => (
-          <View key={d.key} style={styles.fRow} testID="hava-gun">
-            <Text style={[styles.body, styles.fDay]}>{d.day}</Text>
-            <Text style={[styles.body, styles.fMid]}>{d.minMax}</Text>
-            <Text style={[styles.body, styles.fRain]}>{d.rain}</Text>
-          </View>
-        ))}
-        <Text style={styles.small}>
-          {t.et0}: {today.et0.mmPerDay.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} mm/gün
-        </Text>
-      </Card>
+      <Bolum title={t.forecast}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.days}
+          testID="hava-tahmin"
+        >
+          {days.map((d, i) => (
+            <View key={d.key} style={[styles.day, i === 0 && styles.dayToday]} testID="hava-gun">
+              <Text style={[styles.dayName, i === 0 && styles.onBand]}>{d.day}</Text>
+              <Icon
+                name={d.rain !== '-' && d.rain !== '0 mm' ? 'drop' : 'sun'}
+                size={26}
+                color={i === 0 ? homeColors.text : homeColors.tabSelected}
+              />
+              <Text style={[styles.dayTemp, i === 0 && styles.onBand]}>{d.minMax}</Text>
+              <Text style={[styles.dayRain, i === 0 && styles.onBand]}>{d.rain}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </Bolum>
 
       {showFrost ? (
-        <Card style={[styles.card, warn && styles.warn]} testID="hava-don">
-          <Text style={styles.label}>{t.frost}</Text>
+        <Card style={[styles.frost, warn && styles.warn]} testID="hava-don">
+          <View style={styles.frostHead}>
+            <Icon name="warning" size={20} color={warn ? colors.amberText : colors.forest} />
+            <Text style={styles.label}>{t.frost}</Text>
+          </View>
           <Text style={styles.body} testID="hava-don-baslik">
             {frost.title}
           </Text>
@@ -108,58 +141,85 @@ export default function WeatherScreen() {
         </Card>
       ) : null}
 
+      <Card style={styles.water}>
+        <Icon name="drop" size={22} color={colors.water} />
+        <Text style={styles.waterText}>
+          {t.et0}: {today.et0.mmPerDay.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} mm/gün
+        </Text>
+      </Card>
       {w.sample ? (
         <View style={styles.sample} testID="hava-ornek">
           <Rozet label={tr.common.sampleData} />
         </View>
       ) : null}
-      <Text style={styles.small} testID="hava-kaynak">
-        {tr.common.source}: {w.source}
-        {w.version ? ` · ${t.version}: ${w.version}` : ''}
-      </Text>
-      <Text style={styles.small} testID="hava-guncelleme">
-        {tr.today.lastUpdate}: {clock(w.fetchedAt)}
-      </Text>
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel={t.attribution}
-        onPress={() => void Linking.openURL('https://open-meteo.com/')}
-        style={styles.linkTouch}
-      >
-        <Text style={[styles.small, styles.link]}>{t.attribution}</Text>
-      </Pressable>
-      {data.offline ? <Text style={styles.small}>{tr.today.offline}</Text> : null}
-      {w.stale && !data.offline ? <Text style={styles.small}>{tr.today.stale}</Text> : null}
       <BilgiKarti title={t.howTitle} lines={[...t.how]} testID="hava-nasil" />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { gap: 4 },
+  hero: {
+    backgroundColor: homeColors.band,
+    borderRadius: radius.card,
+    padding: 16,
+    gap: 4,
+    ...elevation.raised,
+  },
+  heroPlace: { fontFamily: fontFamily.extrabold, fontSize: 18, color: homeColors.text },
+  heroSub: { fontFamily: fontFamily.semibold, fontSize: 14, color: homeColors.text },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 6 },
+  heroIcon: { width: 84, height: 84 },
+  heroTempBox: { flex: 1 },
+  heroTemp: {
+    fontFamily: fontFamily.extrabold,
+    fontSize: 52,
+    lineHeight: 58,
+    color: homeColors.text,
+  },
+  heroText: { fontFamily: fontFamily.bold, fontSize: 16, color: homeColors.text },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  cell: {
+    width: '48%',
+    flexGrow: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 12,
+    gap: 2,
+    ...elevation.card,
+  },
+  cellValue: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
+  cellLabel: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },
+  days: { gap: 10, paddingVertical: 4, paddingRight: 4 },
+  day: {
+    width: 92,
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...elevation.card,
+  },
+  dayToday: { backgroundColor: homeColors.band, borderColor: homeColors.band },
+  dayName: { fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.forest },
+  dayTemp: { fontFamily: fontFamily.bold, fontSize: 14, color: colors.forest },
+  dayRain: { fontFamily: fontFamily.medium, fontSize: 12, color: colors.textMuted },
+  onBand: { color: homeColors.text },
+  frost: { gap: 4 },
+  frostHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   warn: { backgroundColor: colors.amberSoft, borderColor: colors.amber },
-  place: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
-  tempRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  temp: { fontFamily: fontFamily.extrabold, fontSize: fontSize.display, color: colors.forest },
+  water: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.waterSoft,
+  },
+  waterText: { flex: 1, fontFamily: fontFamily.bold, fontSize: fontSize.body, color: colors.water },
+  sample: { flexDirection: 'row' },
   label: { fontFamily: fontFamily.extrabold, fontSize: fontSize.caption, color: colors.amberText },
   body: { fontFamily: fontFamily.semibold, fontSize: fontSize.body, color: colors.forest },
   small: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },
-  flex: { flex: 1 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  cell: {
-    flexBasis: '30%',
-    flexGrow: 1,
-    backgroundColor: colors.card,
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-  },
-  cellValue: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
-  fRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
-  fDay: { flex: 1.2 },
-  fMid: { flex: 1.4, textAlign: 'center' },
-  fRain: { flex: 1, textAlign: 'right' },
-  sample: { flexDirection: 'row' },
-  link: { textDecorationLine: 'underline' },
-  linkTouch: { minHeight: 44, justifyContent: 'center' },
 });

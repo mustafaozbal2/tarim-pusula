@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, SekmeAnahtari, spacing } from '@tarim/ui';
+import { Bolum, IkonKart, KartIzgara, SayfaGorseli } from '../src/components/Gorsel';
 import { Screen } from '../src/components/Screen';
 import { SunucuKarti } from '../src/components/SunucuKarti';
 import { tr } from '../src/i18n/tr';
@@ -37,18 +38,51 @@ export default function SettingsScreen() {
 
   return (
     <Screen title={t.title}>
-      <Card style={styles.card}>
-        <Text style={styles.label}>{t.textSize}</Text>
-        <SekmeAnahtari<TextSize>
-          testID="ayar-yazi-boyutu"
-          value={s.textSize}
-          onChange={(v) => void updateSettings({ textSize: v })}
-          options={[
-            { key: 'normal', label: t.normal },
-            { key: 'large', label: t.large },
-          ]}
+      <SayfaGorseli image="genis_ciftciler.jpg" text={t.hero} />
+
+      <Bolum title={t.myData}>
+        <IkonKart
+          wide
+          icon="book"
+          title={tr.wallet.open}
+          hint={t.walletHint}
+          testID="ayar-veri-cuzdani"
+          onPress={() => router.push('/veri-cuzdani')}
         />
-      </Card>
+        <IkonKart
+          wide
+          icon="chip"
+          title={tr.cks.open}
+          hint={t.cksHint}
+          testID="ayar-cks"
+          onPress={() => router.push('/entegrasyonlar')}
+        />
+        <IkonKart
+          wide
+          icon="bell"
+          title={tr.reminders.open}
+          hint={t.reminderHint}
+          testID="ayar-hatirlatici"
+          onPress={() => router.push('/hatirlaticilar')}
+        />
+      </Bolum>
+
+      <Bolum title={t.lists}>
+        <KartIzgara>
+          <IkonKart
+            icon="drop"
+            title={tr.lists.open}
+            hint={t.kcHint}
+            onPress={() => router.push('/kc-listesi')}
+          />
+          <IkonKart
+            image="ikon_toprak.png"
+            title={tr.lists.openSoil}
+            hint={t.soilHint}
+            onPress={() => router.push('/toprak-turleri')}
+          />
+        </KartIzgara>
+      </Bolum>
 
       <Card style={styles.card}>
         <Text style={styles.label}>{t.voice}</Text>
@@ -62,46 +96,6 @@ export default function SettingsScreen() {
           ]}
         />
         <Text style={styles.hint}>{t.voiceHint}</Text>
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.label}>{t.myData}</Text>
-        <Button
-          label={tr.wallet.open}
-          variant="secondary"
-          testID="ayar-veri-cuzdani"
-          onPress={() => router.push('/veri-cuzdani')}
-        />
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.label}>{t.integrations}</Text>
-        <Button
-          label={tr.cks.open}
-          variant="secondary"
-          testID="ayar-cks"
-          onPress={() => router.push('/entegrasyonlar')}
-        />
-        <Button
-          label={tr.reminders.open}
-          variant="secondary"
-          testID="ayar-hatirlatici"
-          onPress={() => router.push('/hatirlaticilar')}
-        />
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.label}>{t.lists}</Text>
-        <Button
-          label={tr.lists.open}
-          variant="secondary"
-          onPress={() => router.push('/kc-listesi')}
-        />
-        <Button
-          label={tr.lists.openSoil}
-          variant="secondary"
-          onPress={() => router.push('/toprak-turleri')}
-        />
       </Card>
 
       <Card style={styles.card} testID="ayar-hakkinda">
@@ -118,17 +112,38 @@ export default function SettingsScreen() {
             {APP_VERSION}
           </Text>
         </Pressable>
-        {s.devMode ? (
-          <View style={styles.row}>
-            <Text style={styles.hint}>{t.server}</Text>
-            <Text style={styles.value}>{server ?? t.serverNone}</Text>
-          </View>
-        ) : null}
+        <View style={styles.row}>
+          <Text style={styles.hint}>{t.server}</Text>
+          <Text style={styles.value} testID="ayar-sunucu">
+            {server ?? t.serverNone}
+          </Text>
+        </View>
         {devNote ? <Text style={styles.hint}>{devNote}</Text> : null}
         <Text style={styles.hint}>{tr.app.slogan}</Text>
+        <Text style={[styles.label, styles.sourcesTitle]}>{t.sources}</Text>
+        <View testID="ayar-kaynaklar" style={styles.sources}>
+          {t.sourceList.map((x) => (
+            <Text key={x} style={styles.hint}>
+              {'•'} {x}
+            </Text>
+          ))}
+        </View>
       </Card>
 
       {s.devMode ? <SunucuKarti variant="settings" /> : null}
+
+      <Card style={styles.card}>
+        <Text style={styles.label}>{t.textSize}</Text>
+        <SekmeAnahtari<TextSize>
+          testID="ayar-yazi-boyutu"
+          value={s.textSize}
+          onChange={(v) => void updateSettings({ textSize: v })}
+          options={[
+            { key: 'normal', label: t.normal },
+            { key: 'large', label: t.large },
+          ]}
+        />
+      </Card>
 
       <Button
         label={t.logout}
@@ -146,11 +161,13 @@ const styles = StyleSheet.create({
   label: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
   hint: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },
   value: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.forest },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   tapRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     height: 44,
   },
+  sourcesTitle: { marginTop: spacing.md },
+  sources: { gap: 4 },
 });
