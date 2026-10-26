@@ -149,6 +149,18 @@ export async function seedDemoData(db: Db, now = new Date()): Promise<void> {
          'uzman-onayli')`,
       [new Date(now.getTime() - day)],
     );
+    // G23 tasarruf raporu (örnek veri): FAO-56 Tablo 22 kök derinliği ve tükenme oranı (aralık orta
+    // değeri) ile tınlı toprak demo'da "onaylı" sayılır ki rapor dolu görünsün. Gerçek modda uzman onaylar.
+    await q.query(
+      `INSERT INTO crop_water_params(crop_id, root_depth_m, p_table, review_status, source, source_version, source_date)
+       VALUES ('antep-fistigi', 1.25, 0.40, 'uzman-onayli', 'Örnek veri (demo) - FAO-56 Tablo 22', 'demo', '2026-10-25'),
+              ('zeytin', 1.45, 0.65, 'uzman-onayli', 'Örnek veri (demo) - FAO-56 Tablo 22', 'demo', '2026-10-25')
+       ON CONFLICT (crop_id) DO NOTHING`,
+    );
+    await q.query(
+      `UPDATE crop_pack_versions SET review_status = 'uzman-onayli' WHERE crop_id = 'zeytin'`,
+    );
+    await q.query(`UPDATE soil_types SET review_status = 'uzman-onayli' WHERE key = 'tinli'`);
     // G23: uzman test verileri (Güncel Haberler, Bilgilendirmeler, Yönlendirmeler, Önlemler, Teknoloji).
     await seedUzmanOrnek(q, now);
     for (const d of DEMO_DOCS) {

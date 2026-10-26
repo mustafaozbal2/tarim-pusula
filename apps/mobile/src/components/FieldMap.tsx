@@ -1,10 +1,12 @@
 import { Camera, Map, Marker } from '@maplibre/maplibre-react-native';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { resolveBasemap, viewMaxZoom } from '../location/mapProvider';
 import { satelliteStyle } from '../location/mapStyle';
 import type { FieldMapProps } from './fieldMapTypes';
 
 const style = satelliteStyle();
+const MAX_ZOOM = viewMaxZoom(resolveBasemap());
 
 /** Cihaz haritası: MapLibre Native (uydu altlığı). Dokunulan nokta `onPick` ile bildirilir. */
 export default function FieldMap({ center, zoom, marker, onPick, testID }: FieldMapProps) {
@@ -18,7 +20,7 @@ export default function FieldMap({ center, zoom, marker, onPick, testID }: Field
           if (lon !== undefined && lat !== undefined) onPick({ lat, lon });
         }}
       >
-        <Camera center={[center.lon, center.lat]} zoom={zoom} />
+        <Camera center={[center.lon, center.lat]} zoom={zoom} maxZoom={MAX_ZOOM} />
         {marker ? (
           <Marker lngLat={[marker.lon, marker.lat]} anchor="bottom">
             <Svg width={56} height={72} viewBox="0 0 24 31" accessibilityLabel="Tarla işareti">

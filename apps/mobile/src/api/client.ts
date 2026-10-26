@@ -202,6 +202,8 @@ export interface SoilRowDto {
   thetaFc: number;
   thetaWp: number;
   source: string;
+  /** Çiftçi dilinde tarif (G23). */
+  hint?: string | null;
   needsBadge: boolean;
 }
 

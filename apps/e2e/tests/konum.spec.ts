@@ -31,6 +31,10 @@ async function openAs(
   await context.route('**/tiles.maps.eox.at/**', (route) =>
     route.fulfill({ status: 200, contentType: 'image/png', body: TILE }),
   );
+  // G23: varsayılan altlık Esri World Imagery; test ağsız çalışsın diye karolar sahte.
+  await context.route('**/server.arcgisonline.com/**', (route) =>
+    route.fulfill({ status: 200, contentType: 'image/png', body: TILE }),
+  );
   await context.addInitScript(
     ([api, token]) => {
       localStorage.setItem('config.apiUrl', api!);

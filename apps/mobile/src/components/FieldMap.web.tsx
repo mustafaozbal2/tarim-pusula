@@ -2,6 +2,7 @@ import { Map as GlMap, Marker as GlMarker, type StyleSpecification } from 'mapli
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useRef } from 'react';
 import { View } from 'react-native';
+import { resolveBasemap, viewMaxZoom } from '../location/mapProvider';
 import { satelliteStyle } from '../location/mapStyle';
 import type { FieldMapProps } from './fieldMapTypes';
 
@@ -24,6 +25,7 @@ export default function FieldMap({ center, zoom, marker, onPick, onZoom, testID 
       style: satelliteStyle() as unknown as StyleSpecification,
       center: [center.lon, center.lat],
       zoom,
+      maxZoom: viewMaxZoom(resolveBasemap()),
       attributionControl: { compact: true },
     });
     m.on('click', (e) => handlers.current.onPick({ lat: e.lngLat.lat, lon: e.lngLat.lng }));

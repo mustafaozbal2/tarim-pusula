@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_TILE_URL, resolveBasemap } from './mapProvider';
+import { DEFAULT_TILE_URL, ESRI_TILE_URL, resolveBasemap, viewMaxZoom } from './mapProvider';
 
 describe('altlık sağlayıcı seçimi', () => {
-  it('bayrak yoksa varsayılan EOX', () => {
+  it('bayrak yoksa varsayılan Esri (G23: yakında da net, en çok 18. seviye)', () => {
     const b = resolveBasemap({});
-    expect(b.id).toBe('eox');
-    expect(b.tileUrl).toBe(DEFAULT_TILE_URL);
+    expect(b.id).toBe('esri');
+    expect(b.tileUrl).toBe(ESRI_TILE_URL);
+    expect(b.maxzoom).toBe(18);
     expect(b.fallback).toBe(false);
+  });
+  it('EOX açıkça seçilebilir; harita kaynağın 1 üstünden fazla yakınlaşmaz (bulanık büyütme yok)', () => {
+    const b = resolveBasemap({ EXPO_PUBLIC_MAP_PROVIDER: 'eox' });
+    expect(b.tileUrl).toBe(DEFAULT_TILE_URL);
+    expect(viewMaxZoom(b)).toBe(15);
+    expect(viewMaxZoom(resolveBasemap({}))).toBe(19);
   });
   it('Esri seçilince anahtarsız kullanılır ve atıf içerir', () => {
     const b = resolveBasemap({ EXPO_PUBLIC_MAP_PROVIDER: 'esri' });
@@ -14,9 +21,9 @@ describe('altlık sağlayıcı seçimi', () => {
     expect(b.tileUrl).toContain('World_Imagery');
     expect(b.attribution).toMatch(/Esri/);
   });
-  it('MapTiler anahtar yoksa EOX altlığında kalır', () => {
+  it('MapTiler anahtar yoksa varsayılan altlıkta kalır', () => {
     const b = resolveBasemap({ EXPO_PUBLIC_MAP_PROVIDER: 'maptiler' });
-    expect(b.id).toBe('eox');
+    expect(b.id).toBe('esri');
     expect(b.fallback).toBe(true);
     expect(b.tileUrl).not.toContain('undefined');
   });
@@ -38,7 +45,7 @@ describe('altlık sağlayıcı seçimi', () => {
     expect(b.tileUrl).toContain('access_token=pk.x');
   });
   it('bilinmeyen değer varsayılana düşer; açık TILE_URL en öncelikli', () => {
-    expect(resolveBasemap({ EXPO_PUBLIC_MAP_PROVIDER: 'x' }).id).toBe('eox');
+    expect(resolveBasemap({ EXPO_PUBLIC_MAP_PROVIDER: 'x' }).id).toBe('esri');
     const b = resolveBasemap({ EXPO_PUBLIC_TILE_URL: 'https://t/{z}/{x}/{y}.png' });
     expect(b.id).toBe('ozel');
   });

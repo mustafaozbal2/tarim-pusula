@@ -4,8 +4,9 @@ export const DEFAULT_ATTRIBUTION =
   'Sentinel-2 cloudless — s2maps.eu, EOX IT Services GmbH (Copernicus Sentinel verisi, 2021)';
 
 /**
- * Uydu altlığı sağlayıcı adaptörü. Seçim EXPO_PUBLIC_MAP_PROVIDER bayrağıyla: eox | esri | maptiler | mapbox.
- * Anahtar gereken sağlayıcıda anahtar yoksa mevcut altlık (EOX) kalır. Lisans notları: docs/ARASTIRMA_HARITA.md.
+ * Uydu altlığı sağlayıcı adaptörü. Seçim EXPO_PUBLIC_MAP_PROVIDER bayrağıyla: esri | eox | maptiler | mapbox.
+ * G23: varsayılan Esri World Imagery (yakında da net; EOX 14. seviyeden sonra bulanıklaşıyordu). Anahtar
+ * gereken sağlayıcıda anahtar yoksa varsayılana düşülür. Lisans notları: docs/ARASTIRMA_HARITA.md.
  * Parsel verisi bu katmanda YOKTUR (TKGM izni olmadan çağrı yapılmaz).
  */
 export type BasemapId = 'eox' | 'esri' | 'maptiler' | 'mapbox' | 'ozel';
@@ -15,8 +16,13 @@ export interface Basemap {
   tileUrl: string;
   attribution: string;
   maxzoom: number;
-  /** İstenen sağlayıcı kullanılamadığı (anahtar yok) için EOX'a düşüldü mü. */
+  /** İstenen sağlayıcı kullanılamadığı (anahtar yok) için varsayılana düşüldü mü. */
   fallback: boolean;
+}
+
+/** Haritanın en fazla yakınlaşması: kaynağın verdiği seviyenin 1 üstü (daha fazlası bulanık büyütmedir). */
+export function viewMaxZoom(b: Pick<Basemap, 'maxzoom'>): number {
+  return b.maxzoom + 1;
 }
 
 type Env = Record<string, string | undefined>;
@@ -32,6 +38,14 @@ const EOX: Basemap = {
 export const ESRI_TILE_URL =
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
+const ESRI: Basemap = {
+  id: 'esri',
+  tileUrl: ESRI_TILE_URL,
+  attribution: 'Esri, Maxar, Earthstar Geographics ve GIS User Community',
+  maxzoom: 18,
+  fallback: false,
+};
+
 export function resolveBasemap(env: Env = process.env): Basemap {
   const custom = env['EXPO_PUBLIC_TILE_URL']?.trim();
   if (custom) {
@@ -44,18 +58,10 @@ export function resolveBasemap(env: Env = process.env): Basemap {
     };
   }
   const want = env['EXPO_PUBLIC_MAP_PROVIDER']?.trim().toLowerCase();
-  if (want === 'esri') {
-    return {
-      id: 'esri',
-      tileUrl: ESRI_TILE_URL,
-      attribution: 'Esri, Maxar, Earthstar Geographics ve GIS User Community',
-      maxzoom: 18,
-      fallback: false,
-    };
-  }
+  if (want === 'eox') return EOX;
   if (want === 'maptiler') {
     const key = env['EXPO_PUBLIC_MAPTILER_KEY']?.trim();
-    if (!key) return { ...EOX, fallback: true };
+    if (!key) return { ...ESRI, fallback: true };
     return {
       id: 'maptiler',
       tileUrl: `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${encodeURIComponent(key)}`,
@@ -66,7 +72,7 @@ export function resolveBasemap(env: Env = process.env): Basemap {
   }
   if (want === 'mapbox') {
     const token = env['EXPO_PUBLIC_MAPBOX_TOKEN']?.trim();
-    if (!token) return { ...EOX, fallback: true };
+    if (!token) return { ...ESRI, fallback: true };
     return {
       id: 'mapbox',
       tileUrl: `https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token=${encodeURIComponent(token)}`,
@@ -75,5 +81,5 @@ export function resolveBasemap(env: Env = process.env): Basemap {
       fallback: false,
     };
   }
-  return EOX;
+  return ESRI;
 }

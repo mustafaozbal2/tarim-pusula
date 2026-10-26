@@ -290,6 +290,19 @@ export const tr = {
     offline: 'Ürün listesi alınamadı; en çok ekilenlerden seçebilirsin.',
     none: 'Bu adla ürün bulunamadı. Başka bir ad dene.',
   },
+  savings: {
+    title: 'Tasarruf ve verim raporu',
+    hero: 'Geleneksel sulama ile Tarım Pusula sulamasını karşılaştır: ne kadar su tasarruf edilir?',
+    period: 'Hangi dönem?',
+    days: 'gün',
+    soil: 'Tarlanın toprağı',
+    mine: 'Senin sulaman (isteğe bağlı)',
+    mineHint:
+      'Kaç günde bir ve ne kadar suladığını yazarsan karşılaştırma senin alışkanlığına göre yapılır. Boş bırakırsan genel bir varsayım kullanılır.',
+    interval: 'Kaç günde bir suluyorsun?',
+    depth: 'Her seferinde kaç mm su veriyorsun?',
+    result: 'Bu dönemde Tarım Pusula ile',
+  },
   fieldEdit: {
     title: 'Araziyi güncelle',
     removeTitle: 'Araziyi sil',
