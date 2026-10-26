@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
+import { PGlite } from '@electric-sql/pglite';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
@@ -18,7 +19,8 @@ import {
   seedDemoData,
   seedDemoMarket,
 } from './demo';
-import { migrate, PgliteDb, systemTx } from './db/db';
+import { migrate, PgDb, PgliteDb, systemTx, type Db } from './db/db';
+import { readUzmanOrnek } from './uzman-ornek';
 import { MarketCollector } from './market/collector';
 import {
   FakeWeatherProvider,
@@ -40,7 +42,29 @@ const MIME: Record<string, string> = {
   '.map': 'application/json',
 };
 
+/** Gömülü veritabanı için düşük bellekli Postgres ayarları (ölçüm: KARARLAR.md, bulut). */
+export const DEMO_PG_CONF = [
+  'shared_buffers=16MB',
+  'work_mem=2MB',
+  'maintenance_work_mem=16MB',
+  'wal_buffers=1MB',
+  'temp_buffers=2MB',
+  'effective_cache_size=32MB',
+];
+
+/** Demo tohumu daha önce yazıldı mı (kalıcı veritabanında yeniden başlatma)? */
+export async function alreadySeeded(db: Db): Promise<boolean> {
+  const rows = await systemTx(db, (q) =>
+    q.query(`SELECT 1 FROM announcements WHERE source_org = $1 LIMIT 1`, [readUzmanOrnek().kaynak]),
+  );
+  return rows.length > 0;
+}
+
 export interface DemoOptions {
+  /** Verilirse gerçek Postgres (bulut); verilmezse süreç içi PGlite. */
+  databaseUrl?: string;
+  /** Test: hazır veritabanı (yeniden başlatmayı sınamak için aynı veritabanı iki kez verilir). */
+  db?: Db;
   apiPort: number;
   webPort: number;
   /** Mobil uygulamanın web paketi (expo export çıktısı). */
@@ -104,11 +128,19 @@ function serveStatic(dir: string): Server {
 export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   const info = demoInfo();
   if (!info) throw new Error('Demo yalnız DEMO_MODE=1 ve üretim dışı ortamda çalışır.');
-  const db = new PgliteDb();
+  // Küçük Postgres bellek ayarları: varsayılanla gömülü veritabanı ~500 MB'a büyüyor, bununla ~200 MB
+  // (Render ücretsiz plan 512 MB). Demo verisi küçük olduğundan hız farkı yok.
+  // Bulutta gerçek Postgres (DATABASE_URL): veri kalıcıdır; tohum yalnız ilk açılışta yazılır.
+  const db: Db =
+    o.db ??
+    (o.databaseUrl
+      ? new PgDb(o.databaseUrl)
+      : new PgliteDb(new PGlite({ postgresqlconf: DEMO_PG_CONF })));
   await migrate(db);
   await importCropCatalog(db);
   await importCalendarTemplates(db);
-  await seedDemoData(db);
+  const seeded = await alreadySeeded(db);
+  if (!seeded) await seedDemoData(db);
   const broker = new InMemoryBroker();
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule.register({
@@ -143,29 +175,46 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
     return post('/auth/otp/verify', undefined, { phone, code: info.code });
   };
 
-  // Çiftçi: 2 tarla + bağlı sanal sulama cihazı.
+  const get = async (path: string, token: string) => {
+    const r = await fetch(base + path, { headers: { authorization: `Bearer ${token}` } });
+    if (!r.ok) throw new Error(`demo tohumu ${path}: ${r.status} ${await r.text()}`);
+    return (await r.json()) as Record<string, string>[];
+  };
+
+  // Çiftçi: 2 tarla + bağlı sanal sulama cihazı. Kalıcı veritabanında tarlalar zaten varsa yeniden
+  // oluşturulmaz; sanal cihaz her açılışta yeniden bağlanır (cihaz aracısı bellektedir).
   const farmer = await login(DEMO_FARMER_PHONE);
-  const fieldIds: string[] = [];
-  for (const f of DEMO_FIELDS) {
-    const r = await post('/fields', farmer['token'], { ...f, locationSource: 'koy' });
-    fieldIds.push(r['id']!);
+  const existing = await get('/fields', farmer['token']!);
+  const fieldIds: string[] = existing.map((f) => f['id']!);
+  if (fieldIds.length === 0) {
+    for (const f of DEMO_FIELDS) {
+      const r = await post('/fields', farmer['token'], { ...f, locationSource: 'koy' });
+      fieldIds.push(r['id']!);
+    }
   }
-  const dev = await post('/devices', farmer['token'], {
-    fieldId: fieldIds[0],
-    name: 'Fıstık bahçesi vanası (sanal cihaz)',
-  });
+  const devices = await get('/devices', farmer['token']!);
+  const dev =
+    devices[0] ??
+    (await post('/devices', farmer['token'], {
+      fieldId: fieldIds[0],
+      name: 'Fıstık bahçesi vanası (sanal cihaz)',
+    }));
   const prov = await post(`/devices/${dev['id']}/provision`, farmer['token']);
   await new VirtualDevice({ id: dev['id']!, secret: prov['secret']!, broker }).connect();
 
   // Kurum yöneticisi.
   const staff = await login(DEMO_STAFF_PHONE);
   await systemTx(db, (q) =>
-    q.query('INSERT INTO user_roles(user_id, role, granted_by) VALUES ($1,$2,$1)', [
-      staff['userId'],
-      'institution_admin',
-    ]),
+    q.query(
+      `INSERT INTO user_roles(user_id, role, granted_by) VALUES ($1,$2,$1) ON CONFLICT DO NOTHING`,
+      [staff['userId'], 'institution_admin'],
+    ),
   );
-  await seedDemoMarket(app.get(MarketCollector));
+  try {
+    await seedDemoMarket(app.get(MarketCollector));
+  } catch (e) {
+    console.warn('demo pazar tohumu atlandı:', (e as Error).message);
+  }
 
   // webPort 0: yalnız API (bulut: mobil web ayrı statik sitede, tek kapı açılır).
   const web = o.webPort > 0 ? serveStatic(resolve(o.webDir)) : null;
@@ -184,7 +233,13 @@ if (process.argv[1] && /demo-server\.[tj]s$/.test(process.argv[1])) {
   const webPort = Number(process.env['DEMO_WEB_PORT'] ?? 8200);
   const webDir =
     process.env['DEMO_WEB_DIR'] ?? resolve(import.meta.dirname, '../../mobile/dist-demo');
-  startDemo({ apiPort, webPort, webDir, host: process.env['DEMO_HOST'] })
+  startDemo({
+    apiPort,
+    webPort,
+    webDir,
+    host: process.env['DEMO_HOST'],
+    databaseUrl: process.env['DATABASE_URL'] || undefined,
+  })
     .then(() => console.log(`demo hazır: api ${apiPort}, mobil web ${webPort}`))
     .catch((e) => {
       console.error(e);
