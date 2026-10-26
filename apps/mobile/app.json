@@ -44,7 +44,7 @@
       "name": "Tarım Pusula",
       "shortName": "Tarım Pusula",
       "lang": "tr",
-      "themeColor": "#064D3B",
+      "themeColor": "#4DB4B5",
       "backgroundColor": "#F1F3F4"
     },
     "experiments": {
@@ -67,7 +67,7 @@
       "package": "com.tarimpusula.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#064D3B"
+        "backgroundColor": "#4DB4B5"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -84,7 +84,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#064D3B"
+      "backgroundColor": "#4DB4B5"
     },
     "extra": {
       "router": {

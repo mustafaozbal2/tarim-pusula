@@ -140,7 +140,7 @@ describe('G14 mağaza paketi ve PWA', () => {
   it('PWA bildirimi: Türkçe, bağımsız ekran, tema rengi ve 192/512 simge', () => {
     expect(manifest.lang).toBe('tr');
     expect(manifest.display).toBe('standalone');
-    expect(manifest.theme_color).toBe('#064D3B');
+    expect(manifest.theme_color).toBe('#4DB4B5');
     const sizes = manifest.icons.map((i: { sizes: string }) => i.sizes);
     expect(sizes).toEqual(expect.arrayContaining(['192x192', '512x512']));
     for (const i of manifest.icons) {

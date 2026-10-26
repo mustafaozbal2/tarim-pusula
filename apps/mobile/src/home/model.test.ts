@@ -286,9 +286,25 @@ describe('demo örnek içeriği (G22)', () => {
       imageDataUrl: null,
     } as unknown as AnnouncementDto;
     const cards = homeCards([a], ornek('zeytin'));
-    expect(cards).toHaveLength(5);
-    expect(new Set(cards.map((c) => c.image)).size).toBe(5);
+    // G23: üst sınır 12; 1 duyuru + 5 örnek kart.
+    expect(cards).toHaveLength(6);
+    expect(new Set(cards.map((c) => c.image)).size).toBe(6);
     expect(cards[0]!.announcementId).toBe('a1');
+  });
+  it('şeritte en çok 12 kart (G23)', () => {
+    const many = Array.from(
+      { length: 15 },
+      (_, i) =>
+        ({
+          id: `a${i}`,
+          title: `D${i}`,
+          needsBadge: false,
+          imageDataUrl: null,
+        }) as unknown as AnnouncementDto,
+    );
+    const cards = homeCards(many, ornek('zeytin'));
+    expect(cards).toHaveLength(12);
+    expect(new Set(cards.map((c) => c.image)).size).toBe(12);
   });
   it('arazi adı yazı boyutu kutuya sığar (13-19 px)', () => {
     expect(fitFontSize('Kiraz Bahçesi', 185)).toBe(19);

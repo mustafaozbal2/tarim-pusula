@@ -179,7 +179,8 @@ describe('harita', () => {
   it('uydu altlığı ve atıf stilde bulunur', () => {
     const s = satelliteStyle();
     expect(s.sources['uydu']!.tiles[0]).toContain('{z}');
-    expect(s.sources['uydu']!.attribution).toMatch(/Sentinel/);
+    // G23: varsayılan altlık Esri World Imagery (atıf zorunlu).
+    expect(s.sources['uydu']!.attribution).toMatch(/Esri/);
     expect(satelliteStyle('https://x/{z}/{x}/{y}.png', 'A').sources['uydu']!.attribution).toBe('A');
   });
   it('zoom sınırlanır', () => {

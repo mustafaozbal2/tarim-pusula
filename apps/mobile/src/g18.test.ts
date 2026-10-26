@@ -53,8 +53,8 @@ describe('G18 EAS ve uygulama yapılandırması', () => {
     expect(pngSize('assets/adaptive-icon.png')).toEqual([1024, 1024]);
     const [w, h] = pngSize('assets/splash.png');
     expect(h).toBeGreaterThan(w);
-    expect(app.splash.backgroundColor).toBe('#064D3B');
-    expect(app.android.adaptiveIcon.backgroundColor).toBe('#064D3B');
+    expect(app.splash.backgroundColor).toBe('#4DB4B5');
+    expect(app.android.adaptiveIcon.backgroundColor).toBe('#4DB4B5');
     for (const f of [app.icon, app.splash.image, app.android.adaptiveIcon.foregroundImage]) {
       expect(existsSync(join(ROOT, f)), f).toBe(true);
     }
@@ -133,7 +133,7 @@ describe('G18 yerel ağ modu yardımcıları', () => {
 describe('G18 PWA ve Hakkında', () => {
   it('PWA bildirimi yeni palette; "Ana ekrana ekle" yönergesi rehberde', () => {
     const m = JSON.parse(read('public/manifest.webmanifest'));
-    expect(m.theme_color).toBe('#064D3B');
+    expect(m.theme_color).toBe('#4DB4B5');
     const guide = readFileSync(join(ROOT, '../../docs/APK_REHBERI.md'), 'utf8');
     expect(guide).toMatch(/Ana ekrana ekle/);
   });
