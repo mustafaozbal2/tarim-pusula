@@ -14,7 +14,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, fontFamily, homeColors } from '@tarim/ui';
 import { DemoBadge } from '../components/DemoBadge';
 import { HOME_ICONS, HomeIconButton } from '../components/HomeIcons';
-import { Icon } from '../components/Icon';
 import { ImageSlot } from '../components/ImageSlot';
 import { tr } from '../i18n/tr';
 import {
@@ -23,6 +22,7 @@ import {
   emptyText,
   fitFontSize,
   HOME_TABS,
+  MAX_CARDS,
   nextCardIndex,
   type HomeCard,
   type HomeRow,
@@ -38,8 +38,9 @@ const t = tr.home;
 export const HOME_LAYOUT = {
   bandH: 125,
   emblem: { x: 7, y: 3, w: 77, h: 97 },
-  icon: { cx0: 116.1, pitch: 41.8, cy: 46.1, d: 39.6 },
-  strip: { top: 16.1, padL: 7.4, w: 71.2, h: 119.5, gap: 4.9, block: 155.8 },
+  // G23 (Mustafa): ikonlar ve slayt kartları hedeften "bir tık" büyük.
+  icon: { cx0: 105.8, pitch: 43.2, cy: 46.1, d: 42 },
+  strip: { top: 16.1, padL: 7.4, w: 76, h: 136, gap: 6, block: 173 },
   farmer: { x: 84.3, w: 53, h: 104 },
   name: { w: 185.4, padTop: 39.5 },
   tabs: { gap: 7.7, ml: 8.7, mr: 7.4, headH: 52.6 },
@@ -118,7 +119,7 @@ export function CardStrip({ items, onOpen }: { items: HomeCard[]; onOpen: (c: Ho
   const cardW = L.strip.w * k;
   const gap = L.strip.gap * k;
   const step = cardW + gap;
-  const shown = items.slice(0, 5);
+  const shown = items.slice(0, MAX_CARDS);
   const loop = shown.length > 1;
 
   useEffect(() => {
@@ -359,73 +360,6 @@ export function TabsCard({
   );
 }
 
-/** Sol köşe "Dikkat" rozeti: yalnız aktif ve onaylı uyarı varken çizilir. */
-export function AttentionBadge({ count, onPress }: { count: number; onPress: () => void }) {
-  const insets = useSafeAreaInsets();
-  const k = useHomeScale();
-  if (count <= 0) return null;
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${t.attention}: ${count}`}
-      testID="dikkat-rozeti"
-      onPress={onPress}
-      style={[styles.attentionTouch, { top: insets.top + (L.bandH + 4) * k }]}
-    >
-      <View style={styles.attention}>
-        <Icon name="warning" size={16} color="#FFFFFF" />
-        <Text style={styles.attentionText}>{t.attention}</Text>
-      </View>
-    </Pressable>
-  );
-}
-
-/** Sağ kenar açılır-kapanır menü: Arazi, Üretim planı, Takvim. Ana düzeni bozmaz (üstte durur). */
-export function SideMenu({ onGo }: { onGo: (key: 'arazi' | 'uretim' | 'takvim') => void }) {
-  const [open, setOpen] = useState(false);
-  const items = [
-    { key: 'arazi', label: t.side.fields, icon: 'map' },
-    { key: 'uretim', label: t.side.plan, icon: 'plan' },
-    { key: 'takvim', label: t.side.calendar, icon: 'calendar' },
-  ] as const;
-  return (
-    <View style={styles.side} pointerEvents="box-none" testID="yan-menu">
-      {open ? (
-        <View style={styles.sidePanel} testID="yan-menu-panel">
-          {items.map((it) => (
-            <Pressable
-              key={it.key}
-              accessibilityRole="button"
-              accessibilityLabel={it.label}
-              testID={`yan-${it.key}`}
-              onPress={() => {
-                setOpen(false);
-                onGo(it.key);
-              }}
-              style={styles.sideItem}
-            >
-              <Icon name={it.icon} size={20} color="#FFFFFF" />
-              <Text style={styles.sideText}>{it.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={open ? t.side.close : t.side.open}
-        accessibilityState={{ expanded: open }}
-        testID="yan-menu-tutamac"
-        onPress={() => setOpen((v) => !v)}
-        style={[styles.handleTouch, open && { width: 18 }]}
-      >
-        <View style={styles.handle}>
-          <Icon name={open ? 'chevronRight' : 'back'} size={16} color="#FFFFFF" />
-        </View>
-      </Pressable>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   band: { backgroundColor: homeColors.band, overflow: 'hidden' },
   stripe: {
@@ -513,50 +447,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 6,
   },
-  attentionTouch: {
-    position: 'absolute',
-    left: 0,
-    height: 44,
-    justifyContent: 'center',
-    paddingRight: 12,
-  },
-  attention: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: homeColors.badgeDot,
-    borderTopRightRadius: 14,
-    borderBottomRightRadius: 14,
-    paddingLeft: 6,
-    paddingRight: 10,
-    paddingVertical: 8,
-  },
-  attentionText: { fontFamily: fontFamily.extrabold, fontSize: 12, color: '#FFFFFF' },
-  side: {
-    position: 'absolute',
-    right: 0,
-    top: '42%',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  handleTouch: { width: 44, height: 56, alignItems: 'flex-end', justifyContent: 'center' },
-  handle: {
-    width: 18,
-    height: 56,
-    backgroundColor: homeColors.tabSelected,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sidePanel: {
-    backgroundColor: homeColors.tabSelected,
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    gap: 2,
-  },
-  sideItem: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, minWidth: 120 },
-  sideText: { fontFamily: fontFamily.bold, fontSize: 14, color: '#FFFFFF' },
 });

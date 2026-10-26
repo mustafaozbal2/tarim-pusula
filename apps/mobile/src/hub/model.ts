@@ -1,4 +1,6 @@
 import type { Capability } from '@tarim/schemas';
+import type { ImageName } from '../assets';
+import type { IconName } from '../components/Icon';
 
 export interface HubCard {
   key: string;
@@ -7,35 +9,66 @@ export interface HubCard {
   route: string;
   /** Hangi cihaz yeteneği bu kartı açtı; her zaman açık kartta yok. */
   capability?: Capability;
+  /** Kart görseli (images/) ya da çizgi ikon (G23: çocuğun anlayacağı resimli kartlar). */
+  image?: ImageName;
+  icon?: IconName;
 }
 
 /** Her arazide görünen kartlar (ana sayfa içerikleri ve hesaplar). */
 const ALWAYS: HubCard[] = [
-  { key: 'plan', title: 'Üretim planı', hint: 'Ürünün işleri ve satış', route: '/uretim-plani' },
-  { key: 'takvim', title: 'Tarla takvimi', hint: 'Ay ay yapılacak işler', route: '/takvim' },
+  {
+    key: 'plan',
+    image: 'ikon_konum.png',
+    title: 'Üretim planı',
+    hint: 'Ürünün işleri ve satış',
+    route: '/uretim-plani',
+  },
+  {
+    key: 'takvim',
+    icon: 'calendar',
+    title: 'Tarla takvimi',
+    hint: 'Ay ay yapılacak işler',
+    route: '/takvim',
+  },
   {
     key: 'hatirlatici',
+    icon: 'bell',
     title: 'Sulama hatırlatıcıları',
     hint: 'Günlük su ihtiyacı ve nem eşiği',
     route: '/hatirlaticilar',
   },
-  { key: 'ndvi', title: 'Bitki yeşilliği', hint: 'Uydu ile haftalık durum', route: '/ndvi' },
+  {
+    key: 'ndvi',
+    image: 'ikon_verim_haritasi.png',
+    title: 'Bitki yeşilliği',
+    hint: 'Uydu ile haftalık durum',
+    route: '/ndvi',
+  },
   {
     key: 'tasarruf',
+    image: 'ikon_rapor.png',
     title: 'Tasarruf ve verim raporu',
     hint: 'Geleneksel sulama ile karşılaştırma',
     route: '/tasarruf',
   },
-  { key: 'pazar', title: 'Pazar', hint: 'Fiyat ve nerede satarım', route: '/pazar' },
-  { key: 'kc', title: 'Bitki Kc listesi', hint: 'Su ihtiyacı katsayıları', route: '/kc-listesi' },
+  { key: 'pazar', icon: 'chart', title: 'Pazar', hint: 'Fiyat ve nerede satarım', route: '/pazar' },
+  {
+    key: 'kc',
+    icon: 'drop',
+    title: 'Bitkinin su ihtiyacı',
+    hint: 'Bitkin ne kadar su içer?',
+    route: '/kc-listesi',
+  },
   {
     key: 'toprak',
+    image: 'ikon_toprak.png',
     title: 'Toprak türleri',
-    hint: 'Su tutma değerleri',
+    hint: 'Toprağın suyu ne kadar tutar?',
     route: '/toprak-turleri',
   },
   {
     key: 'cihaz',
+    image: 'ikon_cihaz.png',
     title: 'Cihaz ekle',
     hint: 'Sulama, sensör, drone ve diğerleri',
     route: '/cihaz-ekle',
@@ -46,6 +79,7 @@ const ALWAYS: HubCard[] = [
 const BY_CAPABILITY: Record<Capability, HubCard> = {
   'sulama-karti': {
     key: 'sulama',
+    icon: 'drop',
     title: 'Sulama',
     hint: 'Vanayı aç ve kapat',
     route: '/sulama',
@@ -53,13 +87,15 @@ const BY_CAPABILITY: Record<Capability, HubCard> = {
   },
   'nem-grafigi': {
     key: 'nem',
+    icon: 'chart',
     title: 'Toprak nemi',
-    hint: 'Sensör grafiği',
-    route: '/nem',
+    hint: 'Sensör ölçümleri',
+    route: '/cihazlar',
     capability: 'nem-grafigi',
   },
   'nem-hatirlaticisi': {
     key: 'nem-hatirlatici',
+    icon: 'bell',
     title: 'Nem eşiği hatırlatıcısı',
     hint: 'Nem kritik seviyeye inince haber ver',
     route: '/hatirlaticilar',
@@ -67,6 +103,7 @@ const BY_CAPABILITY: Record<Capability, HubCard> = {
   },
   'drone-gorevi': {
     key: 'drone',
+    icon: 'target',
     title: 'Drone görevi',
     hint: 'Verim haritası ve NDVI görevi',
     route: '/verim-haritasi',
@@ -74,6 +111,7 @@ const BY_CAPABILITY: Record<Capability, HubCard> = {
   },
   'hava-istasyonu-verisi': {
     key: 'istasyon',
+    image: 'ikon_hava.png',
     title: 'Hava istasyonu',
     hint: 'Tarladaki ölçüm',
     route: '/hava',
@@ -81,6 +119,7 @@ const BY_CAPABILITY: Record<Capability, HubCard> = {
   },
   'ilaclama-kaydi': {
     key: 'ilaclama',
+    icon: 'book',
     title: 'İlaçlama kaydı',
     hint: 'Uygulama kaydı (doz önerisi yok)',
     route: '/cihazlar',

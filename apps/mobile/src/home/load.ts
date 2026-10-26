@@ -78,7 +78,8 @@ export async function loadHome(
     cached<CalendarDto | null>(kv, calKey(id), () => api.calendar(id, 90), null),
     cached<SupportMatchDto[]>(kv, supKey(id), async () => (await api.supports(id)).matches, []),
     loadAnnouncements(api, kv, id),
-    cropId && api.ornekIcerik ? loadSample(api.ornekIcerik, kv, cropId) : Promise.resolve(null),
+    // Ürün seçilmemiş arazide genel örnek içerik (G23.8).
+    api.ornekIcerik ? loadSample(api.ornekIcerik, kv, cropId ?? 'genel') : Promise.resolve(null),
   ]);
   const raw = await kv.get(FIELDS_CACHE);
   const fields = raw ? (JSON.parse(raw) as { fields: FieldDto[] }).fields : [base.field];

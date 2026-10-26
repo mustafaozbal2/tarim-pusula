@@ -1,0 +1,142 @@
+{
+  "urunId": "genel",
+  "urunAdi": "Ürünü seçilmemiş arazi",
+  "kaynak": "Örnek veri (demo)",
+  "tarih": "2026-10-25",
+  "surum": "ornek-icerik-v1",
+  "kartlar": [
+    {
+      "baslik": "Tarımsal üretimde stratejik konum",
+      "ozet": "Doğru ürünü doğru yerde yetiştirmek neden önemli?",
+      "gorsel": "kart_1.jpg"
+    },
+    {
+      "baslik": "Gübreleme yöntemleri",
+      "ozet": "Toprak analizine dayalı gübreleme neden önemlidir?",
+      "gorsel": "kart_2.jpg"
+    },
+    {
+      "baslik": "Drone ile tarla takibi",
+      "ozet": "Drone ile alan gözlemi hakkında genel bilgi.",
+      "gorsel": "kart_3.jpg"
+    },
+    {
+      "baslik": "İklim krizi gıda krizinin habercisi",
+      "ozet": "Kuraklık ve sıcak dalgalarının üretime etkisi.",
+      "gorsel": "kart_4.jpg"
+    },
+    {
+      "baslik": "Tarımsal üretimde planlama",
+      "ozet": "Ekimden hasada kadar işlerin takvimle planlanması.",
+      "gorsel": "kart_5.jpg"
+    }
+  ],
+  "faaliyetZamani": [
+    {
+      "baslik": "Tarla için toprak hazırlığı",
+      "ozet": "Toprağı tavında işleyin, yüzeyi düzleyin.",
+      "gunFarki": 2
+    },
+    {
+      "baslik": "Ekim ya da dikim zamanı",
+      "ozet": "Sertifikalı tohum ya da fide kullanın.",
+      "gunFarki": 9
+    },
+    {
+      "baslik": "Yabani ot temizliği",
+      "ozet": "Otları bitki küçükken temizleyin.",
+      "gunFarki": 16
+    },
+    {
+      "baslik": "Gübreleme zamanı",
+      "ozet": "Gübre miktarını toprak analizine göre belirleyin.",
+      "gunFarki": 30
+    },
+    {
+      "baslik": "Hasat hazırlığı",
+      "ozet": "Alet, kasa ve depolama yerini önceden hazırlayın.",
+      "gunFarki": 45
+    }
+  ],
+  "faaliyetRehberi": [
+    {
+      "baslik": "Arazinize ürününüzü ekleyin",
+      "ozet": "Arazi İşlemleri bölümünden ürününüzü seçerseniz bilgiler ürüne göre gelir.",
+      "gunFarki": 1
+    },
+    {
+      "baslik": "Toprak analiziyle gübre ihtiyacını belirleyin",
+      "ozet": "Toprak örneğini il/ilçe tarım müdürlüğüne götürün.",
+      "gunFarki": 5
+    },
+    {
+      "baslik": "Sulamada sabah ve akşam saatlerini seçin",
+      "ozet": "Öğle sıcağında su çabuk buharlaşır.",
+      "gunFarki": 12
+    },
+    {
+      "baslik": "Hastalık ve zararlıyı erken tanıyın",
+      "ozet": "Tarlanızı haftada bir gezin, şüpheli durumda uzmana sorun.",
+      "gunFarki": 20
+    },
+    {
+      "baslik": "İlaçlama gerekiyorsa uzmana danışın",
+      "ozet": "İlaç seçimi, doz ve karışım için ziraat mühendisine başvurun.",
+      "gunFarki": 28
+    }
+  ],
+  "erkenUyarilar": [
+    {
+      "baslik": "Gece don riski",
+      "ozet": "Hava Durumu sayfasındaki gece en düşük sıcaklığını takip edin.",
+      "gunFarki": 0
+    },
+    {
+      "baslik": "Zararlı takibi",
+      "ozet": "Yaprak altlarını ve tuzakları düzenli kontrol edin.",
+      "gunFarki": 3
+    },
+    {
+      "baslik": "Sıcak ve kuru günlerde su stresi riski",
+      "ozet": "Bitkilerde solma görülürse sulama aralığını gözden geçirin.",
+      "gunFarki": 6
+    },
+    {
+      "baslik": "Yoğun yağış sonrası mantar hastalığı riski",
+      "ozet": "Yaprakta leke görülürse uzmana danışın.",
+      "gunFarki": 10
+    },
+    {
+      "baslik": "Kuvvetli rüzgâr uyarısı",
+      "ozet": "Destekleri ve örtüleri sabitleyin.",
+      "gunFarki": 14
+    }
+  ],
+  "destekler": [
+    {
+      "baslik": "Bireysel sulama sistemlerine %50 hibe desteği (örnek)",
+      "ozet": "Örnek destek kaydı. Güncel şartları il/ilçe tarım müdürlüğünden öğrenin.",
+      "gunFarki": 4
+    },
+    {
+      "baslik": "Alan bazlı tarımsal destek (örnek)",
+      "ozet": "Örnek destek kaydı. ÇKS kaydınızın güncel olması gerekir.",
+      "gunFarki": 15
+    },
+    {
+      "baslik": "Tarımsal kalkınma kooperatiflerine kredi desteği (örnek)",
+      "ozet": "Örnek kredi kaydı. Şartları kurumdan teyit edin.",
+      "gunFarki": 25
+    },
+    {
+      "baslik": "Genç çiftçi projelerine hibe desteği (örnek)",
+      "ozet": "Örnek hibe kaydı. Yaş ve proje şartlarını il müdürlüğünden öğrenin.",
+      "gunFarki": 35
+    },
+    {
+      "baslik": "Tarım sigortası prim desteği (örnek)",
+      "ozet": "Ürün sigortası hakkında örnek destek kaydı.",
+      "gunFarki": 50
+    }
+  ]
+}

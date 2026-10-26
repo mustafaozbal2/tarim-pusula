@@ -180,8 +180,50 @@ const HIBE_GUN = [4, 15, 25, 35, 50];
 
 const rows = (list, days) => list.map(([baslik, ozet], i) => ({ baslik, ozet, gunFarki: days[i] }));
 
+/** Ürünü seçilmemiş araziler için genel içerik (meyve/tarla ayrımı yapmayan tarla şablonu). */
+export const GENEL = { id: 'genel', name: 'Ürününüz', grp: 'genel' };
+
+const GENEL_METIN = {
+  kartlar: [
+    ['Tarımsal üretimde stratejik konum', 'Doğru ürünü doğru yerde yetiştirmek neden önemli?'],
+    ['Gübreleme yöntemleri', 'Toprak analizine dayalı gübreleme neden önemlidir?'],
+    ['Drone ile tarla takibi', 'Drone ile alan gözlemi hakkında genel bilgi.'],
+    ['İklim krizi gıda krizinin habercisi', 'Kuraklık ve sıcak dalgalarının üretime etkisi.'],
+    ['Tarımsal üretimde planlama', 'Ekimden hasada kadar işlerin takvimle planlanması.'],
+  ],
+  faaliyetZamani: [
+    ['Tarla için toprak hazırlığı', 'Toprağı tavında işleyin, yüzeyi düzleyin.'],
+    ['Ekim ya da dikim zamanı', 'Sertifikalı tohum ya da fide kullanın.'],
+    ['Yabani ot temizliği', 'Otları bitki küçükken temizleyin.'],
+    ['Gübreleme zamanı', 'Gübre miktarını toprak analizine göre belirleyin.'],
+    ['Hasat hazırlığı', 'Alet, kasa ve depolama yerini önceden hazırlayın.'],
+  ],
+  faaliyetRehberi: [
+    ['Arazinize ürününüzü ekleyin', 'Arazi İşlemleri bölümünden ürününüzü seçerseniz bilgiler ürüne göre gelir.'],
+    ['Toprak analiziyle gübre ihtiyacını belirleyin', 'Toprak örneğini il/ilçe tarım müdürlüğüne götürün.'],
+    ['Sulamada sabah ve akşam saatlerini seçin', 'Öğle sıcağında su çabuk buharlaşır.'],
+    ['Hastalık ve zararlıyı erken tanıyın', 'Tarlanızı haftada bir gezin, şüpheli durumda uzmana sorun.'],
+    ['İlaçlama gerekiyorsa uzmana danışın', 'İlaç seçimi, doz ve karışım için ziraat mühendisine başvurun.'],
+  ],
+  erkenUyarilar: [
+    ['Gece don riski', 'Hava Durumu sayfasındaki gece en düşük sıcaklığını takip edin.'],
+    ['Zararlı takibi', 'Yaprak altlarını ve tuzakları düzenli kontrol edin.'],
+    ['Sıcak ve kuru günlerde su stresi riski', 'Bitkilerde solma görülürse sulama aralığını gözden geçirin.'],
+    ['Yoğun yağış sonrası mantar hastalığı riski', 'Yaprakta leke görülürse uzmana danışın.'],
+    ['Kuvvetli rüzgâr uyarısı', 'Destekleri ve örtüleri sabitleyin.'],
+  ],
+  destekler: [
+    ['Bireysel sulama sistemlerine %50 hibe desteği (örnek)', 'Örnek destek kaydı. Güncel şartları il/ilçe tarım müdürlüğünden öğrenin.'],
+    ['Alan bazlı tarımsal destek (örnek)', 'Örnek destek kaydı. ÇKS kaydınızın güncel olması gerekir.'],
+    ['Tarımsal kalkınma kooperatiflerine kredi desteği (örnek)', 'Örnek kredi kaydı. Şartları kurumdan teyit edin.'],
+    ['Genç çiftçi projelerine hibe desteği (örnek)', 'Örnek hibe kaydı. Yaş ve proje şartlarını il müdürlüğünden öğrenin.'],
+    ['Tarım sigortası prim desteği (örnek)', 'Ürün sigortası hakkında örnek destek kaydı.'],
+  ],
+};
+
 /** Bir ürün için örnek içerik (25 kayıt). */
 export function buildContent(crop) {
+  if (crop.id === 'genel') return buildGenel();
   const u = shortName(crop.name);
   return {
     urunId: crop.id,
@@ -197,10 +239,28 @@ export function buildContent(crop) {
   };
 }
 
+function buildGenel() {
+  const g = GENEL_METIN;
+  return {
+    urunId: 'genel',
+    urunAdi: 'Ürünü seçilmemiş arazi',
+    kaynak: KAYNAK,
+    tarih: TARIH,
+    surum: SURUM,
+    kartlar: g.kartlar.map(([baslik, ozet], i) => ({ baslik, ozet, gorsel: `kart_${i + 1}.jpg` })),
+    faaliyetZamani: rows(g.faaliyetZamani, ZAMAN_GUN),
+    faaliyetRehberi: rows(g.faaliyetRehberi, REHBER_GUN),
+    erkenUyarilar: rows(g.erkenUyarilar, UYARI_GUN),
+    destekler: rows(g.destekler, HIBE_GUN),
+  };
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const crops = readCrops(readFileSync(join(root, 'data', 'crops_tr.csv'), 'utf8'));
   const out = join(root, 'data', 'ornek_icerik');
   mkdirSync(out, { recursive: true });
+  // Ürünü seçilmemiş arazi için genel içerik (G23.8): "Ürününüz" diye çiftçiye seslenir.
+  crops.push(GENEL);
   for (const c of crops) {
     writeFileSync(join(out, `${c.id}.json`), `${JSON.stringify(buildContent(c), null, 2)}\n`);
   }

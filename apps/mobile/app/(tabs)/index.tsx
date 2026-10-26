@@ -1,20 +1,12 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fontFamily, homeColors } from '@tarim/ui';
+import { elevation, fontFamily, homeColors } from '@tarim/ui';
 import { SunucuKarti } from '../../src/components/SunucuKarti';
 import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
 import { loadHome, type HomeData } from '../../src/home/load';
+import { CardStrip, FieldBlock, TabsCard, TopBand } from '../../src/home/HomeParts';
 import {
-  AttentionBadge,
-  CardStrip,
-  FieldBlock,
-  SideMenu,
-  TabsCard,
-  TopBand,
-} from '../../src/home/HomeParts';
-import {
-  attentionCount,
   buildHomeRows,
   homeCards,
   localIso,
@@ -95,13 +87,6 @@ export default function HomeScreen() {
           params: { ornek: data?.sample?.urunId ?? '', i: String(c.sampleIndex ?? 0) },
         });
 
-  const goSide = (key: 'arazi' | 'uretim' | 'takvim') => {
-    const fieldId = data?.base.field.id;
-    if (key === 'arazi') return router.push('/tarlalarim');
-    if (key === 'uretim') return router.push('/uretim-plani');
-    return router.push({ pathname: '/takvim', params: { fieldId } });
-  };
-
   const field = data?.base.field;
   return (
     <View style={styles.root}>
@@ -136,7 +121,7 @@ export default function HomeScreen() {
             <FieldBlock
               name={field.name}
               place={placeLine(field)}
-              canSwitch={data.fields.length > 1}
+              canSwitch
               onPress={() => setPicking((v) => !v)}
             />
             {picking ? (
@@ -156,8 +141,21 @@ export default function HomeScreen() {
                     <Text style={[styles.pickText, f.id === field.id && styles.pickOn]}>
                       {f.name}
                     </Text>
+                    <Text style={styles.pickPlace}>{placeLine(f)}</Text>
                   </Pressable>
                 ))}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={tr.home.addField}
+                  testID="arazi-secici-ekle"
+                  onPress={() => {
+                    setPicking(false);
+                    router.push('/tarla-ekle');
+                  }}
+                  style={[styles.pickRow, styles.pickAdd]}
+                >
+                  <Text style={styles.pickAddText}>+ {tr.home.addField}</Text>
+                </Pressable>
               </View>
             ) : null}
             <TabsCard tab={tab} onTab={setTab} rows={rowsForTab(rows, tab)} />
@@ -165,8 +163,6 @@ export default function HomeScreen() {
           </>
         ) : null}
       </ScrollView>
-      <AttentionBadge count={attentionCount(rows)} onPress={() => setTab('uyari')} />
-      <SideMenu onGo={goSide} />
     </View>
   );
 }
@@ -178,14 +174,20 @@ const styles = StyleSheet.create({
   gap: { gap: 12 },
   picker: {
     marginHorizontal: 24,
+    marginTop: 4,
     backgroundColor: '#FFFFFF',
-    borderRadius: 10,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#D9DEE0',
+    borderColor: '#D3E6E3',
+    overflow: 'hidden',
+    ...elevation.raised,
   },
   pickRow: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
   pickText: { fontFamily: fontFamily.semibold, fontSize: 15, color: homeColors.text },
   pickOn: { fontFamily: fontFamily.extrabold, color: homeColors.name },
+  pickPlace: { fontFamily: fontFamily.medium, fontSize: 12, color: '#4A5F5E' },
+  pickAdd: { borderTopWidth: 1, borderTopColor: '#D3E6E3' },
+  pickAddText: { fontFamily: fontFamily.extrabold, fontSize: 15, color: homeColors.tabSelected },
   note: {
     fontFamily: fontFamily.medium,
     fontSize: 12,

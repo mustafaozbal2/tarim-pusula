@@ -509,6 +509,7 @@ export function createApi(opts: ApiOptions) {
       request<CommandDto>('POST', `/devices/${q(id)}/commands`, body),
     fields: () => request<FieldDto[]>('GET', '/fields'),
     createField: (f: FieldCreate) => request<FieldDto>('POST', '/fields', f),
+    deleteField: (id: string) => request<void>('DELETE', `/fields/${q(id)}`),
     updateField: (id: string, patch: FieldUpdate) =>
       request<FieldDto>('PATCH', `/fields/${q(id)}`, patch),
     pusulaAsk: (body: {

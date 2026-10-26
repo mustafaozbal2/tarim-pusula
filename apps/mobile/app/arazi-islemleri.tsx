@@ -1,9 +1,10 @@
 import { capabilitiesFor } from '@tarim/schemas';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, Durum, fontFamily, fontSize, spacing } from '@tarim/ui';
 import type { DeviceDto } from '../src/api/client';
+import { Bolum, IkonKart, KartIzgara, SayfaGorseli } from '../src/components/Gorsel';
 import { Icon } from '../src/components/Icon';
 import { Screen } from '../src/components/Screen';
 import { Iskelet, YuklemeHatasi } from '../src/components/Yukleme';
@@ -12,7 +13,7 @@ import { useToday } from '../src/hooks/useToday';
 import { hubCards } from '../src/hub/model';
 import { tr } from '../src/i18n/tr';
 import { api } from '../src/session';
-import { clock, frostCardModel, waterNeedText } from '../src/today/model';
+import { frostCardModel, waterNeedText } from '../src/today/model';
 
 const t = tr.hub;
 
@@ -66,41 +67,68 @@ export default function HubScreen() {
 
   return (
     <Screen title={t.title}>
-      <Text style={styles.field} testID="hub-arazi">
-        {data.field.name}
-      </Text>
-      {showFrost ? (
-        <View style={[styles.band, warn && styles.bandWarn]} testID="bugun-don-karti">
-          <Icon name="warning" size={18} color={colors.amberText} />
-          <Text style={styles.bandTitle} testID="bugun-don-baslik">
-            {frost.title}
-          </Text>
-        </View>
-      ) : null}
-      {water ? (
-        <Text style={styles.muted} testID="bugun-su">
-          {tr.today.waterTitle}: {water}
+      <SayfaGorseli image="genis_tarla.jpg" text={t.hero} />
+      <Bolum title={t.fieldSection}>
+        <Text style={styles.field} testID="hub-arazi">
+          {data.field.name}
         </Text>
-      ) : null}
-      <Text style={styles.muted} testID="bugun-guncelleme">
-        {tr.today.lastUpdate}: {clock(data.at)} · {tr.common.source}: {data.today.weather.source}
-      </Text>
+        {showFrost ? (
+          <View style={[styles.band, warn && styles.bandWarn]} testID="bugun-don-karti">
+            <Icon name="warning" size={18} color={colors.amberText} />
+            <Text style={styles.bandTitle} testID="bugun-don-baslik">
+              {frost.title}
+            </Text>
+          </View>
+        ) : null}
+        {water ? (
+          <Text style={styles.muted} testID="bugun-su">
+            {tr.today.waterTitle}: {water}
+          </Text>
+        ) : null}
+        <IkonKart
+          wide
+          image="ikon_ekle.png"
+          title={t.add}
+          hint={t.addHint}
+          testID="hub-ekle"
+          onPress={() => router.push('/tarla-ekle')}
+        />
+        <IkonKart
+          wide
+          image="ikon_arazi_ekle.png"
+          title={t.edit}
+          hint={t.editHint}
+          testID="hub-guncelle"
+          onPress={() => router.push({ pathname: '/arazi-duzenle', params: { fieldId } })}
+        />
+        <IkonKart
+          wide
+          icon="warning"
+          tone="danger"
+          title={t.remove}
+          hint={t.removeHint}
+          testID="hub-sil"
+          onPress={() =>
+            router.push({ pathname: '/arazi-duzenle', params: { fieldId, sil: '1' } })
+          }
+        />
+      </Bolum>
 
-      <View style={styles.grid} testID="hub-kartlar">
-        {cards.map((c) => (
-          <Pressable
-            key={c.key}
-            accessibilityRole="button"
-            accessibilityLabel={c.title}
-            testID={`hub-${c.key}`}
-            onPress={() => router.push({ pathname: c.route as never, params: { fieldId } })}
-            style={styles.card}
-          >
-            <Text style={styles.cardTitle}>{c.title}</Text>
-            <Text style={styles.cardHint}>{c.hint}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <Bolum title={t.tools}>
+        <KartIzgara testID="hub-kartlar">
+          {cards.map((c) => (
+            <IkonKart
+              key={c.key}
+              title={c.title}
+              hint={c.hint}
+              image={c.image}
+              icon={c.icon}
+              testID={`hub-${c.key}`}
+              onPress={() => router.push({ pathname: c.route as never, params: { fieldId } })}
+            />
+          ))}
+        </KartIzgara>
+      </Bolum>
       {caps.length === 0 ? (
         <Card style={styles.info}>
           <Text style={styles.cardHint}>{t.noDevices}</Text>
@@ -135,19 +163,6 @@ const styles = StyleSheet.create({
     color: colors.forest,
   },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.caption, color: colors.textMuted },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  card: {
-    width: '48.5%',
-    minHeight: 76,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: spacing.lg,
-    justifyContent: 'center',
-    gap: 2,
-  },
-  cardTitle: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
   cardHint: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },
   info: { gap: spacing.md },
 });

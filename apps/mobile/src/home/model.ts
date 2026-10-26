@@ -129,25 +129,32 @@ export interface HomeCard {
   sampleIndex?: number;
 }
 
-/** Şerit: önce onaylı duyurular, demo'da örnek kartlarla 5'e tamamlanır. Görsel her zaman vardır. */
+/** Kayan şeritteki en çok kart sayısı (G23: 10-12 kart). */
+export const MAX_CARDS = 12;
+const CARD_IMAGES = Array.from({ length: MAX_CARDS }, (_, i) => `kart_${i + 1}.jpg` as ImageName);
+
+/**
+ * Şerit: önce onaylı duyurular (uzman içerikleri), sonra demo örnek kartları; en çok MAX_CARDS.
+ * Görsel her zaman vardır ve şeritte aynı görsel iki kez kullanılmaz (duyurunun kendi görseli yoksa).
+ */
 export function homeCards(
   announcements: AnnouncementDto[],
   sample: OrnekIcerikDto | null | undefined,
 ): HomeCard[] {
-  const anns = announcements.filter((a) => !a.needsBadge).slice(0, 5);
-  const samples = (sample?.kartlar ?? []).slice(0, Math.max(0, 5 - anns.length)).map((k, i) => ({
-    id: `ornek-kart-${i}`,
-    title: k.baslik,
-    image: /^kart_[1-5]\.jpg$/.test(k.gorsel)
-      ? (k.gorsel as ImageName)
-      : (`kart_${(i % 5) + 1}.jpg` as ImageName),
-    sampleIndex: i,
-  }));
+  const anns = announcements.filter((a) => !a.needsBadge).slice(0, MAX_CARDS);
+  const samples = (sample?.kartlar ?? [])
+    .slice(0, Math.max(0, MAX_CARDS - anns.length))
+    .map((k, i) => ({
+      id: `ornek-kart-${i}`,
+      title: k.baslik,
+      image: /^kart_[1-5]\.jpg$/.test(k.gorsel)
+        ? (k.gorsel as ImageName)
+        : (`kart_${(i % 5) + 1}.jpg` as ImageName),
+      sampleIndex: i,
+    }));
   // Duyurular, örnek kartların kullanmadığı görselleri alır: şeritte aynı görsel iki kez görünmez.
   const used = new Set<string>(samples.map((c) => c.image));
-  const free = ([1, 2, 3, 4, 5] as const)
-    .map((n) => `kart_${n}.jpg` as ImageName)
-    .filter((f) => !used.has(f));
+  const free = CARD_IMAGES.filter((f) => !used.has(f));
   const cards: HomeCard[] = anns.map((a, i) => ({
     id: `duyuru-${a.id}`,
     title: a.title,
