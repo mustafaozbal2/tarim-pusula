@@ -11,7 +11,9 @@ import {
 } from '@tarim/agro-core';
 import type { PusulaAsk } from '@tarim/schemas';
 import { DataService } from '../data.service';
-import type { Principal, Queryable } from '../db/db';
+import type { Db, Principal, Queryable } from '../db/db';
+import { DB } from '../auth/auth.service';
+import { routeQuestion } from '../yetki/route';
 import {
   SYSTEM_PROMPT,
   type CardDraft,
@@ -67,11 +69,14 @@ export class PusulaService {
     @Inject(DataService) private readonly data: DataService,
     @Inject(PusulaTools) private readonly tools: PusulaTools,
     @Inject(LLM) private readonly llm: LlmProvider,
+    @Inject(DB) private readonly db: Db,
   ) {}
 
   async ask(me: Principal, input: PusulaAsk): Promise<AskResult> {
     const card = await this.answer(me, input);
     await this.audit(me, card);
+    // G24: uzmana giden soru, arazinin il/ilçesine ve ürününe en uygun uzmana atanır.
+    if (card.expertQuestionId) await routeQuestion(this.db, card.expertQuestionId);
     return { card };
   }
 
@@ -325,9 +330,21 @@ export class PusulaService {
   }
 
   private async enqueue(q: Queryable, me: Principal, input: PusulaAsk, reason: QueueReason) {
+    // Sorunun yeri ve ürünü: seçilen arazi; seçilmediyse kullanıcının ilk arazisi (yönlendirme için).
+    const [site] = await q.query<{
+      province: string | null;
+      district: string | null;
+      cropId: string | null;
+    }>(
+      input.fieldId
+        ? 'SELECT province, district, crop_id AS "cropId" FROM fields WHERE id = $1'
+        : 'SELECT province, district, crop_id AS "cropId" FROM fields WHERE owner_id = $1 ORDER BY created_at LIMIT 1',
+      [input.fieldId ?? me.userId],
+    );
     const [row] = await q.query<{ id: string }>(
-      `INSERT INTO expert_questions(user_id, field_id, question, question_norm, reason, has_image)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+      `INSERT INTO expert_questions(user_id, field_id, question, question_norm, reason, has_image,
+         province, district, crop_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
       [
         me.userId,
         input.fieldId ?? null,
@@ -335,6 +352,9 @@ export class PusulaService {
         normQuestion(input.question),
         reason,
         !!input.image,
+        site?.province ?? null,
+        site?.district ?? null,
+        site?.cropId ?? null,
       ],
     );
     if (input.image) {

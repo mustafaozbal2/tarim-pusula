@@ -17,3 +17,4 @@ export * from './ndvi';
 export * from './ics';
 export * from './reminders';
 export * from './savings';
+export * from './yetki';

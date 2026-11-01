@@ -40,6 +40,8 @@ export const announcementCreateSchema = z
       )
       .nullable()
       .optional(),
+    /** G23/G24: slayt kategorisi. */
+    category: z.enum(['guncel', 'bilgilendirme', 'yonlendirme', 'onlem', 'teknoloji']).optional(),
     publishedAt: z.iso.datetime(),
     expiresAt: z.iso.datetime().optional(),
     targeting: targetingSchema.default({ places: [], circle: null, cropIds: [] }),

@@ -20,6 +20,8 @@ export const EXPORT_COVERAGE: Record<string, { key: string } | { excluded: strin
   irrigation_commands: { key: 'irrigationCommands' },
   data_shares: { key: 'dataShares' },
   audit_log: { key: 'auditLog' },
+  staff_profiles: { key: 'staffProfile' },
+  notifications: { key: 'notifications' },
   sessions: { excluded: 'oturum jetonu özetleri güvenlik verisidir; kullanıcı bilgisi içermez' },
   otp_codes: { excluded: 'tek kullanımlık doğrulama kodu özeti; kısa ömürlü güvenlik verisi' },
   user_mfa: { excluded: 'iki adımlı doğrulama sırrı; dışarı verilmez' },
@@ -114,6 +116,17 @@ export async function buildExport(q: Queryable, me: Principal, profile: unknown)
       `SELECT i.question_id AS "questionId", i.mime, encode(i.data, 'base64') AS "dataBase64"
        FROM expert_question_images i JOIN expert_questions e ON e.id = i.question_id
        WHERE e.user_id = $1 ORDER BY e.created_at, e.id`,
+      [me.userId],
+    ),
+    staffProfile: await q.query(
+      `SELECT institution, institution_name AS "institutionName", province, district, title,
+              registry_no AS "registryNo", expertise, status, created_at AS "createdAt"
+       FROM staff_profiles WHERE user_id = $1`,
+      [me.userId],
+    ),
+    notifications: await q.query(
+      `SELECT kind, title, body, created_at AS "createdAt", read_at AS "readAt"
+       FROM notifications WHERE user_id = $1 ORDER BY created_at, id`,
       [me.userId],
     ),
     pushTokens: await q.query(

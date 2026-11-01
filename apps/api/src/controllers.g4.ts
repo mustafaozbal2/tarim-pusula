@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   Inject,
@@ -12,6 +13,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  checkTargeting,
   explainMatch,
   fieldCalendar,
   isActive,
@@ -29,6 +31,7 @@ import { DataService } from './data.service';
 import type { Principal, Queryable } from './db/db';
 import type { Places } from './places';
 import { CLOCK } from './weather/tokens';
+import { resolveScope } from './yetki/scope';
 
 interface FieldRow {
   id: string;
@@ -183,16 +186,23 @@ export class FieldCalendarController {
 export class AnnouncementsController {
   constructor(@Inject(DataService) private readonly data: DataService) {}
 
-  /** Kurum duyurusu ekler; her zaman taslak başlar (uzman onayına kadar rozetli, bildirim üretmez). */
+  /**
+   * Kurum duyurusu ekler. Hedef, yetkilinin kademesiyle denetlenir (G24: ilçe kendi ilçesi, il kendi ili,
+   * bakanlık tüm Türkiye). Onaylı uzmanın duyurusu doğrudan yayındadır (uzman onayıdır); uzman olmayan
+   * kurum yetkilisinin duyurusu taslak başlar ve bir uzmanın onayına düşer (kural 1).
+   */
   @Post()
   @Roles('institution_admin', 'expert', 'admin')
   async create(@Me() me: Principal, @Body() body: unknown) {
     const a = parse(announcementCreateSchema, body);
-    const [row] = await this.data.run(me, 'announcements.create', (q) =>
-      q.query<{ id: string }>(
+    const approved = me.roles.includes('expert');
+    const [row] = await this.data.run(me, 'announcements.create', async (q) => {
+      const chk = checkTargeting(await resolveScope(q, me), a.targeting);
+      if (!chk.ok) throw new ForbiddenException(chk.reason);
+      return q.query<{ id: string }>(
         `INSERT INTO announcements(source_org, title, body, source_url, published_at, expires_at,
-           targeting, created_by, image_data_url)
-         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9) RETURNING id`,
+           targeting, created_by, image_data_url, category, review_status, reviewed_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12) RETURNING id`,
         [
           a.sourceOrg,
           a.title,
@@ -203,10 +213,16 @@ export class AnnouncementsController {
           JSON.stringify(a.targeting),
           me.userId,
           a.imageDataUrl ?? null,
+          a.category ?? null,
+          approved ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor',
+          approved ? me.userId : null,
         ],
-      ),
-    );
-    return { id: row!.id, reviewStatus: 'taslak-uzman-onayi-bekliyor' };
+      );
+    });
+    return {
+      id: row!.id,
+      reviewStatus: approved ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor',
+    };
   }
 
   /**
@@ -218,6 +234,8 @@ export class AnnouncementsController {
   async edit(@Me() me: Principal, @Param('id') id: string, @Body() body: unknown) {
     const a = parse(announcementCreateSchema, body);
     const version = await this.data.runOne(me, 'announcements.edit', id, async (q) => {
+      const chk = checkTargeting(await resolveScope(q, me), a.targeting);
+      if (!chk.ok) throw new ForbiddenException(chk.reason);
       try {
         const [r] = await q.query<{ v: number }>(
           'SELECT edit_announcement($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9) AS v',

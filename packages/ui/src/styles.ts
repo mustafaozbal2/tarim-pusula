@@ -1,4 +1,12 @@
-import { colors, elevation, fontFamily, fontSize, MIN_TOUCH_TARGET, radius, spacing } from './tokens';
+import {
+  colors,
+  elevation,
+  fontFamily,
+  fontSize,
+  MIN_TOUCH_TARGET,
+  radius,
+  spacing,
+} from './tokens';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'water';
 

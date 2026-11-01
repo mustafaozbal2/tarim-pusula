@@ -20,9 +20,14 @@ import {
   fieldAccessGrantSchema,
   fieldCreateSchema,
   fieldUpdateSchema,
+  loginSchema,
   otpRequestSchema,
   otpVerifySchema,
+  passwordResetSchema,
   profileUpdateSchema,
+  registerSchema,
+  smsMfaSchema,
+  staffRegisterSchema,
   roleGrantSchema,
   roleSchema,
   type FieldUpdate,
@@ -54,6 +59,54 @@ export class AuthController {
   verify(@Body() body: unknown) {
     const { phone, code } = parse(otpVerifySchema, body);
     return this.auth.verifyOtp(phone, code);
+  }
+
+  /** G24 çiftçi kaydı: SMS kodu + şifre (+ ad, KVKK onayı). */
+  @Public()
+  @Post('register')
+  @HttpCode(200)
+  register(@Body() body: unknown) {
+    const r = parse(registerSchema, body);
+    return this.auth.register(r);
+  }
+
+  /** G24: telefon + şifre ile giriş. Yetkilide `mfaRequired` true: SMS kodu ikinci adımdır. */
+  @Public()
+  @Post('login')
+  @HttpCode(200)
+  login(@Body() body: unknown) {
+    const { phone, password } = parse(loginSchema, body);
+    return this.auth.login(phone, password);
+  }
+
+  /** Şifremi unuttum: önce /auth/otp/request, sonra kod + yeni şifre. */
+  @Public()
+  @Post('password/reset')
+  @HttpCode(200)
+  reset(@Body() body: unknown) {
+    return this.auth.resetPassword(parse(passwordResetSchema, body));
+  }
+
+  /** Yetkili başvurusu (kurum, il/ilçe, unvan, sicil no). Yönetici onayıyla rol verilir. */
+  @Public()
+  @Post('staff/register')
+  @HttpCode(200)
+  staffRegister(@Body() body: unknown) {
+    return this.auth.staffRegister(parse(staffRegisterSchema, body));
+  }
+
+  /** Yetkili ikinci adım: oturumun telefonuna SMS kodu. */
+  @Post('mfa/sms/request')
+  @HttpCode(200)
+  smsRequest(@Me() me: Principal) {
+    return this.auth.smsMfaRequest(me);
+  }
+
+  @Post('mfa/sms/verify')
+  @HttpCode(200)
+  async smsVerify(@Me() me: Principal, @Token() token: string, @Body() body: unknown) {
+    await this.auth.smsMfaVerify(me, token, parse(smsMfaSchema, body).code);
+    return { ok: true };
   }
 
   @Post('logout')

@@ -268,6 +268,16 @@ describe('veri cüzdanı: dışa aktarma tüm kullanıcı verisini içerir', () 
       userId: can.userId,
       level: 'read',
     });
+    // G24: yetkili profili ve bildirim kutusu da taşınır.
+    await sql(
+      `INSERT INTO staff_profiles(user_id, institution, institution_name, province, title, registry_no)
+       VALUES ($1, 'universite', 'Örnek Üniversitesi', 'Gaziantep', 'Öğretim üyesi', 'S-1')`,
+      [ali.userId],
+    );
+    await sql(
+      `INSERT INTO notifications(user_id, kind, title, body) VALUES ($1, 'uzman_cevap', 'Cevap', 'Metin')`,
+      [ali.userId],
+    );
     await call('POST', '/fields', veli.token, { name: 'Veli Tarlası', lat: 38, lon: 38 });
     await call('POST', '/me/shares', ali.token, {
       recipientId: veli.userId,
