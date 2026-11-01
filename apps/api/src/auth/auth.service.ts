@@ -197,7 +197,10 @@ export class AuthService {
    * Telefon + şifre ile giriş. Numara yoksa da aynı hata (numara varlığını sızdırmaz). 5 yanlış
    * denemede 15 dakika kilit. Yetkili rolünde oturum ikinci adım (SMS) ister: `mfaRequired`.
    */
-  async login(phone: string, password: string): Promise<{
+  async login(
+    phone: string,
+    password: string,
+  ): Promise<{
     token: string;
     userId: string;
     roles: Role[];
@@ -229,10 +232,9 @@ export class AuthService {
       throw fail();
     }
     return systemTx(this.db, async (q) => {
-      await q.query(
-        'UPDATE users SET failed_logins = 0, login_locked_until = NULL WHERE id = $1',
-        [u.id],
-      );
+      await q.query('UPDATE users SET failed_logins = 0, login_locked_until = NULL WHERE id = $1', [
+        u.id,
+      ]);
       const roles = (
         await q.query<{ role: Role }>('SELECT role FROM user_roles WHERE user_id = $1', [u.id])
       ).map((r) => r.role);
@@ -422,7 +424,12 @@ export class AuthService {
   async authenticate(token: string): Promise<Principal | null> {
     const now = this.cfg.now();
     return systemTx(this.db, async (q) => {
-      const [s] = await q.query<{ id: string; user_id: string; mfa_at: Date | null; expires_at: Date }>(
+      const [s] = await q.query<{
+        id: string;
+        user_id: string;
+        mfa_at: Date | null;
+        expires_at: Date;
+      }>(
         `SELECT id, user_id, mfa_at, expires_at FROM sessions
          WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > $2`,
         [sha256(token), now],

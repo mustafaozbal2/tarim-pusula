@@ -1,6 +1,6 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   colors,
   Durum,
@@ -37,6 +37,7 @@ export default function NotificationsScreen() {
   const [items, setItems] = useState<NotificationItem[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [unreadKeys, setUnreadKeys] = useState<Set<string>>(new Set());
+  const router = useRouter();
 
   const load = useCallback(async () => {
     let list: NotificationItem[];
@@ -44,8 +45,10 @@ export default function NotificationsScreen() {
     try {
       list = await withDeadline(
         (async () => {
-          const r = await loadToday(api, kv);
-          return r ? notificationItems(r.today, await loadAnnouncements(api, kv, r.field.id)) : [];
+          // G24: uzman cevabı gibi kişisel bildirimler sunucu kutusundan (arazi olmasa da görünür).
+          const [r, inbox] = await Promise.all([loadToday(api, kv), api.inbox().catch(() => [])]);
+          const anns = r ? await loadAnnouncements(api, kv, r.field.id) : [];
+          return notificationItems(r?.today ?? null, anns, inbox);
         })(),
       );
     } catch {
@@ -57,6 +60,7 @@ export default function NotificationsScreen() {
     setUnreadKeys(new Set(list.filter((i) => !seen.has(i.key)).map((i) => i.key)));
     setItems(list);
     await markAllSeen(kv, list);
+    void api.inboxRead().catch(() => undefined);
   }, []);
   useFocusEffect(
     useCallback(() => {
@@ -89,11 +93,15 @@ export default function NotificationsScreen() {
               const look = notificationLook(n.id, n.tone);
               const unread = unreadKeys.has(n.key);
               return (
-                <View
+                <Pressable
+                  accessibilityRole={n.id.startsWith('uzman-') ? 'button' : 'text'}
                   key={n.key}
                   style={[styles.card, look.kind === 'uyari' && styles.cardWarn]}
                   testID="liste-satiri"
                   accessibilityLabel={`${n.title}${unread ? `, ${t.unread}` : ''}`}
+                  // Uzman cevabı: dokununca Sorularım (cevabın tamamı ve dayanağı).
+                  onPress={n.id.startsWith('uzman-') ? () => router.push('/sorularim') : undefined}
+                  disabled={!n.id.startsWith('uzman-')}
                 >
                   <View style={[styles.iconBox, styles[`icon_${look.kind}` as 'icon_hava']]}>
                     <Icon name={look.icon} size={22} color="#FFFFFF" />
@@ -107,7 +115,7 @@ export default function NotificationsScreen() {
                       <Text style={styles.newText}>{t.unread}</Text>
                     </View>
                   ) : null}
-                </View>
+                </Pressable>
               );
             })}
           </View>

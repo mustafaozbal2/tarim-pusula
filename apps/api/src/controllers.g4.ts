@@ -316,6 +316,14 @@ export class AnnouncementsController {
   @Roles('expert', 'admin')
   async approve(@Me() me: Principal, @Param('id') id: string) {
     await this.data.runOne(me, 'announcements.approve', id, async (q) => {
+      // G24: uzman yalnız kendi yetki alanındaki taslağı onaylar (ilçe uzmanı başka ilin duyurusunu değil).
+      const [d] = await q.query<{ targeting: Targeting }>(
+        'SELECT targeting FROM announcements WHERE id = $1',
+        [id],
+      );
+      if (!d) return undefined;
+      const chk = checkTargeting(await resolveScope(q, me), d.targeting);
+      if (!chk.ok) throw new ForbiddenException(chk.reason);
       const rows = await q.query(
         `UPDATE announcements SET review_status = 'uzman-onayli', reviewed_by = $2
          WHERE id = $1 AND review_status = 'taslak-uzman-onayi-bekliyor' RETURNING id`,

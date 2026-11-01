@@ -1,5 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as Speech from 'expo-speech';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Image as RNImage, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
@@ -38,6 +39,7 @@ type State =
   | { s: 'fail'; msg: string };
 
 export default function AskScreen() {
+  const router = useRouter();
   const [state, setState] = useState<State>({ s: 'idle' });
   const [typing, setTyping] = useState(false);
   const [text, setText] = useState('');
@@ -211,6 +213,14 @@ export default function AskScreen() {
           variant="secondary"
           onPress={() => speak(c)}
         />
+        {c.kind === 'handoff' ? (
+          <Button
+            label={t.myQuestions}
+            variant="secondary"
+            testID="sorularim-ac"
+            onPress={() => router.push('/sorularim')}
+          />
+        ) : null}
         <Button label={t.again} onPress={reset} />
       </Screen>
     );

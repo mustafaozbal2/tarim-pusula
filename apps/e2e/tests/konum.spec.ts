@@ -282,7 +282,10 @@ test.describe('konum akışı (web)', () => {
     await context.close();
   });
 
-  test('giriş: telefon + SMS kodu', async ({ browser, page }) => {
+  test('giriş: açılış ekranı -> çiftçi kaydı (telefon + şifre + SMS kodu)', async ({
+    browser,
+    page,
+  }) => {
     const context: BrowserContext = await browser.newContext();
     const p = await context.newPage();
     await p.addInitScript(
@@ -290,16 +293,22 @@ test.describe('konum akışı (web)', () => {
       'http://127.0.0.1:3111',
     );
     await p.goto('/');
-    await expect(p.getByRole('heading', { name: 'Telefonunla giriş yap' })).toBeVisible();
-    await p.getByTestId('giris-telefon').fill('0532 700 99 99');
-    await p.getByRole('button', { name: 'Kod gönder' }).click();
+    await expect(p.getByRole('heading', { name: 'Hoş geldin' })).toBeVisible();
+    await p.getByTestId('giris-ciftci').click();
+    await p.getByTestId('giris-kayit').click();
+    await p.getByTestId('kayit-telefon').fill('0532 700 99 99');
+    await p.getByTestId('kayit-sifre').fill('Tarla2026');
+    await p.getByTestId('kayit-sifre2').fill('Tarla2026');
+    await p.getByTestId('kayit-kvkk').click();
+    await p.getByTestId('kayit-kod-gonder').click();
+    await expect(p.getByTestId('kayit-kod')).toBeVisible();
     const code = (
       (await (await page.request.get('/__e2e/otp?phone=%2B905327009999')).json()) as {
         code: string;
       }
     ).code;
-    await p.getByTestId('giris-kod').fill(code);
-    await p.getByRole('button', { name: 'Giriş yap' }).click();
+    await p.getByTestId('kayit-kod').fill(code);
+    await p.getByTestId('kayit-bitir').click();
     await expect(
       p.getByRole('heading', { name: 'Tarlalarım' }).or(p.getByTestId('ana-bant')),
     ).toBeVisible();

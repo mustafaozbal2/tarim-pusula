@@ -2,6 +2,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { elevation, fontFamily, homeColors } from '@tarim/ui';
+import type { InboxItemDto } from '../../src/api/client';
 import { SunucuKarti } from '../../src/components/SunucuKarti';
 import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
 import { loadHome, type HomeData } from '../../src/home/load';
@@ -36,6 +37,7 @@ export default function HomeScreen() {
   const [tab, setTab] = useState<HomeTab>('hepsi');
   const [picking, setPicking] = useState(false);
   const [seen, setSeen] = useState<string[]>([]);
+  const [inbox, setInbox] = useState<InboxItemDto[]>([]);
 
   const load = useCallback(async (pick?: string) => {
     setState((s) => (s === 'error' ? 'loading' : s));
@@ -45,6 +47,7 @@ export default function HomeScreen() {
       setData(r);
       setState(r ? 'ready' : 'empty');
       setSeen(await loadSeen(kv));
+      void api.inbox().then(setInbox, () => undefined);
       if (r) void registerForPush(api);
     } catch {
       setState('error');
@@ -71,8 +74,9 @@ export default function HomeScreen() {
     [data],
   );
   const unread = useMemo(
-    () => (data ? unreadCount(notificationItems(data.base.today, data.announcements), seen) : 0),
-    [data, seen],
+    () =>
+      data ? unreadCount(notificationItems(data.base.today, data.announcements, inbox), seen) : 0,
+    [data, seen, inbox],
   );
   const cards = useMemo(() => (data ? homeCards(data.announcements, data.sample) : []), [data]);
 

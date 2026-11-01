@@ -199,8 +199,11 @@ describe('il > ilçe > köy', () => {
     }
   });
 
-  it('giriş gerekir; eksik parametre 400', async () => {
-    expect((await call('GET', '/places/provinces')).status).toBe(401);
+  it('il/ilçe listesi girişsiz açık (G24 başvuru), köy listesi giriş ister; eksik parametre 400', async () => {
+    expect((await call('GET', '/places/provinces')).status).toBe(200);
+    expect(
+      (await call('GET', '/places/villages?province=Gaziantep&district=%C5%9Eahinbey')).status,
+    ).toBe(401);
     expect((await call('GET', '/places/districts', farmer.token)).status).toBe(400);
   });
 });

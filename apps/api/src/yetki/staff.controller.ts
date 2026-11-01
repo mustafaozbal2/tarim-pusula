@@ -8,7 +8,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { scopeLabel, scopeOf } from '@tarim/agro-core';
+import { checkTargeting, scopeLabel, scopeOf, type Targeting } from '@tarim/agro-core';
 import { staffDecisionSchema } from '@tarim/schemas';
 import type { PushClient } from '@tarim/workers';
 import { Me, parse, RequireMfa, Roles } from '../auth/access';
@@ -17,7 +17,7 @@ import { systemTx, type Db, type Principal } from '../db/db';
 import { DB } from '../auth/auth.service';
 import { PUSH } from '../weather/tokens';
 import { notifyUser } from './notify';
-import { PROFILE_COLS, type StaffProfileRow } from './scope';
+import { PROFILE_COLS, resolveScope, type StaffProfileRow } from './scope';
 
 /** Yetkili profili ve yayın kapsamı (G24). */
 @Controller('staff')
@@ -61,6 +61,33 @@ export class StaffController {
         [me.userId],
       ),
     );
+  }
+}
+
+/**
+ * Uzman onayı bekleyen taslaklar (kurum yetkilisi hazırladı): yalnız uzmanın yetki alanına düşenler.
+ * Onaylanana kadar çiftçiye gitmez (değişmez kural 1).
+ */
+@Controller('staff/drafts')
+export class StaffDraftsController {
+  constructor(@Inject(DataService) private readonly data: DataService) {}
+
+  @Get()
+  @RequireMfa()
+  @Roles('expert', 'admin')
+  list(@Me() me: Principal) {
+    return this.data.run(me, 'staff.drafts', async (q) => {
+      const scope = await resolveScope(q, me);
+      const rows = await q.query<{ targeting: Targeting }>(
+        `SELECT a.id, a.title, a.body, a.category, a.targeting, a.source_org AS "sourceOrg",
+           a.published_at AS "publishedAt", (a.image_data_url IS NOT NULL) AS "hasImage",
+           u.display_name AS "authorName"
+         FROM announcements a LEFT JOIN users u ON u.id = a.created_by
+         WHERE a.review_status = 'taslak-uzman-onayi-bekliyor'
+         ORDER BY a.published_at DESC LIMIT 100`,
+      );
+      return rows.filter((r) => checkTargeting(scope, r.targeting).ok);
+    });
   }
 }
 

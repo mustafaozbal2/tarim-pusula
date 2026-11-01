@@ -93,7 +93,7 @@ describe('G18 sunucu adresi yokken çökmeme', () => {
     expect(card).toMatch(/t\.title/);
     expect(read('src/i18n/tr.ts')).toMatch(/Sunucuya bağlanılamadı/);
     expect(read('src/session.ts')).toMatch(/throw new NetworkError\(\)/);
-    expect(read('app/giris.tsx')).toMatch(/SunucuKarti/);
+    expect(read('app/giris/ciftci.tsx')).toMatch(/SunucuKarti/);
     expect(read('app/(tabs)/index.tsx')).toMatch(/SunucuKarti/);
   });
 });

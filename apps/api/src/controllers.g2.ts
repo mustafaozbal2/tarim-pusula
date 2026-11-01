@@ -18,7 +18,7 @@ import {
   nearbyDecisionSchema,
   type FieldCreate,
 } from '@tarim/schemas';
-import { Me, parse } from './auth/access';
+import { Me, parse, Public } from './auth/access';
 import { DataService } from './data.service';
 import type { Principal, Queryable } from './db/db';
 import { insertField, withComputedArea } from './fields.logic';
@@ -31,11 +31,14 @@ export const PLACES = Symbol('PLACES');
 export class PlacesController {
   constructor(@Inject(PLACES) private readonly places: Places) {}
 
+  // İl/ilçe listesi kamusal veridir; yetkili başvurusunda giriş yapmadan seçilir (G24).
+  @Public()
   @Get('provinces')
   provinces() {
     return this.places.provinces();
   }
 
+  @Public()
   @Get('districts')
   districts(@Query('province') province?: string) {
     if (!province) throw new BadRequestException('İl yazılmadı');

@@ -35,8 +35,47 @@ export function loadSession(): Promise<void> {
 export async function setToken(next: string | null): Promise<void> {
   token = next;
   if (next) await tokenStore.set(next);
-  else await tokenStore.clear();
+  else {
+    await tokenStore.clear();
+    await kv.remove(KIND_KEY);
+    kind = null;
+  }
   emit();
+}
+
+/** G24: oturumun türü; giriş sonrası ve açılışta doğru ana ekrana (çiftçi / yetkili) yönlendirir. */
+export type SessionKind = 'ciftci' | 'yetkili';
+const KIND_KEY = 'session.kind';
+let kind: SessionKind | null = null;
+let kindLoaded = false;
+
+export async function setSessionKind(next: SessionKind): Promise<void> {
+  kind = next;
+  kindLoaded = true;
+  await kv.set(KIND_KEY, next);
+  emit();
+}
+
+export async function loadSessionKind(): Promise<SessionKind | null> {
+  if (!kindLoaded) {
+    const v = await kv.get(KIND_KEY);
+    kind = v === 'yetkili' || v === 'ciftci' ? v : null;
+    kindLoaded = true;
+  }
+  return kind;
+}
+
+/** Oturum türü (yüklenene kadar `undefined`). Eski oturumlar türsüzdür: çiftçi sayılır. */
+export function useSessionKind(): SessionKind | null | undefined {
+  return useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      void loadSessionKind().then(() => emit());
+      return () => listeners.delete(l);
+    },
+    () => (kindLoaded ? kind : undefined),
+    () => undefined,
+  );
 }
 
 /** Oturum yüklenene kadar `undefined`, giriş yoksa `null`. */
@@ -76,3 +115,18 @@ export const api = createApi({
 });
 
 export const queue = new OfflineQueue(kv, api);
+
+/**
+ * G24: verilen geçici jetonla çağrı (yetkili girişinde SMS adımı bitmeden jeton depoya yazılmaz;
+ * kod doğrulanmazsa oturum hiç açılmamış olur).
+ */
+export function apiWith(tempToken: string) {
+  return createApi({
+    baseUrl: async () => {
+      const url = await currentApiUrl();
+      if (!url) throw new NetworkError();
+      return url;
+    },
+    getToken: () => tempToken,
+  });
+}

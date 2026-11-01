@@ -71,6 +71,9 @@ async function staff(phone: string, profile: Record<string, unknown>, adminToken
     ...profile,
   });
   expect(reg.status).toBe(200);
+  // Yönetici başvuruyu listede görür (onay ekranı).
+  const list = await call('GET', '/panel/staff', adminToken);
+  expect(list.body.some((a: { userId: string }) => a.userId === reg.body.userId)).toBe(true);
   const d = await call('POST', `/panel/staff/${reg.body.userId}/decision`, adminToken, {
     approve: true,
   });
@@ -328,6 +331,57 @@ describe('G24 yetki kademesi ve duyuru', () => {
         )
       ).status,
     ).toBe(201);
+  });
+});
+
+describe('G24 kurum yetkilisi taslağı ve uzman onayı', () => {
+  it('belediye taslağı yalnız o ilçeyi kapsayan uzmana görünür ve onu onaylar; başka il uzmanı onaylayamaz', async () => {
+    const bel = await staff(
+      '+905550000060',
+      {
+        institution: 'belediye',
+        institutionName: 'Nizip Belediyesi',
+        province: 'Gaziantep',
+        district: 'Nizip',
+        wantsRole: 'institution_admin',
+      },
+      admin,
+    );
+    const gaz = await staff(
+      '+905550000061',
+      { institution: 'il_mudurlugu', institutionName: 'Gaziantep İl', province: 'Gaziantep' },
+      admin,
+    );
+    const urfa = await staff(
+      '+905550000062',
+      { institution: 'il_mudurlugu', institutionName: 'Şanlıurfa İl', province: 'Şanlıurfa' },
+      admin,
+    );
+    const r = await call('POST', '/announcements', bel.token, {
+      sourceOrg: 'Nizip Belediyesi',
+      title: 'Fide dağıtımı',
+      body: 'Belediye bahçesinde ücretsiz fide dağıtılacak.',
+      publishedAt: new Date().toISOString(),
+      targeting: {
+        places: [{ province: 'Gaziantep', district: 'Nizip' }],
+        circle: null,
+        cropIds: [],
+      },
+    });
+    expect(r.status).toBe(201);
+    expect(r.body.reviewStatus).toBe('taslak-uzman-onayi-bekliyor');
+    const seen = await call('GET', '/staff/drafts', gaz.token);
+    expect(seen.body.map((d: { id: string }) => d.id)).toContain(r.body.id);
+    const notSeen = await call('GET', '/staff/drafts', urfa.token);
+    expect(notSeen.body.map((d: { id: string }) => d.id)).not.toContain(r.body.id);
+    // Kurum yetkilisi kendi taslağını onaylayamaz (uzman rolü yok).
+    expect((await call('POST', `/announcements/${r.body.id}/approve`, bel.token)).status).toBe(403);
+    expect((await call('POST', `/announcements/${r.body.id}/approve`, urfa.token)).status).toBe(
+      403,
+    );
+    const ok = await call('POST', `/announcements/${r.body.id}/approve`, gaz.token);
+    expect(ok.status).toBe(200);
+    expect((await call('GET', '/staff/drafts', gaz.token)).body).toHaveLength(0);
   });
 });
 

@@ -34,5 +34,6 @@ export function notificationLook(id: string, tone: string): { icon: IconName; ki
   if (id.startsWith('su') || id.startsWith('yagis') || id.startsWith('et0'))
     return { icon: 'drop', kind: 'su' };
   if (id.startsWith('duyuru-')) return { icon: 'book', kind: 'duyuru' };
+  if (id.startsWith('uzman-')) return { icon: 'people', kind: 'duyuru' };
   return { icon: 'sun', kind: 'hava' };
 }

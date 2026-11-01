@@ -10,6 +10,9 @@ export interface DemoInfoDto {
   code: string;
   farmerPhone: string;
   staffPhone: string;
+  /** G24: demo hesaplarının şifresi ve kademe kademe yetkili hesapları (yalnız demo sunucusu). */
+  password?: string;
+  staff?: { phone: string; label: string }[];
 }
 
 /** Giriş ekranının altındaki demo kodu satırı; sunucu demo değilse `null` (hiçbir şey gösterilmez). */

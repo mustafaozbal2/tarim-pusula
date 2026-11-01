@@ -1,4 +1,4 @@
-import type { AnnouncementDto, TodayDto } from '../api/client';
+import type { AnnouncementDto, InboxItemDto, TodayDto } from '../api/client';
 import type { KV } from '../offline/kv';
 import { buildNotifications, type NotificationRow } from '../today/notifications';
 
@@ -11,12 +11,13 @@ const SEEN_KEY = 'notifications.seen.v1';
 const SEEN_LIMIT = 200;
 
 /**
- * Bildirim listesi: bugünkü olgular + onaylı duyurular. Onaysız duyuru ve onaysız bilgi hiç
- * girmez (değişmez kural 1).
+ * Bildirim listesi: bugünkü olgular + onaylı duyurular + sunucu bildirim kutusu (uzman cevabı, G24).
+ * Onaysız duyuru ve onaysız bilgi hiç girmez (değişmez kural 1).
  */
 export function notificationItems(
   today: TodayDto | null,
   announcements: AnnouncementDto[],
+  inbox: InboxItemDto[] = [],
 ): NotificationItem[] {
   const rows: NotificationRow[] = [
     ...(today ? buildNotifications(today) : []),
@@ -28,6 +29,12 @@ export function notificationItems(
         title: a.title,
         tone: 'normal' as const,
       })),
+    ...inbox.map((n) => ({
+      id: `${n.kind === 'uzman_cevap' ? 'uzman' : n.kind}-${n.id}`,
+      date: n.createdAt,
+      title: n.title,
+      tone: 'normal' as const,
+    })),
   ];
   return rows.map((r) => ({ ...r, key: `${r.id}@${r.date.slice(0, 10)}` }));
 }

@@ -12,7 +12,12 @@ import {
 import type { SmsProvider } from './auth/sms';
 import { DEMO_INFO, DemoController, type DemoInfo } from './demo';
 import { OrnekIcerikController } from './ornek-icerik';
-import { InboxController, StaffAdminController, StaffController } from './yetki/staff.controller';
+import {
+  InboxController,
+  StaffAdminController,
+  StaffController,
+  StaffDraftsController,
+} from './yetki/staff.controller';
 
 import {
   AdminController,
@@ -161,6 +166,7 @@ export class AppModule {
         WalletController,
         IngestController,
         StaffController,
+        StaffDraftsController,
         StaffAdminController,
         InboxController,
         ...(opts.demo ? [DemoController] : []),

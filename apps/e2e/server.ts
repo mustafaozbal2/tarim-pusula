@@ -6,6 +6,7 @@ import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
 import { AppModule } from '../api/src/app.module';
+import { hashPassword } from '../api/src/auth/password';
 import { FakeSmsProvider } from '../api/src/auth/sms';
 import { importCropCatalog } from '../api/src/crops';
 import { MarketCollector, type MarketSourceConfig } from '../api/src/market/collector';
@@ -168,6 +169,35 @@ async function main() {
         );
         res.setHeader('content-type', 'application/json');
         res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, ...u }));
+        return;
+      }
+      if (url.pathname === '/__e2e/admin') {
+        // G24 testi: yönetici (admin) jetonu; SMS ikinci adımı tamamlanmış.
+        const u = await newUser();
+        const hash = await hashPassword('Tarla2026');
+        await systemTx(db, async (q) => {
+          await q.query(
+            `INSERT INTO user_roles(user_id, role, granted_by) VALUES ($1,'admin',$1)`,
+            [u.userId],
+          );
+          await q.query('UPDATE users SET password_hash = $2 WHERE id = $1', [u.userId, hash]);
+        });
+        const post = async (path: string, token: string | null, body?: unknown) =>
+          (await (
+            await api(path, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                ...(token ? { authorization: `Bearer ${token}` } : {}),
+              },
+              body: body === undefined ? undefined : JSON.stringify(body),
+            })
+          ).json()) as Record<string, string>;
+        const l = await post('/auth/login', null, { phone: u.phone, password: 'Tarla2026' });
+        await post('/auth/mfa/sms/request', l['token']!);
+        await post('/auth/mfa/sms/verify', l['token']!, { code: sms.lastCode(u.phone) });
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify({ api: `http://127.0.0.1:${API_PORT}`, token: l['token'] }));
         return;
       }
       if (url.pathname === '/__e2e/approve-frost') {

@@ -13,28 +13,33 @@ export function UstBant({
   title,
   step,
   onBack,
+  hideBack,
 }: {
   title?: string;
   /** Akış adımı ("1 / 3" gibi); başlığın sağında küçük yazı. */
   step?: string;
   onBack?: () => void;
+  /** Kök ekran (yetkili paneli): geri düğmesi yok. */
+  hideBack?: boolean;
 }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.band, { paddingTop: Math.max(insets.top, 12) + 8 }]} testID="ust-bant">
       <View style={styles.stripe} pointerEvents="none" />
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tr.flow.back}
-        testID="geri"
-        onPress={onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/')))}
-        style={styles.back}
-      >
-        <View style={styles.backCircle}>
-          <Icon name="back" size={20} color={homeColors.text} />
-        </View>
-      </Pressable>
+      {hideBack ? null : (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={tr.flow.back}
+          testID="geri"
+          onPress={onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/')))}
+          style={styles.back}
+        >
+          <View style={styles.backCircle}>
+            <Icon name="back" size={20} color={homeColors.text} />
+          </View>
+        </Pressable>
+      )}
       {title ? (
         <Text accessibilityRole="header" style={styles.title} numberOfLines={2}>
           {title}

@@ -130,7 +130,7 @@ const SHOTS: Shot[] = [
     route: '/giris',
     tabs: false,
     setup: 'cikis',
-    ready: 'Telefonunla giriş yap',
+    ready: 'Hoş geldin',
   },
   {
     name: 'ayarlar',
@@ -336,9 +336,10 @@ test('Sunucu adresi yokken uygulama çökmez, "Sunucuya bağlanılamadı" kartı
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto('/giris');
+  await page.goto('/giris/ciftci');
   await page.getByTestId('giris-telefon').fill('05320000000');
-  await page.getByRole('button', { name: 'Kod gönder' }).click();
+  await page.getByTestId('giris-sifre').fill('Tarla2026');
+  await page.getByTestId('giris-gir').click();
   const card = page.getByTestId('sunucu-karti');
   await expect(card).toContainText('Sunucuya bağlanılamadı');
   await expect(card).toContainText('Sunucu adresi ayarlanmamış');

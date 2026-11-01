@@ -69,6 +69,150 @@ export interface OrnekIcerikDto {
   destekler: OrnekSatirDto[];
 }
 
+// --- G24 tipleri ---
+export type InstitutionKey =
+  | 'bakanlik'
+  | 'il_mudurlugu'
+  | 'ilce_mudurlugu'
+  | 'belediye'
+  | 'ziraat_odasi'
+  | 'kooperatif'
+  | 'universite'
+  | 'arastirma_enstitusu'
+  | 'danismanlik';
+
+export interface StaffRegisterBody {
+  phone: string;
+  code: string;
+  password: string;
+  name: string;
+  institution: InstitutionKey;
+  institutionName: string;
+  province?: string;
+  district?: string;
+  title: string;
+  registryNo: string;
+  expertise: string[];
+  wantsRole: 'expert' | 'institution_admin';
+  kvkk: true;
+}
+
+export interface StaffProfileDto {
+  userId: string;
+  institution: InstitutionKey;
+  institutionName: string;
+  province: string | null;
+  district: string | null;
+  title: string;
+  registryNo: string;
+  expertise: string[];
+  wantsRole: 'expert' | 'institution_admin';
+  status: 'basvuru' | 'onayli' | 'reddedildi';
+  decisionNote: string | null;
+  createdAt: string;
+}
+
+export type ScopeDto =
+  | { level: 'ulke' }
+  | { level: 'il'; province: string }
+  | { level: 'ilce'; province: string; district: string };
+
+export interface StaffMeDto {
+  profile: StaffProfileDto | null;
+  roles: string[];
+  mfa: boolean;
+  scope: ScopeDto | null;
+  scopeLabel: string | null;
+}
+
+export interface StaffAnnouncementDto {
+  id: string;
+  title: string;
+  body: string;
+  category: string | null;
+  targeting: { places?: { province: string; district?: string }[]; cropIds?: string[] };
+  reviewStatus: string;
+  publishedAt: string;
+  hasImage: boolean;
+}
+
+export interface AnnouncementCreateBody {
+  sourceOrg: string;
+  title: string;
+  body: string;
+  publishedAt: string;
+  category?: 'guncel' | 'bilgilendirme' | 'yonlendirme' | 'onlem' | 'teknoloji';
+  imageDataUrl?: string | null;
+  targeting: {
+    places: { province: string; district?: string }[];
+    circle: null;
+    cropIds: string[];
+  };
+}
+
+export interface StaffDraftDto {
+  id: string;
+  title: string;
+  body: string;
+  category: string | null;
+  sourceOrg: string;
+  targeting: { places?: { province: string; district?: string }[]; cropIds?: string[] };
+  publishedAt: string;
+  hasImage: boolean;
+  authorName: string | null;
+}
+
+export interface QueueItemDto {
+  id: string;
+  question: string;
+  reason: string;
+  hasImage: boolean;
+  createdAt: string;
+  province: string | null;
+  district: string | null;
+  cropId: string | null;
+  cropName: string | null;
+  mine: boolean | null;
+}
+
+export interface AnsweredItemDto {
+  id: string;
+  question: string;
+  answer: string;
+  answerSource: string;
+  answeredAt: string;
+  province: string | null;
+  district: string | null;
+  cropName: string | null;
+}
+
+export interface MyQuestionDto {
+  id: string;
+  question: string;
+  status: 'bekliyor' | 'cevaplandi';
+  answer: string | null;
+  answerSource: string | null;
+  answeredAt: string | null;
+  createdAt: string;
+  hasImage: boolean;
+  assigned: boolean;
+}
+
+export interface InboxItemDto {
+  id: string;
+  kind: 'uzman_cevap' | 'duyuru' | 'basvuru';
+  title: string;
+  body: string;
+  refId: string | null;
+  createdAt: string;
+  readAt: string | null;
+}
+
+export interface StaffApplicationDto extends StaffProfileDto {
+  name: string | null;
+  phone: string;
+}
+
 export interface FieldDto {
   id: string;
   name: string;
@@ -444,6 +588,42 @@ export function createApi(opts: ApiOptions) {
 
   const q = encodeURIComponent;
   return {
+    // --- G24: şifreli giriş, kayıt, yetkili ---
+    register: (b: { phone: string; code: string; password: string; name?: string; kvkk: true }) =>
+      request<{ token: string; userId: string }>('POST', '/auth/register', b),
+    login: (phone: string, password: string) =>
+      request<{ token: string; userId: string; roles: string[]; mfaRequired: boolean }>(
+        'POST',
+        '/auth/login',
+        { phone, password },
+      ),
+    resetPassword: (b: { phone: string; code: string; password: string }) =>
+      request<{ token: string; userId: string }>('POST', '/auth/password/reset', b),
+    staffRegister: (b: StaffRegisterBody) =>
+      request<{ token: string; userId: string }>('POST', '/auth/staff/register', b),
+    mfaSmsRequest: () => request<{ expiresInSeconds: number }>('POST', '/auth/mfa/sms/request'),
+    mfaSmsVerify: (code: string) => request<{ ok: true }>('POST', '/auth/mfa/sms/verify', { code }),
+    logout: () => request<void>('POST', '/auth/logout'),
+    staffMe: () => request<StaffMeDto>('GET', '/staff/me'),
+    staffAnnouncements: () => request<StaffAnnouncementDto[]>('GET', '/staff/announcements'),
+    createAnnouncement: (b: AnnouncementCreateBody) =>
+      request<{ id: string; reviewStatus: string }>('POST', '/announcements', b),
+    staffDrafts: () => request<StaffDraftDto[]>('GET', '/staff/drafts'),
+    approveAnnouncement: (id: string) =>
+      request<{ id: string }>('POST', `/announcements/${q(id)}/approve`),
+    deleteAnnouncement: (id: string) => request<unknown>('DELETE', `/announcements/${q(id)}`),
+    expertQueue: () => request<QueueItemDto[]>('GET', '/pusula/queue'),
+    expertAnswered: () => request<AnsweredItemDto[]>('GET', '/pusula/answered'),
+    questionImage: (id: string) =>
+      request<{ mime: string; base64: string } | null>('GET', `/pusula/queue/${q(id)}/image`),
+    answerQuestion: (id: string, b: { answer: string; source: string; cacheable: boolean }) =>
+      request<{ id: string }>('POST', `/pusula/queue/${q(id)}/answer`, b),
+    myQuestions: () => request<MyQuestionDto[]>('GET', '/pusula/my'),
+    inbox: () => request<InboxItemDto[]>('GET', '/me/notifications'),
+    inboxRead: () => request<{ ok: true }>('POST', '/me/notifications/read'),
+    staffApplications: () => request<StaffApplicationDto[]>('GET', '/panel/staff'),
+    staffDecision: (userId: string, approve: boolean, note?: string) =>
+      request<{ status: string }>('POST', `/panel/staff/${q(userId)}/decision`, { approve, note }),
     requestOtp: (phone: string) => request<{ ok: boolean }>('POST', '/auth/otp/request', { phone }),
     verifyOtp: (phone: string, code: string) =>
       request<{ token: string; userId: string }>('POST', '/auth/otp/verify', { phone, code }),

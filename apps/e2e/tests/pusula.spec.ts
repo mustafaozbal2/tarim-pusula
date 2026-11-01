@@ -42,5 +42,6 @@ test('Soru sor: kaynağı olmayan soruda uydurma yok, uzmana sorulur', async ({ 
   await setup(page);
   await ask(page, 'Kayısı ağacının yaprakları neden sararıyor?');
   await expect(page.getByText('Uzmana soruldu').first()).toBeVisible();
-  await expect(page.getByTestId('pusula-karti')).toContainText('Uzmana soruldu');
+  await expect(page.getByTestId('pusula-karti')).toContainText('bölgendeki uzmana iletildi');
+  await expect(page.getByTestId('sorularim-ac')).toBeVisible();
 });
