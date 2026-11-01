@@ -120,3 +120,7 @@ Yapılan: Sunucu: şifreli kayıt/giriş/sıfırlama (scrypt, kilit), 90 gün ka
 Canlı: Neon Postgres (Frankfurt, proje crimson-heart-02563739) + Render API (Frankfurt) + Render statik web. DATABASE_URL yalnız .env (NEON_EU_DATABASE_URL) ve Render ortamında. OTA adresi canlı API'ye çevrildi (`scripts/guncelle.ps1`, eas.json preview).
 Yarım: Google girişi (OAuth istemcisi yok), Android telefon bildirimi için FCM anahtarı EAS'a yüklenmedi, gerçek SMS sağlayıcısı yok (canlı DEMO_MODE, kod 123456), telefonda fotoğraf küçültme yerel modülü yok (kalite 0,25 + uyarı), Render ücretsiz uyuma (UptimeRobot önerildi). İlk Neon projesi (ABD, purple-meadow-27718693) deneme verisiyle duruyor, kullanılmıyor.
 Sonraki için: panel (Next.js) G24 yetkili ekranlarıyla birleştirilebilir.
+
+### G24 ek (2026-11-01, gece)
+- OTA yayımlandı: "G24 yeni giris ekrani yetkili paneli Sorularim canli sunucu" (grup 4d6d04c9), canlı API'ye bağlı.
+- scripts/guncelle.ps1: npx+cmd üzerinden takılıyordu; artık eas doğrudan, CI=1, mesajdaki ; ve " temizlenir.
