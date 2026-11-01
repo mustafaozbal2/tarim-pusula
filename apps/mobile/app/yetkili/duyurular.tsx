@@ -18,6 +18,8 @@ const t = tr.staff;
 /** Yetkilinin yayınladığı duyurular: hedef bölge, ürün filtresi, durum; silinebilir. */
 export default function Duyurularim() {
   const list = useYukle(() => api.staffAnnouncements());
+  const crops = useYukle(() => api.crops());
+  const cropName = (id: string) => crops.data?.find((c) => c.id === id)?.nameTr ?? id;
   const remove = async (id: string) => {
     await api.deleteAnnouncement(id).catch(() => undefined);
     list.reload();
@@ -46,7 +48,9 @@ export default function Duyurularim() {
           <Text style={yetkiliText.body}>{a.body}</Text>
           <Text style={yetkiliText.muted}>
             {targetText(a.targeting)}
-            {a.targeting.cropIds?.length ? ` · ${t.crop}: ${a.targeting.cropIds.join(', ')}` : ''}
+            {a.targeting.cropIds?.length
+              ? ` · ${t.crop}: ${a.targeting.cropIds.map(cropName).join(', ')}`
+              : ''}
             {a.category ? ` · ${t.categories[a.category as keyof typeof t.categories] ?? ''}` : ''}
             {a.hasImage ? ` · ${t.photoTag}` : ''} · {shortDate(a.publishedAt)}
           </Text>
