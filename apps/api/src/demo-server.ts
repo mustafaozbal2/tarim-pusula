@@ -7,13 +7,15 @@ import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
 import { AppModule } from './app.module';
+import { hashPassword } from './auth/password';
 import { FakeSmsProvider } from './auth/sms';
 import { importCalendarTemplates } from './calendar';
 import { importCropCatalog } from './crops';
 import {
   DEMO_FARMER_PHONE,
   DEMO_FIELDS,
-  DEMO_STAFF_PHONE,
+  DEMO_PASSWORD,
+  DEMO_STAFF,
   demoInfo,
   demoMarket,
   seedDemoData,
@@ -202,14 +204,49 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   const prov = await post(`/devices/${dev['id']}/provision`, farmer['token']);
   await new VirtualDevice({ id: dev['id']!, secret: prov['secret']!, broker }).connect();
 
-  // Kurum yöneticisi.
-  const staff = await login(DEMO_STAFF_PHONE);
+  // G24: demo şifresi ve her kademeden onaylı yetkili (yönetici, bakanlık, il, ilçe uzmanı).
+  const hash = await hashPassword(DEMO_PASSWORD);
   await systemTx(db, (q) =>
-    q.query(
-      `INSERT INTO user_roles(user_id, role, granted_by) VALUES ($1,$2,$1) ON CONFLICT DO NOTHING`,
-      [staff['userId'], 'institution_admin'],
-    ),
+    q.query('UPDATE users SET password_hash = $2, display_name = $3 WHERE id = $1', [
+      farmer['userId'],
+      hash,
+      'Demo Çiftçi',
+    ]),
   );
+  for (const s of DEMO_STAFF) {
+    const u = await login(s.phone);
+    await systemTx(db, async (q) => {
+      await q.query('UPDATE users SET password_hash = $2, display_name = $3 WHERE id = $1', [
+        u['userId'],
+        hash,
+        s.name,
+      ]);
+      await q.query(
+        `INSERT INTO staff_profiles(user_id, institution, institution_name, province, district, title,
+           registry_no, expertise, wants_role, status, decided_at)
+         VALUES ($1,$2,$3,$4,$5,'Ziraat mühendisi',$6,$7,$8,'onayli', now())
+         ON CONFLICT (user_id) DO NOTHING`,
+        [
+          u['userId'],
+          s.institution,
+          s.institutionName,
+          s.province,
+          s.district,
+          `DEMO-${s.phone.slice(-2)}`,
+          s.expertise,
+          s.roles.includes('expert') ? 'expert' : 'institution_admin',
+        ],
+      );
+      for (const role of s.roles) {
+        await q.query(
+          `INSERT INTO user_roles(user_id, role, granted_by) VALUES ($1,$2,$1) ON CONFLICT DO NOTHING`,
+          [u['userId'], role],
+        );
+      }
+      // Yetkili hesabı çiftçi rolüyle açılmasın (giriş yeri yetkili ekranı olsun).
+      await q.query(`DELETE FROM user_roles WHERE user_id = $1 AND role = 'farmer'`, [u['userId']]);
+    });
+  }
   try {
     await seedDemoMarket(app.get(MarketCollector));
   } catch (e) {

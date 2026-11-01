@@ -12,13 +12,75 @@ import { seedUzmanOrnek } from './uzman-ornek';
 export const DEMO_CODE = '123456';
 export const DEMO_FARMER_PHONE = '+905320000001';
 export const DEMO_STAFF_PHONE = '+905320000002';
+/** G24: demo hesaplarının ortak şifresi (yalnız demo). */
+export const DEMO_PASSWORD = 'Tarla2026';
 export const DEMO_INFO = Symbol('DEMO_INFO');
+
+/** G24 demo yetkilileri: her kademeden biri (yönetici başvuruları onaylar). */
+export const DEMO_STAFF: {
+  phone: string;
+  label: string;
+  name: string;
+  institution: 'bakanlik' | 'il_mudurlugu' | 'ilce_mudurlugu';
+  institutionName: string;
+  province: string | null;
+  district: string | null;
+  roles: ('expert' | 'institution_admin' | 'admin')[];
+  expertise: string[];
+}[] = [
+  {
+    phone: DEMO_STAFF_PHONE,
+    label: 'Yönetici (başvuru onayı)',
+    name: 'Demo Yönetici',
+    institution: 'bakanlik',
+    institutionName: 'Tarım Pusula Yönetim',
+    province: null,
+    district: null,
+    roles: ['institution_admin', 'admin'],
+    expertise: [],
+  },
+  {
+    phone: '+905320000003',
+    label: 'Bakanlık uzmanı (tüm Türkiye)',
+    name: 'Demo Bakanlık Uzmanı',
+    institution: 'bakanlik',
+    institutionName: 'Tarım ve Orman Bakanlığı',
+    province: null,
+    district: null,
+    roles: ['expert'],
+    expertise: [],
+  },
+  {
+    phone: '+905320000004',
+    label: 'Gaziantep İl uzmanı',
+    name: 'Demo Gaziantep İl Uzmanı',
+    institution: 'il_mudurlugu',
+    institutionName: 'Gaziantep İl Tarım ve Orman Müdürlüğü',
+    province: 'Gaziantep',
+    district: null,
+    roles: ['expert'],
+    expertise: ['zeytin'],
+  },
+  {
+    phone: '+905320000005',
+    label: 'Şehitkamil İlçe uzmanı',
+    name: 'Demo Şehitkamil İlçe Uzmanı',
+    institution: 'ilce_mudurlugu',
+    institutionName: 'Şehitkamil İlçe Tarım ve Orman Müdürlüğü',
+    province: 'Gaziantep',
+    district: 'Şehitkamil',
+    roles: ['expert'],
+    expertise: ['antep-fistigi'],
+  },
+];
 
 export interface DemoInfo {
   demo: true;
   code: string;
   farmerPhone: string;
   staffPhone: string;
+  password: string;
+  staff: { phone: string; label: string }[];
 }
 
 /**
@@ -32,6 +94,8 @@ export function demoInfo(env: NodeJS.ProcessEnv = process.env): DemoInfo | undef
     code: DEMO_CODE,
     farmerPhone: DEMO_FARMER_PHONE,
     staffPhone: DEMO_STAFF_PHONE,
+    password: DEMO_PASSWORD,
+    staff: DEMO_STAFF.map((s) => ({ phone: s.phone, label: s.label })),
   };
 }
 
