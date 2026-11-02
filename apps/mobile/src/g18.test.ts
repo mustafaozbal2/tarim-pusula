@@ -53,9 +53,16 @@ describe('G18 EAS ve uygulama yapılandırması', () => {
     expect(pngSize('assets/adaptive-icon.png')).toEqual([1024, 1024]);
     const [w, h] = pngSize('assets/splash.png');
     expect(h).toBeGreaterThan(w);
-    expect(app.splash.backgroundColor).toBe('#4DB4B5');
-    expect(app.android.adaptiveIcon.backgroundColor).toBe('#4DB4B5');
-    for (const f of [app.icon, app.splash.image, app.android.adaptiveIcon.foregroundImage]) {
+    // Simge yalnız yuvarlak amblemdir; açılış ve uyarlanabilir simge zemini amblemin koyu yeşilidir.
+    expect(app.splash.backgroundColor).toBe('#0E3B37');
+    expect(app.android.adaptiveIcon.backgroundColor).toBe('#0E3B37');
+    const katmanlar = [
+      app.icon,
+      app.splash.image,
+      app.android.adaptiveIcon.foregroundImage,
+      app.android.adaptiveIcon.backgroundImage,
+    ];
+    for (const f of katmanlar) {
       expect(existsSync(join(ROOT, f)), f).toBe(true);
     }
   });
