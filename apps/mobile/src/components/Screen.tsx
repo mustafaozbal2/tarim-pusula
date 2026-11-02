@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { colors, fontFamily, fontSize, spacing } from '@tarim/ui';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, fontFamily, fontSize, homeColors, spacing } from '@tarim/ui';
 import { DemoBadge } from './DemoBadge';
 import { UstBant } from './UstBant';
 
@@ -21,8 +22,12 @@ export function Screen({
   /** Başlık şeridi yerine ekranın en üstünde tam genişlikte bölüm (Bugün: konum+hava). */
   hero?: ReactNode;
 }) {
+  const insets = useSafeAreaInsets();
   const scroll = (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.root}
+      contentContainerStyle={[styles.content, { paddingBottom: spacing.xl + insets.bottom }]}
+    >
       {hero}
       {/* Alt sekme çubuğu yok (G19): her alt sayfadan ana sayfaya geri dönülür; bant ana sayfayla aynı dilde. */}
       {title ? <UstBant title={title} /> : null}
@@ -32,17 +37,31 @@ export function Screen({
       </View>
     </ScrollView>
   );
-  if (!footer) return scroll;
+  // Kaydırınca içerik saat/pil satırının altına girmesin: o şerit bant renginde sabit kalır.
+  const cover =
+    insets.top > 0 ? (
+      <View pointerEvents="none" style={[styles.statusCover, { height: insets.top }]} />
+    ) : null;
   return (
     <View style={styles.frame}>
       {scroll}
-      <View style={styles.footer}>{footer}</View>
+      {footer ? (
+        <View style={[styles.footer, { paddingBottom: spacing.lg + insets.bottom }]}>{footer}</View>
+      ) : null}
+      {cover}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: colors.background },
+  statusCover: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: homeColors.band,
+  },
   footer: { padding: spacing.lg, paddingTop: spacing.sm, backgroundColor: colors.background },
   root: { flex: 1, backgroundColor: colors.background },
   content: { paddingBottom: spacing.xl },

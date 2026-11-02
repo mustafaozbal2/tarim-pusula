@@ -513,6 +513,7 @@ export const tr = {
     none: 'Bu adla ürün bulunamadı. Başka bir ad dene.',
   },
   savings: {
+    addArea: 'Tarlanın büyüklüğünü yaz',
     title: 'Tasarruf ve verim raporu',
     hero: 'Geleneksel sulama ile Tarım Pusula sulamasını karşılaştır: ne kadar su tasarruf edilir?',
     period: 'Hangi dönem?',

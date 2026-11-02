@@ -106,7 +106,8 @@ describe('paylaşım çıktısı', () => {
   });
   it('rapor yokken de çıktı üretilir ve mesaj içerir', () => {
     const none = dto({ kind: 'none', reason: 'deger-yok', missing: ['alan'] });
-    expect(reportText(none, '1')).toContain('eksik bilgi var: alan');
-    expect(reportHtml(none, '1')).toContain('eksik bilgi var: alan');
+    expect(reportText(none, '1')).toContain('tarlanın büyüklüğü (dekar) gerekli');
+    expect(reportHtml(none, '1')).toContain('tarlanın büyüklüğü (dekar) gerekli');
+    expect(savingsView(none)).toMatchObject({ kind: 'none', needsArea: true });
   });
 });

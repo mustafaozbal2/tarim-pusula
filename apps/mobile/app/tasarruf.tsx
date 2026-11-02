@@ -1,7 +1,16 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Card, colors, FormAlani, fontFamily, fontSize, homeColors, radius } from '@tarim/ui';
+import {
+  Button,
+  Card,
+  colors,
+  FormAlani,
+  fontFamily,
+  fontSize,
+  homeColors,
+  radius,
+} from '@tarim/ui';
 import type { SavingsDto, SoilRowDto } from '../src/api/client';
 import { Bolum, SayfaGorseli } from '../src/components/Gorsel';
 import { Screen } from '../src/components/Screen';
@@ -29,6 +38,8 @@ export default function SavingsScreen() {
   const [interval, setIntervalDays] = useState('');
   const [depth, setDepth] = useState('');
   const [dto, setDto] = useState<SavingsDto | null | 'error'>(null);
+  const [fieldId, setFieldId] = useState<string | null>(params.fieldId ?? null);
+  const router = useRouter();
 
   useEffect(() => {
     void api.soils().then(setSoils, () => setSoils([]));
@@ -39,6 +50,7 @@ export default function SavingsScreen() {
     try {
       const id = params.fieldId ?? (await kv.get(SELECTED)) ?? (await api.fields())[0]?.id;
       if (!id) return setDto('error');
+      setFieldId(id);
       const q = savingsQuery({ days, soil, intervalDays: interval, depthMm: depth });
       setDto(await withDeadline(api.savings(id, q)));
     } catch {
@@ -113,6 +125,14 @@ export default function SavingsScreen() {
       {view?.kind === 'none' ? (
         <Card testID="tasarruf-yok">
           <Text style={styles.body}>{view.message}</Text>
+          {view.needsArea && fieldId ? (
+            <Button
+              label={tr.savings.addArea}
+              variant="secondary"
+              testID="tasarruf-alan-ekle"
+              onPress={() => router.push({ pathname: '/arazi-duzenle', params: { fieldId } })}
+            />
+          ) : null}
         </Card>
       ) : null}
       {view?.kind === 'report' ? (

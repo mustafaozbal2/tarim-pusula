@@ -180,7 +180,8 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: homeColors.page },
-  content: { paddingBottom: 12 },
+  // Altta robot düğmesine yer: son satır robotun arkasında kalmasın.
+  content: { paddingBottom: 96 },
   pad: { padding: 12 },
   gap: { gap: 12 },
   picker: {

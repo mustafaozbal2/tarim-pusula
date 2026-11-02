@@ -97,9 +97,14 @@ export default function FieldsScreen() {
       .toLocaleLowerCase('tr-TR')
       .includes(query.trim().toLocaleLowerCase('tr-TR')),
   );
-  const totalArea = (cache?.fields ?? [])
-    .reduce((sum, f) => sum + (f.areaDecare ?? 0), 0)
-    .toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+  // Büyüklüğü girilmiş tarla yoksa "0" değil "-" (bilinmiyor; 0 dekar yanıltıcı).
+  const withArea = (cache?.fields ?? []).filter((f) => (f.areaDecare ?? 0) > 0);
+  const totalArea =
+    withArea.length === 0
+      ? '-'
+      : withArea
+          .reduce((sum, f) => sum + (f.areaDecare ?? 0), 0)
+          .toLocaleString('tr-TR', { maximumFractionDigits: 1 });
   const selected = cache?.fields.find((f) => f.id === selectedId) ?? cache?.fields[0] ?? null;
   const center =
     selected && selected.lat !== null && selected.lon !== null

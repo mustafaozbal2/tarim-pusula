@@ -5,13 +5,13 @@ import {
   Easing,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontFamily, homeColors } from '@tarim/ui';
 import { useSuzulme } from '../design/Gecis';
 import { tr } from '../i18n/tr';
@@ -32,6 +32,8 @@ export function AsistanDugmesi() {
   const [open, setOpen] = useState(false);
   const [selam, setSelam] = useState(false);
   const float = useSuzulme(4, 2800);
+  // Telefonun alt gezinme çubuğunun üstünde dursun.
+  const bottom = useSafeAreaInsets().bottom + 14;
   const balon = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function AsistanDugmesi() {
 
   return (
     <>
-      <View style={styles.dock} pointerEvents="box-none">
+      <View style={[styles.dock, { bottom }]} pointerEvents="box-none">
         <Animated.View
           pointerEvents={selam ? 'auto' : 'none'}
           style={[
@@ -119,6 +121,7 @@ function AsistanPaneli({ open, onClose }: { open: boolean; onClose: () => void }
   const [text, setText] = useState('');
   const [reply, setReply] = useState<{ say: string; eylem: Eylem | null } | null>(null);
   const [busy, setBusy] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const go = (e: Eylem) => {
     onClose();
@@ -144,11 +147,12 @@ function AsistanPaneli({ open, onClose }: { open: boolean; onClose: () => void }
         accessibilityLabel={t.close}
       />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        // Modal içinde Android pencereyi küçültmez: iki platformda da alttan dolgu.
+        behavior="padding"
         style={styles.sheetWrap}
         pointerEvents="box-none"
       >
-        <View style={styles.sheet} testID="asistan-panel">
+        <View style={[styles.sheet, { paddingBottom: 24 + insets.bottom }]} testID="asistan-panel">
           <View style={styles.grip} />
           <View style={styles.head}>
             <View style={styles.headRobot}>

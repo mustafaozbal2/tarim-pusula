@@ -17,7 +17,7 @@ export const BASIS_TEXT = {
 } as const;
 
 export type SavingsView =
-  | { kind: 'none'; message: string }
+  | { kind: 'none'; message: string; needsArea: boolean }
   | {
       kind: 'report';
       rows: { label: string; value: string }[];
@@ -26,16 +26,25 @@ export type SavingsView =
       stressNote: string | null;
     };
 
+/** Sunucunun eksik veri adları çiftçi diline. */
+const EKSIK: Record<string, string> = {
+  alan: 'tarlanın büyüklüğü (dekar)',
+  Kc: 'bitkinin su katsayısı (Kc)',
+  toprak: 'toprak türü',
+};
+
 /** Ekranda ve raporda aynı metinler: tek kaynak. */
 export function savingsView(dto: SavingsDto): SavingsView {
   const r = dto.result;
   if (r.kind === 'none') {
+    const what = r.missing.map((m) => EKSIK[m] ?? m).join(', ');
     return {
       kind: 'none',
+      needsArea: r.missing.includes('alan'),
       message:
         r.reason === 'uzman-onayi-bekliyor'
-          ? `Rapor için doğrulanmış veri gerekiyor (${r.missing.join(', ')}). Hazır olunca burada görünür; rakam uydurmuyoruz.`
-          : `Rapor için eksik bilgi var: ${r.missing.join(', ')}.`,
+          ? `Rapor için doğrulanmış veri gerekiyor (${what}). Hazır olunca burada görünür; rakam uydurmuyoruz.`
+          : `Raporu hazırlamak için ${what} gerekli.`,
     };
   }
   return {
