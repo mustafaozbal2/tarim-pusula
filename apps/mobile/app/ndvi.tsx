@@ -110,7 +110,7 @@ export default function NdviScreen() {
       }
     >
       {header}
-      <SayfaGorseli image="genis_tarla.jpg" text={t.intro} />
+      <SayfaGorseli image="kart_12.jpg" focusY={0.55} text={t.intro} />
       <Text style={styles.body} testID="ndvi-tarla">
         {field.name}
       </Text>

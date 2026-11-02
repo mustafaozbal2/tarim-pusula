@@ -103,7 +103,7 @@ export default function CalendarScreen() {
       }
     >
       {header}
-      <SayfaGorseli image="genis_tarla.jpg" text={t.intro} />
+      <SayfaGorseli image="kart_7.jpg" focusY={0.22} text={t.intro} />
       <Text style={styles.body} testID="takvim-tarla">
         {field.name}
       </Text>

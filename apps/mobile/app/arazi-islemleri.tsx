@@ -67,7 +67,7 @@ export default function HubScreen() {
 
   return (
     <Screen title={t.title}>
-      <SayfaGorseli image="genis_tarla.jpg" text={t.hero} />
+      <SayfaGorseli image="kart_5.jpg" focusY={0.12} text={t.hero} />
       <Bolum title={t.fieldSection}>
         <Text style={styles.field} testID="hub-arazi">
           {data.field.name}

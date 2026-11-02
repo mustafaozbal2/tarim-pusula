@@ -97,7 +97,7 @@ export default function MarketScreen() {
 
   return (
     <Screen title={t.title}>
-      <SayfaGorseli image="kart_6.jpg" text={t.hero} />
+      <SayfaGorseli image="kart_6.jpg" focusY={0.22} text={t.hero} />
       <View style={styles.chips}>
         {res.crops.map((c) => (
           <Chip

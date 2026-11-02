@@ -36,7 +36,7 @@ export default function PlanScreen() {
   const events = (plan?.cal.events ?? []).filter((e) => !e.needsBadge);
   return (
     <Screen title={t.title}>
-      <SayfaGorseli image="genis_ciftciler.jpg" text={t.hero} />
+      <SayfaGorseli image="kart_2.jpg" focusY={0.45} text={t.hero} />
       {res === undefined ? <Iskelet /> : null}
       {res === 'error' ? <YuklemeHatasi onRetry={load} /> : null}
       {res === null ? <Durum kind="bos" text={t.noField} /> : null}

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Image,
   Pressable,
@@ -23,16 +23,41 @@ export function SayfaGorseli({
   image,
   text,
   testID,
+  focusY,
 }: {
   image: ImageName;
   text: string;
   testID?: string;
+  /**
+   * Dikey resimde görünecek bölge (0 = üst, 1 = alt). Verilmezse ortalanır. Dikey kart resmi geniş
+   * başlıkta kırpılırken önemli kısım (ör. kasadaki ürün) kesilmesin diye.
+   */
+  focusY?: number;
 }) {
+  const [w, setW] = useState(0);
+  const src = IMAGE_FILES[image] as number;
+  const meta = focusY !== undefined ? Image.resolveAssetSource?.(src) : undefined;
+  const imgH = meta?.width && meta.height && w > 0 ? (w * meta.height) / meta.width : 0;
+  const focused = imgH > HERO_H;
   return (
-    <View style={styles.hero} testID={testID ?? 'sayfa-gorseli'}>
+    <View
+      style={styles.hero}
+      testID={testID ?? 'sayfa-gorseli'}
+      onLayout={(e) => setW(e.nativeEvent.layout.width)}
+    >
       <Image
-        source={IMAGE_FILES[image] as number}
-        style={styles.heroImage}
+        source={src}
+        style={
+          focused
+            ? {
+                position: 'absolute',
+                left: 0,
+                width: w,
+                height: imgH,
+                top: -(imgH - HERO_H) * focusY!,
+              }
+            : styles.heroImage
+        }
         resizeMode="cover"
         accessibilityIgnoresInvertColors
       />
@@ -161,9 +186,11 @@ export function Bolum({
   );
 }
 
+const HERO_H = 150;
+
 const styles = StyleSheet.create({
   hero: {
-    height: 150,
+    height: HERO_H,
     borderRadius: radius.card,
     overflow: 'hidden',
     justifyContent: 'flex-end',

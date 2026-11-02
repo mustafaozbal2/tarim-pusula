@@ -87,7 +87,7 @@ export default function AddDeviceScreen() {
 
   return (
     <Screen title={t.title}>
-      <SayfaGorseli image="kart_10.jpg" text={t.hero} />
+      <SayfaGorseli image="kart_10.jpg" focusY={0.4} text={t.hero} />
       {field === undefined ? <Iskelet rows={2} /> : null}
       {field === null ? (
         <Durum

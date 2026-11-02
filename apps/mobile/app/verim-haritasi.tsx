@@ -55,7 +55,7 @@ export default function YieldMapScreen() {
 
   return (
     <Screen title={t.title}>
-      <SayfaGorseli image="genis_tarla.jpg" text={t.hero} />
+      <SayfaGorseli image="kart_8.jpg" focusY={0.35} text={t.hero} />
 
       <Bolum title={info ? `${t.region}: ${info.name}` : t.regionUnknown}>
         {field ? (
