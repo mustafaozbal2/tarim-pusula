@@ -98,8 +98,33 @@ export class TwilioSmsProvider implements SmsProvider {
 }
 
 /**
+ * SMS Gateway for Android (açık kaynak, https://sms-gate.app): SMS, uygulamanın kurulu olduğu
+ * telefonun kendi hattından gider (tarifedeki SMS hakkı; ek ücret yok). Bulut modu:
+ * POST {base}/3rdparty/v1/messages, Basic kimlik (uygulamanın verdiği kullanıcı/şifre).
+ */
+export class SmsGateProvider implements SmsProvider {
+  constructor(
+    private readonly o: { user: string; password: string; url?: string; fetchImpl?: typeof fetch },
+  ) {}
+
+  async send(phone: string, text: string): Promise<void> {
+    const base = (this.o.url ?? 'https://api.sms-gate.app').replace(/\/$/, '');
+    const res = await (this.o.fetchImpl ?? fetch)(`${base}/3rdparty/v1/messages`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: basic(this.o.user, this.o.password),
+      },
+      body: JSON.stringify({ textMessage: { text }, phoneNumbers: [phone] }),
+    });
+    if (!res.ok) throw new Error(`SMS Gateway gönderemedi: ${res.status}`);
+  }
+}
+
+/**
  * Ortamdan sağlayıcı seçer: SMS_PROVIDER=netgsm (NETGSM_USER, NETGSM_PASSWORD, NETGSM_HEADER) ya da
- * twilio (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM). Ayar eksikse sahteye düşer.
+ * twilio (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM) ya da smsgate (SMSGATE_USER,
+ * SMSGATE_PASSWORD, isteğe bağlı SMSGATE_URL). Ayar eksikse sahteye düşer.
  */
 export function createSmsProvider(
   env: NodeJS.ProcessEnv = process.env,
@@ -124,6 +149,14 @@ export function createSmsProvider(
       sid: env['TWILIO_ACCOUNT_SID'],
       token: env['TWILIO_AUTH_TOKEN'],
       from: env['TWILIO_FROM'],
+      fetchImpl,
+    });
+  }
+  if (p === 'smsgate' && env['SMSGATE_USER'] && env['SMSGATE_PASSWORD']) {
+    return new SmsGateProvider({
+      user: env['SMSGATE_USER'],
+      password: env['SMSGATE_PASSWORD'],
+      url: env['SMSGATE_URL'] || undefined,
       fetchImpl,
     });
   }

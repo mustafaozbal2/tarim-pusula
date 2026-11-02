@@ -8,6 +8,7 @@ import {
   FakeSmsProvider,
   isRealSms,
   NetgsmSmsProvider,
+  SmsGateProvider,
   TwilioSmsProvider,
 } from './auth/sms';
 import { migrate } from './db/db';
@@ -87,7 +88,29 @@ describe('SMS sağlayıcıları', () => {
     ).rejects.toThrow(/Twilio/);
   });
 
+  it('SMS Gateway (telefonun kendi hattı): Basic kimlik, metin ve numara', async () => {
+    const r = recorder(202, { id: 'x', state: 'Pending' });
+    await new SmsGateProvider({ user: 'U', password: 'P', fetchImpl: r.fetchImpl }).send(
+      '+905321234567',
+      'Tarım Pusula giriş kodunuz: 123456',
+    );
+    expect(r.calls[0]!.url).toBe('https://api.sms-gate.app/3rdparty/v1/messages');
+    const h = r.calls[0]!.init.headers as Record<string, string>;
+    expect(h['authorization']).toBe(`Basic ${Buffer.from('U:P').toString('base64')}`);
+    expect(JSON.parse(r.calls[0]!.init.body as string)).toEqual({
+      textMessage: { text: 'Tarım Pusula giriş kodunuz: 123456' },
+      phoneNumbers: ['+905321234567'],
+    });
+    const bad = recorder(401, {});
+    await expect(
+      new SmsGateProvider({ user: 'U', password: 'x', fetchImpl: bad.fetchImpl }).send('+90', 'x'),
+    ).rejects.toThrow(/SMS Gateway/);
+  });
+
   it('ortamdan seçim: ayar eksikse sahte (kural 5)', () => {
+    expect(
+      createSmsProvider({ SMS_PROVIDER: 'smsgate', SMSGATE_USER: 'u', SMSGATE_PASSWORD: 'p' }),
+    ).toBeInstanceOf(SmsGateProvider);
     expect(isRealSms(createSmsProvider({}))).toBe(false);
     expect(isRealSms(createSmsProvider({ SMS_PROVIDER: 'netgsm', NETGSM_USER: 'u' }))).toBe(false);
     expect(
