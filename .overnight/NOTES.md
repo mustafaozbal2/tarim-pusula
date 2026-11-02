@@ -134,3 +134,7 @@ Sonraki için: panel (Next.js) G24 yetkili ekranlarıyla birleştirilebilir.
 - Saydam amblem, yeni giriş ekranı (fide fotoğrafı, gömülü geçiş, hale, canlı yazı), ana sayfa hava efekti, yeşil robot asistan (Nuvia adı; yerel niyet eşleyici, Nuvia uç sözleşmesi hazır).
 - Ekran görüntüleri: docs/gorsel/giris.png, giris-ciftci.png, anasayfa-asistan.png, asistan-panel.png.
 - Açık: Nuvia tarafında /v1/tarim/niyet ucu (D:\jarvis, depo dışı); sesli komut; diğer ekranların (Tarlalarım, Hava vb.) aynı dille cilalanması.
+
+## G28 (2026-11-02) — deneme sürümü paketi
+Yapıldı: 20 örnek kurum/uzman duyurusu (kiraz, fıstık, zeytin; açık lisanslı fotoğraflar), yeni uygulama simgesi + açılış ekranı, ARM-only APK (75 MB), `site/` indirme sitesi + Render statik site `tarimpusula`.
+Yarım/sonraki: (1) `site/config.js` içine WhatsApp/e-posta yazılmalı (geri bildirim düğmesi). (2) Telefon kablosuz adb'den koptu: yeni APK'nın simgesi/açılışı gerçek cihazda görülmedi (önizleme simülasyonla yapıldı). (3) UptimeRobot hâlâ kurulmadı (site API'yi uyandırıyor ama ping daha güvenli). (4) SMS telefon kapalıyken gitmez (SmsGate telefon hattıyla çalışır); demo hesabı yedek.
