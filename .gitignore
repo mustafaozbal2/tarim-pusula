@@ -17,3 +17,6 @@ playwright-report
 # Ham tasarım arşivi (952 MB, eski proje): yalnız seçilen görseller images/ altına kopyalanır
 /Tarım Pusula/
 /tarım pusula kullanıcı giriş responsive/
+
+# Firebase (FCM) yapılandırması: EAS dosya değişkeninden gelir
+apps/mobile/google-services.json
