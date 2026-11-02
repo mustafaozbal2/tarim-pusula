@@ -8,6 +8,7 @@ import { FakeSmsProvider } from './auth/sms';
 import { importCropCatalog } from './crops';
 import { migrate, systemTx } from './db/db';
 import { createTestDb } from './db/testdb';
+import { kisalt } from './yetki/notify';
 
 /**
  * G24 uçtan uca (sunucu): şifreli giriş, yetkili başvurusu ve onayı, kademe denetimi, duyurunun yalnız
@@ -464,5 +465,18 @@ describe('G24 uzmana sor: yönlendirme ve bildirim', () => {
     // Uzmanın cevapladıkları.
     const done = await call('GET', '/pusula/answered', uzman.token);
     expect(done.body[0].id).toBe(qid);
+  });
+});
+
+describe('telefon bildirimi kısaltma', () => {
+  it('kelime ortasında kesmez, "…" ekler; kısa metne dokunmaz', () => {
+    const long =
+      'Zeytinde budama hasattan sonra, kışın sert soğuklar geçince yapılır. Kurumuş dalları alın; don beklenen günlerde budama yapmayın.';
+    const k = kisalt(long, 60);
+    expect(k.length).toBeLessThanOrEqual(60);
+    expect(k.endsWith('…')).toBe(true);
+    expect(long.startsWith(k.slice(0, -1))).toBe(true);
+    expect(long.charAt(k.length - 1)).toMatch(/[\s,]/); // kesim kelime sınırında
+    expect(kisalt('Kısa cevap.', 60)).toBe('Kısa cevap.');
   });
 });

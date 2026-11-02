@@ -99,7 +99,7 @@ function SoruKarti({ q, onDone }: { q: QueueItemDto; onDone: () => void }) {
         </>
       ) : (
         <View style={{ flexDirection: 'row' }}>
-          <KucukDugme label={t.answer} testID={`ac-${q.id}`} onPress={expand} />
+          <KucukDugme label={t.reply} testID={`ac-${q.id}`} onPress={expand} />
         </View>
       )}
     </Bolum>

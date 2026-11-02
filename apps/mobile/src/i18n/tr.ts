@@ -460,6 +460,7 @@ export const tr = {
     assignedToMe: 'Sana yönlendirildi',
     open: 'Açık soru',
     answer: 'Cevabın',
+    reply: 'Cevapla',
     answerHint:
       'Çiftçi diliyle, kısa yaz. İlaç adı ya da doz verme: BKÜ kaydına ve ilçe müdürlüğüne yönlendir.',
     source: 'Dayanak (kaynak)',
