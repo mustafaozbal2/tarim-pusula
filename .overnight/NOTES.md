@@ -124,3 +124,8 @@ Sonraki için: panel (Next.js) G24 yetkili ekranlarıyla birleştirilebilir.
 ### G24 ek (2026-11-01, gece)
 - OTA yayımlandı: "G24 yeni giris ekrani yetkili paneli Sorularim canli sunucu" (grup 4d6d04c9), canlı API'ye bağlı.
 - scripts/guncelle.ps1: npx+cmd üzerinden takılıyordu; artık eas doğrudan, CI=1, mesajdaki ; ve " temizlenir.
+
+### G25 (2026-11-02)
+- Gerçek SMS (Netgsm/Twilio) kodu hazır; sağlayıcı hesabı sonra (ücretli). Demo numaraları sabit kodla kalır.
+- Canlıda PUSH_PROVIDER=expo. Firebase (FCM) kuruluyor; google-services.json gelince yeni APK gerekir.
+- Uygulama kendisi güncellenir (src/updates); CI deploy işi: Render + EAS Update (sırlar GitHub'da).
