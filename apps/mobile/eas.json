@@ -24,7 +24,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://tarim-pusula-api.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://tarim-pusula-api.onrender.com",
+        "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a,armeabi-v7a"
       },
       "channel": "preview"
     },
