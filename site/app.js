@@ -3,6 +3,9 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
+  // Ücretsiz sunucu 15 dk boşta kalınca uyur; site açılırken uyandır ki uygulama ilk açılışta beklemesin.
+  try { fetch('https://tarim-pusula-api.onrender.com/health', { mode: 'no-cors', cache: 'no-store' }); } catch (e) { /* önemsiz */ }
+
   // Üst çubuk: kaydırınca dolgu
   var nav = $('#nav');
   var onScroll = function () { nav.classList.toggle('solid', window.scrollY > 40); };
