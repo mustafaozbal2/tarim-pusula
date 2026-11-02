@@ -6,7 +6,7 @@ import { MarketCollector, type MarketSourceConfig } from './market/collector';
 import { parseBorsaBulletin } from './market/parse';
 import { storeDocument, textToPages } from './library';
 import { systemTx, type Db } from './db/db';
-import { seedUzmanOrnek } from './uzman-ornek';
+import { seedKurumOrnek, seedUzmanOrnek } from './uzman-ornek';
 
 /** Demo kodu: SMS ve doğrulayıcı (TOTP) yerine geçer. Yalnız DEMO_MODE=1 iken vardır. */
 export const DEMO_CODE = '123456';
@@ -232,6 +232,8 @@ export async function seedDemoData(db: Db, now = new Date()): Promise<void> {
     await q.query(`UPDATE soil_types SET review_status = 'uzman-onayli' WHERE key = 'tinli'`);
     // G23: uzman test verileri (Güncel Haberler, Bilgilendirmeler, Yönlendirmeler, Önlemler, Teknoloji).
     await seedUzmanOrnek(q, now);
+    // Deneme sürümü: kiraz, fıstık ve zeytin için kurum ve uzman duyuruları (farklı fotoğraflarla).
+    await seedKurumOrnek(q, now);
     for (const d of DEMO_DOCS) {
       const { id } = await storeDocument(
         q,

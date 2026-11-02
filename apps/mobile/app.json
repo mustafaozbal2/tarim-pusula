@@ -67,7 +67,8 @@
       "package": "com.tarimpusula.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#4DB4B5"
+        "backgroundImage": "./assets/adaptive-bg.png",
+        "backgroundColor": "#0E3B37"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -84,7 +85,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#4DB4B5"
+      "backgroundColor": "#0E3B37"
     },
     "extra": {
       "router": {

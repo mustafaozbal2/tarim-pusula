@@ -24,7 +24,7 @@ import {
   seedDemoMarket,
 } from './demo';
 import { migrate, PgDb, PgliteDb, systemTx, type Db } from './db/db';
-import { readUzmanOrnek } from './uzman-ornek';
+import { readUzmanOrnek, seedKurumOrnek } from './uzman-ornek';
 import { ChainWeatherProvider, MetNorwayClient } from './weather/metno';
 import { MarketCollector } from './market/collector';
 import {
@@ -158,6 +158,8 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   await importCalendarTemplates(db);
   const seeded = await alreadySeeded(db);
   if (!seeded) await seedDemoData(db);
+  // Kalıcı veritabanında sonradan eklenen örnek duyurular (yalnız eksikler yazılır).
+  else await systemTx(db, (q) => seedKurumOrnek(q, new Date()));
   const broker = new InMemoryBroker();
   const sms = o.sms ?? createSmsProvider();
   const push =
