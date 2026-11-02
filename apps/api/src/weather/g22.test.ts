@@ -87,7 +87,22 @@ describe('G22 hava: şu an + 5 gün, kaynak + saat + sürüm', () => {
     const b = await p.get(37, 37);
     expect(b.sample).toBe(true);
     expect(b.source).toContain('Örnek veri');
+    expect(b.source).toContain('ağ yok'); // tanı: sebep görünür
     expect(p.fallbacks).toBe(1);
+  });
+
+  it('yedek örnek veride don olasılığı verisi yoktur (gerçek çiftçiye yanlış don alarmı gitmez)', async () => {
+    const broken: WeatherProvider = {
+      get: async () => {
+        throw new WeatherUnavailableError('HTTP 429');
+      },
+    };
+    const frosty = new FakeWeatherProvider((lat, lon) =>
+      sampleBundle(lat, lon, { memberMinC: Array.from({ length: 20 }, () => -6) }),
+    );
+    const b = await new FallbackWeatherProvider(broken, frosty).get(37, 37);
+    expect(b.sample).toBe(true);
+    expect(b.ensemble).toBeNull();
   });
 
   it('gerçek sağlayıcı çalışıyorsa onun verisi döner (örnek etiketi yok)', async () => {

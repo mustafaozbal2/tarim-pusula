@@ -341,24 +341,38 @@ export class FallbackWeatherProvider implements WeatherProvider {
     private readonly primary: WeatherProvider,
     private readonly fallback: WeatherProvider = new FakeWeatherProvider(),
   ) {}
-  private mark(b: WeatherBundle): WeatherBundle {
+  /** Son hatanın kısa sebebi (tanı için; ör. "HTTP 429"). */
+  lastError: string | null = null;
+  /**
+   * Yedek örnek veri: kaynak "Örnek veri" yazılır ve topluluk (ensemble) verisi ÇIKARILIR. Gerçek
+   * havaya ulaşılamadığında çiftçiye örnek veriden don uyarısı gitmez (yanlış alarm olurdu).
+   */
+  private mark(b: WeatherBundle, e?: unknown): WeatherBundle {
     this.fallbacks++;
-    return { ...b, sample: true, source: 'Örnek veri (Open-Meteo şu an erişilemedi)' };
+    if (e !== undefined) this.lastError = (e instanceof Error ? e.message : String(e)).slice(0, 80);
+    const why = this.lastError ? `: ${this.lastError}` : '';
+    return {
+      ...b,
+      sample: true,
+      ensemble: null,
+      source: `Örnek veri (Open-Meteo şu an erişilemedi${why})`,
+    };
   }
   async get(lat: number, lon: number): Promise<WeatherBundle> {
     try {
       return await this.primary.get(lat, lon);
-    } catch {
-      return this.mark(await this.fallback.get(lat, lon));
+    } catch (e) {
+      console.warn('hava: Open-Meteo erişilemedi, örnek veri:', e instanceof Error ? e.message : e);
+      return this.mark(await this.fallback.get(lat, lon), e);
     }
   }
   async history(lat: number, lon: number, pastDays: number): Promise<WeatherBundle> {
     try {
       if (!this.primary.history) throw new WeatherUnavailableError('geçmiş yok');
       return await this.primary.history(lat, lon, pastDays);
-    } catch {
+    } catch (e) {
       if (!this.fallback.history) throw new WeatherUnavailableError('geçmiş yok');
-      return this.mark(await this.fallback.history(lat, lon, pastDays));
+      return this.mark(await this.fallback.history(lat, lon, pastDays), e);
     }
   }
 }
