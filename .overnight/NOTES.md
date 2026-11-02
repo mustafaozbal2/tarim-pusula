@@ -129,3 +129,8 @@ Sonraki için: panel (Next.js) G24 yetkili ekranlarıyla birleştirilebilir.
 - Gerçek SMS (Netgsm/Twilio) kodu hazır; sağlayıcı hesabı sonra (ücretli). Demo numaraları sabit kodla kalır.
 - Canlıda PUSH_PROVIDER=expo. Firebase (FCM) kuruluyor; google-services.json gelince yeni APK gerekir.
 - Uygulama kendisi güncellenir (src/updates); CI deploy işi: Render + EAS Update (sırlar GitHub'da).
+
+### G26 tasarım (2026-11-02)
+- Saydam amblem, yeni giriş ekranı (fide fotoğrafı, gömülü geçiş, hale, canlı yazı), ana sayfa hava efekti, yeşil robot asistan (Nuvia adı; yerel niyet eşleyici, Nuvia uç sözleşmesi hazır).
+- Ekran görüntüleri: docs/gorsel/giris.png, giris-ciftci.png, anasayfa-asistan.png, asistan-panel.png.
+- Açık: Nuvia tarafında /v1/tarim/niyet ucu (D:\jarvis, depo dışı); sesli komut; diğer ekranların (Tarlalarım, Hava vb.) aynı dille cilalanması.

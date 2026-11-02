@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import {
+  Animated,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -16,11 +17,13 @@ import { colors, elevation, fontFamily, fontSize, homeColors, radius } from '@ta
 import { ApiError, NetworkError } from '../api/client';
 import { IMAGE_FILES } from '../assets';
 import { tr } from '../i18n/tr';
+import { Hale, useBelirme, useSuzulme } from '../design/Gecis';
 import { Icon } from './Icon';
 
 /**
- * G24 giriş ekranlarının ortak zemini: tam ekran tarla fotoğrafı (başak, traktör), üstte koyu geçiş,
- * amblem ve slogan; içerik beyaz yuvarlak kartta. Web'de de aynı.
+ * Giriş ekranlarının ortak zemini (G26): tam ekran fide fotoğrafı (üstte ve altta koyu yeşile yumuşak
+ * geçiş fotoğrafa gömülü; scripts/tasarim-gorselleri.py), ışık halesi içinde saydam pusula amblemi (hafif süzülür) ve canlı yazı
+ * "TARIM PUSULA"; içerik kabartmalı beyaz kartta aşağıdan belirir. Web'de de aynı.
  */
 export function GirisZemin({
   children,
@@ -36,17 +39,20 @@ export function GirisZemin({
 }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const float = useSuzulme(5);
+  const cardIn = useBelirme(120);
+  const brandIn = useBelirme(0, 10);
+  const logo = back ? 92 : 148;
   return (
     <View style={styles.root} testID={testID}>
       <Image
-        source={IMAGE_FILES['genis_tarla.jpg'] as number}
+        source={IMAGE_FILES['giris_fidan.jpg'] as number}
         style={styles.bg}
         resizeMode="cover"
         accessibilityIgnoresInvertColors
       />
-      <View style={styles.shade} />
       <KeyboardAvoidingView
-        style={styles.fill}
+        style={[styles.fill, styles.top]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
@@ -66,23 +72,46 @@ export function GirisZemin({
               </View>
             </Pressable>
           ) : null}
-          <View style={styles.brand}>
-            <Image
-              source={IMAGE_FILES['amblem.png'] as number}
-              style={back ? styles.logoSmall : styles.logo}
-              resizeMode="contain"
-              accessibilityLabel={tr.app.name}
-            />
+          <Animated.View style={[styles.brand, brandIn]}>
+            <View style={{ width: logo * 1.9, height: logo * 1.25, alignItems: 'center' }}>
+              <Hale
+                id="giris-hale"
+                size={logo * 1.9}
+                strength={0.55}
+                color="#FFF6D6"
+                style={{ position: 'absolute', top: -logo * 0.32 }}
+              />
+              {/* Yere düşen yumuşak gölge (yuvarlak, kesik kenarsız): kabartma etkisi. */}
+              <Hale
+                id="giris-golge-alt"
+                size={logo * 0.9}
+                strength={0.55}
+                color="#000000"
+                style={{ position: 'absolute', top: logo * 0.62, transform: [{ scaleY: 0.32 }] }}
+              />
+              <Animated.View style={{ transform: [{ translateY: float }] }}>
+                <Image
+                  source={IMAGE_FILES['amblem_yalin.png'] as number}
+                  style={[styles.logo, { width: logo * 0.83, height: logo }]}
+                  resizeMode="contain"
+                  accessibilityLabel={tr.app.name}
+                />
+              </Animated.View>
+            </View>
+            <Text style={[styles.wordmark, back && styles.wordmarkSmall]}>
+              {tr.app.name.toLocaleUpperCase('tr-TR')}
+            </Text>
             {!back ? <Text style={styles.slogan}>{tr.app.slogan}</Text> : null}
-          </View>
-          <View style={styles.card}>
+          </Animated.View>
+          <Animated.View style={[styles.card, cardIn]}>
+            <View pointerEvents="none" style={styles.cardShine} />
             {title ? (
               <Text accessibilityRole="header" style={styles.title}>
                 {title}
               </Text>
             ) : null}
             {children}
-          </View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -387,15 +416,9 @@ const styles = StyleSheet.create({
   hitText: { fontFamily: fontFamily.bold, fontSize: 15, color: colors.forest },
   root: { flex: 1, backgroundColor: '#123B33' },
   fill: { flex: 1 },
+  // İçerik fotoğrafın üstünde (web'de fotoğraf katmanı kendi yığın bağlamını kurar).
+  top: { zIndex: 2 },
   bg: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
-  shade: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(10,40,38,0.45)',
-  },
   scroll: { flexGrow: 1, justifyContent: 'flex-end', padding: 16, paddingBottom: 28, gap: 14 },
   back: { position: 'absolute', top: 16, left: 12, width: 44, height: 44, zIndex: 2 },
   backCircle: {
@@ -406,23 +429,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  brand: { alignItems: 'center', gap: 6, marginBottom: 4 },
-  logo: { width: 140, height: 176 },
-  logoSmall: { width: 84, height: 106 },
-  slogan: {
+  brand: { alignItems: 'center', gap: 2, marginBottom: 6 },
+  logo: {},
+  wordmark: {
     fontFamily: fontFamily.extrabold,
-    fontSize: 18,
+    fontSize: 30,
+    letterSpacing: 3,
     color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.55)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+  },
+  wordmarkSmall: { fontSize: 20, letterSpacing: 2 },
+  slogan: {
+    fontFamily: fontFamily.bold,
+    fontSize: 15,
+    letterSpacing: 0.4,
+    color: '#F3E7C4',
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowRadius: 6,
   },
   card: {
-    backgroundColor: 'rgba(255,255,255,0.97)',
-    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.96)',
+    borderRadius: 26,
     padding: 18,
     gap: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
+    overflow: 'hidden',
     ...elevation.raised,
+    shadowColor: '#000000',
+    shadowOpacity: 0.28,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
+  },
+  // Kartın üst kenarında ince ışık: kabartma hissi.
+  cardShine: {
+    position: 'absolute',
+    top: 0,
+    left: 24,
+    right: 24,
+    height: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    backgroundColor: homeColors.band,
+    opacity: 0.85,
   },
   title: { fontFamily: fontFamily.extrabold, fontSize: 21, color: colors.forest },
   field: { gap: 4 },

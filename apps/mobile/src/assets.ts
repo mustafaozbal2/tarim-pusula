@@ -2,6 +2,8 @@
 /** images/ klasöründeki görseller. Yeni yuva: images/manifest.json + buraya satır + `pnpm run images`. */
 export const IMAGE_FILES = {
   'amblem.png': require('../assets/images/amblem.png'),
+  'amblem_yalin.png': require('../assets/images/amblem_yalin.png'),
+  'giris_fidan.jpg': require('../assets/images/giris_fidan.jpg'),
   'ciftci.png': require('../assets/images/ciftci.png'),
   'ikon_arazilerim.png': require('../assets/images/ikon_arazilerim.png'),
   'ikon_arazi_islemleri.png': require('../assets/images/ikon_arazi_islemleri.png'),

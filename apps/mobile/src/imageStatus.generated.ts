@@ -42,4 +42,6 @@ export const IMAGE_IS_PLACEHOLDER: Record<string, boolean> = {
   'genis_hizmet.jpg': false,
   'genis_fistik.jpg': false,
   'logo_altin.png': false,
+  'amblem_yalin.png': false,
+  'giris_fidan.jpg': false,
 };

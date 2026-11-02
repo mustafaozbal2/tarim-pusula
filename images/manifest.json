@@ -244,5 +244,17 @@
     "w": 1024,
     "h": 1024,
     "where": "Uygulama simgesi kaynağı (altın pusula)"
+  },
+  {
+    "name": "amblem_yalin.png",
+    "w": 420,
+    "h": 640,
+    "where": "Giriş ekranı: yazısız pusula amblemi (saydam)"
+  },
+  {
+    "name": "giris_fidan.jpg",
+    "w": 800,
+    "h": 800,
+    "where": "Giriş ekranı arka planı"
   }
 ]

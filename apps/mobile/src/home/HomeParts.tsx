@@ -15,6 +15,8 @@ import { Button, fontFamily, homeColors } from '@tarim/ui';
 import { DemoBadge } from '../components/DemoBadge';
 import { HOME_ICONS, HomeIconButton } from '../components/HomeIcons';
 import { ImageSlot } from '../components/ImageSlot';
+import { HavaEfekti } from '../design/HavaEfekti';
+import type { HavaSahne } from '../design/havaSahne';
 import { tr } from '../i18n/tr';
 import {
   CARD_INTERVAL_MS,
@@ -56,10 +58,11 @@ export function useHomeScale(): number {
 const L = HOME_LAYOUT;
 
 /** Üst bant: amblem + 7 yuvarlak ikon. Üst boşluk safe-area'dan gelir (saat/çentik ile karışmaz). */
-export function TopBand({ unread }: { unread: number }) {
+export function TopBand({ unread, sahne = 'yok' }: { unread: number; sahne?: HavaSahne }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const k = useHomeScale();
+  const { width } = useWindowDimensions();
   const top = insets.top;
   const d = L.icon.d * k;
   return (
@@ -72,6 +75,8 @@ export function TopBand({ unread }: { unread: number }) {
         ]}
         pointerEvents="none"
       />
+      {/* G26: o günün havası bantta (güneş ışığı, yağmur, kar, bulut, gece yıldızları). */}
+      <HavaEfekti sahne={sahne} w={Math.min(width, 430)} h={L.bandH * k + top} />
       <ImageSlot
         name="amblem.png"
         label={`${t.emblem}: ${tr.app.name}`}
@@ -81,6 +86,7 @@ export function TopBand({ unread }: { unread: number }) {
           top: top + L.emblem.y * k,
           width: L.emblem.w * k,
           height: L.emblem.h * k,
+          zIndex: 2,
         }}
         testID="amblem"
       />
@@ -96,6 +102,7 @@ export function TopBand({ unread }: { unread: number }) {
             position: 'absolute',
             left: (L.icon.cx0 + i * L.icon.pitch) * k - 22,
             top: top + L.icon.cy * k - 22,
+            zIndex: 2,
           }}
         />
       ))}

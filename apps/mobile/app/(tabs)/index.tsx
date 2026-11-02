@@ -3,9 +3,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { elevation, fontFamily, homeColors } from '@tarim/ui';
 import type { InboxItemDto } from '../../src/api/client';
+import { AsistanDugmesi } from '../../src/asistan/Asistan';
 import { SunucuKarti } from '../../src/components/SunucuKarti';
 import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
 import { loadHome, type HomeData } from '../../src/home/load';
+import { havaSahnesi } from '../../src/design/havaSahne';
 import { CardStrip, FieldBlock, TabsCard, TopBand } from '../../src/home/HomeParts';
 import {
   buildHomeRows,
@@ -95,7 +97,10 @@ export default function HomeScreen() {
   return (
     <View style={styles.root}>
       <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-        <TopBand unread={unread} />
+        <TopBand
+          unread={unread}
+          sahne={havaSahnesi(data?.base.today.weather.current?.weatherCode, new Date().getHours())}
+        />
         {state === 'loading' ? (
           <View style={styles.pad}>
             <Iskelet rows={3} />
@@ -167,6 +172,8 @@ export default function HomeScreen() {
           </>
         ) : null}
       </ScrollView>
+      {/* G26: yeşil robot asistan (ilk açılışta "Ne yapmak istersin?"). */}
+      {state === 'ready' || state === 'empty' ? <AsistanDugmesi /> : null}
     </View>
   );
 }
