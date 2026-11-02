@@ -6,7 +6,7 @@ $line = Get-Content (Join-Path $root ".env") | Where-Object { $_ -match '^RENDER
 if (-not $line) { Write-Error "RENDER_API_KEY .env dosyasinda yok"; exit 1 }
 $key = $line.Substring("RENDER_API_KEY=".Length).Trim()
 $headers = @{ Authorization = "Bearer $key"; "Content-Type" = "application/json" }
-$services = @{ "API" = "srv-dbfib88473hc73daa610"; "Web" = "srv-dbfig7avcj2c7389lasg" }
+$services = @{ "API" = "srv-dbfib88473hc73daa610"; "Web" = "srv-dbfig7avcj2c7389lasg"; "Site" = "srv-dbkbe20473hc7386ll20" }
 foreach ($name in $services.Keys) {
   $r = Invoke-RestMethod -Method Post -Uri "https://api.render.com/v1/services/$($services[$name])/deploys" -Headers $headers -Body '{"clearCache":"do_not_clear"}'
   Write-Output "$name kurulumu basladi: $($r.id) ($($r.status))"
