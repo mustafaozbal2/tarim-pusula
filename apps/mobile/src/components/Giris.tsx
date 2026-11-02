@@ -3,7 +3,6 @@ import {
   Animated,
   Image,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -53,7 +52,8 @@ export function GirisZemin({
       />
       <KeyboardAvoidingView
         style={[styles.fill, styles.top]}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        // Android kenardan kenara çizilir; pencere klavyeyle küçülmez: iki platformda da alttan dolgu.
+        behavior="padding"
       >
         <ScrollView
           contentContainerStyle={[styles.scroll, { paddingTop: Math.max(insets.top, 16) + 8 }]}
@@ -65,7 +65,7 @@ export function GirisZemin({
               accessibilityLabel={tr.flow.back}
               testID="giris-geri"
               onPress={() => (router.canGoBack() ? router.back() : router.replace('/giris'))}
-              style={styles.back}
+              style={[styles.back, { top: insets.top + 6 }]}
             >
               <View style={styles.backCircle}>
                 <Icon name="back" size={20} color={homeColors.text} />
@@ -85,7 +85,7 @@ export function GirisZemin({
               <Hale
                 id="giris-golge-alt"
                 size={logo * 0.9}
-                strength={0.55}
+                strength={0.32}
                 color="#000000"
                 style={{ position: 'absolute', top: logo * 0.62, transform: [{ scaleY: 0.32 }] }}
               />

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
 import { DemoBadge } from './DemoBadge';
 import { Icon, type IconName } from './Icon';
@@ -8,15 +8,22 @@ import { UstBant } from './UstBant';
 /** Akış ekranı gövdesi: zemin rengi, kenar boşluğu, kaydırma. */
 export function FlowScreen({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingTop: 0, gap: spacing.md }}>
+    // Klavye açılınca yazı kutusu altta kalmasın (Android kenardan kenara: pencere küçülmez).
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={{ flex: 1, backgroundColor: colors.background }}
+    >
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ padding: spacing.xl, paddingTop: 0, gap: spacing.md }}
+      >
         <DemoBadge />
         {children}
       </ScrollView>
       {footer ? (
         <View style={{ padding: spacing.xl, paddingTop: 0, gap: spacing.md }}>{footer}</View>
       ) : null}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

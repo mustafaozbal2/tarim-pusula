@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontFamily, fontSize, homeColors, spacing } from '@tarim/ui';
 import { DemoBadge } from './DemoBadge';
@@ -25,6 +25,7 @@ export function Screen({
   const insets = useSafeAreaInsets();
   const scroll = (
     <ScrollView
+      keyboardShouldPersistTaps="handled"
       style={styles.root}
       contentContainerStyle={[styles.content, { paddingBottom: spacing.xl + insets.bottom }]}
     >
@@ -43,13 +44,14 @@ export function Screen({
       <View pointerEvents="none" style={[styles.statusCover, { height: insets.top }]} />
     ) : null;
   return (
-    <View style={styles.frame}>
+    // Klavye açılınca yazı kutusu altta kalmasın (Android kenardan kenara: pencere küçülmez).
+    <KeyboardAvoidingView behavior="padding" style={styles.frame}>
       {scroll}
       {footer ? (
         <View style={[styles.footer, { paddingBottom: spacing.lg + insets.bottom }]}>{footer}</View>
       ) : null}
       {cover}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
