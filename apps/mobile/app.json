@@ -35,6 +35,16 @@
           "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
         }
       ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-logo.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#0E3B37",
+          "dark": { "image": "./assets/splash-logo.png", "backgroundColor": "#0E3B37" }
+        }
+      ],
       "expo-updates"
     ],
     "web": {
@@ -81,11 +91,6 @@
       ],
       "blockedPermissions": ["READ_CONTACTS", "READ_SMS"],
       "versionCode": 1
-    },
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0E3B37"
     },
     "extra": {
       "router": {

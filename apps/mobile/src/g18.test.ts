@@ -51,14 +51,20 @@ describe('G18 EAS ve uygulama yapılandırması', () => {
   it('simge, uyarlanabilir simge ve açılış ekranı var; yeni palet', () => {
     expect(pngSize('assets/icon.png')).toEqual([1024, 1024]);
     expect(pngSize('assets/adaptive-icon.png')).toEqual([1024, 1024]);
-    const [w, h] = pngSize('assets/splash.png');
-    expect(h).toBeGreaterThan(w);
+    expect(pngSize('assets/splash-logo.png')).toEqual([1024, 1024]);
+    // Açılış ekranı expo-splash-screen eklentisiyle çizilir (eklenti yoksa telefon varsayılan gri ekranı gösterir).
+    const splash = app.plugins.find(
+      (p: unknown) => Array.isArray(p) && p[0] === 'expo-splash-screen',
+    );
+    expect(splash, 'expo-splash-screen eklentisi').toBeDefined();
+    const opt = splash[1];
     // Simge yalnız yuvarlak amblemdir; açılış ve uyarlanabilir simge zemini amblemin koyu yeşilidir.
-    expect(app.splash.backgroundColor).toBe('#0E3B37');
+    expect(opt.backgroundColor).toBe('#0E3B37');
+    expect(opt.dark.backgroundColor).toBe('#0E3B37');
     expect(app.android.adaptiveIcon.backgroundColor).toBe('#0E3B37');
     const katmanlar = [
       app.icon,
-      app.splash.image,
+      opt.image,
       app.android.adaptiveIcon.foregroundImage,
       app.android.adaptiveIcon.backgroundImage,
     ];
