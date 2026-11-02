@@ -81,6 +81,8 @@ export interface DemoInfo {
   staffPhone: string;
   password: string;
   staff: { phone: string; label: string }[];
+  /** Gerçek SMS açıksa sabit kod yalnız bu demo numaralarında geçer. */
+  codeOnlyFor?: string[];
 }
 
 /**
@@ -98,6 +100,9 @@ export function demoInfo(env: NodeJS.ProcessEnv = process.env): DemoInfo | undef
     staff: DEMO_STAFF.map((s) => ({ phone: s.phone, label: s.label })),
   };
 }
+
+/** Demo hesaplarının numaraları (çiftçi + yetkililer). */
+export const DEMO_PHONES = [DEMO_FARMER_PHONE, ...DEMO_STAFF.map((s) => s.phone)];
 
 /** Arayüzün demo kodunu göstermesi için; yalnız demo modunda kayıtlıdır (yoksa 404). */
 @Controller('demo')

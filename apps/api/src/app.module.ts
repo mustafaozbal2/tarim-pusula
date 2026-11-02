@@ -181,7 +181,13 @@ export class AppModule {
           provide: AUTH_CONFIG,
           useValue: {
             ...defaultAuthConfig(),
-            ...(opts.demo ? { demoCode: opts.demo.code, otpMaxRequests: 1000 } : {}),
+            // Gerçek SMS açıkken (codeOnlyFor) sabit kod yalnız demo numaralarında geçer ve istek
+            // sınırı varsayılanda kalır (SMS ücretli; kötüye kullanım).
+            ...(opts.demo
+              ? opts.demo.codeOnlyFor
+                ? { demoCode: opts.demo.code, demoPhones: opts.demo.codeOnlyFor }
+                : { demoCode: opts.demo.code, otpMaxRequests: 1000 }
+              : {}),
             ...opts.auth,
           },
         },

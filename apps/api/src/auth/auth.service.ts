@@ -37,6 +37,11 @@ export interface AuthConfig {
   encKey: Buffer;
   /** YALNIZ demo modu: SMS ve doğrulayıcı kodu yerine geçen sabit kod. Üretimde asla verilmez. */
   demoCode?: string;
+  /**
+   * Gerçek SMS açıkken sabit kod YALNIZ bu (demo) numaralarda geçer; diğer herkese rastgele kod SMS
+   * ile gider. Verilmezse (sahte SMS) sabit kod herkese geçer.
+   */
+  demoPhones?: string[];
 }
 
 export const defaultAuthConfig = (env: NodeJS.ProcessEnv = process.env): AuthConfig => ({
@@ -72,13 +77,15 @@ export class AuthService {
   async requestOtp(phone: string): Promise<{ expiresInSeconds: number }> {
     const now = this.cfg.now();
     const since = new Date(now.getTime() - this.cfg.otpRequestWindowSeconds * 1000);
-    const code = this.cfg.demoCode ?? String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const fixed = this.demoCodeFor(phone);
+    const code = fixed ?? String(randomInt(0, 1_000_000)).padStart(6, '0');
     await systemTx(this.db, async (q) => {
       const [row] = await q.query<{ n: string }>(
         'SELECT count(*)::text n FROM otp_codes WHERE phone = $1 AND created_at > $2',
         [phone, since],
       );
-      if (Number(row!.n) >= this.cfg.otpMaxRequests) {
+      // Demo numarasına SMS gitmez: sınır yalnız gerçek SMS'lere uygulanır.
+      if (!(fixed && this.cfg.demoPhones) && Number(row!.n) >= this.cfg.otpMaxRequests) {
         throw new HttpException('Çok fazla deneme. Biraz bekleyip tekrar deneyin.', 429);
       }
       await q.query(
@@ -91,8 +98,17 @@ export class AuthService {
         ],
       );
     });
-    await this.sms.send(phone, `Tarım Pusula giriş kodunuz: ${code}`);
+    // Demo numaraları gerçek değildir: onlara SMS gönderilmez (sabit kod geçer).
+    if (!(fixed && this.cfg.demoPhones)) {
+      await this.sms.send(phone, `Tarım Pusula giriş kodunuz: ${code}`);
+    }
     return { expiresInSeconds: this.cfg.otpTtlSeconds };
+  }
+
+  private demoCodeFor(phone: string): string | undefined {
+    if (!this.cfg.demoCode) return undefined;
+    if (this.cfg.demoPhones && !this.cfg.demoPhones.includes(phone)) return undefined;
+    return this.cfg.demoCode;
   }
 
   /**

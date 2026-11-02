@@ -25,10 +25,113 @@ export class FakeSmsProvider implements SmsProvider {
   }
 }
 
-export function createSmsProvider(env: NodeJS.ProcessEnv = process.env): SmsProvider {
-  // Gerçek sağlayıcılar ileride eklenir; yapılandırma yoksa sahteye düşülür.
-  if (env['SMS_PROVIDER'] && env['SMS_PROVIDER'] !== 'fake') {
-    console.warn(`SMS_PROVIDER=${env['SMS_PROVIDER']} henüz yok; sahte sağlayıcı kullanılıyor.`);
+const basic = (user: string, pass: string) =>
+  `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`;
+
+/**
+ * Netgsm (Türkiye) REST v2 tekli gönderim: POST /sms/rest/v2/send, Basic kimlik, JSON gövde.
+ * Başarılı yanıt `{"code":"00","jobid":...}`; başka her kod hatadır. Numara 5XXXXXXXXX biçiminde
+ * gider. `msgheader`, Netgsm panelinde onaylı gönderici başlığıdır.
+ */
+export class NetgsmSmsProvider implements SmsProvider {
+  constructor(
+    private readonly o: {
+      user: string;
+      password: string;
+      header: string;
+      fetchImpl?: typeof fetch;
+      url?: string;
+    },
+  ) {}
+
+  async send(phone: string, text: string): Promise<void> {
+    const res = await (this.o.fetchImpl ?? fetch)(
+      this.o.url ?? 'https://api.netgsm.com.tr/sms/rest/v2/send',
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: basic(this.o.user, this.o.password),
+        },
+        body: JSON.stringify({
+          msgheader: this.o.header,
+          encoding: 'TR',
+          messages: [{ msg: text, no: phone.replace(/^\+90/, '') }],
+        }),
+      },
+    );
+    const body = (await res.json().catch(() => ({}))) as { code?: string; description?: string };
+    if (!res.ok || body.code !== '00') {
+      throw new Error(`Netgsm SMS gönderilemedi: ${res.status} ${body.code ?? ''}`);
+    }
+  }
+}
+
+/**
+ * Twilio Messages API: POST /2010-04-01/Accounts/{sid}/Messages.json, form gövde. Gönderen ya bir
+ * Twilio numarası (`from`) ya da Messaging Service (`MG...`) kimliğidir. 2xx dışı yanıt hatadır.
+ */
+export class TwilioSmsProvider implements SmsProvider {
+  constructor(
+    private readonly o: { sid: string; token: string; from: string; fetchImpl?: typeof fetch },
+  ) {}
+
+  async send(phone: string, text: string): Promise<void> {
+    const form = new URLSearchParams({ To: phone, Body: text });
+    form.set(this.o.from.startsWith('MG') ? 'MessagingServiceSid' : 'From', this.o.from);
+    const res = await (this.o.fetchImpl ?? fetch)(
+      `https://api.twilio.com/2010-04-01/Accounts/${this.o.sid}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          authorization: basic(this.o.sid, this.o.token),
+        },
+        body: form.toString(),
+      },
+    );
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { code?: number };
+      throw new Error(`Twilio SMS gönderilemedi: ${res.status} ${body.code ?? ''}`);
+    }
+  }
+}
+
+/**
+ * Ortamdan sağlayıcı seçer: SMS_PROVIDER=netgsm (NETGSM_USER, NETGSM_PASSWORD, NETGSM_HEADER) ya da
+ * twilio (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM). Ayar eksikse sahteye düşer.
+ */
+export function createSmsProvider(
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl?: typeof fetch,
+): SmsProvider {
+  const p = env['SMS_PROVIDER'];
+  if (p === 'netgsm' && env['NETGSM_USER'] && env['NETGSM_PASSWORD'] && env['NETGSM_HEADER']) {
+    return new NetgsmSmsProvider({
+      user: env['NETGSM_USER'],
+      password: env['NETGSM_PASSWORD'],
+      header: env['NETGSM_HEADER'],
+      fetchImpl,
+    });
+  }
+  if (
+    p === 'twilio' &&
+    env['TWILIO_ACCOUNT_SID'] &&
+    env['TWILIO_AUTH_TOKEN'] &&
+    env['TWILIO_FROM']
+  ) {
+    return new TwilioSmsProvider({
+      sid: env['TWILIO_ACCOUNT_SID'],
+      token: env['TWILIO_AUTH_TOKEN'],
+      from: env['TWILIO_FROM'],
+      fetchImpl,
+    });
+  }
+  if (p && p !== 'fake') {
+    console.warn(`SMS_PROVIDER=${p} için ayar eksik; sahte sağlayıcı kullanılıyor.`);
   }
   return new FakeSmsProvider();
 }
+
+/** Gerçek SMS gidiyor mu (sahte değil). */
+export const isRealSms = (s: SmsProvider) => !(s instanceof FakeSmsProvider);

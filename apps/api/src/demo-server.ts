@@ -8,13 +8,15 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { InMemoryBroker, VirtualDevice } from '@tarim/device-sim';
 import { AppModule } from './app.module';
 import { hashPassword } from './auth/password';
-import { FakeSmsProvider } from './auth/sms';
+import { createSmsProvider, isRealSms, type SmsProvider } from './auth/sms';
+import { ExpoPushClient, type PushClient } from '@tarim/workers';
 import { importCalendarTemplates } from './calendar';
 import { importCropCatalog } from './crops';
 import {
   DEMO_FARMER_PHONE,
   DEMO_FIELDS,
   DEMO_PASSWORD,
+  DEMO_PHONES,
   DEMO_STAFF,
   demoInfo,
   demoMarket,
@@ -73,6 +75,13 @@ export interface DemoOptions {
   webDir: string;
   /** Dinlenen adres. Varsayılan yalnız bu bilgisayar (127.0.0.1); `--lan` için 0.0.0.0. */
   host?: string;
+  /**
+   * SMS sağlayıcısı. Verilmezse ortamdan (SMS_PROVIDER); gerçek SMS açıkken demo numaraları sabit
+   * kodla girer, gerçek numaralara rastgele kod SMS ile gider.
+   */
+  sms?: SmsProvider;
+  /** Telefon bildirimi. Verilmezse PUSH_PROVIDER=expo iken Expo Push, değilse sahte. */
+  push?: PushClient;
   /**
    * Hava sağlayıcısı. Verilmezse GERÇEK Open-Meteo (anahtarsız); ağ yoksa/hata olursa örnek veriye düşer
    * ve ekranda "Örnek veri" yazar. `DEMO_WEATHER=ornek` ile hep örnek veri (testler ağsız çalışır).
@@ -144,11 +153,18 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   const seeded = await alreadySeeded(db);
   if (!seeded) await seedDemoData(db);
   const broker = new InMemoryBroker();
+  const sms = o.sms ?? createSmsProvider();
+  const push =
+    o.push ??
+    (process.env['PUSH_PROVIDER'] === 'expo'
+      ? new ExpoPushClient({ accessToken: process.env['EXPO_ACCESS_TOKEN'] || undefined })
+      : undefined);
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule.register({
       db,
-      sms: new FakeSmsProvider(),
-      demo: info,
+      sms,
+      push,
+      demo: isRealSms(sms) ? { ...info, codeOnlyFor: DEMO_PHONES } : info,
       broker,
       market: demoMarket(),
       weather: o.weather ?? demoWeather(),

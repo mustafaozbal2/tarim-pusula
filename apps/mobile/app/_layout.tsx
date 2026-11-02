@@ -13,6 +13,7 @@ import { I18nextProvider } from 'react-i18next';
 import { i18n } from '../src/i18n';
 import { onPushTap } from '../src/push';
 import { queue, useSessionKind, useToken } from '../src/session';
+import { useAutoUpdate } from '../src/updates';
 import { useSettings } from '../src/settings';
 
 /** Çevrimdışıyken sıraya alınan işleri bağlantı gelince gönderir. */
@@ -82,6 +83,8 @@ export default function RootLayout() {
   // Yazı tipi yüklenemese bile uygulama sistem yazısıyla açılır.
   useFonts({ Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
   useSessionGate();
+  // Yeni sürüm yayınlanınca telefon kendisi indirip yeniden açılır (açılışta ve öne gelişte).
+  useAutoUpdate();
   // Yazı boyutu değişince ağaç yeniden kurulur (Text sarmalayıcısı yeni ölçeği okur).
   const { textSize } = useSettings();
   const { width } = useWindowDimensions();

@@ -114,7 +114,9 @@ test('ilçe uzmanı: başvuru -> onay -> fotoğraflı duyuru doğru çiftçiye; 
   await s.reload();
   await expect(s.getByTestId('yetkili-duyuru-yeni')).toBeVisible();
   await s.getByTestId('yetkili-duyuru-yeni').click();
-  await expect(s.getByText('Şahinbey', { exact: false }).first()).toBeVisible();
+  await expect(
+    s.getByTestId('yetkili-duyuru-ekran').getByText('Şahinbey', { exact: false }).first(),
+  ).toBeVisible();
   await s.getByTestId('duyuru-tur-onlem').click();
   const title = `Don uyarısı ${suffix}`;
   await s.getByTestId('duyuru-baslik').fill(title);

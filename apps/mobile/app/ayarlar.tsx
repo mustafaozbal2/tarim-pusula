@@ -10,6 +10,7 @@ import { tr } from '../src/i18n/tr';
 import { currentApiUrl, setToken } from '../src/session';
 import { updateSettings, useSettings } from '../src/settings';
 import { nextTap, type TapState } from '../src/settingsCore';
+import { expoUpdates, syncUpdate, updateDate, type UpdateResult } from '../src/updates';
 import type { TextSize } from '@tarim/ui';
 
 const t = tr.settings;
@@ -23,6 +24,12 @@ export default function SettingsScreen() {
   const [server, setServer] = useState<string | null | undefined>(undefined);
   const taps = useRef<TapState>({ count: 0, last: 0 });
   const [devNote, setDevNote] = useState<string | null>(null);
+  const [update, setUpdate] = useState<UpdateResult | 'bekliyor' | null>(null);
+  const updated = updateDate();
+  const checkUpdate = () => {
+    setUpdate('bekliyor');
+    void syncUpdate(expoUpdates).then(setUpdate);
+  };
   // Sürüm numarasına 7 dokunuş geliştirici modunu açar (sunucu adresi kartı yalnız onda görünür).
   const onVersionTap = () => {
     const r = nextTap(taps.current, Date.now());
@@ -112,6 +119,21 @@ export default function SettingsScreen() {
             {APP_VERSION}
           </Text>
         </Pressable>
+        {updated ? (
+          <View style={styles.row}>
+            <Text style={styles.hint}>{t.updatedAt}</Text>
+            <Text style={styles.value}>{updated.toLocaleDateString('tr-TR')}</Text>
+          </View>
+        ) : null}
+        <Button
+          label={t.updateCheck}
+          variant="secondary"
+          testID="ayar-guncelle"
+          onPress={update === 'bekliyor' ? undefined : checkUpdate}
+        />
+        <Text style={styles.hint} testID="ayar-guncelle-durum">
+          {update ? t.updateStates[update] : t.updateAuto}
+        </Text>
         <View style={styles.row}>
           <Text style={styles.hint}>{t.server}</Text>
           <Text style={styles.value} testID="ayar-sunucu">
