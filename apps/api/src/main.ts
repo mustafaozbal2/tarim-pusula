@@ -8,6 +8,7 @@ import { importCalendarTemplates } from './calendar';
 import { importCropCatalog } from './crops';
 import { ExpoPushClient, FakePushClient, createQueue } from '@tarim/workers';
 import { OpenMeteoClient, FakeWeatherProvider } from './weather/openmeteo';
+import { ChainWeatherProvider, MetNorwayClient } from './weather/metno';
 import { corsOrigins, securityHeaders } from './security';
 import { migrate, PgDb, PgliteDb, type Db } from './db/db';
 
@@ -30,7 +31,10 @@ async function bootstrap() {
       weather:
         process.env['WEATHER_PROVIDER'] === 'fake'
           ? new FakeWeatherProvider()
-          : new OpenMeteoClient({ apiKey: process.env['OPEN_METEO_API_KEY'] || undefined }),
+          : new ChainWeatherProvider([
+              new OpenMeteoClient({ apiKey: process.env['OPEN_METEO_API_KEY'] || undefined }),
+              new MetNorwayClient(),
+            ]),
       queue: createQueue(),
       push:
         process.env['PUSH_PROVIDER'] === 'expo'

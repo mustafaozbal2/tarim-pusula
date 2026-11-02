@@ -349,7 +349,10 @@ export class FallbackWeatherProvider implements WeatherProvider {
    */
   private mark(b: WeatherBundle, e?: unknown): WeatherBundle {
     this.fallbacks++;
-    if (e !== undefined) this.lastError = (e instanceof Error ? e.message : String(e)).slice(0, 80);
+    if (e !== undefined)
+      this.lastError = (e instanceof Error ? e.message : String(e))
+        .replace(/Hava verisi alınamadı: /g, '')
+        .slice(0, 120);
     const why = this.lastError ? `: ${this.lastError}` : '';
     return {
       ...b,

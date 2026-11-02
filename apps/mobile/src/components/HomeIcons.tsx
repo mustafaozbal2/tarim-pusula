@@ -59,7 +59,7 @@ const BROWN = '#8A5A2B';
 const RED = '#EE3270';
 
 /** Çizgi/dolgu tek tip SVG ikonlar (emoji değil). Gerçek görsel gelince PNG kullanılır. */
-function Glyph({ k, size }: { k: HomeIconKey; size: number }) {
+export function Glyph({ k, size }: { k: HomeIconKey; size: number }) {
   const common = { width: size, height: size, viewBox: '0 0 32 32' } as const;
   switch (k) {
     case 'arazilerim':

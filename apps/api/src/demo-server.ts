@@ -25,6 +25,7 @@ import {
 } from './demo';
 import { migrate, PgDb, PgliteDb, systemTx, type Db } from './db/db';
 import { readUzmanOrnek } from './uzman-ornek';
+import { ChainWeatherProvider, MetNorwayClient } from './weather/metno';
 import { MarketCollector } from './market/collector';
 import {
   FakeWeatherProvider,
@@ -99,8 +100,13 @@ export function demoSampleWeather(): FakeWeatherProvider {
 /** Demo havası: varsayılan gerçek Open-Meteo + örnek veri yedeği. */
 export function demoWeather(env: NodeJS.ProcessEnv = process.env): WeatherProvider {
   if (env['DEMO_WEATHER'] === 'ornek') return demoSampleWeather();
+  // Open-Meteo paylaşılan bulut IP'sinde 429 verebiliyor: ikinci gerçek kaynak MET Norway; ikisi de
+  // yoksa örnek veri (don uyarısı üretmez).
   return new FallbackWeatherProvider(
-    new OpenMeteoClient({ timeoutMs: 6000, apiKey: env['OPEN_METEO_API_KEY'] || undefined }),
+    new ChainWeatherProvider([
+      new OpenMeteoClient({ timeoutMs: 6000, apiKey: env['OPEN_METEO_API_KEY'] || undefined }),
+      new MetNorwayClient(),
+    ]),
     demoSampleWeather(),
   );
 }

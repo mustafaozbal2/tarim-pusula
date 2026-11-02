@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   colors,
   Durum,
@@ -11,7 +11,7 @@ import {
   homeColors,
   radius,
 } from '@tarim/ui';
-import { IMAGE_FILES } from '../src/assets';
+import { Glyph } from '../src/components/HomeIcons';
 import { Icon } from '../src/components/Icon';
 import { localIso } from '../src/home/model';
 import { groupNotifications, notificationLook } from '../src/notifications/view';
@@ -72,7 +72,17 @@ export default function NotificationsScreen() {
   return (
     <Screen title={t.title}>
       <View style={styles.hero}>
-        <Image source={IMAGE_FILES['ikon_bildirim.png'] as number} style={styles.heroIcon} />
+        {/* Çizimle zil (görseldeki sabit "1" rozeti gerçek sayıyla çelişiyordu). */}
+        <View style={styles.heroIcon}>
+          <Glyph k="bildirim" size={42} />
+          {items && unreadKeys.size > 0 ? (
+            <View style={styles.heroBadge}>
+              <Text style={styles.heroBadgeText}>
+                {unreadKeys.size > 9 ? '9+' : String(unreadKeys.size)}
+              </Text>
+            </View>
+          ) : null}
+        </View>
         <View style={styles.heroText}>
           <Text style={styles.heroTitle}>
             {items && unreadKeys.size > 0
@@ -135,7 +145,27 @@ const styles = StyleSheet.create({
     padding: 14,
     ...elevation.raised,
   },
-  heroIcon: { width: 64, height: 64 },
+  heroIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroBadge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 4,
+    backgroundColor: homeColors.badge,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroBadgeText: { fontFamily: fontFamily.extrabold, fontSize: 12, color: '#FFFFFF' },
   heroText: { flex: 1, gap: 2 },
   heroTitle: { fontFamily: fontFamily.extrabold, fontSize: 18, color: homeColors.text },
   heroSub: { fontFamily: fontFamily.medium, fontSize: 13, color: homeColors.text },

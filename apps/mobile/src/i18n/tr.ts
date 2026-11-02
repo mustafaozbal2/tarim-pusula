@@ -857,6 +857,7 @@ export const tr = {
     sources: 'Kaynaklar',
     sourceList: [
       'Hava: Open-Meteo.com (CC BY 4.0), günlük tahmin ve anlık değerler',
+      'Hava (yedek kaynak): MET Norway, yr.no (CC BY 4.0)',
       'Uydu haritası: Esri World Imagery (Esri, Maxar, Earthstar Geographics)',
       'Bitki yeşilliği: Copernicus Sentinel-2 (AB Copernicus programı)',
       'Yerleşim yerleri: GeoNames (CC BY 4.0)',
