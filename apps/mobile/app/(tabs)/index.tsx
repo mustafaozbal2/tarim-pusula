@@ -1,6 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { elevation, fontFamily, homeColors } from '@tarim/ui';
 import type { InboxItemDto } from '../../src/api/client';
 import { AsistanDugmesi } from '../../src/asistan/Asistan';
@@ -34,6 +35,7 @@ const t = tr.today;
  */
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [data, setData] = useState<HomeData | null>(null);
   const [state, setState] = useState<'loading' | 'empty' | 'ready' | 'error'>('loading');
   const [tab, setTab] = useState<HomeTab>('hepsi');
@@ -172,6 +174,8 @@ export default function HomeScreen() {
           </>
         ) : null}
       </ScrollView>
+      {/* Kaydırınca içerik saat/pil satırının altına girmesin. */}
+      <View pointerEvents="none" style={[styles.statusCover, { height: insets.top }]} />
       {/* G26: yeşil robot asistan (ilk açılışta "Ne yapmak istersin?"). */}
       {state === 'ready' || state === 'empty' ? <AsistanDugmesi /> : null}
     </View>
@@ -180,6 +184,13 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: homeColors.page },
+  statusCover: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: homeColors.band,
+  },
   // Altta robot düğmesine yer: son satır robotun arkasında kalmasın.
   content: { paddingBottom: 96 },
   pad: { padding: 12 },

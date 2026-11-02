@@ -73,7 +73,7 @@ export default function NewsScreen() {
 
 const styles = StyleSheet.create({
   card: { gap: 6 },
-  image: { width: '100%', height: 180, borderRadius: 10 },
+  image: { width: '100%', aspectRatio: 4 / 3, borderRadius: 10 },
   title: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
   body: { fontFamily: fontFamily.semibold, fontSize: fontSize.body, color: colors.forest },
   small: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },

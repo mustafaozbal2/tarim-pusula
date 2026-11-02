@@ -116,6 +116,33 @@ KURALLAR (hiçbiri pazarlığa açık değil):
 ÇIKTI: yalnız JSON: {"title": string, "steps": [{"text": string, "factIds": string[]}] (en çok 3), "why": string, "handoff": string|null}`;
 
 /** Anahtarsız geliştirme ve testler: belirlenimci, kural tabanlı sağlayıcı. */
+/**
+ * Hava aracının olgularını soruya göre sıralar. Sulama sorusu: su ihtiyacı, yağış, sıcaklık (don
+ * yalnız soruda don geçiyorsa). Don sorusu: don önce. Diğerleri: aracın sırası.
+ */
+export function weatherFactsFor<T extends { text: string }>(
+  normalizedQuestion: string,
+  facts: T[],
+): T[] {
+  const water = /\b(sula|su ihtiyac|susuz)/.test(normalizedQuestion);
+  const frost = /\b(don|kirag|ayaz)\b/.test(normalizedQuestion);
+  const kind = (f: T) =>
+    /su ihtiyacı/.test(f.text)
+      ? 'su'
+      : /don olasılığı/.test(f.text)
+        ? 'don'
+        : /yağış/.test(f.text)
+          ? 'yagis'
+          : 'sicaklik';
+  const order = water
+    ? ['su', 'yagis', 'sicaklik', ...(frost ? ['don'] : [])]
+    : frost
+      ? ['don', 'sicaklik', 'yagis', 'su']
+      : null;
+  if (!order) return facts;
+  return order.flatMap((k) => facts.filter((f) => kind(f) === k));
+}
+
 export class FakeLlmProvider implements LlmProvider {
   readonly id = 'fake';
 
@@ -147,12 +174,18 @@ export class FakeLlmProvider implements LlmProvider {
       .flatMap((s) => s.calls)
       .find((c) => c.name === 'handoff_to_expert');
     // Her araçtan en alakalı (ilk) onaylı olgu; hava aracı birden çok sayı verir, kütüphane tek parça.
+    // Hava olguları sorunun konusuna göre sıralanır (sulama sorusunda su ihtiyacı önce gelir).
     const approved = req.transcript
       .flatMap((s) => s.results)
       .flatMap((r) =>
         r.name === 'search_library'
           ? r.facts.filter((f) => f.approved).slice(0, 1)
-          : r.facts.filter((f) => f.approved),
+          : r.name === 'get_weather'
+            ? weatherFactsFor(
+                n,
+                r.facts.filter((f) => f.approved),
+              )
+            : r.facts.filter((f) => f.approved),
       )
       .slice(0, 3);
     return {

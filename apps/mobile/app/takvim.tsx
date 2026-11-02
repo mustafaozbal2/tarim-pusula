@@ -1,4 +1,4 @@
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
@@ -38,6 +38,7 @@ function EventCard({ e }: { e: CalendarEventDto }) {
 
 export default function CalendarScreen() {
   const { fieldId } = useLocalSearchParams<{ fieldId?: string }>();
+  const router = useRouter();
   const [res, setRes] = useState<CalendarResult | null | undefined>(undefined);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [exportMsg, setExportMsg] = useState<string | null>(null);
@@ -112,35 +113,44 @@ export default function CalendarScreen() {
           {t.noCrop}
         </Text>
       ) : approved.length === 0 ? (
-        <Text style={styles.body} testID="takvim-bos">
-          {t.empty}
-        </Text>
+        <Card testID="takvim-bos" style={styles.emptyCard}>
+          <Text style={styles.body}>{t.empty}</Text>
+          <Text style={styles.small}>{t.emptyHint}</Text>
+          <Button
+            label={t.askExpert}
+            variant="secondary"
+            onPress={() => router.push('/soru-sor')}
+          />
+        </Card>
       ) : null}
       <MonthView events={approved} today={data.today} />
-      <View style={styles.exportRow}>
-        <Button
-          label={t.addToPhone}
-          testID="takvim-telefona-ekle"
-          onPress={() =>
-            void addEventsToPhoneCalendar(approved, field.name).then((r) =>
-              setExportMsg(exportText(r)),
-            )
-          }
-        />
-        <Button
-          label={t.shareIcs}
-          variant="secondary"
-          testID="takvim-ics"
-          onPress={() =>
-            void shareIcs(approved, field.name).then((r) => setExportMsg(exportText(r)))
-          }
-        />
-        {exportMsg ? (
-          <Text style={styles.small} testID="takvim-aktarma-mesaji">
-            {exportMsg}
-          </Text>
-        ) : null}
-      </View>
+      {/* Aktarılacak iş yokken telefona ekle/paylaş düğmeleri gösterilmez. */}
+      {approved.length > 0 ? (
+        <View style={styles.exportRow}>
+          <Button
+            label={t.addToPhone}
+            testID="takvim-telefona-ekle"
+            onPress={() =>
+              void addEventsToPhoneCalendar(approved, field.name).then((r) =>
+                setExportMsg(exportText(r)),
+              )
+            }
+          />
+          <Button
+            label={t.shareIcs}
+            variant="secondary"
+            testID="takvim-ics"
+            onPress={() =>
+              void shareIcs(approved, field.name).then((r) => setExportMsg(exportText(r)))
+            }
+          />
+          {exportMsg ? (
+            <Text style={styles.small} testID="takvim-aktarma-mesaji">
+              {exportMsg}
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
       {groups.now.length > 0 ? (
         <View style={styles.group} testID="takvim-simdi">
           <Text accessibilityRole="header" style={styles.groupTitle}>
@@ -166,6 +176,7 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
+  emptyCard: { gap: spacing.sm },
   body: { fontFamily: fontFamily.bold, fontSize: fontSize.body, color: colors.forest },
   small: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
   when: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },

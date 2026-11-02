@@ -24,6 +24,7 @@ import {
   type LlmProvider,
   type LlmRequest,
   type LlmTurn,
+  weatherFactsFor,
 } from './provider';
 
 const db = createTestDb();
@@ -521,4 +522,25 @@ describe('değerlendirme seti (otomatik koşucu)', () => {
     expect(failed, JSON.stringify(summarize(results))).toEqual([]);
     expect(rate).toBeGreaterThanOrEqual(0.9);
   }, 120_000);
+});
+
+describe('yerel Pusula: hava olguları soruya göre', () => {
+  const facts = [
+    { text: 'Bugün en düşük 8 °C, en yüksek 22 °C bekleniyor.' },
+    { text: 'Bugün yağış beklenmiyor.' },
+    { text: 'Yarın sabah don olasılığı yüzde 40.' },
+    { text: 'Bitkinin bugünkü su ihtiyacı yaklaşık 2,2 mm.' },
+  ];
+  it('sulama sorusunda su ihtiyacı önce, don hiç (sorulmadıysa)', () => {
+    const r = weatherFactsFor('bu hafta sulama gerekir mi', facts).map((f) => f.text);
+    expect(r[0]).toContain('su ihtiyacı');
+    expect(r[1]).toContain('yağış');
+    expect(r.some((t) => t.includes('don'))).toBe(false);
+  });
+  it('don sorusunda don önce', () => {
+    expect(weatherFactsFor('don olacak mi', facts)[0]!.text).toContain('don olasılığı');
+  });
+  it('genel hava sorusunda aracın sırası', () => {
+    expect(weatherFactsFor('hava nasil', facts)).toEqual(facts);
+  });
 });

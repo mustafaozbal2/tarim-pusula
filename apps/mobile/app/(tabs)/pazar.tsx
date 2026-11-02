@@ -7,6 +7,7 @@ import { Icon } from '../../src/components/Icon';
 import { ImageSlot } from '../../src/components/ImageSlot';
 import { SayfaGorseli } from '../../src/components/Gorsel';
 import { Screen } from '../../src/components/Screen';
+import { IMAGE_IS_PLACEHOLDER } from '../../src/imageStatus.generated';
 import { tr } from '../../src/i18n/tr';
 import { chooseMarketPlace, loadMarket, type MarketResult } from '../../src/market/load';
 import {
@@ -29,6 +30,10 @@ import { clock } from '../../src/today/model';
 const t = tr.market;
 
 function ChangeArrow({ p }: { p: MarketPlaceDto }) {
+  // Yön bilinmiyorsa ok gösterilmez; "eğilim için yeterli veri yok" satırı zaten söylüyor.
+  if (p.trend.direction !== 'up' && p.trend.direction !== 'down' && p.trend.direction !== 'flat') {
+    return null;
+  }
   const a = changeArrow(p.trend);
   const icon = a.dir === 'up' ? 'arrowUp' : a.dir === 'down' ? 'arrowDown' : 'arrowFlat';
   const color = a.dir === 'up' ? colors.forest : a.dir === 'down' ? colors.brick : colors.textMuted;
@@ -124,12 +129,19 @@ export default function MarketScreen() {
       {cur ? (
         <Card>
           <View style={styles.head}>
-            <ImageSlot
-              name={productImageName(cropIndex)}
-              label={res.data?.cropName ?? ''}
-              style={styles.product}
-              testID="pazar-urun-gorsel"
-            />
+            {IMAGE_IS_PLACEHOLDER[productImageName(cropIndex)] ? (
+              // Ürün fotoğrafı henüz yok: "Resim N" yer tutucusu yerine yaprak simgesi.
+              <View style={[styles.product, styles.productIcon]} testID="pazar-urun-gorsel">
+                <Icon name="leaf" size={36} color={colors.forest} />
+              </View>
+            ) : (
+              <ImageSlot
+                name={productImageName(cropIndex)}
+                label={res.data?.cropName ?? ''}
+                style={styles.product}
+                testID="pazar-urun-gorsel"
+              />
+            )}
             <View style={{ flex: 1 }}>
               <Text style={styles.placeName}>{res.data?.cropName}</Text>
               <Text style={styles.small} testID="pazar-konum">
@@ -245,6 +257,11 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   head: { flexDirection: 'row', gap: spacing.lg, alignItems: 'center' },
   product: { width: 64, height: 64, borderRadius: 10 },
+  productIcon: {
+    backgroundColor: colors.pistachio,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   small: { fontFamily: fontFamily.semibold, fontSize: 13, color: colors.textMuted },
   price: { fontFamily: fontFamily.extrabold, fontSize: 26, color: colors.forest },
   trend: { fontFamily: fontFamily.bold, fontSize: 15, color: colors.pistachioText },

@@ -655,8 +655,11 @@ export const tr = {
     },
     audit:
       'Her komut kayıt altına alınır. Cihaz, bağlantı kopsa bile azami süre sonunda vanayı kapatır.',
-    noDevice: 'Bu hesapta sulama cihazı yok.',
-    noDeviceHint: 'Cihaz kurulumu sonraki adımda yapılır.',
+    pageTitle: 'Sulama',
+    noDevice: 'Henüz sulama cihazın yok',
+    noDeviceHint:
+      'Vanayı ya da sulama denetleyicisini ekleyince buradan açıp kapatabilirsin. Güvenlik için vana en çok 30 dakika açık kalır.',
+    addDevice: 'Cihaz ekle',
     noAccess: 'Bu vanayı açma yetkin yok.',
     netError: 'İnternet yok. Komut gönderilmedi, vana değişmedi.',
     error: 'Komut gönderilemedi. Biraz sonra tekrar dene.',
@@ -669,7 +672,10 @@ export const tr = {
     intro: 'Önümüzdeki aylarda ürününe göre yapılacak işler.',
     nowTitle: 'Şimdi',
     soonTitle: 'Yaklaşan',
-    empty: 'Önümüzdeki aylar için kayıtlı iş yok.',
+    empty: 'Bu ürün için uzman onaylı iş takvimi henüz hazır değil.',
+    emptyHint:
+      'Onaylanınca budama, gübreleme ve hasat gibi işler burada ay ay görünür. Şimdilik sorunu uzmana sorabilirsin.',
+    askExpert: 'Uzmana sor',
     noCrop: 'Takvim için tarlanın ürününü seç.',
     noField: 'Önce bir tarla ekle.',
     lastUpdate: 'Son güncelleme',

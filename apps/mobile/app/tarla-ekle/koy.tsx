@@ -121,6 +121,7 @@ export default function VillageScreen() {
             value={query}
             onChangeText={setQuery}
             placeholder={t.searchPlaceholder}
+            placeholderTextColor={colors.textMuted}
             style={inputStyle}
           />
           {filteredProvinces.slice(0, 8).map((p) => (
@@ -153,6 +154,7 @@ export default function VillageScreen() {
                 value={typed}
                 onChangeText={setTyped}
                 placeholder={t.typeName}
+                placeholderTextColor={colors.textMuted}
                 style={inputStyle}
               />
               <Button label={t.next} onPress={pickTyped} />
@@ -165,6 +167,7 @@ export default function VillageScreen() {
                 value={query}
                 onChangeText={setQuery}
                 placeholder={t.searchPlaceholder}
+                placeholderTextColor={colors.textMuted}
                 style={inputStyle}
               />
               {filteredVillages.slice(0, 40).map((v) => (

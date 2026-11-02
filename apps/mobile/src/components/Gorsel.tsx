@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { colors, elevation, fontFamily, fontSize, homeColors, radius } from '@tarim/ui';
 import { IMAGE_FILES, type ImageName } from '../assets';
+import { Degrade } from '../design/Gecis';
 import { Icon, type IconName } from './Icon';
 
 /**
@@ -35,7 +36,16 @@ export function SayfaGorseli({
         resizeMode="cover"
         accessibilityIgnoresInvertColors
       />
-      <View style={styles.heroShade} />
+      {/* Alttan koyulaşan geçiş: açık renkli resimde de beyaz yazı okunur (G27). */}
+      <Degrade
+        id={`sayfa-gorseli-${image}`}
+        style={styles.heroShade}
+        stops={[
+          { at: 0, color: '#0C2F2A', opacity: 0.12 },
+          { at: 0.45, color: '#0C2F2A', opacity: 0.3 },
+          { at: 1, color: '#0A2622', opacity: 0.82 },
+        ]}
+      />
       <Text style={styles.heroText}>{text}</Text>
     </View>
   );
@@ -161,20 +171,17 @@ const styles = StyleSheet.create({
     ...elevation.card,
   },
   heroImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
-  heroShade: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(16,52,51,0.38)',
-  },
+  heroShade: { zIndex: 1 },
   heroText: {
     fontFamily: fontFamily.extrabold,
     fontSize: 17,
     lineHeight: 22,
     color: '#FFFFFF',
     padding: 14,
+    zIndex: 2,
+    textShadowColor: 'rgba(0,0,0,0.55)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
   },
   circle: { backgroundColor: colors.pistachio, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' },

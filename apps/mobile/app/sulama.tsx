@@ -1,5 +1,5 @@
 import type { CommandDto, DeviceStatusDto } from '@tarim/schemas';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
@@ -41,6 +41,7 @@ const stepColor: Record<StepState, string> = {
 
 export default function IrrigationScreen() {
   const { deviceId } = useLocalSearchParams<{ deviceId?: string }>();
+  const router = useRouter();
   const [device, setDevice] = useState<DeviceDto | null | undefined>(undefined);
   const [status, setStatus] = useState<DeviceStatusDto | null>(null);
   const [command, setCommand] = useState<CommandDto | null>(null);
@@ -119,9 +120,19 @@ export default function IrrigationScreen() {
   if (device === null) {
     return (
       <FlowScreen>
-        <FlowHeader />
-        <Text style={styles.big}>{t.noDevice}</Text>
-        <Text style={styles.muted}>{t.noDeviceHint}</Text>
+        <FlowHeader title={t.pageTitle} />
+        <Card style={styles.empty} testID="sulama-cihaz-yok">
+          <View style={styles.emptyIcon}>
+            <Icon name="drop" size={34} color={colors.water} />
+          </View>
+          <Text style={styles.big}>{t.noDevice}</Text>
+          <Text style={styles.muted}>{t.noDeviceHint}</Text>
+          <Button
+            label={t.addDevice}
+            testID="sulama-cihaz-ekle"
+            onPress={() => router.push('/cihaz-ekle')}
+          />
+        </Card>
       </FlowScreen>
     );
   }
@@ -163,7 +174,7 @@ export default function IrrigationScreen() {
           </>
         }
       >
-        <FlowHeader />
+        <FlowHeader title={t.pageTitle} />
         <View>
           <Text accessibilityRole="header" style={styles.title}>
             {t.title}
@@ -274,6 +285,15 @@ export default function IrrigationScreen() {
 const styles = StyleSheet.create({
   title: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
   big: { fontFamily: fontFamily.extrabold, fontSize: fontSize.title, color: colors.forest },
+  empty: { gap: spacing.md, alignItems: 'stretch' },
+  emptyIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.waterSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
   hero: {
     backgroundColor: colors.forest,
