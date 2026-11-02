@@ -13,7 +13,8 @@ import { I18nextProvider } from 'react-i18next';
 import { i18n } from '../src/i18n';
 import { onPushTap } from '../src/push';
 import { queue, useSessionKind, useToken } from '../src/session';
-import { useAutoUpdate } from '../src/updates';
+import { expoUpdates, installedVersion, useAutoUpdate } from '../src/updates';
+import { UpdateGate } from '../src/updates/UpdateGate';
 import { useSettings } from '../src/settings';
 
 /** Çevrimdışıyken sıraya alınan işleri bağlantı gelince gönderir. */
@@ -83,7 +84,7 @@ export default function RootLayout() {
   // Yazı tipi yüklenemese bile uygulama sistem yazısıyla açılır.
   useFonts({ Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
   useSessionGate();
-  // Yeni sürüm yayınlanınca telefon kendisi indirip yeniden açılır (açılışta ve öne gelişte).
+  // Uygulama öne gelince yeni sürüm sessizce inip sonraki açılışta hazır olur (açılış kapısı: UpdateGate).
   useAutoUpdate();
   // Yazı boyutu değişince ağaç yeniden kurulur (Text sarmalayıcısı yeni ölçeği okur).
   const { textSize } = useSettings();
@@ -94,6 +95,8 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <View key={textSize} style={webFrame(width, wide)}>
         <Stack screenOptions={{ headerShown: false }} />
+        {/* Soğuk açılışta yeni sürüm varsa "Güncelle" ekranı örter; güncellenmeden girilmez. */}
+        <UpdateGate api={expoUpdates} installed={installedVersion()} />
       </View>
     </I18nextProvider>
   );
