@@ -20,3 +20,4 @@ playwright-report
 
 # Firebase (FCM) yapılandırması: EAS dosya değişkeninden gelir
 apps/mobile/google-services.json
+fcm-anahtar.json
