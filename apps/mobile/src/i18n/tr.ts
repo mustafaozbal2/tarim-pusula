@@ -628,6 +628,9 @@ export const tr = {
     noRun: 'Henüz sulama yapılmadı',
     unknownHint: 'Cihazdan haber gelince burada görünür.',
     advice: 'Pusula önerisi henüz yok',
+    adviceHas: 'Pusula önerisi',
+    adviceNeed:
+      'Bitkinin bugünkü su ihtiyacı yaklaşık {{mm}}. Gerekirse sulamayı sen başlat; süreyi seçersin.',
     adviceBody: 'Bu ürün için su hesabı hazır değil. İstersen yine de manuel başlatabilirsin.',
     manual: 'Manuel',
     auto: 'Otomatik',

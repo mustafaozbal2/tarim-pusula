@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { importCropCatalog } from './crops';
 import { migrate, PgliteDb, systemTx } from './db/db';
 import { DEFAULT_DATA_DIR } from './places';
 import { imageDataUrl, kurumKaynak, readKurumOrnek, seedKurumOrnek } from './uzman-ornek';
@@ -62,8 +63,12 @@ describe('Deneme sürümü kurum duyuruları (kiraz, fıstık, zeytin)', () => {
   it('tohum yalnız eksikleri yazar; kaynak adı örnek veri olduğunu söyler, metinde fotoğraf atfı var', async () => {
     const db = new PgliteDb();
     await migrate(db);
+    await importCropCatalog(db);
     const now = new Date('2026-11-02T09:00:00Z');
-    expect(await systemTx(db, (q) => seedKurumOrnek(q, now))).toBe(o.kayitlar.length);
+    const takvimSatiri = o.takvim.reduce((n, t) => n + t.urunler.length, 0);
+    expect(await systemTx(db, (q) => seedKurumOrnek(q, now))).toBe(
+      o.kayitlar.length + takvimSatiri,
+    );
     expect(await systemTx(db, (q) => seedKurumOrnek(q, now))).toBe(0);
     const rows = await systemTx(db, (q) =>
       q.query<{ source_org: string; body: string; targeting: { cropIds: string[] } }>(
@@ -77,5 +82,38 @@ describe('Deneme sürümü kurum duyuruları (kiraz, fıstık, zeytin)', () => {
       expect(r.targeting.cropIds.length).toBeGreaterThan(0);
     }
     expect(kurumKaynak('X')).toBe('X (örnek veri)');
+  }, 60_000);
+
+  it('örnek takvim: üç ürün için uzman onaylı, kaynaklı; ilaç dozu yok; ilaç anılan kayıtlar BKÜ der', async () => {
+    const db = new PgliteDb();
+    await migrate(db);
+    await importCropCatalog(db);
+    await systemTx(db, (q) => seedKurumOrnek(q, new Date('2026-11-03T09:00:00Z')));
+    const rows = await systemTx(db, (q) =>
+      q.query<{
+        crop_id: string;
+        title: string;
+        detail: string;
+        review_status: string;
+        source: string;
+      }>(
+        `SELECT crop_id, title, detail, review_status, source FROM calendar_templates WHERE source_version = 'kurum-ornek-v1'`,
+      ),
+    );
+    const crops = new Set(rows.map((r) => r.crop_id));
+    for (const id of ['antep-fistigi', 'zeytin', 'elma-kiraz-armut'])
+      expect(crops.has(id), id).toBe(true);
+    for (const r of rows) {
+      expect(r.review_status).toBe('uzman-onayli');
+      expect(r.source).toMatch(/Örnek veri/);
+      expect(`${r.title} ${r.detail}`.toLocaleLowerCase('tr-TR')).not.toMatch(
+        /\d+\s*(ml|cc|gr|kg|lt)|karışım oranı|dozu/,
+      );
+      if (/ilaç/i.test(r.detail)) expect(r.detail, r.title).toMatch(/BKÜ/);
+    }
+    // Her ürünün yıl boyunca birden çok işi var.
+    for (const id of ['antep-fistigi', 'zeytin', 'elma-kiraz-armut']) {
+      expect(rows.filter((r) => r.crop_id === id).length, id).toBeGreaterThanOrEqual(5);
+    }
   }, 60_000);
 });

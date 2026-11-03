@@ -172,6 +172,7 @@ describe('buildHomeRows', () => {
       today: null,
       supports: [support()],
       announcements: [ann()],
+      todayIso: '2026-10-30',
     });
     expect(rowsForTab(rows, 'zaman')).toHaveLength(2);
     expect(rowsForTab(rows, 'rehber')).toHaveLength(2);
@@ -179,8 +180,14 @@ describe('buildHomeRows', () => {
     const all = rowsForTab(rows, 'hepsi');
     expect(all.some((r) => r.kind === 'rehber')).toBe(false);
     expect(all).toHaveLength(4);
+    // Bugün ve sonrası yakından uzağa; geçmiş en yeniden eskiye ve sonda.
+    const today = '2026-10-30';
     const dates = all.map((r) => r.date);
-    expect(dates).toEqual([...dates].sort());
+    const next = dates.filter((d) => d >= today);
+    const past = dates.filter((d) => d < today);
+    expect(dates).toEqual([...next, ...past]);
+    expect(next).toEqual([...next].sort());
+    expect(past).toEqual([...past].sort().reverse());
   });
 
   it('her satırda kaynak etiketi vardır', () => {

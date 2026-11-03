@@ -10,7 +10,12 @@
       "metin": "Kiraz sineği, meyve renk dönmeye başlarken yumurta bırakır; kurtlu meyve pazarda ve ihracatta geri döner. Bahçenize sarı yapışkan tuzak asın ve tuzakları haftada iki kez kontrol edin. İlk sinek yakalandığında ilçe müdürlüğünün tahmin-uyarı duyurusunu takip edin. İlaç seçimini ve uygulama zamanını yalnız Bitki Koruma Ürünleri (BKÜ) kaydına ve ilaç etiketine göre yapın; hasattan önceki bekleme süresine uyun. Yere düşen kurtlu meyveleri toplayıp gömün.",
       "kaynakNotu": "Kaynak: Tarım ve Orman Bakanlığı, Kiraz Sineği Zirai Mücadele Teknik Talimatı (özet).",
       "gorsel": "duyuru/kiraz_sinek.jpg",
-      "urunler": ["elma-kiraz-armut", "elma-kiraz-armut-olduren-don", "elma-kiraz-armut-ortulu", "elma-kiraz-armut-ortulu-olduren-don"],
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
       "gunOnce": 2
     },
     {
@@ -20,7 +25,12 @@
       "metin": "Kirazda kalın dal kesimleri kışın yapılırsa yaralar zamk akıntısına ve bakteriyel kansere açık kalır. Büyük kesimleri hasattan sonra, kuru ve sıcak havada yapın. Dalı dibinden, kabuğu yırtmadan kesin; makası ve testereyi her ağaçtan sonra temizleyin. Kesilen hastalıklı dalları bahçede bırakmayın.",
       "kaynakNotu": "Kaynak: Meyvecilik Araştırma Enstitüsü (Eğirdir) kiraz yetiştiriciliği yayım notları (özet).",
       "gorsel": "duyuru/kiraz_budama.jpg",
-      "urunler": ["elma-kiraz-armut", "elma-kiraz-armut-olduren-don", "elma-kiraz-armut-ortulu", "elma-kiraz-armut-ortulu-olduren-don"],
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
       "gunOnce": 5
     },
     {
@@ -30,7 +40,12 @@
       "metin": "Kirazda çiçek ve küçük meyve, açık ve rüzgârsız gecelerde sıfırın altındaki sıcaklıktan zarar görür. Uygulamadaki don uyarısını açık tutun; uyarı gelirse sabaha karşı bahçeyi kontrol edin. Kirazın çoğu çeşidi kendi çiçek tozuyla meyve tutmaz: bahçede tozlayıcı çeşit yoksa verim düşer. Çiçeklenme başında bahçeye arı kovanı koyun ve çiçek açıkken arılara zarar verecek uygulama yapmayın.",
       "kaynakNotu": "Kaynak: FAO, Frost Protection: Fundamentals, Practice and Economics (2005); kiraz tozlanma yayım notları (özet).",
       "gorsel": "duyuru/kiraz_cicek.jpg",
-      "urunler": ["elma-kiraz-armut", "elma-kiraz-armut-olduren-don", "elma-kiraz-armut-ortulu", "elma-kiraz-armut-ortulu-olduren-don"],
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
       "gunOnce": 8
     },
     {
@@ -40,7 +55,12 @@
       "metin": "Olgunlaşmaya yakın kirazda yağmur suyu kabuktan emilir ve meyve çatlar. Hasat yaklaşırken uygulamadaki yağış bilgisini takip edin; olgun meyveyi yağıştan önce toplamaya çalışın. Hasadı sabah serin saatlerde ve saplı yapın; kasaları gölgede bekletin. Çatlak ve ezik meyveyi sağlam meyveden ayırın.",
       "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi.",
       "gorsel": "duyuru/kiraz_hasat.jpg",
-      "urunler": ["elma-kiraz-armut", "elma-kiraz-armut-olduren-don", "elma-kiraz-armut-ortulu", "elma-kiraz-armut-ortulu-olduren-don"],
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
       "gunOnce": 11
     },
     {
@@ -50,7 +70,12 @@
       "metin": "Kiraz ihracatında alıcılar çoğu zaman İyi Tarım Uygulamaları (İTU) belgesi ve kalıntı analizi ister. Belge için yetkili bir kontrol ve sertifikasyon kuruluşuyla sözleşme yapılır; ilçe müdürlüğü başvuru ve destekler hakkında bilgi verir. Bahçe defterinizi (gübre, ilaç, sulama kayıtları) eksiksiz tutun; uygulamadaki tarla kayıtları bu deftere yardımcı olur.",
       "kaynakNotu": "Kaynak: İyi Tarım Uygulamaları Hakkında Yönetmelik (özet).",
       "gorsel": "duyuru/kiraz_bahce.jpg",
-      "urunler": ["elma-kiraz-armut", "elma-kiraz-armut-olduren-don", "elma-kiraz-armut-ortulu", "elma-kiraz-armut-ortulu-olduren-don"],
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
       "gunOnce": 14
     },
     {
@@ -60,7 +85,12 @@
       "metin": "Yağmur örtüsü meyve çatlamasını, dolu ağı da dolu zararını azaltır. Örtü kurmadan önce maliyeti, rüzgâr yükünü ve bahçe düzenini bir uzmanla hesaplayın. Damla sulama ve toprak nem ölçümüyle su yalnız gerektiğinde verilir; uygulamadaki sulama sayfası günlük su ihtiyacını gösterir.",
       "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi.",
       "gorsel": "duyuru/kiraz_ortu.jpg",
-      "urunler": ["elma-kiraz-armut", "elma-kiraz-armut-olduren-don", "elma-kiraz-armut-ortulu", "elma-kiraz-armut-ortulu-olduren-don"],
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
       "gunOnce": 17
     },
     {
@@ -70,7 +100,9 @@
       "metin": "Psillid (yaprak piresi) yaprağın özsuyunu emer ve ballı madde salgılar; yapraklar kararır, erken dökülür, iç dolumu zayıflar. Sürgünler büyürken haftada bir yaprakların altını ve uç sürgünleri kontrol edin. Yoğunluk artarsa kendi başınıza ilaç seçmeyin: mücadele kararı ve zamanı için ilçe müdürlüğünün tahmin-uyarı duyurusunu bekleyin, ilacı yalnız BKÜ kaydına ve etiketine göre kullanın. Aşırı azotlu gübreleme zararlıyı artırabilir.",
       "kaynakNotu": "Kaynak: Tarım ve Orman Bakanlığı, Antepfıstığı zararlıları Zirai Mücadele Teknik Talimatı (özet).",
       "gorsel": "duyuru/fistik_yaprak.jpg",
-      "urunler": ["antep-fistigi"],
+      "urunler": [
+        "antep-fistigi"
+      ],
       "gunOnce": 1
     },
     {
@@ -80,7 +112,9 @@
       "metin": "Antepfıstığı bir yıl çok, ertesi yıl az ürün verir; buna periyodisite denir. Bol ürün yılında ağaç, gelecek yılın çiçek gözlerinin bir kısmını döker. Dengeli budama, toprak analizine göre gübreleme ve yaz aylarında düzenli sulama bu farkı azaltır. Ağacın gücünü ürün yükü belirler: genç ağaçta aşırı ürün bırakmayın.",
       "kaynakNotu": "Kaynak: Antepfıstığı Araştırma Enstitüsü yayım notları (özet).",
       "gorsel": "duyuru/fistik_yasli.jpg",
-      "urunler": ["antep-fistigi"],
+      "urunler": [
+        "antep-fistigi"
+      ],
       "gunOnce": 4
     },
     {
@@ -90,7 +124,9 @@
       "metin": "Fıstık, dış kabuk kırmızılaşıp elle kolayca ayrıldığında (kavladığında) hasat olgunluğuna gelir. Erken hasatta iç küçük ve buruşuk kalır; geç hasatta kabuk lekelenir ve zararlı riski artar. Salkımları yere düşürmeden, branda veya serginin üzerine toplayın; toprağa değen ürün küf kapabilir.",
       "kaynakNotu": "Kaynak: Antepfıstığı Araştırma Enstitüsü hasat önerileri (özet).",
       "gorsel": "duyuru/fistik_salkim.jpg",
-      "urunler": ["antep-fistigi"],
+      "urunler": [
+        "antep-fistigi"
+      ],
       "gunOnce": 6
     },
     {
@@ -100,7 +136,9 @@
       "metin": "Dış kabuğu soyulmadan bekletilen fıstıkta kabuk lekelenir ve küf (aflatoksin) riski artar. Hasat edilen ürünü mümkünse aynı gün, en geç 24 saat içinde soyun ve temiz bir sergide ince serip kurutun. Kuruyan ürünü nemsiz, serin ve havadar depoda saklayın; çuvalları doğrudan toprağa koymayın. Aflatoksinli ürün ihracatta geri döner.",
       "kaynakNotu": "Kaynak: Codex Alimentarius, Sert kabuklu meyvelerde aflatoksin bulaşmasını önleme uygulama kodu (CAC/RCP 59-2005), özet.",
       "gorsel": "duyuru/fistik_kuru.jpg",
-      "urunler": ["antep-fistigi"],
+      "urunler": [
+        "antep-fistigi"
+      ],
       "gunOnce": 9
     },
     {
@@ -110,7 +148,9 @@
       "metin": "Antepfıstığı kuraklığa dayanıklıdır, ama iç dolumu döneminde (yaklaşık temmuz-ağustos) su eksikliği boş ve küçük iç oranını artırır. Sulanabilen bahçede damla sulamayla suyu bu dönemde düzenli verin. Ne kadar su gerektiğini uygulamadaki sulama sayfası, bölgenizin hava verisi ve FAO-56 yöntemiyle hesaplar.",
       "kaynakNotu": "Kaynak: FAO-56 (Allen vd., 1998); Tarım Pusula uzman ekibi.",
       "gorsel": "duyuru/fistik_sira.jpg",
-      "urunler": ["antep-fistigi"],
+      "urunler": [
+        "antep-fistigi"
+      ],
       "gunOnce": 12
     },
     {
@@ -120,7 +160,9 @@
       "metin": "Yeni fıstık bahçesi kurarken sertifikalı fidan kullanın; fidan etiketi çeşidi ve üreticiyi gösterir. Anaç seçimi toprağa ve suya göre değişir; toprak analizinizle ilçe müdürlüğüne danışın. Bahçe kurma destekleri ve kredileri için ilçe müdürlüğüne, Ziraat Bankası ve Tarım Kredi Kooperatifi şubelerine başvurun.",
       "kaynakNotu": "Kaynak: 5553 sayılı Tohumculuk Kanunu, fidan sertifikasyonu ilkeleri (özet).",
       "gorsel": "duyuru/fistik_kis.jpg",
-      "urunler": ["antep-fistigi"],
+      "urunler": [
+        "antep-fistigi"
+      ],
       "gunOnce": 15
     },
     {
@@ -130,7 +172,9 @@
       "metin": "Uygulamadaki uydu sayfası, bahçenizin yeşillik haritasını (NDVI) gösterir. Komşu ağaçlara göre soluk kalan bölgede su, besin ya da zararlı sorunu olabilir; o bölgeyi yerinde gezip kontrol edin. Harita teşhis koymaz, nereye bakacağınızı gösterir.",
       "kaynakNotu": "Kaynak: Copernicus Sentinel-2 verisi; Tarım Pusula uzman ekibi.",
       "gorsel": "duyuru/fistik_golge.jpg",
-      "urunler": ["antep-fistigi"],
+      "urunler": [
+        "antep-fistigi"
+      ],
       "gunOnce": 18
     },
     {
@@ -140,7 +184,9 @@
       "metin": "Zeytin sineği danenin içine yumurta bırakır; kurt daneyi yer, dane erken döker ve yağın asitliği yükselir. Yaz başından itibaren bahçeye sarı yapışkan tuzak veya besin tuzağı asın ve yakalananları haftada bir sayın. Mücadele kararı tuzak sayısına ve dane bulaşma oranına göre verilir; ilçe müdürlüğünün tahmin-uyarı duyurusunu takip edin. İlaç ve uygulama şekli için yalnız BKÜ kaydına ve etikete bakın.",
       "kaynakNotu": "Kaynak: Tarım ve Orman Bakanlığı, Zeytin Sineği Zirai Mücadele Teknik Talimatı (özet).",
       "gorsel": "duyuru/zeytin_sinek.jpg",
-      "urunler": ["zeytin"],
+      "urunler": [
+        "zeytin"
+      ],
       "gunOnce": 3
     },
     {
@@ -150,7 +196,9 @@
       "metin": "Toplanan zeytin bekledikçe ısınır, ezilir ve yağın asitliği yükselir. Daneleri çuval yerine delikli plastik kasada taşıyın ve mümkünse aynı gün, en geç 24-48 saat içinde sıktırın. Yerden toplanan, ezik ve kurtlu daneleri sağlam danelerle karıştırmayın.",
       "kaynakNotu": "Kaynak: Zeytincilik Araştırma Enstitüsü yayım notları; Uluslararası Zeytin Konseyi (IOC) kalite rehberi (özet).",
       "gorsel": "duyuru/zeytin_kasa.jpg",
-      "urunler": ["zeytin"],
+      "urunler": [
+        "zeytin"
+      ],
       "gunOnce": 1
     },
     {
@@ -160,7 +208,9 @@
       "metin": "Halkalı leke, zeytin yaprağında halka şeklinde koyu lekelerle görülür; serin ve yağışlı havada yayılır. Hastalıklı yapraklar dökülür ve ertesi yılın ürünü azalır. Sonbahar yağmurlarından önce ve ilkbaharda yaprakları kontrol edin. Koruyucu uygulamanın zamanı için ilçe müdürlüğünün uyarısını bekleyin, ürünü BKÜ kaydına göre seçin. Tacın içini havalandıran budama hastalığı azaltır.",
       "kaynakNotu": "Kaynak: Tarım ve Orman Bakanlığı, Zeytin Halkalı Leke Hastalığı Zirai Mücadele Teknik Talimatı (özet).",
       "gorsel": "duyuru/zeytin_leke.jpg",
-      "urunler": ["zeytin"],
+      "urunler": [
+        "zeytin"
+      ],
       "gunOnce": 5
     },
     {
@@ -170,7 +220,9 @@
       "metin": "Zeytini sırıkla sert vurmak dalları ve gelecek yılın meyve verecek sürgünlerini kırar. Ağacın altına örtü (file) serin; daneleri elle, tarakla ya da titreşimli hasat aletiyle toplayın. Yere önceden düşmüş daneleri ayrı kasada tutun.",
       "kaynakNotu": "Kaynak: Zeytincilik Araştırma Enstitüsü hasat önerileri (özet).",
       "gorsel": "duyuru/zeytin_ortu.jpg",
-      "urunler": ["zeytin"],
+      "urunler": [
+        "zeytin"
+      ],
       "gunOnce": 7
     },
     {
@@ -180,7 +232,9 @@
       "metin": "Zeytinde budama, hasattan sonra ve sert kış soğukları geçtikten sonra yapılır. Amaç tacın içine ışık ve hava girmesidir. Zeytin bir önceki yıl çıkan dallarda meyve verir; aşırı budama ertesi yılın ürününü düşürür. Kalın kesimlerden sonra aletleri temizleyin.",
       "kaynakNotu": "Kaynak: Tarım Pusula uzman ekibi.",
       "gorsel": "duyuru/zeytin_budama.jpg",
-      "urunler": ["zeytin"],
+      "urunler": [
+        "zeytin"
+      ],
       "gunOnce": 10
     },
     {
@@ -190,7 +244,9 @@
       "metin": "Zeytin kuraklığa dayanıklıdır, ama yaz boyunca suyu düzenli alan ağaç daha düzenli ürün verir. Damla sulamada su yalnız kök bölgesine gider, boşa akmaz. Ne zaman ve ne kadar sulayacağınızı uygulamadaki sulama sayfası hava verisinden hesaplar; vanaya cihaz bağladıysanız telefondan açıp kapatabilirsiniz.",
       "kaynakNotu": "Kaynak: FAO-56 (Allen vd., 1998); Tarım Pusula uzman ekibi.",
       "gorsel": "duyuru/zeytin_damla.jpg",
-      "urunler": ["zeytin"],
+      "urunler": [
+        "zeytin"
+      ],
       "gunOnce": 13
     },
     {
@@ -200,8 +256,185 @@
       "metin": "Bitkisel üretim desteklerinin çoğunda ön şart, Çiftçi Kayıt Sistemi (ÇKS) kaydıdır. Bahçenizin parsel, ürün ve alan bilgilerini her yıl ilçe müdürlüğünde güncelleyin. Hangi desteğin açık olduğu ve başvuru tarihleri her yıl yayımlanan tebliğle belirlenir; tarihleri ilçe müdürlüğünden öğrenin.",
       "kaynakNotu": "Kaynak: Çiftçi Kayıt Sistemi Yönetmeliği (özet).",
       "gorsel": "duyuru/zeytin_yigin.jpg",
-      "urunler": ["zeytin"],
+      "urunler": [
+        "zeytin"
+      ],
       "gunOnce": 16
     }
-  ]
+  ],
+  "takvim": [
+    {
+      "urunler": [
+        "antep-fistigi"
+      ],
+      "baslik": "Kış budaması ve bahçe temizliği",
+      "ayrinti": "Kuru ve hastalıklı dalları kes, bahçeyi temizle. Kalın kesimleri kuru havada yap.",
+      "bas": "12-01",
+      "son": "02-28"
+    },
+    {
+      "urunler": [
+        "antep-fistigi"
+      ],
+      "baslik": "Çiçeklenme: don nöbeti",
+      "ayrinti": "Don uyarısını açık tut. Uyarı gelirse sabaha karşı bahçeyi kontrol et.",
+      "bas": "04-01",
+      "son": "04-25"
+    },
+    {
+      "urunler": [
+        "antep-fistigi"
+      ],
+      "baslik": "Psillid (yaprak piresi) kontrolü",
+      "ayrinti": "Haftada bir yaprakların altına ve uç sürgünlere bak. Yoğunluk artarsa ilçe müdürlüğünün uyarısını bekle; ilaç kararını BKÜ kaydına ve etikete göre ver.",
+      "bas": "05-01",
+      "son": "08-31"
+    },
+    {
+      "urunler": [
+        "antep-fistigi"
+      ],
+      "baslik": "İç dolumu sulaması",
+      "ayrinti": "Bu dönemde su eksik kalmasın. Sulama sayfası günlük su ihtiyacını gösterir.",
+      "bas": "07-01",
+      "son": "08-31"
+    },
+    {
+      "urunler": [
+        "antep-fistigi"
+      ],
+      "baslik": "Hasat: kabuk kavlayınca topla",
+      "ayrinti": "Dış kabuk kırmızılaşıp ayrılınca topla. Aynı gün soy, ince sererek kurut.",
+      "bas": "08-25",
+      "son": "09-30"
+    },
+    {
+      "urunler": [
+        "antep-fistigi"
+      ],
+      "baslik": "Sonbahar toprak analizi",
+      "ayrinti": "Gübre vermeden önce toprak analizi yaptır; sonuca göre gübrele.",
+      "bas": "10-15",
+      "son": "11-30"
+    },
+    {
+      "urunler": [
+        "zeytin"
+      ],
+      "baslik": "Budama",
+      "ayrinti": "Hasattan sonra, sert soğuklar geçince tacın içine ışık ve hava girecek şekilde buda. Aşırı budama ertesi yılın ürününü azaltır.",
+      "bas": "02-15",
+      "son": "03-31"
+    },
+    {
+      "urunler": [
+        "zeytin"
+      ],
+      "baslik": "Çiçeklenme dönemi",
+      "ayrinti": "Hava ve don uyarılarını takip et.",
+      "bas": "05-10",
+      "son": "06-10"
+    },
+    {
+      "urunler": [
+        "zeytin"
+      ],
+      "baslik": "Yaz sulaması (damla)",
+      "ayrinti": "Su yalnız kök bölgesine gitsin. Sulama sayfası günlük su ihtiyacını gösterir.",
+      "bas": "06-15",
+      "son": "09-15"
+    },
+    {
+      "urunler": [
+        "zeytin"
+      ],
+      "baslik": "Zeytin sineği tuzak takibi",
+      "ayrinti": "Bahçeye tuzak as, haftada bir yakalananları say. Mücadele kararı için ilçe müdürlüğünün uyarısını bekle; ilaç kararını BKÜ kaydına ve etikete göre ver.",
+      "bas": "07-01",
+      "son": "10-31"
+    },
+    {
+      "urunler": [
+        "zeytin"
+      ],
+      "baslik": "Halkalı leke kontrolü",
+      "ayrinti": "Sonbahar yağmurlarından sonra yaprakları kontrol et; halka şeklinde koyu leke varsa uzmana sor.",
+      "bas": "10-15",
+      "son": "12-15"
+    },
+    {
+      "urunler": [
+        "zeytin"
+      ],
+      "baslik": "Hasat",
+      "ayrinti": "Elle ya da tarakla topla, ağacın altına örtü ser. Toplanan zeytini bekletmeden sıktır.",
+      "bas": "10-20",
+      "son": "01-10"
+    },
+    {
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
+      "baslik": "Çiçeklenme: don ve arı",
+      "ayrinti": "Don uyarısını açık tut. Tozlanma için bahçede arı kovanı bulundur.",
+      "bas": "03-20",
+      "son": "04-20"
+    },
+    {
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
+      "baslik": "Kiraz sineği tuzak takibi",
+      "ayrinti": "Sarı yapışkan tuzakları haftada iki kez kontrol et. Mücadele kararı için ilçe müdürlüğünün uyarısını bekle; ilaç kararını BKÜ kaydına ve etikete göre ver.",
+      "bas": "05-01",
+      "son": "06-30"
+    },
+    {
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
+      "baslik": "Hasat",
+      "ayrinti": "Olgun meyveyi serin saatte, saplı topla. Yağmur bekleniyorsa hasadı öne al.",
+      "bas": "05-20",
+      "son": "07-10"
+    },
+    {
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
+      "baslik": "Hasat sonrası budama",
+      "ayrinti": "Kalın kesimleri hasattan sonra, kuru ve sıcak havada yap.",
+      "bas": "07-10",
+      "son": "08-31"
+    },
+    {
+      "urunler": [
+        "elma-kiraz-armut",
+        "elma-kiraz-armut-olduren-don",
+        "elma-kiraz-armut-ortulu",
+        "elma-kiraz-armut-ortulu-olduren-don"
+      ],
+      "baslik": "Sonbahar toprak analizi",
+      "ayrinti": "Gübre vermeden önce toprak analizi yaptır; sonuca göre gübrele.",
+      "bas": "10-15",
+      "son": "11-30"
+    }
+  ],
+  "takvimKaynak": {
+    "kaynak": "Örnek veri (deneme sürümü) - Tarım Pusula uzman ekibi",
+    "surum": "kurum-ornek-v1",
+    "tarih": "2026-11-03"
+  }
 }

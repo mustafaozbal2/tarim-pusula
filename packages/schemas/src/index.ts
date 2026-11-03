@@ -30,3 +30,4 @@ export * from './pusula';
 export * from './irrigation';
 export * from './wallet';
 export * from './devices';
+export * from './friendly';

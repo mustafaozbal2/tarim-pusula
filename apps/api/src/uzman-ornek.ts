@@ -69,10 +69,21 @@ export interface KurumKayit {
   gunOnce: number;
 }
 
+export interface KurumTakvim {
+  urunler: string[];
+  baslik: string;
+  ayrinti: string;
+  /** "AA-GG"; bitiş başlangıçtan önceyse pencere yılı aşar (ör. 12-01 → 02-28). */
+  bas: string;
+  son: string;
+}
+
 export interface KurumOrnek {
   surum: string;
   tarih: string;
   kayitlar: KurumKayit[];
+  takvim: KurumTakvim[];
+  takvimKaynak: { kaynak: string; surum: string; tarih: string };
 }
 
 interface GorselKaynak {
@@ -133,6 +144,41 @@ export async function seedKurumOrnek(q: Queryable, now: Date, dataDir = DEFAULT_
       ],
     );
     added++;
+  }
+  added += await seedKurumTakvim(q, o);
+  return added;
+}
+
+/** Örnek onaylı tarım takvimi (kural 1: onaysız takvim çiftçiye görünmez; deneme için uzman onaylı örnek). */
+async function seedKurumTakvim(q: Queryable, o: KurumOrnek): Promise<number> {
+  let added = 0;
+  const md = (v: string) => v.split('-').map(Number) as [number, number];
+  for (const t of o.takvim) {
+    const [sm, sd] = md(t.bas);
+    const [em, ed] = md(t.son);
+    for (const crop of t.urunler) {
+      const r = await q.query(
+        `INSERT INTO calendar_templates(crop_id, title, detail, start_month, start_day, end_month, end_day,
+           review_status, source, source_version, source_date)
+         SELECT $1, $2, $3, $4, $5, $6, $7, 'uzman-onayli', $8, $9, $10::date
+         WHERE EXISTS (SELECT 1 FROM crops WHERE id = $1)
+         ON CONFLICT (crop_id, title, start_month, start_day) DO NOTHING
+         RETURNING id`,
+        [
+          crop,
+          t.baslik,
+          t.ayrinti,
+          sm,
+          sd,
+          em,
+          ed,
+          o.takvimKaynak.kaynak,
+          o.takvimKaynak.surum,
+          o.takvimKaynak.tarih,
+        ],
+      );
+      added += r.length;
+    }
   }
   return added;
 }

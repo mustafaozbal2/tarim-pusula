@@ -18,6 +18,7 @@ import {
   whenText,
   type StepState,
 } from '../src/irrigation/model';
+import { waterNeedText } from '../src/today/model';
 import { api } from '../src/session';
 
 const t = tr.irrigation;
@@ -51,6 +52,8 @@ export default function IrrigationScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [autoNote, setAutoNote] = useState(false);
+  // Pusula önerisi: tarlanın bugünkü su ihtiyacı (hesap varsa). Yoksa "henüz yok" yazılır.
+  const [waterText, setWaterText] = useState<string | null>(null);
   const deviceRef = useRef<DeviceDto | null>(null);
 
   const refresh = useCallback(async () => {
@@ -77,6 +80,14 @@ export default function IrrigationScreen() {
           deviceRef.current = d;
           setDevice(d);
           await refresh();
+          if (d) {
+            try {
+              const td = await api.today(d.fieldId);
+              if (alive) setWaterText(waterNeedText(td.waterNeed));
+            } catch {
+              // Su hesabı alınamazsa "henüz yok" metni kalır.
+            }
+          }
         } catch {
           if (alive) setDevice(null);
         }
@@ -194,8 +205,10 @@ export default function IrrigationScreen() {
 
         {!showSteps ? (
           <Card style={styles.advice}>
-            <Text style={styles.adviceTitle}>{t.advice}</Text>
-            <Text style={styles.muted}>{t.adviceBody}</Text>
+            <Text style={styles.adviceTitle}>{waterText ? t.adviceHas : t.advice}</Text>
+            <Text style={styles.muted} testID="sulama-oneri">
+              {waterText ? t.adviceNeed.replace('{{mm}}', waterText) : t.adviceBody}
+            </Text>
           </Card>
         ) : null}
 

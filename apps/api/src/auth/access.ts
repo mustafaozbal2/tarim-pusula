@@ -10,7 +10,7 @@ import {
   type ExecutionContext,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { Role } from '@tarim/schemas';
+import { friendlyMessage, type Role } from '@tarim/schemas';
 import type { ZodType } from 'zod';
 import type { Principal } from '../db/db';
 import { AuthService } from './auth.service';
@@ -76,7 +76,7 @@ export const Token = createParamDecorator(
 export function parse<T>(schema: ZodType<T>, input: unknown): T {
   const r = schema.safeParse(input);
   if (!r.success) {
-    throw new BadRequestException(r.error.issues.map((i) => i.message).join('; '));
+    throw new BadRequestException(friendlyMessage(r.error.issues));
   }
   return r.data;
 }

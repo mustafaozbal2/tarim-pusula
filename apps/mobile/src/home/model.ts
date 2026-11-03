@@ -244,20 +244,16 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
     });
   }
   if (input.sample) rows.push(...sampleRows(rows, input.sample, input.todayIso ?? localIso()));
-  // Tarihe göre; aynı günde gerçek (onaylı) kayıt örnek veriden önce gelir.
-  return rows.sort((a, b) =>
-    a.date !== b.date
-      ? a.date < b.date
-        ? -1
-        : 1
-      : Boolean(a.sample) !== Boolean(b.sample)
-        ? a.sample
-          ? 1
-          : -1
-        : a.id < b.id
-          ? -1
-          : 1,
-  );
+  // Bugün ve sonrası önce (yakından uzağa: yapılacaklar), geçmiş sonra (en yeniden eskiye: son duyurular
+  // ilk ekranda görünsün). Aynı günde gerçek (onaylı) kayıt örnek veriden önce gelir.
+  const today = input.todayIso ?? localIso();
+  const upcoming = (r: HomeRow) => r.date >= today;
+  return rows.sort((a, b) => {
+    if (upcoming(a) !== upcoming(b)) return upcoming(a) ? -1 : 1;
+    if (a.date !== b.date) return upcoming(a) === (a.date < b.date) ? -1 : 1;
+    if (Boolean(a.sample) !== Boolean(b.sample)) return a.sample ? 1 : -1;
+    return a.id < b.id ? -1 : 1;
+  });
 }
 
 /**

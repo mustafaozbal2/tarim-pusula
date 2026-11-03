@@ -93,7 +93,7 @@ export const registerSchema = z.object({
 
 export const loginSchema = z.object({
   phone: phoneSchema,
-  password: z.string().min(1).max(72),
+  password: z.string().min(1, 'Şifreni yaz').max(72),
 });
 
 export const passwordResetSchema = z.object({
