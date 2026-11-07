@@ -1,5 +1,4 @@
 import * as ImagePicker from 'expo-image-picker';
-import * as Speech from 'expo-speech';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Image as RNImage, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -17,6 +16,7 @@ import { IMAGE_FILES } from '../../src/assets';
 import { Bolum, IkonKart } from '../../src/components/Gorsel';
 import type { FieldDto, PusulaCardDto } from '../../src/api/client';
 import { useSettings } from '../../src/settings';
+import { konus, sustur } from '../../src/asistan/konus';
 import { BilgiKarti } from '../../src/components/BilgiKarti';
 import { Screen } from '../../src/components/Screen';
 import { tr } from '../../src/i18n/tr';
@@ -61,7 +61,7 @@ export default function AskScreen() {
       if (raw) setFields((JSON.parse(raw) as { fields: FieldDto[] }).fields);
     });
     void api.fields().then(setFields, () => undefined);
-    return () => void Speech.stop();
+    return () => sustur();
   }, []);
 
   const ask = useCallback(
@@ -81,12 +81,7 @@ export default function AskScreen() {
         // Ses rehberi açıksa cevap kendiliğinden sesli okunur (Ayarlar).
         if (guide.current) {
           setSpeaking(true);
-          Speech.speak(speechText(r.card), {
-            language: 'tr-TR',
-            onDone: () => setSpeaking(false),
-            onStopped: () => setSpeaking(false),
-            onError: () => setSpeaking(false),
-          });
+          void konus(speechText(r.card), api, () => setSpeaking(false));
         }
       } catch (e) {
         setState({ s: 'fail', msg: t[errorKey(e)] });
@@ -121,20 +116,15 @@ export default function AskScreen() {
 
   const speak = (card: PusulaCardDto) => {
     if (speaking) {
-      void Speech.stop();
+      sustur();
       return setSpeaking(false);
     }
     setSpeaking(true);
-    Speech.speak(speechText(card), {
-      language: 'tr-TR',
-      onDone: () => setSpeaking(false),
-      onStopped: () => setSpeaking(false),
-      onError: () => setSpeaking(false),
-    });
+    void konus(speechText(card), api, () => setSpeaking(false));
   };
 
   const reset = () => {
-    void Speech.stop();
+    sustur();
     setSpeaking(false);
     setState({ s: 'idle' });
     setText('');

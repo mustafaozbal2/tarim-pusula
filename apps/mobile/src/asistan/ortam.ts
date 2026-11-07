@@ -7,6 +7,7 @@ import { exportableEvents } from '../calendar/export';
 import { rangeText } from '../calendar/model';
 import { FIELDS_CACHE, SELECTED } from '../today/load';
 import { weatherText } from '../today/model';
+import type { EylemKey } from './niyet';
 import type { Ortam } from './sohbet';
 
 const uuid = () =>
@@ -23,7 +24,15 @@ const uuid = () =>
 export function gercekOrtam(d: {
   api: Pick<
     Api,
-    'provinces' | 'districts' | 'villages' | 'crops' | 'fields' | 'today' | 'calendar' | 'pusulaAsk'
+    | 'provinces'
+    | 'districts'
+    | 'villages'
+    | 'crops'
+    | 'fields'
+    | 'today'
+    | 'calendar'
+    | 'pusulaAsk'
+    | 'robotSohbet'
   >;
   kv: KV;
   queue: Pick<OfflineQueue, 'enqueue' | 'flush'>;
@@ -110,6 +119,25 @@ export function gercekOrtam(d: {
       const f = await secili();
       const r = await d.api.pusulaAsk({ question: soru, ...(f ? { fieldId: f.id } : {}) });
       return r.card;
+    },
+    async robot(soru, onceki) {
+      const f = await secili().catch(() => null);
+      const r = await d.api.robotSohbet({
+        soru,
+        ...(f?.province ? { il: f.province } : {}),
+        ...(onceki ? { gecmis: [`Çiftçi: ${onceki}`] } : {}),
+      });
+      if (r.kaynak !== 'nuvia') return null;
+      const y = r.yonlendir;
+      const harita: Record<string, EylemKey> = {
+        bugun: 'hava',
+        takvim: 'takvim',
+        sulama: 'sulama',
+        'uzmana-sor': 'uzmana-sor',
+        haberler: 'pazar',
+        ayarlar: 'ayarlar',
+      };
+      return { cevap: r.cevap, yonlendir: y ? (harita[y] ?? null) : null };
     },
     async urunKimligi() {
       return (await secili())?.cropId ?? null;

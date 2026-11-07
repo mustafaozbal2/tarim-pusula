@@ -70,6 +70,7 @@ import { DEVICE_BROKER, IrrigationService } from './irrigation';
 import { Places } from './places';
 import { DataService } from './data.service';
 import type { Db } from './db/db';
+import { RobotController } from './nuvia/robot.controller';
 import { PusulaController } from './pusula/pusula.controller';
 import { LLM, PusulaService } from './pusula/pusula.service';
 import { PusulaTools } from './pusula/tools';
@@ -164,6 +165,7 @@ export class AppModule {
         PanelController,
         LibraryController,
         PusulaController,
+        RobotController,
         IrrigationController,
         DeviceReadingsController,
         WaterParamsController,

@@ -102,7 +102,7 @@ describe('G14 erişilebilirlik denetimi', () => {
 
   it('sesli oku ve sesle sor ekranda mevcut (ses rehberi)', () => {
     const soru = sources.find((s) => s.file.endsWith('soru-sor.tsx'))!;
-    expect(soru.text).toMatch(/expo-speech|Speech/);
+    expect(soru.text).toMatch(/expo-speech|Speech|konus/);
   });
 });
 

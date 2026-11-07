@@ -61,7 +61,7 @@ describe('Nuvia geçidi (/v1/proje/sor)', () => {
     let gor: {
       url: string;
       h: Record<string, string>;
-      b: { islev: string; girdi: string };
+      b: { islev: string; girdi: string; gorsel: { base64: string } };
     } | null = null;
     const f = (async (url: string, init: RequestInit) => {
       gor = {
@@ -84,8 +84,9 @@ describe('Nuvia geçidi (/v1/proje/sor)', () => {
     expect(r!.metin).toContain('uzmana');
     expect(gor!.url).toBe('https://n.example/v1/proje/sor');
     expect(gor!.h['x-nuvia-proje']).toBe('tarim_pusula.nvp_abc');
-    expect(gor!.b.islev).toBe('soru_cevapla');
-    expect(gor!.b.girdi).not.toContain('AAAA'); // görsel metin geçidine ham gitmez
+    expect(gor!.b.islev).toBe('foto_analiz'); // 32: görüntü artık Nuvia'ya gerçekten gider
+    expect(gor!.b.girdi).not.toContain('AAAA'); // görüntü girdi metnine değil gorsel alanına konur
+    expect(gor!.b.gorsel.base64).toBe('AAAA');
     expect(JSON.parse(gor!.b.girdi).soru).toBe('yaprakta leke');
   });
   it('ok:false ya da veri yoksa null', async () => {

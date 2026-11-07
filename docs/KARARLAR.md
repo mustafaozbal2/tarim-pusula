@@ -377,3 +377,5 @@
 - **Don 7 gün:** onaylı eşik + topluluk (ensemble) olmadan olasılık üretilmez; en erken uyarı günü kart olur; buzlanma bayrağı (tmin ≤ 0 ve yağış ≥ 1 mm).
 - **Uzmana sor:** 12 saat cevap yoksa Nuvia geçici cevabı (uyarı ve doz süzgeciyle), uzman cevabı esastır.
 - **Robot sohbeti:** tarla ekleme sohbet içinde; ada/parsel isteğe bağlı.
+- **g14 gizli anahtar taraması APK'yı atlar (2026-11-08):** `site/tarim-pusula.apk` içindeki `AIza...` (resources.arsc, Firebase proje numarası yanında) Firebase istemci anahtarıdır; Android'in `google_api_key` kaynağı olarak her APK'ya gömülür ve Google Cloud'da paket adı/SHA ile kısıtlanır. Gerçek sızıntı değil. Kaynak dosyalar taranmaya devam eder.
+- **Tasarruf raporu "bugün" TSİ (2026-11-08):** `controllers.g21.ts` günü UTC ile hesaplıyordu, hava günleri TSİ geldiği için 00:00-03:00 arası bir gün kayıyordu (g21 testi saate bağlı kırılıyordu). `trDate` (UTC+3) kullanıldı.

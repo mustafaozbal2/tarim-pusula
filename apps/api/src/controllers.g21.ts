@@ -264,7 +264,8 @@ const savingsQuerySchema = z.object({
   meteredTraditionalM3: z.coerce.number().min(0).optional(),
 });
 
-const pad = (n: number) => String(n).padStart(2, '0');
+/** Türkiye tarihi (UTC+3, yaz saati yok): hava günleri yerel takvimle gelir; UTC kullanmak 00:00-03:00 arası günü kaydırır. */
+const trDate = (d: Date) => new Date(d.getTime() + 3 * 3_600_000).toISOString().slice(0, 10);
 
 /** Tasarruf ve verim raporu (FAO-56 su dengesi; saf hesap packages/agro-core/savings.ts). */
 @Controller('fields')
@@ -317,7 +318,7 @@ export class SavingsController {
       if (e instanceof WeatherUnavailableError) throw new ServiceUnavailableException(e.message);
       throw e;
     }
-    const today = `${this.now().getUTCFullYear()}-${pad(this.now().getUTCMonth() + 1)}-${pad(this.now().getUTCDate())}`;
+    const today = trDate(this.now());
     const days: SeasonDay[] = bundle.days
       .filter((d) => d.date < today)
       .slice(-q.days)
@@ -512,7 +513,7 @@ export class RemindersController {
       if (e instanceof WeatherUnavailableError) throw new ServiceUnavailableException(e.message);
       throw e;
     }
-    const today = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-${pad(now.getUTCDate())}`;
+    const today = trDate(now);
     const sinceIso = lastIrr ? lastIrr.toISOString().slice(0, 10) : null;
     const past = hist.days
       .filter((d) => d.date < today && (!sinceIso || d.date > sinceIso))

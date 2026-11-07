@@ -2,7 +2,7 @@ import type { FieldCreate } from '@tarim/schemas';
 import type { PusulaCardDto } from '../api/client';
 import { centroid } from '../flow/draft';
 import { medyaBul, type Gorsel, type Video } from './medya';
-import { EYLEMLER, niyetBul, sadelestir, type Eylem } from './niyet';
+import { EYLEMLER, niyetBul, sadelestir, type Eylem, type EylemKey } from './niyet';
 
 /**
  * Robot sohbet motoru: çiftçi sayfa değiştirmeden, küçük bir sohbet kartında iş görür. Tarla ekleme
@@ -69,6 +69,11 @@ export interface Ortam {
   /** Seçili tarlanın yaklaşan işleri (satır satır). */
   takvim(): Promise<string[]>;
   sor(soru: string): Promise<PusulaCardDto>;
+  /** 32: Pusula'nın kaynaklı cevap veremediği serbest sohbet için Nuvia (robot_sohbet); yoksa/çökerse null. */
+  robot?(
+    soru: string,
+    onceki?: string,
+  ): Promise<{ cevap: string; yonlendir: EylemKey | null } | null>;
   /** Seçili tarlanın ürün kimliği (video seçimi için). */
   urunKimligi(): Promise<string | null>;
 }
@@ -460,6 +465,23 @@ async function serbest(g: string, o: Ortam, son?: string): Promise<Adim> {
         robot('Şu an cevap alamadım. İnternet bağlantını kontrol edip tekrar dener misin?'),
       ],
     };
+  }
+  // Kaynaklı cevap yoksa çıkmaza girme: Nuvia robotu genel ve güvenli bir cevap verir (doz/teşhis yok), uygulama sayfasına yönlendirir.
+  if (card.kind === 'handoff' && o.robot) {
+    const r = await o.robot(g, son).catch(() => null);
+    if (r) {
+      const e2 = r.yonlendir ? EYLEMLER[r.yonlendir] : undefined;
+      return {
+        durum: { k: 'bos', son: g },
+        mesajlar: [
+          robot(r.cevap, {
+            ...(e2 ? { eylem: e2 } : {}),
+            secenekler: secenek(['Uzmana da sor', 'uzmana sor']),
+          }),
+          robot(SORU_UYARISI),
+        ],
+      };
+    }
   }
   const metin = [
     card.title,

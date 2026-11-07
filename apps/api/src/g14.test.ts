@@ -78,7 +78,9 @@ describe('G14 gizli anahtar taraması', () => {
     const files = tracked
       .filter(
         (p) =>
-          !/\.(png|jpg|jpeg|ico|woff2?|ttf|pdf|docx|zip|lock)$/i.test(p) &&
+          // APK derlenmiş ikili: içindeki AIza... anahtarı Firebase (FCM) istemci anahtarıdır; her APK'ya
+          // gömülür, gizli değildir (paket/SHA ile kısıtlı). Kaynaklar yine taranır. Karar: docs/KARARLAR.md G30.
+          !/\.(png|jpg|jpeg|ico|woff2?|ttf|pdf|docx|zip|lock|apk)$/i.test(p) &&
           !p.endsWith('pnpm-lock.yaml'),
       )
       .flatMap((p) => {

@@ -23,6 +23,8 @@ import { tr } from '../i18n/tr';
 import { expoLocation } from '../location/expoLocation';
 import { kv } from '../offline/kvStore';
 import { listen } from '../pusula/voice';
+import { useSettings } from '../settings';
+import { konus, sustur } from './konus';
 import { voiceMessage } from '../pusula/voiceTypes';
 import { api, queue } from '../session';
 import { videoAdresi, videoKucuk } from './medya';
@@ -41,7 +43,6 @@ import {
 import { Robot } from './Robot';
 
 const t = tr.asistan;
-
 
 /** Karşılama balonu uygulama açıldıktan sonra her seferinde bir kez, birkaç saniye görünür. */
 let selamVerildi = false;
@@ -195,6 +196,15 @@ function SohbetKarti({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [busy, setBusy] = useState(false);
   const [dinle, setDinle] = useState(false);
   const scroll = useRef<ScrollViewInstance>(null);
+  const ayar = useSettings();
+  // Ses rehberi açıksa ya da çiftçi sesle sorduysa robot cevabı sesli okur (Nuvia'nın kadın sesi; olmazsa cihaz sesi).
+  const sesli = useRef(false);
+  sesli.current = !!ayar.voiceGuide;
+  const sesleSordu = useRef(false);
+  useEffect(() => () => sustur(), []);
+  useEffect(() => {
+    if (!open) sustur();
+  }, [open]);
 
   const gonder = async (gosterilen: string, deger = gosterilen) => {
     const q = deger.trim();
@@ -207,6 +217,9 @@ function SohbetKarti({ open, onClose }: { open: boolean; onClose: () => void }) 
       const a = await ilerle(durum, q, ortam);
       setDurum(a.durum);
       setMesajlar((m) => [...m, ...a.mesajlar]);
+      const okunacak = a.mesajlar.find((x) => x.kimden === 'robot' && x.metin);
+      if (okunacak && (sesli.current || sesleSordu.current)) void konus(okunacak.metin, api);
+      sesleSordu.current = false;
     } catch {
       setMesajlar((m) => [...m, robot('Bir sorun çıktı. Biraz sonra yeniden dener misin?')]);
     } finally {
@@ -219,8 +232,10 @@ function SohbetKarti({ open, onClose }: { open: boolean; onClose: () => void }) 
     setDinle(true);
     const r = await listen();
     setDinle(false);
-    if (r.kind === 'text') void gonder(r.text);
-    else {
+    if (r.kind === 'text') {
+      sesleSordu.current = true;
+      void gonder(r.text);
+    } else {
       const m = voiceMessage(r, tr.ask.voiceIssues);
       if (m) setMesajlar((x) => [...x, robot(m)]);
     }

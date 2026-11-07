@@ -210,7 +210,8 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
       rows.push({
         id: 'uyari-don',
         kind: 'uyari',
-        date: input.today.generatedAt.slice(0, 10),
+        // Yerel gün (UTC değil): gece yarısından sonra UTC tarihi dünü gösterir ve uyarı listenin altına düşerdi.
+        date: input.todayIso ?? localIso(),
         title: f.title,
         detail: `${f.body} ${f.why}`,
         source: `${input.today.frost.source} · ${input.today.frost.fetchedAt.slice(0, 10)}`,

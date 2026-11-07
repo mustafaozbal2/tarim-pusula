@@ -26,6 +26,7 @@ export async function nuviaCagir(
   girdi: Record<string, unknown>,
   fetchFn: typeof fetch,
   ms = 45_000,
+  ek: Record<string, unknown> = {},
   bekle: (ms: number) => Promise<void> = (t) => new Promise((r) => setTimeout(r, t)),
 ): Promise<unknown | null> {
   const baslik = a.projeAnahtari.includes('.')
@@ -36,7 +37,7 @@ export async function nuviaCagir(
       const res = await fetchFn(`${a.url.replace(/\/$/, '')}/v1/proje/sor`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-nuvia-proje': baslik },
-        body: JSON.stringify({ islev, girdi: JSON.stringify(girdi) }),
+        body: JSON.stringify({ islev, girdi: JSON.stringify(girdi), ...ek }),
         signal: AbortSignal.timeout(ms),
       });
       if (res.status === 429 || res.status === 502) {
@@ -51,4 +52,29 @@ export async function nuviaCagir(
     }
   }
   return null;
+}
+
+/** Nuvia kadın sesi (Gemini TTS). Dönüş: {mime, ses_b64} ya da null (ses üretilemedi: cihaz sesi kullanılır). */
+export async function nuviaSes(
+  a: NuviaAyar,
+  metin: string,
+  fetchFn: typeof fetch,
+  ms = 40_000,
+): Promise<{ mime: string; ses_b64: string } | null> {
+  const baslik = a.projeAnahtari.includes('.')
+    ? a.projeAnahtari
+    : `${PROJE_ADI}.${a.projeAnahtari}`;
+  try {
+    const res = await fetchFn(`${a.url.replace(/\/$/, '')}/v1/proje/ses`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-nuvia-proje': baslik },
+      body: JSON.stringify({ metin }),
+      signal: AbortSignal.timeout(ms),
+    });
+    if (!res.ok) return null;
+    const j = (await res.json()) as { ok?: boolean; mime?: string; ses_b64?: string };
+    return j.ok && j.mime && j.ses_b64 ? { mime: j.mime, ses_b64: j.ses_b64 } : null;
+  } catch {
+    return null;
+  }
 }
