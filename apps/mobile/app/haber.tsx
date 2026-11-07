@@ -13,6 +13,7 @@ import { withDeadline } from '../src/load/deadline';
 import { kv } from '../src/offline/kvStore';
 import { api } from '../src/session';
 import { loadAnnouncements } from '../src/today/announcements';
+import { gosterilir } from '../src/today/duyuru';
 
 type Shown =
   { kind: 'duyuru'; a: AnnouncementDto } | { kind: 'ornek'; c: OrnekIcerikDto; i: number };
@@ -37,7 +38,7 @@ export default function NewsScreen() {
       }
       if (!fieldId) return null;
       const list = await loadAnnouncements(api, kv, fieldId);
-      const a = list.find((x) => x.id === id && !x.needsBadge);
+      const a = list.find((x) => x.id === id && gosterilir(x));
       return a ? { kind: 'duyuru', a } : null;
     };
     void withDeadline(work())

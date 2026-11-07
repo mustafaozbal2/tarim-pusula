@@ -42,7 +42,8 @@ export class PusulaController {
       q.query(
         `SELECT id, question, status, answer, answer_source AS "answerSource",
            answered_at AS "answeredAt", created_at AS "createdAt", has_image AS "hasImage",
-           (assigned_to IS NOT NULL) AS assigned
+           (assigned_to IS NOT NULL) AS assigned,
+           ai_answer AS "aiAnswer", ai_source AS "aiSource", ai_answered_at AS "aiAnsweredAt"
          FROM expert_questions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
         [me.userId],
       ),

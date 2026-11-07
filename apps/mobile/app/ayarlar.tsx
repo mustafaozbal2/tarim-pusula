@@ -75,6 +75,14 @@ export default function SettingsScreen() {
       </Bolum>
 
       <Bolum title={t.lists}>
+        <IkonKart
+          wide
+          icon="book"
+          title={tr.resmiKaynak.open}
+          hint={tr.resmiKaynak.hint}
+          testID="ayar-resmi-kaynaklar"
+          onPress={() => router.push('/resmi-kaynaklar')}
+        />
         <KartIzgara>
           <IkonKart
             icon="drop"

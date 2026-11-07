@@ -77,6 +77,17 @@ export default function Sorularim() {
                   ) : null}
                 </View>
               ) : null}
+              {!done && q.aiAnswer ? (
+                <View style={styles.answer} testID="nuvia-gecici-cevap">
+                  <Text style={styles.answerTitle}>{t.aiAnswer}</Text>
+                  <Text style={styles.answerText}>{q.aiAnswer}</Text>
+                  {q.aiSource ? (
+                    <Text style={styles.date}>
+                      {t.source}: {q.aiSource}
+                    </Text>
+                  ) : null}
+                </View>
+              ) : null}
             </View>
           );
         })}

@@ -1,3 +1,4 @@
+import { gorselUri, gosterilir } from '../today/duyuru';
 import type {
   AnnouncementDto,
   CalendarDto,
@@ -141,7 +142,7 @@ export function homeCards(
   announcements: AnnouncementDto[],
   sample: OrnekIcerikDto | null | undefined,
 ): HomeCard[] {
-  const anns = announcements.filter((a) => !a.needsBadge).slice(0, MAX_CARDS);
+  const anns = announcements.filter(gosterilir).slice(0, MAX_CARDS);
   const samples = (sample?.kartlar ?? [])
     .slice(0, Math.max(0, MAX_CARDS - anns.length))
     .map((k, i) => ({
@@ -159,7 +160,7 @@ export function homeCards(
     id: `duyuru-${a.id}`,
     title: a.title,
     image: free[i % Math.max(1, free.length)] ?? 'kart_1.jpg',
-    uri: a.imageDataUrl,
+    uri: gorselUri(a),
     announcementId: a.id,
   }));
   return [...cards, ...samples];
@@ -232,7 +233,7 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
     });
   }
   for (const a of input.announcements) {
-    if (a.needsBadge || !a.sourceOrg) continue;
+    if (!gosterilir(a) || !a.sourceOrg) continue;
     rows.push({
       id: `duyuru-${a.id}`,
       kind: 'duyuru',
@@ -250,7 +251,7 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
   const upcoming = (r: HomeRow) => r.date >= today;
   return rows.sort((a, b) => {
     if (upcoming(a) !== upcoming(b)) return upcoming(a) ? -1 : 1;
-    if (a.date !== b.date) return upcoming(a) === (a.date < b.date) ? -1 : 1;
+    if (a.date !== b.date) return upcoming(a) === a.date < b.date ? -1 : 1;
     if (Boolean(a.sample) !== Boolean(b.sample)) return a.sample ? 1 : -1;
     return a.id < b.id ? -1 : 1;
   });

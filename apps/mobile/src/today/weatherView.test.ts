@@ -19,7 +19,7 @@ describe('Hava Durumu görünümü (G22.6)', () => {
     expect(rows[1]!.value).toBe('-');
     expect(currentRows(null).every((r) => r.value === '-')).toBe(true);
   });
-  it('5 günlük tahmin: Bugün, Yarın, sonra gün adları', () => {
+  it('7 günlük tahmin: Bugün, Yarın, sonra gün adları', () => {
     const days = [
       '2026-10-25',
       '2026-10-26',
@@ -29,8 +29,15 @@ describe('Hava Durumu görünümü (G22.6)', () => {
       '2026-10-30',
     ].map((date, i) => ({ date, tMinC: 5 + i, tMaxC: 15 + i, precipMm: i === 1 ? 1.4 : 0 }));
     const rows = forecastRows(days, '2026-10-25');
-    expect(rows).toHaveLength(5);
-    expect(rows.map((r) => r.day)).toEqual(['Bugün', 'Yarın', 'Salı', 'Çarşamba', 'Perşembe']);
+    expect(rows).toHaveLength(6);
+    expect(rows.map((r) => r.day)).toEqual([
+      'Bugün',
+      'Yarın',
+      'Salı',
+      'Çarşamba',
+      'Perşembe',
+      'Cuma',
+    ]);
     expect(rows[1]!.rain).toBe('1,4 mm');
     expect(rows[0]!.minMax).toBe('5° / 15°');
   });

@@ -159,7 +159,7 @@ export class OpenMeteoClient implements WeatherProvider {
   }
 
   private async fetchBundle(lat: number, lon: number): Promise<WeatherBundle> {
-    const days = String(this.opts.forecastDays ?? 5);
+    const days = String(this.opts.forecastDays ?? 7);
     const loc = { latitude: String(lat), longitude: String(lon), timezone: 'auto' };
     const model = this.opts.ensembleModel ?? 'icon_seamless';
     const [forecast, ens] = await Promise.all([

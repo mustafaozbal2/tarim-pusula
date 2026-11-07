@@ -80,21 +80,61 @@ export interface FrostCard {
   unavailable: boolean;
   source: string;
   fetchedAt: string;
+  /** G30: önümüzdeki 7 sabahın günlük görünümü (eşik onaylıysa olasılıklı, değilse yalnız tahmin edilen sıcaklık). */
+  outlook: FrostDay[];
 }
 
+/** Önümüzdeki sabahlar için günlük görünüm. */
+export interface FrostDay {
+  date: string;
+  dayOffset: number;
+  /** Onaylı eşiğe göre don olasılığı (0-1); eşik yoksa/onaysızsa null. */
+  probability: number | null;
+  level: 'none' | 'watch' | 'warning' | null;
+  /** O günkü en düşük sıcaklık tahmini (°C): olasılık varsa üyelerin ortancası, yoksa günlük tahmin. */
+  tMinC: number | null;
+  precipMm: number | null;
+  /** Eksi sıcaklık + yağış birlikte: buzlanma/kar olabilir (olgu; kararı çiftçi verir). */
+  icing: boolean;
+}
+
+/** Don taramasının baktığı gün sayısı (ensemble tahmin ufku). */
+export const FROST_HORIZON_DAYS = 7;
+
+const dayDiff = (a: string, b: string) =>
+  Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 86_400_000);
+
 /**
- * Önümüzdeki 3 sabahın don olasılığı; en yüksek olasılıklı gün seçilir (eşitlikte en erken).
- * Bugünün sabahı yerel 09:00'dan sonra geçmiş sayılır.
+ * Önümüzdeki 7 sabahın don olasılığı. Uyarı düzeyinde (≥%50) gün varsa EN ERKEN o gün seçilir (çiftçi
+ * ilk tehlikeyi bilsin); yoksa en yüksek olasılıklı gün (eşitlikte en erken). Bugünün sabahı yerel
+ * 09:00'dan sonra geçmiş sayılır.
  */
 export function frostCard(i: TodayInput): FrostCard {
   const { bundle } = i;
   const site = i.siteElevationM ?? bundle.elevationM;
+  const { date: todayLocal, hour: hourLocal } = localParts(i.now, bundle.utcOffsetSeconds);
+  const daily = (date: string) => bundle.days.find((d) => d.date === date);
+  // Eşik yoksa/onaysızsa: yalnız tahmin edilen en düşük sıcaklık ve yağış (olgu; uyarı/öneri değil).
+  const plainOutlook = (): FrostDay[] =>
+    bundle.days
+      .filter((d) => d.date > todayLocal || (d.date === todayLocal && hourLocal < 9))
+      .slice(0, FROST_HORIZON_DAYS)
+      .map((d) => ({
+        date: d.date,
+        dayOffset: dayDiff(d.date, todayLocal),
+        probability: null,
+        level: null,
+        tMinC: d.tMinC,
+        precipMm: d.precipMm,
+        icing: d.tMinC <= 0 && (d.precipMm ?? 0) >= 1,
+      }));
   const base = {
     elevationM: site,
     source: bundle.ensemble
       ? `${bundle.source}; topluluk modeli ${bundle.ensemble.model}`
       : bundle.source,
     fetchedAt: bundle.fetchedAt,
+    outlook: plainOutlook(),
   };
   const stage = i.pack ? pickFrostStage(i.stages, i.pack.reviewStatus) : undefined;
   if (!stage) {
@@ -119,11 +159,13 @@ export function frostCard(i: TodayInput): FrostCard {
       unavailable: true,
     };
   }
-  const { date: today, hour } = localParts(i.now, bundle.utcOffsetSeconds);
+  const today = todayLocal;
   const window = bundle.ensemble.days
-    .filter((d) => d.date > today || (d.date === today && hour < 9))
-    .slice(0, 3);
+    .filter((d) => d.date > today || (d.date === today && hourLocal < 9))
+    .slice(0, FROST_HORIZON_DAYS);
   let best: { a: FrostAssessment; date: string } | null = null;
+  let earliestWarning: { a: FrostAssessment; date: string } | null = null;
+  const outlook: FrostDay[] = [];
   for (const d of window) {
     const adj = d.minC.map((t) => adjustTempForElevation(t, bundle.ensemble!.elevationM, site));
     const a = assessFrost(stage, adj);
@@ -131,9 +173,21 @@ export function frostCard(i: TodayInput): FrostCard {
       best ??= { a, date: d.date };
       break; // eşik yok/onaysız: tüm günler için aynı sonuç
     }
+    const dw = daily(d.date);
+    outlook.push({
+      date: d.date,
+      dayOffset: dayDiff(d.date, today),
+      probability: a.probability,
+      level: a.level,
+      tMinC: a.medianMinC,
+      precipMm: dw?.precipMm ?? null,
+      icing: a.medianMinC <= 0 && (dw?.precipMm ?? 0) >= 1,
+    });
+    if (a.level === 'warning') earliestWarning ??= { a, date: d.date };
     if (!best || best.a.kind !== 'frost' || a.probability > best.a.probability)
       best = { a, date: d.date };
   }
+  if (earliestWarning) best = earliestWarning;
   if (!best) {
     return {
       ...base,
@@ -154,6 +208,7 @@ export function frostCard(i: TodayInput): FrostCard {
     dayOffset: offset,
     stageName: stage.name,
     unavailable: false,
+    ...(outlook.length > 0 ? { outlook } : {}),
   };
 }
 

@@ -106,6 +106,38 @@ export default function CropScreen() {
           color: colors.forest,
         }}
       />
+
+      <Text style={subtitleStyle}>{t.parcelHint}</Text>
+      <Text style={subtitleStyle}>{t.parcelBlock}</Text>
+      <TextInput
+        accessibilityLabel={t.parcelBlock}
+        testID="tarla-ada"
+        value={draft.parcelBlock ?? ''}
+        onChangeText={(parcelBlock: string) => updateDraft((d) => ({ ...d, parcelBlock }))}
+        maxLength={20}
+        style={kutuStili}
+      />
+      <Text style={subtitleStyle}>{t.parcelNo}</Text>
+      <TextInput
+        accessibilityLabel={t.parcelNo}
+        testID="tarla-parsel"
+        value={draft.parcelNo ?? ''}
+        onChangeText={(parcelNo: string) => updateDraft((d) => ({ ...d, parcelNo }))}
+        maxLength={20}
+        style={kutuStili}
+      />
     </FlowScreen>
   );
 }
+
+const kutuStili = {
+  minHeight: 44,
+  borderRadius: radius.row,
+  borderWidth: 1,
+  borderColor: colors.forest,
+  backgroundColor: colors.surface,
+  paddingHorizontal: 16,
+  fontFamily: fontFamily.semibold,
+  fontSize: fontSize.body,
+  color: colors.forest,
+} as const;

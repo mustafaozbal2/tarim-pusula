@@ -10,6 +10,9 @@ export interface FieldDraft {
   village?: string;
   cropId?: string;
   name?: string;
+  /** Ada / parsel: isteğe bağlı, boş bırakılabilir. */
+  parcelBlock?: string;
+  parcelNo?: string;
   /** "Yakınım yapsın" yardımcı tarafı: yakının verdiği 6 haneli kod. */
   claimCode?: string;
   /** Ekranlar arası kısa bilgi (ör. izin reddedildi). */
@@ -58,6 +61,8 @@ export function toFieldPayload(d: FieldDraft): FieldCreate {
     district: d.district,
     village: d.village,
     cropId: d.cropId,
+    parcelBlock: d.parcelBlock?.trim() || undefined,
+    parcelNo: d.parcelNo?.trim() || undefined,
     locationSource: d.source ?? undefined,
   });
 }

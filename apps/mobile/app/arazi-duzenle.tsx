@@ -29,6 +29,8 @@ export default function FieldEditScreen() {
   const [id, setId] = useState<string | null>(params.fieldId ?? null);
   const [name, setName] = useState('');
   const [area, setArea] = useState('');
+  const [ada, setAda] = useState('');
+  const [parsel, setParsel] = useState('');
   const [crop, setCrop] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -49,6 +51,8 @@ export default function FieldEditScreen() {
   useEffect(() => {
     if (!field) return;
     setName(field.name);
+    setAda(field.parcelBlock ?? '');
+    setParsel(field.parcelNo ?? '');
     setArea(field.areaDecare ? String(field.areaDecare).replace('.', ',') : '');
     setCrop(field.cropId);
     setMsg(null);
@@ -63,6 +67,9 @@ export default function FieldEditScreen() {
       name: name.trim() || field.name,
       areaDecare: a ?? undefined,
       cropId: crop ?? undefined,
+      // Ada/parsel isteğe bağlı: doluysa yazılır, boş bırakılan alan değişmez.
+      ...(ada.trim() ? { parcelBlock: ada.trim() } : {}),
+      ...(parsel.trim() ? { parcelNo: parsel.trim() } : {}),
     };
     const qid = `upd-${field.id}-${Date.now()}`;
     await queue.enqueue({
@@ -158,6 +165,18 @@ export default function FieldEditScreen() {
               onChangeText={setArea}
               keyboardType="numeric"
               testID="duzenle-alan"
+            />
+            <FormAlani
+              label={t.parcelBlock}
+              value={ada}
+              onChangeText={setAda}
+              testID="duzenle-ada"
+            />
+            <FormAlani
+              label={t.parcelNo}
+              value={parsel}
+              onChangeText={setParsel}
+              testID="duzenle-parsel"
             />
           </Card>
           <Bolum title={t.crop}>

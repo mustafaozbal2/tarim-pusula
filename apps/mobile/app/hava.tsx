@@ -22,7 +22,7 @@ import { useToday } from '../src/hooks/useToday';
 import { placeLine } from '../src/home/model';
 import { tr } from '../src/i18n/tr';
 import { localIso } from '../src/home/model';
-import { frostCardModel, weatherText } from '../src/today/model';
+import { donGorunumu, frostCardModel, weatherText } from '../src/today/model';
 import { currentRows, forecastRows } from '../src/today/weatherView';
 
 const t = tr.weather;
@@ -63,6 +63,7 @@ export default function WeatherScreen() {
   const temp = w.current?.tempC;
   const now = currentRows(w.current);
   const days = forecastRows(w.days ?? [w.today], localIso());
+  const don = donGorunumu(today.frost.outlook, localIso());
   const metricIcon: Record<string, IconName> = {
     Sıcaklık: 'sun',
     Hissedilen: 'people',
@@ -141,6 +142,32 @@ export default function WeatherScreen() {
         </Card>
       ) : null}
 
+      {don.length > 0 ? (
+        <Bolum title={t.donGorunum}>
+          <Card style={styles.donList} testID="hava-don-gorunum">
+            {don.map((r) => (
+              <View key={r.key} style={styles.donRow} testID="hava-don-gun">
+                <View style={styles.donHead}>
+                  <Text style={styles.donDay}>{r.day}</Text>
+                  <Text style={styles.donTemp}>{r.temp}</Text>
+                </View>
+                <Text
+                  style={[
+                    styles.donLabel,
+                    r.tone === 'warning' && styles.donWarn,
+                    r.tone === 'watch' && styles.donWatch,
+                  ]}
+                >
+                  {r.label}
+                </Text>
+                {r.note ? <Text style={styles.small}>{r.note}</Text> : null}
+              </View>
+            ))}
+            <Text style={styles.small}>{t.donNot}</Text>
+          </Card>
+        </Bolum>
+      ) : null}
+
       <Card style={styles.water}>
         <Icon name="drop" size={22} color={colors.water} />
         <Text style={styles.waterText}>
@@ -178,6 +205,14 @@ const styles = StyleSheet.create({
   },
   heroText: { fontFamily: fontFamily.bold, fontSize: 16, color: homeColors.text },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  donList: { gap: 10 },
+  donRow: { gap: 2, borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 8 },
+  donHead: { flexDirection: 'row', justifyContent: 'space-between' },
+  donDay: { fontFamily: fontFamily.extrabold, fontSize: fontSize.body, color: colors.forest },
+  donTemp: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
+  donLabel: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.forest },
+  donWarn: { color: colors.brick },
+  donWatch: { color: colors.amberText },
   cell: {
     width: '48%',
     flexGrow: 1,

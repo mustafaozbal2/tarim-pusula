@@ -28,13 +28,13 @@ export function currentRows(c: CurrentDto | null | undefined): { label: string; 
 
 const DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
 
-/** 5 günlük tahmin satırları: gün adı (Bugün/Yarın), en düşük/en yüksek, yağış. */
+/** 7 günlük tahmin satırları: gün adı (Bugün/Yarın), en düşük/en yüksek, yağış. */
 export function forecastRows(
   days: DailyDto[],
   todayIso: string,
 ): { key: string; day: string; minMax: string; rain: string }[] {
   const t0 = Date.UTC(...isoParts(todayIso));
-  return days.slice(0, 5).map((d) => {
+  return days.slice(0, 7).map((d) => {
     const t = Date.UTC(...isoParts(d.date));
     const rel = Math.round((t - t0) / 86_400_000);
     const day = rel === 0 ? 'Bugün' : rel === 1 ? 'Yarın' : DAYS[new Date(t).getUTCDay()]!;

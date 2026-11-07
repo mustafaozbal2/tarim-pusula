@@ -11,6 +11,7 @@ import { hashPassword } from './auth/password';
 import { createSmsProvider, isRealSms, type SmsProvider } from './auth/sms';
 import { ExpoPushClient, type PushClient } from '@tarim/workers';
 import { importCalendarTemplates } from './calendar';
+import { importResmiKaynaklar } from './tarama/kaynak';
 import { importCropCatalog } from './crops';
 import {
   DEMO_FARMER_PHONE,
@@ -156,6 +157,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   await migrate(db);
   await importCropCatalog(db);
   await importCalendarTemplates(db);
+  await importResmiKaynaklar(db);
   const seeded = await alreadySeeded(db);
   if (!seeded) await seedDemoData(db);
   // Kalıcı veritabanında sonradan eklenen örnek duyurular (yalnız eksikler yazılır).

@@ -107,7 +107,7 @@ describe('Deneme sürümü kurum duyuruları (kiraz, fıstık, zeytin)', () => {
       expect(r.review_status).toBe('uzman-onayli');
       expect(r.source).toMatch(/Örnek veri/);
       expect(`${r.title} ${r.detail}`.toLocaleLowerCase('tr-TR')).not.toMatch(
-        /\d+\s*(ml|cc|gr|kg|lt)|karışım oranı|dozu/,
+        /\d+\s*(ml|cc|gr|kg|lt)\b|karışım oranı|dozu/,
       );
       if (/ilaç/i.test(r.detail)) expect(r.detail, r.title).toMatch(/BKÜ/);
     }

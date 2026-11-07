@@ -56,6 +56,11 @@ import {
 } from './market/collector';
 import { CleanupController, CleanupService } from './cleanup';
 import { MarketController, MarketJobsController } from './market/controller';
+import { NUVIA, NuviaBeklemeService } from './nuvia/bekleme';
+import { varsayilanNuvia, type NuviaClient } from './nuvia/client';
+import { varsayilanAnalizci, type HaberAnalizci } from './tarama/analiz';
+import { ResmiKaynakController, TaramaAdminController } from './tarama/controller';
+import { TARAMA_ANALIZ, TARAMA_FETCH, TaramaService } from './tarama/servis';
 import { MarketService } from './market/service';
 import { NdviController } from './ndvi/ndvi.controller';
 import { CopernicusNdviClient, FakeNdviProvider, type NdviProvider } from './ndvi/provider';
@@ -104,6 +109,10 @@ export interface AppOptions {
   };
   /** İçerik içe aktarma klasörü. Verilmezse CONTENT_INGEST_DIR, o da yoksa <DATA_DIR>/icerik. */
   ingestDir?: string;
+  /** Resmi site tarayıcısı: ağ ve analiz sağlayıcıları (testte sahte). */
+  /** Nuvia istemcisi (uzman cevaplamayan sorulara yapay zekâ cevabı); verilmezse NUVIA_URL, o da yoksa kapalı. */
+  nuvia?: NuviaClient;
+  tarama?: { fetch?: typeof fetch; analizci?: HaberAnalizci };
   now?: () => Date;
   /** Demo modu (yalnız `demoInfo(env)` döndürdüyse verilir): /demo/info ucu ve sabit kod. */
   demo?: DemoInfo;
@@ -133,6 +142,8 @@ export class AppModule {
       module: AppModule,
       controllers: [
         HealthController,
+        ResmiKaynakController,
+        TaramaAdminController,
         AuthController,
         FieldsController,
         DevicesController,
@@ -214,6 +225,11 @@ export class AppModule {
         },
         MarketCollector,
         MarketService,
+        { provide: TARAMA_FETCH, useValue: opts.tarama?.fetch ?? fetch },
+        { provide: TARAMA_ANALIZ, useFactory: () => opts.tarama?.analizci ?? varsayilanAnalizci() },
+        TaramaService,
+        { provide: NUVIA, useFactory: () => opts.nuvia ?? varsayilanNuvia() },
+        NuviaBeklemeService,
         PusulaTools,
         PusulaService,
         NotifyService,

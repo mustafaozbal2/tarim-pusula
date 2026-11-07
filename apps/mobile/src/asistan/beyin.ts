@@ -6,7 +6,9 @@ import { EYLEMLER, niyetBul, type Eylem, type EylemKey } from './niyet';
  * edilmez: değişmez kural 2, yapay zekâ tarım bilgisi/doz uydurmaz). Nuvia yoksa ya da yanıt
  * geçersizse yerel eşleyiciye düşülür.
  *
- * Nuvia sözleşmesi: POST {url}/v1/tarim/niyet  {"metin": string, "eylemler": EylemKey[]}
+ * UYARI: Nuvia proje anahtarı telefona GÖMÜLEMEZ. EXPO_PUBLIC_NUVIA_URL yalnız kendi sunucumuzda
+ * (anahtarı tutan) bir ara uca işaret edebilir; yerel eşleyici zaten yeterlidir.
+ * Ara uç sözleşmesi: POST {url}/v1/tarim/niyet  {"metin": string, "eylemler": EylemKey[]}
  *                   → 200 {"eylem": EylemKey | null}
  */
 export interface Beyin {

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
 import type { AnnouncementDto } from '../api/client';
 import { tr } from '../i18n/tr';
 import { announcementBody, announcementSource } from '../today/announcementText';
+import { gorselUri, guvenliBaglanti } from '../today/duyuru';
 
 /**
  * Kurum duyurusu: başlık, metin, kaynak + yayın tarihi, onaysızsa rozet ve "Neden?" (bu duyuru
@@ -11,12 +12,14 @@ import { announcementBody, announcementSource } from '../today/announcementText'
  */
 export function AnnouncementCard({ a }: { a: AnnouncementDto }) {
   const [open, setOpen] = useState(false);
+  const gorsel = gorselUri(a);
+  const baglanti = a.auto ? guvenliBaglanti(a.sourceUrl) : null;
   return (
     <Card testID="duyuru-karti" style={styles.card}>
       <Text style={styles.title}>{a.title}</Text>
-      {a.imageDataUrl ? (
+      {gorsel ? (
         <Image
-          source={{ uri: a.imageDataUrl }}
+          source={{ uri: gorsel }}
           style={styles.image}
           resizeMode="cover"
           accessibilityLabel={`${a.title} görseli`}
@@ -24,6 +27,18 @@ export function AnnouncementCard({ a }: { a: AnnouncementDto }) {
         />
       ) : null}
       <Text style={styles.body}>{announcementBody(a.body)}</Text>
+      {a.auto ? (
+        <Text style={styles.auto} testID="duyuru-otomatik">
+          {tr.today.autoNote}
+        </Text>
+      ) : null}
+      {baglanti ? (
+        <Button
+          label={tr.today.openSource}
+          testID="duyuru-kaynagi-ac"
+          onPress={() => void Linking.openURL(baglanti)}
+        />
+      ) : null}
       <View style={styles.meta}>
         <View />
         <Button
@@ -54,5 +69,13 @@ const styles = StyleSheet.create({
   meta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
   body: { fontFamily: fontFamily.semibold, fontSize: fontSize.body, color: colors.forest },
+  auto: {
+    fontFamily: fontFamily.semibold,
+    fontSize: fontSize.small,
+    color: colors.amberText,
+    backgroundColor: colors.amberSoft,
+    borderRadius: 8,
+    padding: 8,
+  },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
 });

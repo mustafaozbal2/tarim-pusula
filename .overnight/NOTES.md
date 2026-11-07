@@ -138,3 +138,8 @@ Sonraki için: panel (Next.js) G24 yetkili ekranlarıyla birleştirilebilir.
 ## G28 (2026-11-02) — deneme sürümü paketi
 Yapıldı: 20 örnek kurum/uzman duyurusu (kiraz, fıstık, zeytin; açık lisanslı fotoğraflar), yeni uygulama simgesi + açılış ekranı, ARM-only APK (75 MB), `site/` indirme sitesi + Render statik site `tarimpusula`.
 Yarım/sonraki: (1) `site/config.js` içine WhatsApp/e-posta yazılmalı (geri bildirim düğmesi). (2) Telefon kablosuz adb'den koptu: yeni APK'nın simgesi/açılışı gerçek cihazda görülmedi (önizleme simülasyonla yapıldı). (3) UptimeRobot hâlâ kurulmadı (site API'yi uyandırıyor ama ping daha güvenli). (4) SMS telefon kapalıyken gitmez (SmsGate telefon hattıyla çalışır); demo hesabı yedek.
+
+## G30 (2026-11-08) — resmî kaynak taraması, don 7 gün, Nuvia hazırlığı, robot sohbeti
+Yapıldı: tarama servisi + 81 il müdürlüğü CSV, 7 günlük don, Nuvia geçidi + bekleme servisi, sohbet robotu, ada/parsel isteğe bağlı, resmi-kaynaklar sayfası, NUVIA_ISTEKLERI/NUVIA_ENTEGRASYON dolduruldu.
+Yarım: Nuvia işlevleri (haber_analiz, soru_cevapla) Nuvia tarafında yazılacak; fotoğraf için geçit metin-only; e2e tasarim.spec güncellendi ama koşulmadı; g14 APK gizli tarama testi (önceden var).
+Sonraki: Render'a HABER_TARAMA=1, anahtar gelince NUVIA_* ve NUVIA_SAHTE silinmesi.

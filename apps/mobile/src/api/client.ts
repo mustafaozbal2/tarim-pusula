@@ -196,6 +196,9 @@ export interface MyQuestionDto {
   createdAt: string;
   hasImage: boolean;
   assigned: boolean;
+  /** Uzman cevaplamazsa Nuvia'nın geçici yapay zekâ cevabı (uzman cevabı gelince o esastır). */
+  aiAnswer?: string | null;
+  aiSource?: string | null;
 }
 
 export interface InboxItemDto {
@@ -222,6 +225,9 @@ export interface FieldDto {
   lat: number | null;
   lon: number | null;
   areaDecare: number | null;
+  /** Ada / parsel (isteğe bağlı, zorunlu değil). */
+  parcelBlock?: string | null;
+  parcelNo?: string | null;
   cropId: string | null;
   locationSource: string | null;
   clientId: string | null;
@@ -385,6 +391,10 @@ export interface AnnouncementDto {
   why: string;
   /** İsteğe bağlı küçük görsel (png/jpeg/webp veri adresi). */
   imageDataUrl?: string | null;
+  /** G30: resmi siteden otomatik alındı (uzman onayı yok); özgün sayfa `sourceUrl`. */
+  auto?: boolean;
+  /** Resmi sitedeki https görsel. */
+  imageUrl?: string | null;
 }
 
 export interface CalendarEventDto {
@@ -441,7 +451,19 @@ export interface TodayDto {
     unavailable: boolean;
     source: string;
     fetchedAt: string;
+    /** G30: önümüzdeki 7 gecenin görünümü (eski sunucuda yoktur). */
+    outlook?: FrostDayDto[];
   };
+}
+
+export interface FrostDayDto {
+  date: string;
+  dayOffset: number;
+  probability: number | null;
+  level: 'none' | 'watch' | 'warning' | null;
+  tMinC: number | null;
+  precipMm: number | null;
+  icing: boolean;
 }
 
 export interface SupportMatchDto {
@@ -460,6 +482,18 @@ export interface SupportMatchDto {
   /** Taslak kayıt: çiftçi ekranında hiç gösterilmez. */
   badge: boolean;
   status: 'acik' | 'kapali' | 'donem-bilinmiyor' | 'onay-bekliyor';
+}
+
+export interface ResmiKaynakDto {
+  id: string;
+  name: string;
+  kind: string;
+  province: string | null;
+  district: string | null;
+  url: string;
+  lastCheckedAt: string | null;
+  lastStatus: string | null;
+  lastNewCount: number;
 }
 
 export interface PlaceDto {
@@ -644,6 +678,7 @@ export function createApi(opts: ApiOptions) {
         'GET',
         `/places/villages?province=${q(province)}&district=${q(district)}${search ? `&q=${q(search)}` : ''}`,
       ),
+    resmiKaynaklar: () => request<{ sources: ResmiKaynakDto[] }>('GET', '/resmi-kaynaklar'),
     marketCrops: () => request<{ id: string; name: string }[]>('GET', '/market/crops'),
     marketPrices: (cropId: string, fieldId?: string) =>
       request<MarketDto>(

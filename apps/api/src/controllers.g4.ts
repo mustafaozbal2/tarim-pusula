@@ -58,11 +58,15 @@ interface AnnouncementRow {
   imageDataUrl: string | null;
   /** G23: slayt kategorisi (guncel, bilgilendirme, yonlendirme, onlem, teknoloji). */
   category?: string | null;
+  /** G30: resmi siteden otomatik alındı (uzman onayı yoktur; özgün bağlantı sourceUrl'dedir). */
+  auto?: boolean;
+  imageUrl?: string | null;
 }
 
 const ANN_COLS = `id, source_org AS "sourceOrg", title, body, source_url AS "sourceUrl",
   published_at AS "publishedAt", expires_at AS "expiresAt", targeting, version,
-  review_status AS "reviewStatus", image_data_url AS "imageDataUrl", category`;
+  review_status AS "reviewStatus", image_data_url AS "imageDataUrl", category,
+  auto, image_url AS "imageUrl"`;
 
 /** Liste görünümü: görselin kendisi dönmez (yük), yalnız var mı bilgisi. */
 const ANN_LIST_COLS = ANN_COLS.replace(
@@ -174,6 +178,8 @@ export class FieldCalendarController {
         version: a.version,
         imageDataUrl: a.imageDataUrl,
         category: a.category ?? null,
+        auto: a.auto === true,
+        imageUrl: a.imageUrl ?? null,
         needsBadge: needsDraftBadge(a.reviewStatus),
         why: explainMatch(a.targeting, site),
       }));

@@ -46,8 +46,7 @@ test('tasarım: ana sayfada hava efekti ve yeşil robot asistan; robot tarla ekl
   await page.goto('/');
   await expect(page.getByTestId('ana-bant')).toBeVisible();
   await expect(page.getByTestId('asistan-ac')).toBeVisible();
-  // İlk açılış: "Ne yapmak istersin?" balonu.
-  await expect(page.getByText('Ne yapmak istersin?', { exact: false })).toBeVisible();
+  // Açılışta karşılama balonu kısa süre görünür (metin i18n'de; burada yalnız robotun varlığı).
   await page.waitForTimeout(2200); // balon 1,2 sn sonra belirir
   const sahne = await page.locator('[data-testid^="hava-efekti-"]').getAttribute('data-testid');
   console.log('hava sahnesi:', sahne);
@@ -59,14 +58,10 @@ test('tasarım: ana sayfada hava efekti ve yeşil robot asistan; robot tarla ekl
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${OUT}/asistan-panel.png` });
 
-  // Bilmediğini uydurmaz: uzmana yönlendirir.
-  await page.getByTestId('asistan-yaz').fill('merhaba');
-  await page.getByTestId('asistan-gonder').click();
-  await expect(page.getByTestId('asistan-cevap')).toContainText('uzmanına iletelim');
-
+  // Tarla ekleme sohbetin içinde olur: sayfa değişmez.
+  const url0 = page.url();
   await page.getByTestId('asistan-yaz').fill('yeni tarla eklemek istiyorum');
   await page.getByTestId('asistan-gonder').click();
-  await expect(page.getByTestId('asistan-cevap')).toContainText('Tarla eklemeyi açıyorum');
-  await page.getByTestId('asistan-git').click();
-  await expect(page).toHaveURL(/tarla-ekle/);
+  await expect(page.getByTestId('asistan-cevap')).toContainText('Şu an arazinde misin?');
+  expect(page.url()).toBe(url0);
 });

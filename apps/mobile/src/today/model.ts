@@ -1,4 +1,4 @@
-import type { TodayDto } from '../api/client';
+import type { FrostDayDto, TodayDto } from '../api/client';
 
 /** WMO hava kodu → çiftçi dilinde kısa cümle. */
 export function weatherText(code: number | undefined): string {
@@ -91,6 +91,62 @@ export function frostCardModel(f: TodayDto['frost']): FrostCardModel {
     title: 'Yakın günlerde don beklenmiyor',
     body: `Don olasılığı ${pct(a.probability)}. Bu bilgi tahmindir.`,
   };
+}
+
+export interface DonSatiri {
+  key: string;
+  day: string;
+  /** "Gece en düşük -3°" */
+  temp: string;
+  label: string;
+  tone: 'warning' | 'watch' | 'quiet' | 'info';
+  note: string | null;
+}
+
+const GUN = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+
+/**
+ * 7 gecelik don görünümü satırları. Olasılık yalnız uzman onaylı eşik varken gelir (kural 1); yoksa yalnız
+ * tahmin edilen en düşük sıcaklık gösterilir ve uyarı/öneri dili kullanılmaz.
+ */
+export function donGorunumu(outlook: FrostDayDto[] | undefined, todayIso: string): DonSatiri[] {
+  if (!outlook) return [];
+  const t0 = Date.parse(`${todayIso}T00:00:00Z`);
+  return outlook.map((d) => {
+    const rel = Math.round((Date.parse(`${d.date}T00:00:00Z`) - t0) / 86_400_000);
+    const day =
+      rel <= 0
+        ? 'Bu sabah'
+        : rel === 1
+          ? 'Yarın sabah'
+          : GUN[new Date(Date.parse(`${d.date}T00:00:00Z`)).getUTCDay()]!;
+    const temp = d.tMinC === null ? '-' : `Gece en düşük ${Math.round(d.tMinC)}°`;
+    const note = d.icing ? 'Yağış ve eksi sıcaklık birlikte: buzlanma ya da kar olabilir.' : null;
+    if (d.probability !== null && d.level) {
+      const pct = `%${Math.round(d.probability * 100)}`;
+      return d.level === 'warning'
+        ? {
+            key: d.date,
+            day,
+            temp,
+            label: `Don bekleniyor (olasılık ${pct})`,
+            tone: 'warning',
+            note,
+          }
+        : d.level === 'watch'
+          ? { key: d.date, day, temp, label: `Don olabilir (olasılık ${pct})`, tone: 'watch', note }
+          : { key: d.date, day, temp, label: 'Don beklenmiyor', tone: 'quiet', note };
+    }
+    const cold = d.tMinC !== null && d.tMinC <= 2;
+    return {
+      key: d.date,
+      day,
+      temp,
+      label: cold ? 'Soğuk gece (tahmin)' : 'Tahmin',
+      tone: 'info',
+      note,
+    };
+  });
 }
 
 export function waterNeedText(w: TodayDto['waterNeed']): string | null {
