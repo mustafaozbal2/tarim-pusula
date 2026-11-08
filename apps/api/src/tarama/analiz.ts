@@ -42,14 +42,26 @@ export interface HaberAnalizci {
 export const DOZ = /\d+\s*(ml|cc|gr|g|kg\/da|kg|lt|l)\b|karışım oranı|\bdozu?\b/i;
 
 /** Yapay zekâ çıktısını güvenli hale getirir: dozlu özet atılır, ürün kimlikleri katalogla sınırlanır. */
+/** Arayüzde emoji yok (kural 7); sıfır genişlikli karakterler de temizlenir. */
+export const emojisiz = (s: string): string =>
+  s
+    .replace(/\p{Extended_Pictographic}/gu, '')
+    .replace(/[\u200B-\u200D]/g, '')
+    .replace(/\uFE0F/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 export function guvenliAnaliz(a: Analiz, g: AnalizGirdi, urunKimlikleri: string[]): Analiz {
   const ids = new Set(urunKimlikleri);
-  const ozet = DOZ.test(a.ozet) ? '' : a.ozet;
+  const ozet = DOZ.test(a.ozet) ? '' : emojisiz(a.ozet);
+  // Ürün yalnız haberin kendi metninde geçiyorsa kabul edilir: model tahmin/uydurma ürün ekleyemez
+  // (ör. "defne fidanı" haberine "zeytin" ya da boş metne "mısır" yazmak).
+  const metindeki = new Set(urunleriBul(`${g.baslik} ${g.metin}`, urunKimlikleri));
   return {
     ...a,
     ozet,
-    baslik: DOZ.test(a.baslik) ? g.baslik.slice(0, 160) : a.baslik,
-    urunler: a.urunler.filter((u) => ids.has(u)),
+    baslik: emojisiz(DOZ.test(a.baslik) ? g.baslik.slice(0, 160) : a.baslik) || 'Duyuru',
+    urunler: a.urunler.filter((u) => ids.has(u) && metindeki.has(u)),
   };
 }
 
@@ -147,6 +159,8 @@ export class NuviaAnalizci implements HaberAnalizci {
   ) {}
 
   async analiz(g: AnalizGirdi, urunKimlikleri: string[]): Promise<Analiz> {
+    // Metin yoksa model başlıktan çıkarım yapıp uydurabilir: kural analizi (yalnız başlık) kullanılır.
+    if (g.metin.trim().length < 40) return this.yedek.analiz(g, urunKimlikleri);
     try {
       const ham = await nuviaCagir(
         this.ayar,

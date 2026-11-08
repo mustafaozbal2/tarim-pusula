@@ -214,3 +214,43 @@ describe('tarama hattı (veritabanı)', () => {
     expect(rows.some((r) => r.url.startsWith('https://www.tarimorman'))).toBe(false);
   }, 60_000);
 });
+
+describe('analiz güvenliği (TP-V4 bulguları)', () => {
+  it('emoji ve sıfır genişlikli karakter temizlenir; metinde geçmeyen ürün atılır; boş metinde Nuvia çağrılmaz', async () => {
+    const { emojisiz, guvenliAnaliz, NuviaAnalizci } = await import('./analiz');
+    expect(emojisiz('​İl Müdürlüğümüze Ziyaret 🤝')).toBe('İl Müdürlüğümüze Ziyaret');
+    const a = guvenliAnaliz(
+      {
+        ilgili: true,
+        baslik: 'Defne fidanı 🌱',
+        ozet: 'Defne dağıtıldı',
+        urunler: ['zeytin'],
+        kategori: 'guncel',
+      },
+      {
+        kaynak: { ad: 'x', tur: 'il_mudurlugu', il: null, ilce: null },
+        baslik: 'Defne fidanı dağıtımı',
+        metin: 'Defne fidanları dağıtıldı.',
+      },
+      ['zeytin'],
+    );
+    expect(a.urunler).toEqual([]);
+    expect(a.baslik).toBe('Defne fidanı');
+    let cagri = 0;
+    const f = (async () => (cagri++, new Response('{}'))) as unknown as typeof fetch;
+    const r = await new NuviaAnalizci(
+      { url: 'https://n.example', projeAnahtari: 'k' },
+      undefined,
+      f,
+    ).analiz(
+      {
+        kaynak: { ad: 'x', tur: 'il_mudurlugu', il: null, ilce: null },
+        baslik: 'Mercimekler Şanlıurfa’dan dağılıyor',
+        metin: '',
+      },
+      ['misir-tane'],
+    );
+    expect(cagri).toBe(0);
+    expect(r.urunler).not.toContain('misir-tane');
+  });
+});
