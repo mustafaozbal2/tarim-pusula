@@ -68,7 +68,7 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     const res = await this.fetchFn(url, {
       headers: { 'user-agent': USER_AGENT, accept: 'text/html,text/plain;q=0.9' },
       redirect: 'follow',
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(40_000),
     });
     const buf = new Uint8Array(await res.arrayBuffer());
     if (buf.byteLength > MAX_BYTES) return { status: res.status, text: '' };
