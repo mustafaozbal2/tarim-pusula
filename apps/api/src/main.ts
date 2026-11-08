@@ -11,6 +11,7 @@ import { ExpoPushClient, FakePushClient, createQueue } from '@tarim/workers';
 import { OpenMeteoClient, FakeWeatherProvider } from './weather/openmeteo';
 import { ChainWeatherProvider, MetNorwayClient } from './weather/metno';
 import { corsOrigins, securityHeaders } from './security';
+import { GovdeHatasiFiltresi } from './govde-hatasi';
 import { migrate, PgDb, PgliteDb, type Db } from './db/db';
 
 async function bootstrap() {
@@ -47,6 +48,7 @@ async function bootstrap() {
   // PDF yükleme base64 geldiğinden gövde sınırı varsayılandan (100 kb) yüksek.
   app.useBodyParser('json', { limit: '30mb' });
   app.disable('x-powered-by');
+  app.useGlobalFilters(new GovdeHatasiFiltresi());
   app.use(securityHeaders({ hsts: process.env['NODE_ENV'] === 'production' }));
   // Kimlik doğrulama çerezle değil Bearer jetonla olduğundan CORS CSRF riski doğurmaz; üretimde CORS_ORIGINS zorunlu.
   app.enableCors({ origin: corsOrigins(process.env) });

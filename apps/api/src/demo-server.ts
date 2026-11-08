@@ -1,3 +1,5 @@
+import { securityHeaders } from './security';
+import { GovdeHatasiFiltresi } from './govde-hatasi';
 import 'reflect-metadata';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
@@ -182,6 +184,10 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
     { logger: false },
   );
   app.enableCors();
+  // Canlı sunucu bu dosyayla açılır: güvenlik başlıkları (nosniff, HSTS...) ve bozuk JSON iletisi (CB-2, CB-3).
+  app.disable('x-powered-by');
+  app.use(securityHeaders({ hsts: true }));
+  app.useGlobalFilters(new GovdeHatasiFiltresi());
   app.useBodyParser('json', { limit: '1mb' }); // duyuru görseli (en çok ~300 KB)
   await app.listen(o.apiPort, o.host ?? '127.0.0.1');
   const base = `http://127.0.0.1:${o.apiPort}`;

@@ -90,7 +90,7 @@
         "RECORD_AUDIO",
         "REQUEST_INSTALL_PACKAGES"
       ],
-      "blockedPermissions": ["READ_CONTACTS", "READ_SMS"],
+      "blockedPermissions": ["READ_CONTACTS", "READ_SMS", "SYSTEM_ALERT_WINDOW"],
       "versionCode": 3
     },
     "extra": {
