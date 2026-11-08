@@ -1,7 +1,7 @@
 import type { Api, AnnouncementDto } from '../api/client';
 import type { KV } from '../offline/kv';
 
-const key = (fieldId: string) => `cache.announcements.v1.${fieldId}`;
+export const announcementsKey = (fieldId: string) => `cache.announcements.v1.${fieldId}`;
 
 /**
  * Tarlaya uyan duyurular. Sunucuya ulaşılamazsa son önbellek; hiç yoksa boş liste
@@ -14,10 +14,10 @@ export async function loadAnnouncements(
 ): Promise<AnnouncementDto[]> {
   try {
     const { announcements } = await api.announcements(fieldId);
-    await kv.set(key(fieldId), JSON.stringify(announcements));
+    await kv.set(announcementsKey(fieldId), JSON.stringify(announcements));
     return announcements;
   } catch {
-    const raw = await kv.get(key(fieldId));
+    const raw = await kv.get(announcementsKey(fieldId));
     return raw ? (JSON.parse(raw) as AnnouncementDto[]) : [];
   }
 }

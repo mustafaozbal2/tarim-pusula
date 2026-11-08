@@ -1,4 +1,5 @@
 import { ExpoSpeechRecognitionModule } from 'expo-speech-recognition';
+import { konusuyor, sustur } from '../asistan/konus';
 import type { ListenOutcome } from './voiceTypes';
 
 export type { ListenOutcome } from './voiceTypes';
@@ -18,6 +19,13 @@ export function voiceSupported(): boolean {
 
 export async function listen(): Promise<ListenOutcome> {
   if (!voiceSupported()) return { kind: 'unsupported' };
+  // Robot (ya da cevap okuması) konuşuyorsa kayıt başlamadan sustur: kendi sesini duyup kendini algılamasın.
+  if (konusuyor()) {
+    sustur();
+    await new Promise((r) => setTimeout(r, 450));
+  } else {
+    sustur();
+  }
   const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
   if (!perm.granted) return { kind: 'denied' };
   return new Promise((resolve) => {

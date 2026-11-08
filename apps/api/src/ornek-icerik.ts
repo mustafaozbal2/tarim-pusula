@@ -42,6 +42,8 @@ export function readOrnekIcerik(cropId: string, dataDir = DEFAULT_DATA_DIR): Orn
 export class OrnekIcerikController {
   @Get('ornek-icerik/:cropId')
   get(@Param('cropId') cropId: string): OrnekIcerik {
+    // Canlıda (ORNEK_ICERIK=0) demo içerik hiç verilmez: ana sayfa yalnız gerçek veriyle dolar (MP-2).
+    if (process.env['ORNEK_ICERIK'] === '0') throw new NotFoundException('Örnek içerik kapalı');
     const c = readOrnekIcerik(cropId);
     if (!c) throw new NotFoundException('Bu ürün için örnek içerik yok');
     return c;

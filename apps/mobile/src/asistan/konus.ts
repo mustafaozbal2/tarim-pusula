@@ -30,8 +30,16 @@ export function enIyiSes(
 }
 
 let oynatici: { pause(): void; remove(): void } | null = null;
+/** Her konuşmaya artan bir jeton verilir; susturulunca eski konuşmanın bekleyen adımları iptal olur. */
+let seri = 0;
+let sesleniyor = false;
+
+/** Robot şu an konuşuyor mu (mikrofon açılmadan önce susturulmalı: robot kendi sesini duymasın; MP-5d). */
+export const konusuyor = (): boolean => sesleniyor;
 
 export function sustur(): void {
+  seri++;
+  sesleniyor = false;
   try {
     oynatici?.pause();
     oynatici?.remove();
@@ -43,6 +51,7 @@ export function sustur(): void {
 }
 
 function cihazSesiyle(metin: string, bitince?: () => void): void {
+  const benim = seri;
   void (async () => {
     let ses: string | undefined;
     try {
@@ -50,14 +59,20 @@ function cihazSesiyle(metin: string, bitince?: () => void): void {
     } catch {
       /* varsayılan ses */
     }
+    if (benim !== seri) return;
+    const bitti = () => {
+      if (benim === seri) sesleniyor = false;
+      bitince?.();
+    };
+    sesleniyor = true;
     Speech.speak(metin, {
       language: 'tr-TR',
       ...(ses ? { voice: ses } : {}),
       rate: 0.97,
       pitch: 1.05,
-      onDone: bitince,
-      onStopped: bitince,
-      onError: bitince,
+      onDone: bitti,
+      onStopped: bitti,
+      onError: bitti,
     });
   })();
 }
@@ -85,9 +100,23 @@ function dosyayaYaz(b64: string): string | null {
   }
 }
 
-async function nuviaSesiyle(metin: string, api: SesApi, bitince?: () => void): Promise<boolean> {
+/** Nuvia sesini arka planda getirir (dosya ya da data: adresi); expo-audio yoksa ya da ses gelmezse null. */
+async function nuviaSesiHazirla(metin: string, api: SesApi): Promise<string | null> {
   try {
     // expo-audio native modüldür; kurulu değilse require hata verir ve cihaz sesine düşülür.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('expo-audio');
+    const r = await api.robotSes(metin);
+    if (!r.ses) return null;
+    return dosyayaYaz(r.ses.ses_b64) ?? `data:${r.ses.mime};base64,${r.ses.ses_b64}`;
+  } catch {
+    return null;
+  }
+}
+
+function nuviaSesiOynat(uri: string, bitince?: () => void): boolean {
+  const benim = seri;
+  try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { createAudioPlayer } = require('expo-audio') as {
       createAudioPlayer(src: { uri: string }): {
@@ -97,23 +126,19 @@ async function nuviaSesiyle(metin: string, api: SesApi, bitince?: () => void): P
         addListener(e: string, f: (s: { didJustFinish?: boolean }) => void): { remove(): void };
       };
     };
-    const r = await api.robotSes(metin);
-    if (!r.ses) return false;
-    // Önce önbellek dosyasına yazılır (Android'de büyük data: adreslerinden daha güvenilir); olmazsa data: adresi.
-    const p = createAudioPlayer({
-      uri: dosyayaYaz(r.ses.ses_b64) ?? `data:${r.ses.mime};base64,${r.ses.ses_b64}`,
-    });
+    const p = createAudioPlayer({ uri });
     oynatici = p;
+    sesleniyor = true;
     p.addListener('playbackStatusUpdate', (s) => {
-      if (s.didJustFinish) {
-        try {
-          p.remove();
-        } catch {
-          /* kaldırıldı */
-        }
-        if (oynatici === p) oynatici = null;
-        bitince?.();
+      if (!s.didJustFinish) return;
+      try {
+        p.remove();
+      } catch {
+        /* kaldırıldı */
       }
+      if (oynatici === p) oynatici = null;
+      if (benim === seri) sesleniyor = false;
+      bitince?.();
     });
     p.play();
     return true;
@@ -122,9 +147,35 @@ async function nuviaSesiyle(metin: string, api: SesApi, bitince?: () => void): P
   }
 }
 
+/** İlk cümle (en çok ~140 karakter) ve kalanı. */
+export function ilkCumleyiAyir(metin: string): [string, string] {
+  const m = /^(.{12,140}?[.!?])\s+(.+)$/s.exec(metin);
+  return m ? [m[1]!, m[2]!] : [metin, ''];
+}
+
+/**
+ * Robot konuşması (MP-5c: bekletmez). İlk cümle cihaz sesiyle HEMEN başlar; kalan metnin Nuvia kadın sesi
+ * bu sırada arka planda hazırlanır ve ilk cümle bitince devreye girer (gelmezse cihaz sesi sürer). Tek
+ * cümlelik cevaplar doğrudan cihaz sesiyle okunur.
+ */
 export async function konus(m: string, api: SesApi, bitince?: () => void): Promise<void> {
   const metin = okunacakMetin(m);
   if (!metin) return bitince?.();
   sustur();
-  if (!(await nuviaSesiyle(metin, api, bitince))) cihazSesiyle(metin, bitince);
+  const benim = seri;
+  const [ilk, kalan] = ilkCumleyiAyir(metin);
+  if (!kalan) return cihazSesiyle(metin, bitince);
+  const hazir = nuviaSesiHazirla(kalan, api);
+  cihazSesiyle(ilk, () => {
+    void (async () => {
+      if (benim !== seri) return;
+      const uri = await Promise.race([
+        hazir,
+        new Promise<null>((r) => setTimeout(() => r(null), 5000)),
+      ]);
+      if (benim !== seri) return;
+      if (uri && nuviaSesiOynat(uri, bitince)) return;
+      cihazSesiyle(kalan, bitince);
+    })();
+  });
 }

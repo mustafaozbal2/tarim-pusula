@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Image, Linking, StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
 import type { AnnouncementDto } from '../api/client';
 import { tr } from '../i18n/tr';
 import { announcementBody, announcementSource } from '../today/announcementText';
 import { gorselUri, guvenliBaglanti } from '../today/duyuru';
+import { haberGorselAdi, haberGorselNotu } from '../today/haberGorseli';
+import { ImageSlot } from './ImageSlot';
 
 /**
  * Kurum duyurusu: başlık, metin, kaynak + yayın tarihi, onaysızsa rozet ve "Neden?" (bu duyuru
@@ -13,19 +15,20 @@ import { gorselUri, guvenliBaglanti } from '../today/duyuru';
 export function AnnouncementCard({ a }: { a: AnnouncementDto }) {
   const [open, setOpen] = useState(false);
   const gorsel = gorselUri(a);
+  const kutuphane = haberGorselAdi(a);
+  const not = gorsel ? null : haberGorselNotu(kutuphane);
   const baglanti = a.auto ? guvenliBaglanti(a.sourceUrl) : null;
   return (
     <Card testID="duyuru-karti" style={styles.card}>
       <Text style={styles.title}>{a.title}</Text>
-      {gorsel ? (
-        <Image
-          source={{ uri: gorsel }}
-          style={styles.image}
-          resizeMode="cover"
-          accessibilityLabel={`${a.title} görseli`}
-          testID="duyuru-gorsel"
-        />
-      ) : null}
+      <ImageSlot
+        name={kutuphane}
+        uri={gorsel}
+        label={`${a.title} görseli`}
+        testID="duyuru-gorsel"
+        style={styles.image}
+      />
+      {not ? <Text style={styles.muted}>{not}</Text> : null}
       <Text style={styles.body}>{announcementBody(a.body)}</Text>
       {a.auto ? (
         <Text style={styles.auto} testID="duyuru-otomatik">

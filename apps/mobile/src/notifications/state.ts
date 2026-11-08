@@ -7,6 +7,37 @@ export interface NotificationItem extends NotificationRow {
   key: string;
 }
 
+/** Kullanıcının gerçekte sahip olduğu şeyler: ilgisiz konudaki duyuru bildirim olmaz (MP-3b). */
+export interface Ilgi {
+  /** Hesapta drone cihazı var mı. */
+  dron?: boolean;
+}
+
+const ORNEK_KAYNAK = /örnek veri|test verisi|\(demo\)/i;
+const DRON = /\bdron(e|u|lar)?\b/i;
+
+/**
+ * Bildirime yalnız gerçek ve ilgili duyuru girer: demo/örnek kaynaklı duyurular bildirim olmaz; drone
+ * konulu duyuru yalnız drone cihazı olan hesaba gider. (Duyurular Haberler sayfasında yine görünür.)
+ */
+export function bildirimeUygun(
+  a: Pick<AnnouncementDto, 'title' | 'body' | 'sourceOrg'>,
+  ilgi: Ilgi = {},
+): boolean {
+  if (a.sourceOrg && ORNEK_KAYNAK.test(a.sourceOrg)) return false;
+  if (!ilgi.dron && DRON.test(`${a.title} ${a.body ?? ''}`)) return false;
+  return true;
+}
+
+/** Bildirime dokununca gidilecek sayfa; null ise yalnız okundu sayılır. */
+export function bildirimHedefi(id: string): string | null {
+  if (id.startsWith('uzman-')) return '/sorularim';
+  if (id.startsWith('duyuru-')) return '/haber';
+  if (id === 'su') return '/sulama';
+  if (['don', 'hava', 'sicaklik', 'yagis', 'et0'].includes(id)) return '/hava';
+  return null;
+}
+
 const SEEN_KEY = 'notifications.seen.v1';
 const SEEN_LIMIT = 200;
 
@@ -18,11 +49,12 @@ export function notificationItems(
   today: TodayDto | null,
   announcements: AnnouncementDto[],
   inbox: InboxItemDto[] = [],
+  ilgi: Ilgi = {},
 ): NotificationItem[] {
   const rows: NotificationRow[] = [
     ...(today ? buildNotifications(today) : []),
     ...announcements
-      .filter((a) => !a.needsBadge)
+      .filter((a) => !a.needsBadge && bildirimeUygun(a, ilgi))
       .map((a) => ({
         id: `duyuru-${a.id}`,
         date: a.publishedAt,
@@ -66,4 +98,9 @@ export async function markAllSeen(kv: KV, items: NotificationItem[]): Promise<st
   const next = mergeSeen(await loadSeen(kv), items);
   await kv.set(SEEN_KEY, JSON.stringify(next));
   return next;
+}
+
+/** Tek bildirimi okundu sayar. */
+export async function markSeen(kv: KV, item: NotificationItem): Promise<string[]> {
+  return markAllSeen(kv, [item]);
 }

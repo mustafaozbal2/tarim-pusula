@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import {
+  BackHandler,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -56,6 +57,25 @@ export function useHomeScale(): number {
 }
 
 const L = HOME_LAYOUT;
+
+/**
+ * Tüm ana sayfaya yayılan hava katmanı (MP-4): güneşli → sıcak ışık, yağmurlu → ekran boyunca yağmur, karlı → kar,
+ * bulutlu → süzülen bulut, sisli → sis. Dokunuşu engellemez; üst bandın altından başlar (bantta kendi efekti var).
+ */
+export function GovdeHavasi({ sahne }: { sahne: HavaSahne }) {
+  const insets = useSafeAreaInsets();
+  const k = useHomeScale();
+  const { width, height } = useWindowDimensions();
+  const ust = L.bandH * k + insets.top;
+  return (
+    <View
+      pointerEvents="none"
+      style={{ position: 'absolute', left: 0, right: 0, top: ust, bottom: 0 }}
+    >
+      <HavaEfekti sahne={sahne} w={width} h={Math.max(0, height - ust)} govde />
+    </View>
+  );
+}
 
 /** Üst bant: amblem + 7 yuvarlak ikon. Üst boşluk safe-area'dan gelir (saat/çentik ile karışmaz). */
 export function TopBand({ unread, sahne = 'yok' }: { unread: number; sahne?: HavaSahne }) {
@@ -258,6 +278,15 @@ export function TabsCard({
   empty?: { onAdd: () => void };
 }) {
   const [open, setOpen] = useState<string | null>(null);
+  // TP-T5: Geri tuşu önce açık maddeyi kapatır (uygulamadan çıkmaz).
+  useEffect(() => {
+    if (open === null) return;
+    const s = BackHandler.addEventListener('hardwareBackPress', () => {
+      setOpen(null);
+      return true;
+    });
+    return () => s.remove();
+  }, [open]);
   const k = useHomeScale();
   const weights: Record<HomeTab, number> = {
     zaman: 1,

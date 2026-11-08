@@ -478,7 +478,6 @@ async function serbest(g: string, o: Ortam, son?: string): Promise<Adim> {
             ...(e2 ? { eylem: e2 } : {}),
             secenekler: secenek(['Uzmana da sor', 'uzmana sor']),
           }),
-          robot(SORU_UYARISI),
         ],
       };
     }
@@ -504,7 +503,6 @@ async function serbest(g: string, o: Ortam, son?: string): Promise<Adim> {
         kartlar,
         secenekler: card.kind === 'answer' ? undefined : secenek(['Uzmana da sor', 'uzmana sor']),
       }),
-      robot(SORU_UYARISI),
     ],
   };
 }

@@ -1,4 +1,5 @@
 import { gorselUri, gosterilir } from '../today/duyuru';
+import { haberGorselEslesen } from '../today/haberGorseli';
 import type {
   AnnouncementDto,
   CalendarDto,
@@ -132,7 +133,11 @@ export interface HomeCard {
 
 /** Kayan şeritteki en çok kart sayısı (G23: 10-12 kart). */
 export const MAX_CARDS = 12;
-const CARD_IMAGES = Array.from({ length: MAX_CARDS }, (_, i) => `kart_${i + 1}.jpg` as ImageName);
+// kart_10 (oyuncak örümcek robot) profesyonel durmadığı için yedek havuzdan çıkarıldı (TP-T3).
+const CARD_IMAGES = Array.from(
+  { length: MAX_CARDS },
+  (_, i) => `kart_${i + 1}.jpg` as ImageName,
+).filter((f) => f !== 'kart_10.jpg');
 
 /**
  * Şerit: önce onaylı duyurular (uzman içerikleri), sonra demo örnek kartları; en çok MAX_CARDS.
@@ -159,7 +164,10 @@ export function homeCards(
   const cards: HomeCard[] = anns.map((a, i) => ({
     id: `duyuru-${a.id}`,
     title: a.title,
-    image: free[i % Math.max(1, free.length)] ?? 'kart_1.jpg',
+    image:
+      (gorselUri(a) ? null : haberGorselEslesen(a)) ??
+      free[i % Math.max(1, free.length)] ??
+      'kart_1.jpg',
     uri: gorselUri(a),
     announcementId: a.id,
   }));
@@ -173,6 +181,51 @@ export function homeCards(
 export function fitFontSize(text: string, boxWidth: number, max = 19, min = 13): number {
   const len = Math.max(1, [...text].length);
   return Math.max(min, Math.min(max, Math.floor(boxWidth / (len * 0.55))));
+}
+
+export const SICAK_ESIK_C = 38;
+export const YAGIS_ESIK_MM = 25;
+
+const gunAdi = (n: number): string => (n <= 0 ? 'Bugün' : n === 1 ? 'Yarın' : `${n} gün sonra`);
+
+/**
+ * Erken uyarılar: tahmin edilen hava olaylarından (gerçek tahmin verisi; kaynak + tarih satırda). Yalnız
+ * ölçülen/tahmin edilen değer bildirilir, ilaç/uygulama önerisi yoktur (kural 1-2); mevsimle çelişen satır
+ * üretilmez çünkü satır yalnız tahminde o olay varsa çıkar (ör. Kasım'da "başaklanma" gibi evre iddiası yok).
+ */
+export function havaUyariSatirlari(today: TodayDto, todayIso: string): HomeRow[] {
+  const w = today.weather as TodayDto['weather'] | undefined;
+  if (!w) return [];
+  const rows: HomeRow[] = [];
+  const source = `${w.source} · ${w.fetchedAt.slice(0, 10)}`;
+  const t0 = Date.parse(`${todayIso}T00:00:00Z`);
+  for (const d of w.days ?? []) {
+    const n = Math.round((Date.parse(`${d.date}T00:00:00Z`) - t0) / 86_400_000);
+    if (!Number.isFinite(n) || n < 0 || n > 4) continue;
+    if (d.tMaxC >= SICAK_ESIK_C) {
+      rows.push({
+        id: `uyari-sicak-${d.date}`,
+        kind: 'uyari',
+        date: d.date,
+        title: `${gunAdi(n)} yüksek sıcaklık bekleniyor (${Math.round(d.tMaxC)}°)`,
+        detail: `Tahmini en yüksek sıcaklık ${Math.round(d.tMaxC)}°, en düşük ${Math.round(d.tMinC)}°.`,
+        source,
+        tone: 'normal',
+      });
+    }
+    if (d.precipMm !== null && d.precipMm >= YAGIS_ESIK_MM) {
+      rows.push({
+        id: `uyari-yagis-${d.date}`,
+        kind: 'uyari',
+        date: d.date,
+        title: `${gunAdi(n)} çok yağış bekleniyor (${Math.round(d.precipMm)} mm)`,
+        detail: `Tahmini günlük yağış ${Math.round(d.precipMm)} mm.`,
+        source,
+        tone: 'normal',
+      });
+    }
+  }
+  return rows;
 }
 
 /**
@@ -219,6 +272,7 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
       });
     }
   }
+  if (input.today) rows.push(...havaUyariSatirlari(input.today, input.todayIso ?? localIso()));
   for (const m of input.supports) {
     if (m.badge || m.status === 'kapali' || m.status === 'onay-bekliyor') continue;
     const s = m.support;
@@ -276,15 +330,15 @@ export function attentionCount(rows: HomeRow[]): number {
 export function emptyText(tab: HomeTab): string {
   switch (tab) {
     case 'zaman':
-      return 'Önümüzdeki günler için kayıtlı faaliyet yok.';
+      return 'Bu hafta için önemli bir iş yok.';
     case 'rehber':
-      return 'Bu ürün için faaliyet rehberi şu an yok.';
+      return 'Bu hafta için önemli bir rehber notu yok.';
     case 'uyari':
-      return 'Şu an aktif erken uyarı yok.';
+      return 'Şu an erken uyarı yok. Hava değişirse burada görünür.';
     case 'hibe':
       return 'Bu arazi için açık hibe, kredi ya da destek kaydı yok.';
     default:
-      return 'Şimdilik gösterilecek kayıt yok.';
+      return 'Bu hafta için önemli bir kayıt yok.';
   }
 }
 

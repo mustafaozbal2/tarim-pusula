@@ -1,15 +1,24 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  BackHandler,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { elevation, fontFamily, homeColors } from '@tarim/ui';
 import type { InboxItemDto } from '../../src/api/client';
 import { AsistanDugmesi } from '../../src/asistan/Asistan';
 import { SunucuKarti } from '../../src/components/SunucuKarti';
 import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
-import { loadHome, type HomeData } from '../../src/home/load';
+import { loadHome, loadHomeCache, type HomeData } from '../../src/home/load';
 import { havaSahnesi } from '../../src/design/havaSahne';
-import { CardStrip, FieldBlock, TabsCard, TopBand } from '../../src/home/HomeParts';
+import { CardStrip, FieldBlock, GovdeHavasi, TabsCard, TopBand } from '../../src/home/HomeParts';
 import {
   buildHomeRows,
   homeCards,
@@ -43,8 +52,19 @@ export default function HomeScreen() {
   const [seen, setSeen] = useState<string[]>([]);
   const [inbox, setInbox] = useState<InboxItemDto[]>([]);
 
+  const tekrar = useRef(false);
   const load = useCallback(async (pick?: string) => {
     setState((s) => (s === 'error' ? 'loading' : s));
+    // TP-T1: önbellek varsa iskelet yerine hemen göster, arkada tazele.
+    let onbellekte = false;
+    if (!pick) {
+      const c = await loadHomeCache(kv);
+      if (c) {
+        onbellekte = true;
+        setData((d) => d ?? c);
+        setState((s) => (s === 'loading' ? 'ready' : s));
+      }
+    }
     try {
       // En geç 10 sn: ağ yavaşsa iskelette asılı kalmaz (G22.7).
       const r = await withDeadline(loadHome(api, kv, pick));
@@ -54,13 +74,34 @@ export default function HomeScreen() {
       void api.inbox().then(setInbox, () => undefined);
       if (r) void registerForPush(api);
     } catch {
-      setState('error');
+      // Önbellekten gösterilen veri varsa hata ekranı çıkmaz; veri eski kalır.
+      if (!onbellekte) setState('error');
+      // Sunucu uyanıyor olabilir (ücretsiz plan): bir kez daha dene, eski veri o ana kadar görünür.
+      else if (!tekrar.current) {
+        tekrar.current = true;
+        setTimeout(() => void load(pick), 15_000);
+      }
     }
   }, []);
   useFocusEffect(
     useCallback(() => {
       void load();
     }, [load]),
+  );
+  // TP-T5: ana sayfada tek Geri uygulamayı kapatmaz; 2 sn içinde ikinci Geri çıkar.
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== 'android') return;
+      let son = 0;
+      const s = BackHandler.addEventListener('hardwareBackPress', () => {
+        const simdi = Date.now();
+        if (simdi - son < 2000) return false;
+        son = simdi;
+        ToastAndroid.show('Çıkmak için bir kez daha geri tuşuna bas', ToastAndroid.SHORT);
+        return true;
+      });
+      return () => s.remove();
+    }, []),
   );
 
   const rows = useMemo(
@@ -96,13 +137,11 @@ export default function HomeScreen() {
         });
 
   const field = data?.base.field;
+  const sahne = havaSahnesi(data?.base.today.weather.current?.weatherCode, new Date().getHours());
   return (
     <View style={styles.root}>
       <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-        <TopBand
-          unread={unread}
-          sahne={havaSahnesi(data?.base.today.weather.current?.weatherCode, new Date().getHours())}
-        />
+        <TopBand unread={unread} sahne={sahne} />
         {state === 'loading' ? (
           <View style={styles.pad}>
             <Iskelet rows={3} />
@@ -174,6 +213,8 @@ export default function HomeScreen() {
           </>
         ) : null}
       </ScrollView>
+      {/* MP-4: hava, bandın altında tüm sayfada hafifçe görünür (dokunuşu engellemez). */}
+      <GovdeHavasi sahne={sahne} />
       {/* Kaydırınca içerik saat/pil satırının altına girmesin. */}
       <View pointerEvents="none" style={[styles.statusCover, { height: insets.top }]} />
       {/* G26: yeşil robot asistan (ilk açılışta "Ne yapmak istersin?"). */}

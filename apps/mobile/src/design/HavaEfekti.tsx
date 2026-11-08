@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 import { Hale, useAzHareket } from './Gecis';
@@ -10,25 +10,80 @@ import { PARCACIK, tohum, type HavaSahne } from './havaSahne';
  * engellemez; parçacık sayısı az ve sabit, hareketler yerel sürücüde (cihazı yormaz). Telefonda
  * "hareketi azalt" açıksa yalnız durağan ışık kalır.
  */
-export function HavaEfekti({ sahne, w, h }: { sahne: HavaSahne; w: number; h: number }) {
+/** Renk takımı: bantta (koyu zemin) beyaz, sayfa gövdesinde (açık zemin) belirgin mavi-gri tonlar. */
+interface Palet {
+  gunes: string;
+  gunesIsin: string;
+  bulut: string;
+  bulutGuc: number;
+  sis: string;
+  yagmur: string;
+  kar: string;
+  karKenar: string;
+}
+const BANT: Palet = {
+  gunes: '#FFE7A3',
+  gunesIsin: '#FFF4CC',
+  bulut: '#FFFFFF',
+  bulutGuc: 0.42,
+  sis: '#FFFFFF',
+  yagmur: '#FFFFFF',
+  kar: '#FFFFFF',
+  karKenar: 'transparent',
+};
+const GOVDE: Palet = {
+  gunes: '#FFC93C',
+  gunesIsin: '#FFD966',
+  bulut: '#7F99AE',
+  bulutGuc: 0.3,
+  sis: '#AEBBC2',
+  yagmur: '#3E7CB1',
+  kar: '#FFFFFF',
+  karKenar: '#9DB9CF',
+};
+const PaletCtx = createContext<Palet>(BANT);
+
+/** `govde`: tüm ana sayfaya yayılan hafif katman (MP-4); parçacık sayısı pil için ölçülü. */
+export function HavaEfekti({
+  sahne,
+  w,
+  h,
+  govde = false,
+}: {
+  sahne: HavaSahne;
+  w: number;
+  h: number;
+  govde?: boolean;
+}) {
   const az = useAzHareket();
   if (sahne === 'yok' || w <= 0 || h <= 0) return null;
+  if (govde && sahne === 'gece') return null;
   return (
-    <View
-      pointerEvents="none"
-      style={[StyleSheet.absoluteFill, styles.clip]}
-      testID={`hava-efekti-${sahne}`}
-    >
-      {sahne === 'gunes' ? <Gunes w={w} h={h} az={az} /> : null}
-      {sahne === 'bulut' || sahne === 'sis' ? (
-        <Bulutlar w={w} h={h} az={az} sis={sahne === 'sis'} />
-      ) : null}
-      {sahne === 'yagmur' || sahne === 'firtina' ? (
-        <Yagmur w={w} h={h} az={az} n={PARCACIK[sahne]} hizli={sahne === 'firtina'} />
-      ) : null}
-      {sahne === 'kar' ? <Kar w={w} h={h} az={az} n={PARCACIK.kar} /> : null}
-      {sahne === 'gece' ? <Yildizlar w={w} h={h} az={az} n={PARCACIK.gece} /> : null}
-    </View>
+    <PaletCtx.Provider value={govde ? GOVDE : BANT}>
+      <View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, styles.clip]}
+        testID={govde ? `hava-govde-${sahne}` : `hava-efekti-${sahne}`}
+      >
+        {sahne === 'gunes' ? <Gunes w={w} h={h} az={az} /> : null}
+        {sahne === 'bulut' || sahne === 'sis' ? (
+          <Bulutlar w={w} h={h} az={az} sis={sahne === 'sis'} />
+        ) : null}
+        {sahne === 'yagmur' || sahne === 'firtina' ? (
+          <Yagmur
+            w={w}
+            h={h}
+            az={az}
+            n={Math.round(PARCACIK[sahne] * (govde ? 1.6 : 1))}
+            hizli={sahne === 'firtina'}
+          />
+        ) : null}
+        {sahne === 'kar' ? (
+          <Kar w={w} h={h} az={az} n={Math.round(PARCACIK.kar * (govde ? 1.6 : 1))} />
+        ) : null}
+        {sahne === 'gece' ? <Yildizlar w={w} h={h} az={az} n={PARCACIK.gece} /> : null}
+      </View>
+    </PaletCtx.Provider>
   );
 }
 
@@ -71,6 +126,7 @@ function useDongu(ms: number, delay: number, az: boolean, ters = false) {
 }
 
 function Gunes({ w, h, az }: { w: number; h: number; az: boolean }) {
+  const p = useContext(PaletCtx);
   const don = useDongu(60_000, 0, az);
   const nabiz = useDongu(5000, 0, az, true);
   // Işık sağ üstte; sol üstteki amblemin üstüne taşmaz.
@@ -82,7 +138,7 @@ function Gunes({ w, h, az }: { w: number; h: number; az: boolean }) {
   return (
     <>
       <Animated.View style={{ position: 'absolute', left: cx - r, top: cy - r, opacity }}>
-        <Hale id="gunes-hale" size={r * 2} color="#FFE7A3" strength={0.65} />
+        <Hale id="gunes-hale" size={r * 2} color={p.gunes} strength={0.65} />
       </Animated.View>
       <Animated.View
         style={{
@@ -105,7 +161,7 @@ function Gunes({ w, h, az }: { w: number; h: number; az: boolean }) {
                 y1={r + Math.sin(a) * r * 0.18}
                 x2={r + Math.cos(a) * r * 0.95}
                 y2={r + Math.sin(a) * r * 0.95}
-                stroke="#FFF4CC"
+                stroke={p.gunesIsin}
                 strokeWidth={i % 2 ? 3 : 6}
                 strokeLinecap="round"
               />
@@ -141,6 +197,7 @@ function Bulut({
   az: boolean;
   sis: boolean;
 }) {
+  const p = useContext(PaletCtx);
   const ms = 38_000 + tohum(i) * 22_000;
   const v = useDongu(ms, i * 900, az);
   const size = h * (sis ? 1.6 : 0.9 + tohum(i + 7) * 0.5);
@@ -161,7 +218,12 @@ function Bulut({
         transform: [{ translateX: x }, { scaleY: sis ? 0.35 : 0.55 }],
       }}
     >
-      <Hale id={`bulut-${i}`} size={size} color="#FFFFFF" strength={sis ? 0.32 : 0.42} />
+      <Hale
+        id={`bulut-${i}`}
+        size={size}
+        color={sis ? p.sis : p.bulut}
+        strength={sis ? 0.32 : p.bulutGuc}
+      />
     </Animated.View>
   );
 }
@@ -201,6 +263,7 @@ function Damla({
   az: boolean;
   hizli: boolean;
 }) {
+  const p = useContext(PaletCtx);
   const ms = (hizli ? 520 : 820) + tohum(i) * 420;
   const v = useDongu(ms, tohum(i + 5) * 1500, az);
   const len = 10 + tohum(i + 9) * 10;
@@ -214,6 +277,7 @@ function Damla({
         {
           left: x,
           height: len,
+          backgroundColor: p.yagmur,
           opacity: az ? 0 : 0.35 + tohum(i + 2) * 0.35,
           transform: [{ translateY }, { translateX }, { rotate: '12deg' }],
         },
@@ -233,6 +297,7 @@ function Kar({ w, h, az, n }: { w: number; h: number; az: boolean; n: number }) 
 }
 
 function Tane({ i, w, h, az }: { i: number; w: number; h: number; az: boolean }) {
+  const p = useContext(PaletCtx);
   const ms = 5200 + tohum(i) * 3800;
   const v = useDongu(ms, tohum(i + 4) * 4000, az);
   const salin = useDongu(2600 + tohum(i + 8) * 1800, 0, az, true);
@@ -249,6 +314,9 @@ function Tane({ i, w, h, az }: { i: number; w: number; h: number; az: boolean })
           width: d,
           height: d,
           borderRadius: d / 2,
+          backgroundColor: p.kar,
+          borderWidth: p.karKenar === 'transparent' ? 0 : 0.8,
+          borderColor: p.karKenar,
           opacity: az ? 0 : 0.6 + tohum(i + 3) * 0.4,
           transform: [{ translateY }, { translateX }],
         },

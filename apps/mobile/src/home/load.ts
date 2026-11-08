@@ -8,8 +8,8 @@ import type {
   SupportMatchDto,
 } from '../api/client';
 import type { KV } from '../offline/kv';
-import { loadAnnouncements } from '../today/announcements';
-import { FIELDS_CACHE, loadToday, type TodayResult } from '../today/load';
+import { announcementsKey, loadAnnouncements } from '../today/announcements';
+import { FIELDS_CACHE, SELECTED, loadToday, todayKey, type TodayResult } from '../today/load';
 
 export interface HomeData {
   base: TodayResult;
@@ -84,4 +84,40 @@ export async function loadHome(
   const raw = await kv.get(FIELDS_CACHE);
   const fields = raw ? (JSON.parse(raw) as { fields: FieldDto[] }).fields : [base.field];
   return { base, fields, calendar, supports, announcements, sample };
+}
+
+/**
+ * Soğuk açılışta ANINDA gösterilecek son ana sayfa verisi (TP-T1): sunucu uyanana kadar (ücretsiz planda ~20 sn)
+ * iskelet yerine son bilinen tarla, hava, takvim ve duyurular görünür; arkada tazelenir. Önbellek yoksa
+ * (ilk kurulum) null döner ve iskelet gösterilir. `offline` işaretlenmez: veri eski olabilir ama "internet yok"
+ * uyarısı çıkmaz; tazelenince yerini gerçek veri alır.
+ */
+export async function loadHomeCache(kv: KV): Promise<HomeData | null> {
+  try {
+    const raw = await kv.get(FIELDS_CACHE);
+    if (!raw) return null;
+    const fields = (JSON.parse(raw) as { fields: FieldDto[] }).fields.filter(
+      (f) => f.lat !== null && f.lon !== null,
+    );
+    if (fields.length === 0) return null;
+    const secili = await kv.get(SELECTED);
+    const field = fields.find((f) => f.id === secili) ?? fields[0]!;
+    const t = await kv.get(todayKey(field.id));
+    if (!t) return null;
+    const c = JSON.parse(t) as { at: string; today: TodayResult['today'] };
+    const read = async <T>(key: string, empty: T): Promise<T> => {
+      const v = await kv.get(key);
+      return v ? (JSON.parse(v) as T) : empty;
+    };
+    return {
+      base: { field, today: c.today, at: c.at, offline: false },
+      fields,
+      calendar: await read<CalendarDto | null>(calKey(field.id), null),
+      supports: await read<SupportMatchDto[]>(supKey(field.id), []),
+      announcements: await read<AnnouncementDto[]>(announcementsKey(field.id), []),
+      sample: null,
+    };
+  } catch {
+    return null;
+  }
 }

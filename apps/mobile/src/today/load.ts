@@ -12,7 +12,7 @@ export interface TodayResult {
 
 export const FIELDS_CACHE = 'cache.fields.v1';
 export const SELECTED = 'today.field';
-const todayKey = (id: string) => `cache.today.v1.${id}`;
+export const todayKey = (id: string) => `cache.today.v1.${id}`;
 
 interface Cached {
   at: string;

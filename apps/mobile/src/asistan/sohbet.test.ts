@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { FieldCreate } from '@tarim/schemas';
 import type { PusulaCardDto } from '../api/client';
 import { medyaBul, videoAdresi } from './medya';
+import { niyetBul } from './niyet';
 import {
   SORU_UYARISI,
   eslesenler,
@@ -171,13 +172,14 @@ describe('robot sohbeti: bilgi ve sorular', () => {
     const o = ortam();
     const a = await sohbet(o, 'fıstık ağacı budaması nasıl yapılır');
     expect(o.sorular).toHaveLength(1);
-    const [cevap, uyari] = a.mesajlar;
+    const [cevap] = a.mesajlar;
+    // Yapay zekâ uyarısı sohbette tekrarlanmaz (kartın altında sabit yazı var; MP-5b).
+    expect(a.mesajlar).toHaveLength(1);
     expect(cevap!.metin).toContain('Kalın dalları');
     const turler = cevap!.kartlar!.map((k) => k.tur);
     expect(turler).toContain('video');
     expect(turler).toContain('baglanti');
     expect(turler).toContain('kaynak');
-    expect(uyari!.metin).toBe(SORU_UYARISI);
     expect(SORU_UYARISI).toMatch(/Tüm risk size aittir/);
   });
 
@@ -229,5 +231,35 @@ describe('medya ve eşleştirme', () => {
       'Kırşehir',
       'Nevşehir',
     ]);
+  });
+});
+
+describe('sesle söylenen "arazi ekle" (MP-5a): tanıma hatalarına dayanıklı', () => {
+  it.each([
+    'Arazi eklemek istiyorum',
+    'arazı ekle mek istiyorum',
+    'harazi eklemek istiyorum',
+    'arası eklemek istiyorum',
+    'araziyi eklemek istiyorum',
+    'arazimi eklemek istiyorum',
+    'tarlamı kaydetmek istiyorum',
+    'yeni bir arazi',
+    'yeni bir yer eklemek istiyorum',
+    'bahçemi eklemek istiyorum',
+    'tarla ekleyelim',
+    'ben arazimi sisteme eklemek istiyorum',
+    'Tarla ekle',
+  ])('"%s" → tarla ekleme', (c) => {
+    expect(niyetBul(c)?.key).toBe('tarla-ekle');
+  });
+  it.each([
+    'hava nasıl olacak',
+    'tarlalarımı göster',
+    'zeytine ne zaman su verilir',
+    'arazimde yaprak sarardı',
+    'sorularım',
+    'domates fiyatı kaç',
+  ])('"%s" → tarla ekleme DEĞİL', (c) => {
+    expect(niyetBul(c)?.key).not.toBe('tarla-ekle');
   });
 });

@@ -3,7 +3,7 @@
     "name": "Tarım Pusula",
     "slug": "tarim-pusula",
     "scheme": "tarimpusula",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "plugins": [
@@ -87,10 +87,11 @@
         "POST_NOTIFICATIONS",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "REQUEST_INSTALL_PACKAGES"
       ],
       "blockedPermissions": ["READ_CONTACTS", "READ_SMS"],
-      "versionCode": 2
+      "versionCode": 3
     },
     "extra": {
       "router": {

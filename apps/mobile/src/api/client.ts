@@ -734,8 +734,17 @@ export function createApi(opts: ApiOptions) {
       fieldId?: string;
       image?: { mime: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string };
     }) => request<{ card: PusulaCardDto }>('POST', '/pusula/ask', body),
-    robotSohbet: (body: { soru: string; urun?: string | null; il?: string | null; gecmis?: string[] }) =>
-      request<{ cevap: string; yonlendir: string | null; kaynak: string }>('POST', '/robot/sohbet', body),
+    robotSohbet: (body: {
+      soru: string;
+      urun?: string | null;
+      il?: string | null;
+      gecmis?: string[];
+    }) =>
+      request<{ cevap: string; yonlendir: string | null; kaynak: string }>(
+        'POST',
+        '/robot/sohbet',
+        body,
+      ),
     robotSes: (metin: string) =>
       request<{ ses: { mime: string; ses_b64: string } | null }>('POST', '/robot/ses', { metin }),
     nearbyCreateCode: () => request<{ code: string; expiresAt: string }>('POST', '/nearby/codes'),

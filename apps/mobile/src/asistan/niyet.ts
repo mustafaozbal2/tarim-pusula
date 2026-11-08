@@ -119,10 +119,66 @@ const KURALLAR: [EylemKey, RegExp][] = [
   ['ayarlar', /\bayar|\bprofil|\bcikis yap|\byazi boyut/],
 ];
 
+/** Levenshtein uzaklığı (ses tanıma hatalarına dayanıklı eşleşme için). */
+export function uzaklik(a: string, b: string): number {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array<number>(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0]![j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      d[i]![j] = Math.min(
+        d[i - 1]![j]! + 1,
+        d[i]![j - 1]! + 1,
+        d[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+  return d[a.length]![b.length]!;
+}
+
+const YER = [
+  'arazi',
+  'tarla',
+  'bahce',
+  'parsel',
+  'ciftlik',
+  'alan',
+  'bag',
+  'toprak',
+  'zemin',
+  'arsa',
+];
+const EKLE = ['ekle', 'kaydet', 'olustur', 'tanimla', 'girmek', 'ekim'];
+
+/** Kelime, listedeki bir sözcüğün (ek almış hali dahil) 1 harf hatalı biçimi mi? Kısa sözcükte tam eşleşme ister. */
+function yakin(kelime: string, hedefler: string[]): boolean {
+  return hedefler.some((h) => {
+    const n = h.length;
+    const bas = kelime.slice(0, n);
+    if (n <= 3) return bas === h && kelime.length <= n + 4;
+    return uzaklik(bas, h) <= 1 || (kelime.length > n && uzaklik(kelime.slice(0, n + 1), h) <= 1);
+  });
+}
+
+/**
+ * "Arazi eklemek istiyorum" gibi cümleler sesle yanlış yazılabilir ("arası ekle mek", "harazi ekleyelim"):
+ * bir yer sözcüğü + ekleme sözcüğü, ya da "yeni bir yer/alan" varsa tarla ekleme niyetidir. Sorgu soruysa
+ * ("tarlamı nasıl eklerim") yine ekleme sayılır; "göster/listele" gibi fiiller varsa sayılmaz.
+ */
+export function tarlaEklemeBulanik(sade: string): boolean {
+  const k = sade.split(' ').filter(Boolean);
+  if (k.some((x) => /^(goster|listele|sil|duzenle|degistir|kac)/.test(x))) return false;
+  // Ses tanıma bazen "ekle mek" diye böler: bitişik iki kelimeyi birleştirerek de dene.
+  const birlesik = k.flatMap((x, i) => (i + 1 < k.length ? [x + k[i + 1]!] : []));
+  const ekle = [...k, ...birlesik].some((x) => yakin(x, EKLE));
+  const yer = k.some((x) => yakin(x, YER));
+  const yeniYer = k.includes('yeni') && k.some((x) => /^(yer|alan|arazi|tarla|bahce|bag)/.test(x));
+  return (ekle && yer) || (ekle && yeniYer) || yeniYer;
+}
+
 /** Cümleden eylem; bulunamazsa null (robot uzmana yönlendirmeyi önerir). */
 export function niyetBul(metin: string): Eylem | null {
   const s = sadelestir(metin);
   if (!s) return null;
+  if (tarlaEklemeBulanik(s) && !/\b(sorularim|cevab)/.test(s)) return EYLEMLER['tarla-ekle'];
   for (const [key, re] of KURALLAR) if (re.test(s)) return EYLEMLER[key];
+  if (tarlaEklemeBulanik(s)) return EYLEMLER['tarla-ekle'];
   return null;
 }

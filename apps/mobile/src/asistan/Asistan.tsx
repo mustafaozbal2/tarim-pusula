@@ -24,7 +24,7 @@ import { expoLocation } from '../location/expoLocation';
 import { kv } from '../offline/kvStore';
 import { listen } from '../pusula/voice';
 import { useSettings } from '../settings';
-import { konus, sustur } from './konus';
+import { konus, konusuyor, sustur } from './konus';
 import { voiceMessage } from '../pusula/voiceTypes';
 import { api, queue } from '../session';
 import { videoAdresi, videoKucuk } from './medya';
@@ -229,6 +229,13 @@ function SohbetKarti({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   const sesle = async () => {
     if (dinle || busy) return;
+    // MP-5d: robot konuşurken kayıt başlarsa kendi sesini duyup kendini algılar; önce sus, yankı dinsin.
+    if (konusuyor()) {
+      sustur();
+      await new Promise((r) => setTimeout(r, 450));
+    } else {
+      sustur();
+    }
     setDinle(true);
     const r = await listen();
     setDinle(false);

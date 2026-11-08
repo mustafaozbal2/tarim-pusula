@@ -71,3 +71,25 @@ describe('loadHome', () => {
     expect(r?.calendar?.cropId).toBe('kiraz');
   });
 });
+
+describe('loadHomeCache (TP-T1: soğuk açılışta anında göster)', () => {
+  it('önbellek yoksa null (iskelet); varsa son bilinen veriyi ağsız verir', async () => {
+    const { MemoryKV } = await import('../offline/kv');
+    const { loadHomeCache } = await import('./load');
+    const kv = new MemoryKV();
+    expect(await loadHomeCache(kv)).toBeNull();
+    const f = { id: 'f1', name: 'Bağ', lat: 37, lon: 37, cropId: 'zeytin' };
+    await kv.set('cache.fields.v1', JSON.stringify({ at: 'x', fields: [f] }));
+    expect(await loadHomeCache(kv)).toBeNull(); // hava önbelleği yoksa yine iskelet
+    await kv.set(
+      'cache.today.v1.f1',
+      JSON.stringify({ at: '2026-11-08T05:00:00Z', today: { fieldId: 'f1' } }),
+    );
+    await kv.set('cache.announcements.v1.f1', JSON.stringify([{ id: 'a1', title: 'D' }]));
+    const r = await loadHomeCache(kv);
+    expect(r!.base.field.id).toBe('f1');
+    expect(r!.base.offline).toBe(false);
+    expect(r!.announcements).toHaveLength(1);
+    expect(r!.calendar).toBeNull();
+  });
+});

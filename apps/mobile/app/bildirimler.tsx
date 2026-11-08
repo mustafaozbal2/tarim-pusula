@@ -22,7 +22,9 @@ import { tr } from '../src/i18n/tr';
 import { kv } from '../src/offline/kvStore';
 import {
   loadSeen,
+  bildirimHedefi,
   markAllSeen,
+  markSeen,
   notificationItems,
   type NotificationItem,
 } from '../src/notifications/state';
@@ -59,9 +61,26 @@ export default function NotificationsScreen() {
     const seen = new Set(await loadSeen(kv));
     setUnreadKeys(new Set(list.filter((i) => !seen.has(i.key)).map((i) => i.key)));
     setItems(list);
-    await markAllSeen(kv, list);
-    void api.inboxRead().catch(() => undefined);
   }, []);
+
+  /** Dokununca okundu sayılır ve ilgili sayfa açılır (yoksa yalnız okundu olur). */
+  const ac = async (n: NotificationItem) => {
+    await markSeen(kv, n);
+    setUnreadKeys((u) => {
+      const k = new Set(u);
+      k.delete(n.key);
+      return k;
+    });
+    if (n.id.startsWith('uzman-')) void api.inboxRead().catch(() => undefined);
+    const hedef = bildirimHedefi(n.id);
+    if (hedef) router.push(hedef as never);
+  };
+  const hepsiniOku = async () => {
+    if (!items) return;
+    await markAllSeen(kv, items);
+    setUnreadKeys(new Set());
+    void api.inboxRead().catch(() => undefined);
+  };
   useFocusEffect(
     useCallback(() => {
       void load();
@@ -92,6 +111,16 @@ export default function NotificationsScreen() {
           <Text style={styles.heroSub}>{t.note}</Text>
         </View>
       </View>
+      {items && unreadKeys.size > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          testID="hepsini-okundu"
+          onPress={() => void hepsiniOku()}
+          style={styles.readAll}
+        >
+          <Text style={styles.readAllText}>{t.markAllRead}</Text>
+        </Pressable>
+      ) : null}
       {items === null && !failed ? <Iskelet /> : null}
       {failed ? <YuklemeHatasi onRetry={() => void load()} /> : null}
       {items?.length === 0 ? <Durum kind="bos" text={t.empty} /> : null}
@@ -104,14 +133,12 @@ export default function NotificationsScreen() {
               const unread = unreadKeys.has(n.key);
               return (
                 <Pressable
-                  accessibilityRole={n.id.startsWith('uzman-') ? 'button' : 'text'}
+                  accessibilityRole="button"
                   key={n.key}
                   style={[styles.card, look.kind === 'uyari' && styles.cardWarn]}
                   testID="liste-satiri"
                   accessibilityLabel={`${n.title}${unread ? `, ${t.unread}` : ''}`}
-                  // Uzman cevabı: dokununca Sorularım (cevabın tamamı ve dayanağı).
-                  onPress={n.id.startsWith('uzman-') ? () => router.push('/sorularim') : undefined}
-                  disabled={!n.id.startsWith('uzman-')}
+                  onPress={() => void ac(n)}
                 >
                   <View style={[styles.iconBox, styles[`icon_${look.kind}` as 'icon_hava']]}>
                     <Icon name={look.icon} size={22} color="#FFFFFF" />
@@ -136,6 +163,14 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
+  readAll: {
+    alignSelf: 'flex-end',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: radius.card,
+    backgroundColor: colors.forest,
+  },
+  readAllText: { fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FFFFFF' },
   hero: {
     flexDirection: 'row',
     alignItems: 'center',

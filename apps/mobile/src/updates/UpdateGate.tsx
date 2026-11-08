@@ -12,6 +12,7 @@ import {
 import { fontFamily } from '@tarim/ui';
 import { IMAGE_FILES } from '../assets';
 import { tr } from '../i18n/tr';
+import { apkKur, gercekKurucu } from './apkKur';
 import { applyUpdate, checkApk, checkAtStart, type ApkManifest, type UpdatesApi } from './core';
 
 const t = tr.gate;
@@ -23,7 +24,8 @@ type Phase =
   | { k: 'update' }
   | { k: 'downloading' }
   | { k: 'failed' }
-  | { k: 'apk'; adres: string };
+  | { k: 'apk'; adres: string }
+  | { k: 'apk-indiriyor'; adres: string; oran: number };
 
 /** Sitedeki surum.json'u okur (yerel kod değişince yüklü APK'nın en az sürümünü bildirir). */
 export const loadApkManifest = async (): Promise<ApkManifest> => {
@@ -72,20 +74,43 @@ export function UpdateGate({
     else if (r === 'guncel') setPhase({ k: 'open' });
   }, [api]);
 
+  // MP-6: APK uygulama içinde iner ve kurucu doğrudan açılır; olmazsa eski yol (tarayıcı).
+  const apkGuncelle = async (adres: string) => {
+    setPhase({ k: 'apk-indiriyor', adres, oran: 0 });
+    const r =
+      Platform.OS === 'android'
+        ? await apkKur(adres, gercekKurucu(), (oran) =>
+            setPhase({ k: 'apk-indiriyor', adres, oran }),
+          )
+        : 'hata';
+    if (r === 'hata') {
+      void Linking.openURL(adres);
+      setPhase({ k: 'apk', adres });
+    } else {
+      setPhase({ k: 'apk', adres });
+    }
+  };
+
   if (phase.k === 'open') return null;
-  const busy = phase.k === 'checking' || phase.k === 'downloading';
+  const busy = phase.k === 'checking' || phase.k === 'downloading' || phase.k === 'apk-indiriyor';
   const title =
-    phase.k === 'apk' ? t.apkTitle : phase.k === 'checking' ? t.checking : t.updateTitle;
+    phase.k === 'apk' || phase.k === 'apk-indiriyor'
+      ? t.apkTitle
+      : phase.k === 'checking'
+        ? t.checking
+        : t.updateTitle;
   const body =
     phase.k === 'apk'
       ? t.apkBody
-      : phase.k === 'downloading'
-        ? t.downloading
-        : phase.k === 'failed'
-          ? t.failed
-          : phase.k === 'update'
-            ? t.updateBody
-            : null;
+      : phase.k === 'apk-indiriyor'
+        ? `${t.apkIniyor} %${Math.round(phase.oran * 100)}`
+        : phase.k === 'downloading'
+          ? t.downloading
+          : phase.k === 'failed'
+            ? t.failed
+            : phase.k === 'update'
+              ? t.updateBody
+              : null;
   return (
     <View style={styles.cover} testID="guncelleme-kapisi" accessibilityViewIsModal>
       <Image
@@ -112,7 +137,7 @@ export function UpdateGate({
         <Pressable
           accessibilityRole="button"
           testID="apk-dugmesi"
-          onPress={() => void Linking.openURL(phase.adres)}
+          onPress={() => void apkGuncelle(phase.adres)}
           style={styles.button}
         >
           <Text style={styles.buttonText}>{t.apkButton}</Text>

@@ -108,3 +108,16 @@ describe('örnek ana sayfa içeriği (G22, data/ornek_icerik)', () => {
     }
   }, 60_000);
 });
+
+describe('ORNEK_ICERIK=0 (canlı)', () => {
+  it('denetleyici örnek içerik vermez (404)', async () => {
+    const { OrnekIcerikController } = await import('./ornek-icerik');
+    process.env['ORNEK_ICERIK'] = '0';
+    try {
+      expect(() => new OrnekIcerikController().get('zeytin')).toThrow(/kapalı/);
+    } finally {
+      delete process.env['ORNEK_ICERIK'];
+    }
+    expect(new OrnekIcerikController().get('zeytin').urunId).toBe('zeytin');
+  });
+});

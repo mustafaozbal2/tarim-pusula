@@ -197,6 +197,7 @@ export const tr = {
     note: 'Yalnız kaynaklı ve doğrulanmış bilgiler bildirim olur.',
     unreadCount: '{{n}} yeni bildirimin var',
     allRead: 'Hepsini okudun',
+    markAllRead: 'Hepsini okundu say',
   },
   yieldMap: {
     title: 'Verim Haritası',
@@ -893,7 +894,8 @@ export const tr = {
     apkTitle: 'Uygulamanın yeni sürümünü kur',
     apkBody:
       'Bu sürüm eskidi. Yeni sürümü indirip kur; kurulumdan sonra bilgilerin ve tarlaların aynen duracak.',
-    apkButton: 'Yeni sürümü indir',
+    apkButton: 'Güncelle',
+    apkIniyor: 'Yeni sürüm indiriliyor. Bitince kurulum ekranı açılır, “Güncelle”ye dokun.',
   },
   settings: {
     hero: 'Hesabın, verilerin ve uygulama ayarların burada.',

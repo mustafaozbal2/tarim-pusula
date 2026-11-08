@@ -14,6 +14,7 @@ import {
   nextCardIndex,
   placeLine,
   rowsForTab,
+  havaUyariSatirlari,
 } from './model';
 
 const ornek = (id: string) =>
@@ -311,7 +312,8 @@ describe('demo örnek içeriği (G22)', () => {
     );
     const cards = homeCards(many, ornek('zeytin'));
     expect(cards).toHaveLength(12);
-    expect(new Set(cards.map((c) => c.image)).size).toBe(12);
+    expect(new Set(cards.map((c) => c.image)).size).toBe(11);
+    expect(cards.map((c) => c.image)).not.toContain('kart_10.jpg');
   });
   it('arazi adı yazı boyutu kutuya sığar (13-19 px)', () => {
     expect(fitFontSize('Kiraz Bahçesi', 185)).toBe(19);
@@ -322,5 +324,33 @@ describe('demo örnek içeriği (G22)', () => {
     const s = ornek('zeytin');
     s.kartlar[0]!.gorsel = 'yok.jpg';
     for (const c of homeCards([], s)) expect(c.image).toMatch(/^kart_[1-5]\.jpg$/);
+  });
+});
+
+describe('havaUyariSatirlari (MP-2): gerçek tahminden erken uyarı', () => {
+  const gun = (date: string, tMaxC: number, precipMm: number | null) => ({
+    date,
+    tMinC: 10,
+    tMaxC,
+    precipMm,
+  });
+  const today = (days: ReturnType<typeof gun>[]) =>
+    ({
+      weather: { source: 'Open-Meteo', fetchedAt: '2026-11-08T05:00:00Z', days },
+    }) as unknown as import('../api/client').TodayDto;
+
+  it('eşik aşılırsa satır çıkar; kaynak ve tarih taşır; öneri/ilaç dili yok', () => {
+    const r = havaUyariSatirlari(
+      today([gun('2026-11-08', 20, 0), gun('2026-11-09', 39.4, 30), gun('2026-11-10', 37, 5)]),
+      '2026-11-08',
+    );
+    expect(r.map((x) => x.id)).toEqual(['uyari-sicak-2026-11-09', 'uyari-yagis-2026-11-09']);
+    expect(r[0]!.title).toBe('Yarın yüksek sıcaklık bekleniyor (39°)');
+    expect(r[0]!.source).toBe('Open-Meteo · 2026-11-08');
+    expect(JSON.stringify(r)).not.toMatch(/ilaç|dozu|ml\b/i);
+  });
+  it('sakin hava ve geçmiş/uzak günler için satır yok', () => {
+    expect(havaUyariSatirlari(today([gun('2026-11-08', 22, 1)]), '2026-11-08')).toEqual([]);
+    expect(havaUyariSatirlari(today([gun('2026-11-07', 40, 50)]), '2026-11-08')).toEqual([]);
   });
 });
