@@ -60,6 +60,7 @@ import { NUVIA, NuviaBeklemeService } from './nuvia/bekleme';
 import { varsayilanNuvia, type NuviaClient } from './nuvia/client';
 import { varsayilanAnalizci, type HaberAnalizci } from './tarama/analiz';
 import { ResmiKaynakController, TaramaAdminController } from './tarama/controller';
+import { YonetimController } from './yonetim';
 import { TARAMA_ANALIZ, TARAMA_FETCH, TaramaService } from './tarama/servis';
 import { MarketService } from './market/service';
 import { NdviController } from './ndvi/ndvi.controller';
@@ -145,6 +146,7 @@ export class AppModule {
         HealthController,
         ResmiKaynakController,
         TaramaAdminController,
+        YonetimController,
         AuthController,
         FieldsController,
         DevicesController,

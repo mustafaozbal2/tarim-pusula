@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Tarım Pusula — Yönetim Paneli</title>
+    <meta name="theme-color" content="#0E3B37" />
+    <link rel="icon" type="image/png" href="img/amblem.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="config.js"></script>
+    <style>
+      :root {
+        --g9: #0a2b28; --g8: #0e3b37; --g7: #145049; --g5: #1f7a6d; --g2: #b2e2da; --g1: #e8f4f1;
+        --gold: #d9a441; --gold2: #f3d58b; --red: #c0392b; --amber: #d98a00; --blue: #2a6fb0;
+        --bg: #f3f6f5; --card: #fff; --line: #e2e8e6; --tx: #14302d; --mu: #64807b;
+        --r: 14px; --sh: 0 1px 2px rgba(14, 59, 55, 0.06), 0 8px 24px rgba(14, 59, 55, 0.06);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; }
+      body { font-family: 'Manrope', system-ui, sans-serif; background: var(--bg); color: var(--tx); font-size: 14px; }
+      button { font: inherit; cursor: pointer; }
+      [hidden] { display: none !important; }
+
+      /* GİRİŞ */
+      .login { min-height: 100%; display: grid; grid-template-columns: 1.1fr 1fr; }
+      .login-art { background: linear-gradient(160deg, rgba(10,43,40,.88), rgba(20,80,73,.7)), url(img/genis_tarla.jpg) center/cover; color: #fff; padding: 56px; display: flex; flex-direction: column; justify-content: space-between; }
+      .login-art h1 { font-size: 36px; line-height: 1.15; margin: 0 0 14px; font-weight: 800; letter-spacing: -.02em; }
+      .login-art p { color: var(--g2); max-width: 440px; line-height: 1.6; margin: 0; }
+      .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 18px; }
+      .brand img { width: 42px; height: 42px; }
+      .login-form { display: flex; align-items: center; justify-content: center; padding: 32px; background: #fff; }
+      .login-box { width: 100%; max-width: 380px; }
+      .login-box h2 { margin: 0 0 6px; font-size: 26px; font-weight: 800; }
+      .login-box .sub { color: var(--mu); margin: 0 0 26px; }
+      label { display: block; font-weight: 700; font-size: 12px; margin: 16px 0 6px; color: var(--g7); text-transform: uppercase; letter-spacing: .05em; }
+      input[type=text], input[type=password], input[type=search] { width: 100%; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 10px; font: inherit; background: #fbfdfc; outline: none; transition: .15s; }
+      input:focus { border-color: var(--g5); box-shadow: 0 0 0 4px rgba(31,122,109,.12); background: #fff; }
+      .btn { background: var(--g8); color: #fff; border: 0; padding: 13px 18px; border-radius: 10px; font-weight: 700; transition: .15s; }
+      .btn:hover { background: var(--g7); }
+      .btn.block { width: 100%; margin-top: 22px; padding: 14px; font-size: 15px; }
+      .btn.ghost { background: #fff; color: var(--g8); border: 1.5px solid var(--line); padding: 9px 14px; }
+      .btn.ghost:hover { border-color: var(--g5); background: var(--g1); }
+      .err { color: var(--red); background: #fdecea; border-radius: 8px; padding: 10px 12px; margin-top: 14px; font-weight: 600; }
+      .info { color: var(--g7); background: var(--g1); border-radius: 8px; padding: 10px 12px; margin-top: 14px; }
+      .back { display: inline-block; margin-top: 22px; color: var(--mu); text-decoration: none; font-weight: 600; }
+      .back:hover { color: var(--g8); }
+
+      /* PANEL */
+      .app { display: grid; grid-template-columns: 252px 1fr; min-height: 100%; }
+      .side { background: var(--g9); color: #cfe7e2; padding: 20px 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+      .side .brand { color: #fff; padding: 4px 10px 20px; }
+      .nav-g { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: #6d9a93; margin: 18px 12px 6px; font-weight: 700; }
+      .nav a { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 10px; color: #cfe7e2; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 2px; }
+      .nav a:hover { background: rgba(255,255,255,.07); }
+      .nav a.on { background: var(--g5); color: #fff; }
+      .nav a svg { width: 18px; height: 18px; flex: none; opacity: .9; }
+      .nav a .n { margin-left: auto; font-size: 11px; background: rgba(255,255,255,.14); padding: 2px 8px; border-radius: 99px; }
+      .side-foot { margin-top: auto; font-size: 12px; color: #6d9a93; padding: 14px 10px 0; line-height: 1.5; }
+      .main { min-width: 0; }
+      .top { position: sticky; top: 0; z-index: 5; background: rgba(243,246,245,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 14px 28px; display: flex; align-items: center; gap: 14px; }
+      .top h1 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -.01em; }
+      .top .sp { flex: 1; }
+      .pill { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 99px; background: #fff; border: 1px solid var(--line); font-weight: 700; font-size: 12px; color: var(--g7); }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: #2fb36d; }
+      .dot.bad { background: var(--red); } .dot.wait { background: var(--amber); }
+      .content { padding: 24px 28px 48px; max-width: 1500px; }
+      .burger { display: none; background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; }
+
+      .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-bottom: 20px; }
+      .kpi { background: var(--card); border-radius: var(--r); padding: 18px; box-shadow: var(--sh); border: 1px solid var(--line); position: relative; overflow: hidden; }
+      .kpi::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c, var(--g5)); }
+      .kpi .l { color: var(--mu); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+      .kpi .v { font-size: 30px; font-weight: 800; margin-top: 6px; letter-spacing: -.02em; }
+      .kpi .s { color: var(--mu); font-size: 12px; margin-top: 2px; }
+      .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-bottom: 16px; }
+      .card { background: var(--card); border-radius: var(--r); box-shadow: var(--sh); border: 1px solid var(--line); padding: 20px; min-width: 0; }
+      .card h3 { margin: 0 0 14px; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+      .card h3 small { color: var(--mu); font-weight: 600; font-size: 12px; }
+
+      .bar { display: grid; grid-template-columns: 130px 1fr 44px; align-items: center; gap: 10px; margin: 7px 0; font-size: 13px; }
+      .bar .t { height: 10px; background: var(--g1); border-radius: 99px; overflow: hidden; }
+      .bar .t i { display: block; height: 100%; background: linear-gradient(90deg, var(--g5), #3fa592); border-radius: 99px; }
+      .bar .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+      .bar .c { text-align: right; font-weight: 800; color: var(--g7); }
+      .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--mu); font-weight: 600; }
+      .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+      .tools { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+      .tools input[type=search] { max-width: 340px; }
+      .tools .cnt { color: var(--mu); font-weight: 600; margin-left: auto; }
+      .tw { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); overflow: auto; max-height: calc(100vh - 210px); }
+      table { border-collapse: collapse; width: 100%; font-size: 13px; }
+      th { position: sticky; top: 0; background: #f6faf9; text-align: left; padding: 11px 14px; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--g7); border-bottom: 1px solid var(--line); cursor: pointer; white-space: nowrap; user-select: none; }
+      th:hover { background: var(--g1); }
+      td { padding: 11px 14px; border-bottom: 1px solid #eef3f1; vertical-align: top; max-width: 420px; }
+      tr:hover td { background: #fafdfc; }
+      .cl { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+      td.long { white-space: pre-wrap; line-height: 1.5; min-width: 260px; }
+      td a { color: var(--g5); font-weight: 700; text-decoration: none; }
+      td a:hover { text-decoration: underline; }
+      .tag { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 800; background: var(--g1); color: var(--g7); white-space: nowrap; }
+      .tag.ok { background: #e1f5ea; color: #187a45; } .tag.warn { background: #fff1d6; color: #9a6200; }
+      .tag.bad { background: #fde7e4; color: #a82a1d; } .tag.ai { background: #e6eefb; color: #1f4f8f; } .tag.mu { background: #eef2f1; color: #5b726d; }
+      .empty { padding: 60px 20px; text-align: center; color: var(--mu); }
+      .hv { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+      .hv .c { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; box-shadow: var(--sh); }
+      .hv .h { display: flex; justify-content: space-between; align-items: baseline; }
+      .hv .h b { font-size: 16px; } .hv .big { font-size: 30px; font-weight: 800; }
+      .hv .d { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; text-align: center; font-size: 12px; }
+      .hv .d div { background: var(--g1); border-radius: 9px; padding: 8px 2px; } .hv .d div.fr { background: #e6eefb; color: #1f4f8f; }
+      .hv .d b { display: block; font-size: 13px; }
+      .toast { position: fixed; right: 20px; bottom: 20px; background: var(--g8); color: #fff; padding: 12px 16px; border-radius: 10px; box-shadow: var(--sh); z-index: 30; font-weight: 600; }
+      .skel { height: 14px; border-radius: 6px; background: linear-gradient(90deg, #e9f0ee, #f6faf9, #e9f0ee); background-size: 200% 100%; animation: sk 1.2s infinite; margin: 10px 0; }
+      @keyframes sk { to { background-position: -200% 0; } }
+
+      @media (max-width: 900px) {
+        .login { grid-template-columns: 1fr; } .login-art { display: none; }
+        .app { grid-template-columns: 1fr; }
+        .side { position: fixed; left: -270px; width: 252px; z-index: 20; transition: .2s; } .side.open { left: 0; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); }
+        .burger { display: block; } .content { padding: 16px; } .top { padding: 12px 16px; }
+      }
+      @media print { .side, .top, .tools { display: none; } .app { display: block; } .tw { max-height: none; } }
+    </style>
+  </head>
+  <body>
+    <!-- GİRİŞ -->
+    <section class="login" id="login">
+      <div class="login-art">
+        <div class="brand"><img src="img/amblem.png" alt="" /> Tarım Pusula</div>
+        <div>
+          <h1>Bilinçli Tarım,<br />Verimli Üretim</h1>
+          <p>Yönetim paneli: tüm illerden gelen kullanıcı, arazi, haber, hava durumu, bildirim ve yapay zekâ cevaplarını tek ekrandan izleyin.</p>
+        </div>
+        <div style="color:#8dbcb4;font-size:12px">Teknofest Tarım Teknolojileri · Veriler KVKK gereği maskelenmiştir.</div>
+      </div>
+      <div class="login-form">
+        <form class="login-box" id="form" autocomplete="on">
+          <h2>Yönetici girişi</h2>
+          <p class="sub">Devam etmek için hesap bilgilerinizi girin.</p>
+          <label for="u">Kullanıcı adı</label>
+          <input type="text" id="u" name="username" autocomplete="username" required autofocus />
+          <label for="p">Şifre</label>
+          <input type="password" id="p" name="password" autocomplete="current-password" required />
+          <div class="err" id="err" hidden></div>
+          <div class="info" id="wait" hidden>Sunucu uyanıyor, bu ilk girişte 20-30 saniye sürebilir…</div>
+          <button class="btn block" id="go" type="submit">Giriş yap</button>
+          <a class="back" href="./">&larr; Siteye dön</a>
+        </form>
+      </div>
+    </section>
+
+    <!-- PANEL -->
+    <div class="app" id="app" hidden>
+      <aside class="side" id="side">
+        <div class="brand"><img src="img/amblem.png" alt="" /> Tarım Pusula</div>
+        <nav class="nav" id="nav"></nav>
+        <div class="side-foot">Yönetim Paneli<br /><span id="ft"></span></div>
+      </aside>
+      <div class="main">
+        <div class="top">
+          <button class="burger" id="burger" aria-label="Menü">&#9776;</button>
+          <h1 id="title">Genel Bakış</h1>
+          <span class="sp"></span>
+          <span class="pill"><i class="dot" id="live"></i><span id="liveT">Bağlı</span></span>
+          <button class="btn ghost" id="refresh">Yenile</button>
+          <button class="btn ghost" id="print">Yazdır</button>
+          <button class="btn ghost" id="out">Çıkış</button>
+        </div>
+        <div class="content" id="content"></div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        'use strict';
+        var API = (window.SITE && window.SITE.api) || 'https://tarim-pusula-api.onrender.com';
+        var $ = function (s) { return document.querySelector(s); };
+        var jeton = null;
+        try { jeton = sessionStorage.getItem('yj'); } catch (e) {}
+        var timer = null, current = 'ozet', cache = {};
+
+        var IC = {
+          ozet: '<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>',
+          kullanicilar: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+          araziler: '<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+          haberler: '<path d="M4 4h13v16H6a2 2 0 0 1-2-2zM17 8h3v10a2 2 0 0 1-2 2M8 8h5M8 12h5M8 16h5"/>',
+          kaynaklar: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+          sorular: '<path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.4A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
+          hava: '<path d="M7 18a4 4 0 0 1-.6-8A6 6 0 0 1 18 9.5 4.3 4.3 0 0 1 17.5 18z"/>',
+          bildirimler: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/>',
+          cihazlar: '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M8 10h.01M12 10h4M8 14h8"/>',
+          fiyatlar: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',
+          denetim: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/>',
+          yz: '<rect x="5" y="7" width="14" height="11" rx="3"/><path d="M12 7V4M9 12h.01M15 12h.01M9 16h6"/>'
+        };
+        var MENU = [
+          ['Özet', [['ozet', 'Genel Bakış']]],
+          ['Veriler', [['kullanicilar', 'Kullanıcılar'], ['araziler', 'Araziler'], ['haberler', 'Haberler'], ['kaynaklar', 'Resmî Kaynaklar'], ['fiyatlar', 'Pazar Fiyatları']]],
+          ['Yapay Zekâ ve Uzman', [['sorular', 'Uzmana Sor ve Cevaplar'], ['yz', 'Yapay Zekâ Durumu']]],
+          ['Hava ve Bildirim', [['hava', 'Hava Durumu'], ['bildirimler', 'Bildirimler'], ['cihazlar', 'Cihazlar']]],
+          ['Sistem', [['denetim', 'Denetim Kaydı']]]
+        ];
+
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+        function nf(n) { return Number(n || 0).toLocaleString('tr-TR'); }
+        function tarih(v, saat) {
+          if (!v) return '—'; var d = new Date(v); if (isNaN(d)) return esc(v);
+          return d.toLocaleDateString('tr-TR') + (saat === false ? '' : ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }));
+        }
+        function toast(m) { var t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 2600); }
+
+        function api(path, opt) {
+          opt = opt || {};
+          var h = { 'content-type': 'application/json' }; if (jeton) h['x-yonetim'] = jeton;
+          var ctl = new AbortController(); var to = setTimeout(function () { ctl.abort(); }, opt.timeout || 70000);
+          return fetch(API + path, { method: opt.method || 'GET', headers: h, body: opt.body ? JSON.stringify(opt.body) : undefined, signal: ctl.signal })
+            .then(function (r) {
+              clearTimeout(to);
+              if (r.status === 401 && jeton) { cikis(true); throw new Error('oturum'); }
+              return r.json().then(function (j) { if (!r.ok) throw new Error(j.message || 'Hata ' + r.status); return j; });
+            });
+        }
+        function durum(ok, t) { $('#live').className = 'dot' + (ok === true ? '' : ok === false ? ' bad' : ' wait'); $('#liveT').textContent = t; }
+
+        /* GİRİŞ */
+        $('#form').addEventListener('submit', function (e) {
+          e.preventDefault();
+          var err = $('#err'), w = $('#wait'), go = $('#go');
+          err.hidden = true; w.hidden = true; go.disabled = true; go.textContent = 'Giriş yapılıyor…';
+          var bekle = setTimeout(function () { w.hidden = false; }, 3500);
+          api('/yonetim/giris', { method: 'POST', body: { kullanici: $('#u').value.trim(), sifre: $('#p').value } })
+            .then(function (r) { jeton = r.jeton; try { sessionStorage.setItem('yj', jeton); } catch (x) {} basla(); })
+            .catch(function (x) { err.textContent = x.name === 'AbortError' ? 'Sunucuya ulaşılamadı. Biraz sonra tekrar deneyin.' : x.message; err.hidden = false; })
+            .then(function () { clearTimeout(bekle); w.hidden = true; go.disabled = false; go.textContent = 'Giriş yap'; });
+        });
+        function cikis(sure) {
+          jeton = null; try { sessionStorage.removeItem('yj'); } catch (e) {}
+          clearInterval(timer); $('#app').hidden = true; $('#login').hidden = false; $('#p').value = '';
+          if (sure) { $('#err').textContent = 'Oturum sona erdi, tekrar giriş yapın.'; $('#err').hidden = false; }
+        }
+        $('#out').onclick = function () { cikis(false); };
+        $('#refresh').onclick = function () { cache = {}; goster(current, true); };
+        $('#print').onclick = function () { window.print(); };
+        $('#burger').onclick = function () { $('#side').classList.toggle('open'); };
+
+        function basla() {
+          $('#login').hidden = true; $('#app').hidden = false;
+          var nav = $('#nav'); nav.innerHTML = '';
+          MENU.forEach(function (g) {
+            var d = document.createElement('div'); d.className = 'nav-g'; d.textContent = g[0]; nav.appendChild(d);
+            g[1].forEach(function (m) {
+              var a = document.createElement('a'); a.dataset.k = m[0];
+              a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + IC[m[0]] + '</svg><span>' + m[1] + '</span><span class="n" hidden></span>';
+              a.onclick = function () { goster(m[0]); $('#side').classList.remove('open'); };
+              nav.appendChild(a);
+            });
+          });
+          goster('ozet');
+          clearInterval(timer); timer = setInterval(function () { if (current === 'ozet') goster('ozet', true, true); }, 60000);
+        }
+
+        function baslik(k) { for (var i = 0; i < MENU.length; i++) for (var j = 0; j < MENU[i][1].length; j++) if (MENU[i][1][j][0] === k) return MENU[i][1][j][1]; return k; }
+        function goster(k, zorla, sessiz) {
+          current = k; $('#title').textContent = baslik(k);
+          document.querySelectorAll('.nav a').forEach(function (a) { a.classList.toggle('on', a.dataset.k === k); });
+          var c = $('#content');
+          if (!sessiz) c.innerHTML = '<div class="kpis">' + '<div class="kpi"><div class="skel"></div><div class="skel"></div></div>'.repeat(4) + '</div><div class="card"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>';
+          durum(null, 'Yükleniyor');
+          var is = k === 'ozet' ? ozet() : k === 'hava' ? hava() : k === 'yz' ? yz() : tablo(k);
+          is.then(function (html) { if (current === k) { c.innerHTML = html.html; if (html.sonra) html.sonra(); } durum(true, 'Bağlı · ' + new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })); $('#ft').textContent = 'Güncelleme: ' + new Date().toLocaleString('tr-TR'); })
+            .catch(function (e) { if (e.message === 'oturum') return; durum(false, 'Hata'); c.innerHTML = '<div class="card empty">Veri alınamadı: ' + esc(e.name === 'AbortError' ? 'sunucu zaman aşımı (uyanıyor olabilir), Yenile\'ye basın' : e.message) + '</div>'; });
+        }
+
+        /* ÖZET */
+        function bars(list, a, b) {
+          if (!list || !list.length) return '<div class="empty">Veri yok</div>';
+          var mx = Math.max.apply(null, list.map(function (x) { return x[b]; })) || 1;
+          return list.map(function (x) { return '<div class="bar"><span class="nm" title="' + esc(x[a]) + '">' + esc(x[a]) + '</span><span class="t"><i style="width:' + Math.max(3, x[b] / mx * 100) + '%"></i></span><span class="c">' + nf(x[b]) + '</span></div>'; }).join('');
+        }
+        function cizgi(g) {
+          var W = 640, H = 210, P = 30, ser = [['kullanici', '#1f7a6d', 'Kullanıcı'], ['arazi', '#d9a441', 'Arazi'], ['soru', '#2a6fb0', 'Soru'], ['haber', '#c0392b', 'Haber']];
+          var mx = 1; g.forEach(function (d) { ser.forEach(function (s) { mx = Math.max(mx, d[s[0]]); }); });
+          var x = function (i) { return P + i * (W - P - 10) / Math.max(1, g.length - 1); }, y = function (v) { return H - 26 - v / mx * (H - 46); };
+          var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto">';
+          for (var i = 0; i <= 4; i++) { var yy = H - 26 - i * (H - 46) / 4; s += '<line x1="' + P + '" x2="' + (W - 10) + '" y1="' + yy + '" y2="' + yy + '" stroke="#e8eeec"/><text x="4" y="' + (yy + 4) + '" font-size="10" fill="#7b948f">' + Math.round(mx * i / 4) + '</text>'; }
+          g.forEach(function (d, i) { if (i % 2 === 0) s += '<text x="' + x(i) + '" y="' + (H - 8) + '" font-size="10" fill="#7b948f" text-anchor="middle">' + d.gun.slice(5).replace('-', '/') + '</text>'; });
+          ser.forEach(function (sr) {
+            var pts = g.map(function (d, i) { return x(i) + ',' + y(d[sr[0]]); }).join(' ');
+            s += '<polyline points="' + pts + '" fill="none" stroke="' + sr[1] + '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
+            g.forEach(function (d, i) { s += '<circle cx="' + x(i) + '" cy="' + y(d[sr[0]]) + '" r="2.6" fill="' + sr[1] + '"><title>' + sr[2] + ' ' + d.gun + ': ' + d[sr[0]] + '</title></circle>'; });
+          });
+          return s + '</svg><div class="legend">' + ser.map(function (s) { return '<span><i style="background:' + s[1] + '"></i>' + s[2] + '</span>'; }).join('') + '</div>';
+        }
+        function ozet() {
+          return api('/yonetim/ozet').then(function (d) {
+            var s = d.sayac;
+            var kp = [
+              ['Kullanıcı', s.kullanici, 'kayıtlı hesap', '#1f7a6d'], ['Arazi', s.arazi, 'kayıtlı tarla ve bahçe', '#d9a441'],
+              ['Haber', s.haberToplam, nf(s.haberOto) + ' otomatik · ' + nf(s.haberOnayli) + ' uzman onaylı', '#c0392b'],
+              ['Uzmana sorulan', s.soru, nf(s.soruBekleyen) + ' bekliyor · ' + nf(s.soruUzman) + ' uzman cevabı', '#2a6fb0'],
+              ['Yapay zekâ cevabı', s.soruYz, 'uzman beklerken verilen', '#6a4fb3'], ['Taranan kaynak', s.kaynakToplam, nf(s.kaynakVeren) + ' kaynak yeni haber verdi', '#1f7a6d'],
+              ['Bildirim (24 sa)', s.bildirim24, nf(s.push) + ' cihaz kaydı', '#d98a00'], ['Cihaz', s.cihaz, 'sulama ve sensör', '#145049'], ['Pazar fiyatı', s.fiyat, 'toplanan kayıt', '#7b948f']
+            ];
+            var h = '<div class="kpis">' + kp.map(function (k) { return '<div class="kpi" style="--c:' + k[3] + '"><div class="l">' + k[0] + '</div><div class="v">' + nf(k[1]) + '</div><div class="s">' + k[2] + '</div></div>'; }).join('') + '</div>';
+            h += '<div class="grid2"><div class="card"><h3>Son 14 gün <small>günlük yeni kayıt</small></h3>' + cizgi(d.gunluk) + '</div>';
+            h += '<div class="card"><h3>İllere göre arazi <small>en çok 15 il</small></h3>' + bars(d.ilArazi, 'il', 'sayi') + '</div></div>';
+            h += '<div class="grid2"><div class="card"><h3>Ürün dağılımı</h3>' + bars(d.urun, 'urun', 'sayi') + '</div>';
+            h += '<div class="card"><h3>İllere göre otomatik haber <small>resmî kaynaklardan</small></h3>' + bars(d.haberIl, 'il', 'sayi') + '</div></div>';
+            h += '<div class="card"><h3>Uzmana sor durumları</h3>' + bars(d.durumlar, 'durum', 'sayi') + '</div>';
+            return { html: h };
+          });
+        }
+
+        /* YAPAY ZEKÂ */
+        function yz() {
+          return Promise.all([api('/yonetim/nuvia'), api('/yonetim/ozet')]).then(function (r) {
+            var n = r[0], s = r[1].sayac;
+            var h = '<div class="kpis">' +
+              '<div class="kpi" style="--c:' + (n.bagli ? '#2fb36d' : '#c0392b') + '"><div class="l">Nuvia bağlantısı</div><div class="v" style="font-size:22px">' + (n.bagli ? 'Bağlı' : 'Kapalı') + '</div><div class="s">yapay zekâ servisi</div></div>' +
+              '<div class="kpi" style="--c:#6a4fb3"><div class="l">Bu ay istek</div><div class="v">' + nf(n.istekBuAy) + '</div><div class="s">haber analizi, soru, robot, ses</div></div>' +
+              '<div class="kpi" style="--c:#d9a441"><div class="l">Bu ay maliyet</div><div class="v">' + (n.buAyUsd == null ? '—' : '$' + Number(n.buAyUsd).toFixed(3)) + '</div><div class="s">limit ' + (n.sinirUsd == null ? '—' : '$' + n.sinirUsd) + '</div></div>' +
+              '<div class="kpi" style="--c:#2a6fb0"><div class="l">Yapay zekâ cevabı</div><div class="v">' + nf(s.soruYz) + '</div><div class="s">uzman beklerken</div></div></div>';
+            h += '<div class="card"><h3>Tanımlı işlevler</h3>' + ((n.islevler || []).length ? n.islevler.map(function (i) { return '<span class="tag ai" style="margin:3px">' + esc(i) + '</span>'; }).join('') : '<div class="empty">Bağlantı yok</div>') + '</div>';
+            h += '<div class="card" style="margin-top:16px"><h3>Güvenlik kuralları</h3><div style="line-height:1.9">Yapay zekâ ilaç dozu ve karışım oranı üretmez (üretirse sunucu cevabı atar). Her yapay zekâ cevabına "Tüm risk size aittir" uyarısı eklenir. Uzman cevabı gelince o esastır. Uzman onayı olmayan bilgi uyarı veya komut üretmez. Otomatik haberler "uzman onayı bekliyor" olarak işaretlenir ve bildirim göndermez.</div></div>';
+            return { html: h };
+          });
+        }
+
+        /* HAVA */
+        function hava() {
+          return api('/yonetim/hava', { timeout: 90000 }).then(function (d) {
+            if (!d.iller.length) return { html: '<div class="card empty">Konumlu arazi olmadığı için hava gösterilemiyor.</div>' };
+            var gun = function (t) { return ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'][new Date(t + 'T12:00:00').getDay()]; };
+            return { html: '<div class="hv">' + d.iller.map(function (i) {
+              if (i.hata) return '<div class="c"><div class="h"><b>' + esc(i.il) + '</b><span class="tag mu">' + i.arazi + ' arazi</span></div><div class="empty" style="padding:20px">Hava alınamadı</div></div>';
+              return '<div class="c"><div class="h"><b>' + esc(i.il) + '</b><span class="tag mu">' + i.arazi + ' arazi</span></div>' +
+                '<div class="big">' + (i.simdi == null ? '—' : Math.round(i.simdi) + '°') + '</div>' +
+                (i.donGunu ? '<span class="tag bad">Don tahmini: ' + tarih(i.donGunu, false) + '</span>' : '<span class="tag ok">Don beklenmiyor</span>') +
+                '<div class="d">' + i.gunler.map(function (g) { return '<div class="' + (g.enDusuk <= 0 ? 'fr' : '') + '">' + gun(g.tarih) + '<b>' + Math.round(g.enYuksek) + '°</b>' + Math.round(g.enDusuk) + '°</div>'; }).join('') + '</div>' +
+                '<div style="color:var(--mu);font-size:11px;margin-top:10px">' + esc(i.kaynak) + (i.ornek ? ' · örnek veri' : '') + '</div></div>';
+            }).join('') + '</div><div style="color:var(--mu);margin-top:14px;font-size:12px">Her il için o ildeki arazilerin ortalama konumu kullanılır. Üstte en yüksek, altta en düşük sıcaklık. Mavi kutu: sıcaklık 0° ve altı.</div>' };
+          });
+        }
+
+        /* TABLOLAR */
+        var KOL = {
+          kullanicilar: [['telefon', 'Telefon'], ['ad', 'Ad'], ['roller', 'Rol', 'tag'], ['arazi', 'Arazi'], ['soru', 'Soru'], ['kayit', 'Kayıt', 'tar'], ['son_giris', 'Son giriş', 'tar']],
+          araziler: [['ad', 'Arazi'], ['il', 'İl'], ['ilce', 'İlçe'], ['koy', 'Köy'], ['urun', 'Ürün'], ['dekar', 'Dekar'], ['sahip', 'Sahip'], ['lat', 'Enlem'], ['lon', 'Boylam'], ['kayit', 'Kayıt', 'tar']],
+          haberler: [['yayin', 'Yayın', 'tar'], ['il', 'İl'], ['kaynak', 'Kaynak'], ['baslik', 'Başlık'], ['kategori', 'Kategori', 'tag'], ['otomatik', 'Tür', 'oto'], ['onay', 'Onay', 'onay'], ['gorsel', 'Görsel', 'evet'], ['ozet', 'Özet', 'long'], ['adres', 'Kaynak', 'link']],
+          kaynaklar: [['il', 'İl'], ['ad', 'Kaynak'], ['tur', 'Tür', 'tag'], ['aktif', 'Aktif', 'evet'], ['son_kontrol', 'Son kontrol', 'tar'], ['durum', 'Durum'], ['yeni', 'Yeni haber'], ['adres', 'Adres', 'link']],
+          sorular: [['zaman', 'Zaman', 'tar'], ['kullanici', 'Kullanıcı'], ['il', 'İl'], ['soru', 'Soru', 'long'], ['neden', 'Neden', 'tag'], ['durum', 'Durum', 'durum'], ['foto', 'Foto', 'evet'], ['uzman_cevap', 'Uzman cevabı', 'long'], ['ai_cevap', 'Yapay zekâ cevabı', 'long'], ['ai_zaman', 'YZ zamanı', 'tar']],
+          bildirimler: [['zaman', 'Zaman', 'tar'], ['tur', 'Tür', 'tag'], ['tip', 'Tip', 'tag'], ['baslik', 'İçerik', 'long'], ['kullanici', 'Kullanıcı']],
+          cihazlar: [['ad', 'Cihaz'], ['tur', 'Tür', 'tag'], ['arazi', 'Arazi'], ['il', 'İl'], ['komut', 'Komut'], ['kayit', 'Kayıt', 'tar']],
+          fiyatlar: [['tarih', 'Tarih', 'tar0'], ['urun', 'Ürün'], ['yer', 'Pazar'], ['en_dusuk', 'En düşük (TL/kg)'], ['en_yuksek', 'En yüksek (TL/kg)'], ['kaynak', 'Kaynak']],
+          denetim: [['seq', 'No'], ['zaman', 'Zaman', 'tar'], ['islem', 'İşlem', 'tag'], ['varlik', 'Varlık'], ['kimlik', 'Kimlik']]
+        };
+        function hucre(v, t, row) {
+          if (t === 'tar') return tarih(v); if (t === 'tar0') return tarih(v, false);
+          if (t === 'evet') return v ? '<span class="tag ok">Evet</span>' : '<span class="tag mu">Hayır</span>';
+          if (t === 'oto') return v ? '<span class="tag ai">Otomatik</span>' : '<span class="tag">Elle</span>';
+          if (t === 'onay') return v === 'uzman-onayli' ? '<span class="tag ok">Uzman onaylı</span>' : '<span class="tag warn">Onay bekliyor</span>';
+          if (t === 'durum') return v === 'cevaplandi' ? '<span class="tag ok">Cevaplandı</span>' : (row.ai_cevap ? '<span class="tag ai">YZ cevapladı</span>' : '<span class="tag warn">Bekliyor</span>');
+          if (t === 'tag') return v ? '<span class="tag">' + esc(v) + '</span>' : '—';
+          if (t === 'link') return v ? '<a href="' + esc(v) + '" target="_blank" rel="noopener noreferrer">Aç</a>' : '—';
+          if (v == null || v === '') return '—';
+          return esc(v);
+        }
+        function tablo(k) {
+          var kol = KOL[k];
+          return (cache[k] ? Promise.resolve(cache[k]) : api('/yonetim/liste/' + k, { timeout: 90000 })).then(function (rows) {
+            cache[k] = rows;
+            var html = '<div class="tools"><input type="search" id="q" placeholder="Bu listede ara…" /><button class="btn ghost" id="csv">CSV indir</button><span class="cnt" id="cnt"></span></div><div class="tw"><table><thead><tr>' +
+              kol.map(function (c, i) { return '<th data-i="' + i + '">' + c[1] + ' <span class="ar"></span></th>'; }).join('') + '</tr></thead><tbody id="tb"></tbody></table></div>';
+            return {
+              html: html, sonra: function () {
+                var sira = -1, ters = false, q = '';
+                function ciz() {
+                  var l = rows.filter(function (r) { return !q || kol.some(function (c) { return String(r[c[0]] == null ? '' : r[c[0]]).toLowerCase().indexOf(q) >= 0; }); });
+                  if (sira >= 0) { var key = kol[sira][0]; l = l.slice().sort(function (a, b) { var x = a[key], y = b[key]; if (x == null) return 1; if (y == null) return -1; return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'tr')) * (ters ? -1 : 1); }); }
+                  $('#cnt').textContent = nf(l.length) + ' / ' + nf(rows.length) + ' kayıt';
+                  $('#tb').innerHTML = l.length ? l.slice(0, 400).map(function (r) { return '<tr>' + kol.map(function (c) { return '<td' + (c[2] === 'long' ? ' class="long"><div class="cl" title="' + esc(r[c[0]]) + '">' + hucre(r[c[0]], c[2], r) + '</div>' : '>' + hucre(r[c[0]], c[2], r)) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + kol.length + '"><div class="empty">Kayıt yok</div></td></tr>';
+                  document.querySelectorAll('th .ar').forEach(function (a, i) { a.textContent = i === sira ? (ters ? '▼' : '▲') : ''; });
+                }
+                $('#q').oninput = function () { q = this.value.toLowerCase().trim(); ciz(); };
+                document.querySelectorAll('th').forEach(function (th) { th.onclick = function () { var i = +th.dataset.i; if (sira === i) ters = !ters; else { sira = i; ters = false; } ciz(); }; });
+                $('#csv').onclick = function () {
+                  var csv = '﻿' + [kol.map(function (c) { return c[1]; }).join(';')].concat(rows.map(function (r) { return kol.map(function (c) { return '"' + String(r[c[0]] == null ? '' : r[c[0]]).replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"'; }).join(';'); })).join('\r\n');
+                  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'tarim-pusula-' + k + '.csv'; a.click(); toast('CSV hazırlandı');
+                };
+                ciz();
+                var nn = document.querySelector('.nav a[data-k="' + k + '"] .n'); if (nn) { nn.textContent = nf(rows.length); nn.hidden = false; }
+              }
+            };
+          });
+        }
+
+        if (jeton) basla(); else $('#u').focus();
+      })();
+    </script>
+  </body>
+</html>

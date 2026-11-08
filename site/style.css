@@ -247,3 +247,8 @@ p { margin: 0 0 1em; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .drop-panel { transition: none; }
 }
+
+/* Yönetici girişi bağlantısı (menü çubuğu) */
+.nav .giris { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.55); margin-right: 8px; }
+.nav .giris:hover { background: rgba(255,255,255,.14); }
+@media (max-width: 600px) { .nav .giris { padding: 0 12px; margin-right: 6px; } .nav .giris + .btn-sm { margin-left: 0; } }
