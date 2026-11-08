@@ -64,6 +64,34 @@ export function extractListItems(html: string, baseUrl: string): ListeOgesi[] {
   return [...found.values()];
 }
 
+/** ISO tarihin (2026-11-03T..) gün kısmı; makul aralık dışıysa null. */
+function isoGun(v: string | undefined): string | null {
+  const m = /(20\d{2})-(\d{2})-(\d{2})/.exec(v ?? '');
+  if (!m) return null;
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  return mo >= 1 && mo <= 12 && d >= 1 && d <= 31 ? `${m[1]}-${m[2]}-${m[3]}` : null;
+}
+
+/**
+ * Yayın tarihi: yalnız açıkça "yayın" diye işaretli yerlerden (meta article:published_time / datePublished,
+ * itemprop, JSON-LD, <time datetime>). Düz metindeki tarihler başvuru/etkinlik tarihi olabilir, burada kullanılmaz.
+ */
+export function yayinTarihi(html: string): string | null {
+  const adaylar = [
+    /<meta[^>]+(?:property|name|itemprop)\s*=\s*["'](?:article:published_time|datePublished|og:published_time|pubdate)["'][^>]*content\s*=\s*["']([^"']+)["']/i,
+    /<meta[^>]+content\s*=\s*["']([^"']+)["'][^>]+(?:property|name|itemprop)\s*=\s*["'](?:article:published_time|datePublished)["']/i,
+    /itemprop\s*=\s*["']datePublished["'][^>]*(?:content|datetime)\s*=\s*["']([^"']+)["']/i,
+    /"datePublished"\s*:\s*"([^"]+)"/i,
+    /<time\b[^>]*datetime\s*=\s*["']([^"']+)["']/i,
+  ];
+  for (const re of adaylar) {
+    const g = isoGun(re.exec(html)?.[1]);
+    if (g) return g;
+  }
+  return null;
+}
+
 export interface Makale {
   title: string;
   text: string;
@@ -106,5 +134,5 @@ export function extractArticle(html: string, pageUrl: string): Makale {
       }
     }
   }
-  return { title, text, image, date: trDate(clean.slice(0, 20000)) };
+  return { title, text, image, date: yayinTarihi(html) ?? trDate(clean.slice(0, 20000)) };
 }

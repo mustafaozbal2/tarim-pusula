@@ -202,7 +202,11 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
           ? [{ province: s.province }]
           : [];
     const yayin = date ? new Date(`${date}T09:00:00+03:00`) : this.now();
-    const govde = [r.ozet, 'Özgün haber ve başvuru bağlantısı için "Kaynağı aç" düğmesine dokun.']
+    const govde = [
+      r.ozet,
+      date ? '' : 'Yayın tarihi kaynakta bulunamadı; alındığı gün gösteriliyor.',
+      'Özgün haber ve başvuru bağlantısı için "Kaynağı aç" düğmesine dokun.',
+    ]
       .filter(Boolean)
       .join('\n\n');
     const rows = await this.data.system((q) =>

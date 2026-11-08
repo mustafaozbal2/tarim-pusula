@@ -254,3 +254,29 @@ describe('analiz güvenliği (TP-V4 bulguları)', () => {
     expect(r.urunler).not.toContain('misir-tane');
   });
 });
+
+describe('yayın tarihi (TP-V4)', () => {
+  it('meta / itemprop / JSON-LD / <time> okunur; düz metindeki başvuru tarihi kullanılmaz', async () => {
+    const { yayinTarihi, extractArticle } = await import('./html');
+    expect(
+      yayinTarihi('<meta property="article:published_time" content="2026-11-03T09:00:00+03:00">'),
+    ).toBe('2026-11-03');
+    expect(yayinTarihi('<meta content="2026-10-20T10:00:00Z" itemprop="datePublished">')).toBe(
+      '2026-10-20',
+    );
+    expect(
+      yayinTarihi('<script type="application/ld+json">{"datePublished":"2026-09-01"}</script>'),
+    ).toBe('2026-09-01');
+    expect(yayinTarihi('<time datetime="2026-11-05">5 Kasım</time>')).toBe('2026-11-05');
+    expect(
+      yayinTarihi('<p>Başvurular 04.11.2026 – 13.11.2026</p><time datetime="bozuk">'),
+    ).toBeNull();
+    const m = extractArticle(
+      '<html><title>T</title><meta property="article:published_time" content="2026-11-03T09:00:00Z"><p>' +
+        'x'.repeat(50) +
+        '</p></html>',
+      'https://a.gov.tr/Haber/1/x',
+    );
+    expect(m.date).toBe('2026-11-03');
+  });
+});
