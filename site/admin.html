@@ -301,7 +301,7 @@
               ['Kullanıcı', s.kullanici, 'kayıtlı hesap', '#1f7a6d'], ['Arazi', s.arazi, 'kayıtlı tarla ve bahçe', '#d9a441'],
               ['Haber', s.haberToplam, nf(s.haberOto) + ' otomatik · ' + nf(s.haberOnayli) + ' uzman onaylı', '#c0392b'],
               ['Uzmana sorulan', s.soru, nf(s.soruBekleyen) + ' bekliyor · ' + nf(s.soruUzman) + ' uzman cevabı', '#2a6fb0'],
-              ['Yapay zekâ cevabı', s.soruYz, 'uzman beklerken verilen', '#6a4fb3'], ['Taranan kaynak', s.kaynakToplam, nf(s.kaynakVeren) + ' kaynak yeni haber verdi', '#1f7a6d'],
+              ['Yapay zekâ cevabı', s.soruYz, 'uzman beklerken verilen', '#6a4fb3'], ['Taranan kaynak', s.kaynakToplam, nf(s.kaynakVeren) + ' kaynaktan haber alındı', '#1f7a6d'],
               ['Bildirim (24 sa)', s.bildirim24, nf(s.push) + ' cihaz kaydı', '#d98a00'], ['Cihaz', s.cihaz, 'sulama ve sensör', '#145049'], ['Pazar fiyatı', s.fiyat, 'toplanan kayıt', '#7b948f']
             ];
             var h = '<div class="kpis">' + kp.map(function (k) { return '<div class="kpi" style="--c:' + k[3] + '"><div class="l">' + k[0] + '</div><div class="v">' + nf(k[1]) + '</div><div class="s">' + k[2] + '</div></div>'; }).join('') + '</div>';

@@ -375,6 +375,11 @@ describe('G24 kurum yetkilisi taslağı ve uzman onayı', () => {
     expect(seen.body.map((d: { id: string }) => d.id)).toContain(r.body.id);
     const notSeen = await call('GET', '/staff/drafts', urfa.token);
     expect(notSeen.body.map((d: { id: string }) => d.id)).not.toContain(r.body.id);
+    // Onay kuyruğu da kapsamlıdır: Şanlıurfa uzmanı Gaziantep taslağını göremez, Gaziantep uzmanı görür.
+    const qUrfa = await call('GET', '/panel/review-queue', urfa.token);
+    expect(qUrfa.body.announcements.map((d: { id: string }) => d.id)).not.toContain(r.body.id);
+    const qGaz = await call('GET', '/panel/review-queue', gaz.token);
+    expect(qGaz.body.announcements.map((d: { id: string }) => d.id)).toContain(r.body.id);
     // Kurum yetkilisi kendi taslağını onaylayamaz (uzman rolü yok).
     expect((await call('POST', `/announcements/${r.body.id}/approve`, bel.token)).status).toBe(403);
     expect((await call('POST', `/announcements/${r.body.id}/approve`, urfa.token)).status).toBe(

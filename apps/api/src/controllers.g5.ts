@@ -16,6 +16,8 @@ import { Me, parse, RequireMfa, Roles, Token } from './auth/access';
 import { AuthService } from './auth/auth.service';
 import { DataService } from './data.service';
 import type { Principal, Queryable } from './db/db';
+import { checkTargeting, type Targeting } from '@tarim/agro-core';
+import { resolveScope } from './yetki/scope';
 
 const STAFF = ['institution_admin', 'expert', 'admin'] as const;
 
@@ -130,12 +132,15 @@ export class PanelController {
   @Roles('expert', 'admin')
   async queue(@Me() me: Principal) {
     return this.data.run(me, 'panel.review-queue', async (q) => {
-      const announcements = await q.query(
+      // Kapsam: il/ilçe yetkilisi (uzman) yalnız kendi bölgesinin taslaklarını görür; başka ilin haberi dönmez.
+      const scope = await resolveScope(q, me);
+      const tum = await q.query<{ targeting: Targeting }>(
         `SELECT id, source_org AS "sourceOrg", title, body, source_url AS "sourceUrl",
            published_at AS "publishedAt", targeting, created_by AS "createdBy"
-         FROM announcements WHERE review_status = $1 ORDER BY published_at DESC LIMIT 200`,
+         FROM announcements WHERE review_status = $1 ORDER BY published_at DESC LIMIT 1000`,
         [DRAFT],
       );
+      const announcements = tum.filter((a) => checkTargeting(scope, a.targeting).ok).slice(0, 200);
       const all = await packsWithStages(q);
       const packs = all.filter(
         (p) => p.reviewStatus === DRAFT || p.stages.some((s) => s.reviewStatus === DRAFT),

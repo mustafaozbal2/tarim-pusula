@@ -145,7 +145,7 @@ export class YonetimController {
       say('SELECT count(*) AS n FROM push_tokens'),
       say("SELECT count(*) AS n FROM notification_log WHERE sent_at > now() - interval '24 hours'"),
       say('SELECT count(*) AS n FROM official_sources WHERE active'),
-      say('SELECT count(*) AS n FROM official_sources WHERE active AND last_new_count > 0'),
+      say('SELECT count(DISTINCT source_site_id) AS n FROM announcements WHERE auto'),
       say('SELECT count(*) AS n FROM market_prices'),
     ]);
     const [gunluk, ilArazi, urun, haberIl, durumlar] = await Promise.all([
