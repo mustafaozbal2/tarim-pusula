@@ -45,23 +45,16 @@ test('tasarım: ana sayfada hava efekti ve yeşil robot asistan; robot tarla ekl
   );
   await page.goto('/');
   await expect(page.getByTestId('ana-bant')).toBeVisible();
-  await expect(page.getByTestId('asistan-ac')).toBeVisible();
-  // Açılışta karşılama balonu kısa süre görünür (metin i18n'de; burada yalnız robotun varlığı).
-  await page.waitForTimeout(2200); // balon 1,2 sn sonra belirir
+  // Yüzen robot kalktı: robot alt çubuğun ortasındaki Yapay zekâ düğmesinde.
+  await expect(page.getByTestId('asistan-ac')).toHaveCount(0);
+  await expect(page.getByTestId('alt-cubuk')).toBeVisible();
+  await expect(page.getByTestId('alt-yz')).toBeVisible();
   const sahne = await page.locator('[data-testid^="hava-efekti-"]').getAttribute('data-testid');
   console.log('hava sahnesi:', sahne);
   await page.screenshot({ path: `${OUT}/anasayfa-asistan.png` });
 
-  // Robot hafifçe süzüldüğü için "durağan" beklenmez.
-  await page.getByTestId('asistan-ac').click({ force: true });
-  await expect(page.getByTestId('asistan-panel')).toBeVisible();
-  await page.waitForTimeout(500);
+  await page.getByTestId('alt-yz').click();
+  await expect(page).toHaveURL(/\/yapay-zeka$/);
+  await expect(page.getByTestId('yz-yaz')).toBeVisible();
   await page.screenshot({ path: `${OUT}/asistan-panel.png` });
-
-  // Tarla ekleme sohbetin içinde olur: sayfa değişmez.
-  const url0 = page.url();
-  await page.getByTestId('asistan-yaz').fill('yeni tarla eklemek istiyorum');
-  await page.getByTestId('asistan-gonder').click();
-  await expect(page.getByTestId('asistan-cevap')).toContainText('Şu an arazinde misin?');
-  expect(page.url()).toBe(url0);
 });

@@ -13,7 +13,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { elevation, fontFamily, homeColors } from '@tarim/ui';
 import type { InboxItemDto } from '../../src/api/client';
-import { AsistanDugmesi } from '../../src/asistan/Asistan';
 import { SunucuKarti } from '../../src/components/SunucuKarti';
 import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
 import { loadHome, loadHomeCache, type HomeData } from '../../src/home/load';
@@ -263,7 +262,6 @@ export default function HomeScreen() {
       {/* Kaydırınca içerik saat/pil satırının altına girmesin. */}
       <View pointerEvents="none" style={[styles.statusCover, { height: insets.top }]} />
       {/* G26: yeşil robot asistan (ilk açılışta "Ne yapmak istersin?"). */}
-      {state === 'ready' || state === 'empty' ? <AsistanDugmesi /> : null}
     </View>
   );
 }

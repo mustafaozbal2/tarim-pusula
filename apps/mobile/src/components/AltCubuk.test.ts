@@ -8,8 +8,15 @@ describe('alt çubuk', () => {
     for (const y of ['/yapay-zeka', '/giris', '/ayarlar', '/arazi-ekle', '/yetkili', '/sulama'])
       expect(altCubukGorunur(y), y).toBe(false);
   });
-  it('dört düğme: ana sayfa, takvim, yapay zekâ, pazar', () => {
-    expect(ALT_SEKMELER.map((s) => s.rota)).toEqual(['/', '/takvim', '/yapay-zeka', '/pazar']);
+  it('beş düğme, yapay zekâ ortada', () => {
+    expect(ALT_SEKMELER.map((s) => s.rota)).toEqual([
+      '/',
+      '/takvim',
+      '/yapay-zeka',
+      '/hava',
+      '/pazar',
+    ]);
+    expect(ALT_SEKMELER[2]?.key).toBe('yz');
     expect(ALT_SEKMELER.find((s) => s.eslesen.test('/takvim'))?.key).toBe('takvim');
     expect(ALT_SEKMELER.find((s) => s.eslesen.test('/'))?.key).toBe('ana');
   });

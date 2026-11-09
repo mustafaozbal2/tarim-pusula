@@ -3,8 +3,14 @@ import { useEffect, useState } from 'react';
 import { Keyboard, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
-import { fontFamily, homeColors } from '@tarim/ui';
+import { colors, fontFamily, homeColors } from '@tarim/ui';
+import { Robot } from '../asistan/Robot';
 import { ALT_SEKMELER, altCubukGorunur, type Anahtar } from './altCubukYol';
+
+const KOYU = '#14504F';
+/** Orta düğmenin banttan yukarı taştığı yükseklik. */
+const TASMA = 20;
+const DAIRE = 62;
 
 function Ikon({ k, renk }: { k: Anahtar; renk: string }) {
   const p = { width: 24, height: 24, viewBox: '0 0 24 24' } as const;
@@ -37,22 +43,23 @@ function Ikon({ k, renk }: { k: Anahtar; renk: string }) {
           <Path d="M3.5 10h17M8 3v4M16 3v4" stroke={renk} strokeWidth={2} strokeLinecap="round" />
         </Svg>
       );
-    case 'yz':
+    case 'hava':
       return (
         <Svg {...p}>
-          <Rect
-            x={4}
-            y={7}
-            width={16}
-            height={12}
-            rx={4}
+          <Circle cx={9} cy={9} r={3.4} fill="none" stroke={renk} strokeWidth={2} />
+          <Path
+            d="M9 2.5v1.4M3 9h1.4M4.8 4.8l1 1M13.2 4.8l-1 1"
+            stroke={renk}
+            strokeWidth={2}
+            strokeLinecap="round"
+          />
+          <Path
+            d="M8 20h9.5a3.5 3.5 0 0 0 .4-6.97A5 5 0 0 0 8.4 14.2 3 3 0 0 0 8 20z"
             fill="none"
             stroke={renk}
             strokeWidth={2}
+            strokeLinejoin="round"
           />
-          <Circle cx={9.5} cy={13} r={1.4} fill={renk} />
-          <Circle cx={14.5} cy={13} r={1.4} fill={renk} />
-          <Path d="M12 7V4M10.5 4h3" stroke={renk} strokeWidth={2} strokeLinecap="round" />
         </Svg>
       );
     case 'pazar':
@@ -66,9 +73,15 @@ function Ikon({ k, renk }: { k: Anahtar; renk: string }) {
           />
         </Svg>
       );
+    default:
+      return null;
   }
 }
 
+/**
+ * Alt gezinme çubuğu: üst bantla aynı renk. Ortada robotlu yuvarlak Yapay zekâ düğmesi banttan taşar;
+ * diğer dört düğme kabartmalı. Bandın arkasında sayfa zemini rengi vardır: yuvarlak köşelerde koyu leke kalmaz.
+ */
 export function AltCubuk() {
   const yol = usePathname();
   const router = useRouter();
@@ -85,54 +98,112 @@ export function AltCubuk() {
   }, []);
   if (klavye || !altCubukGorunur(yol)) return null;
   return (
-    <View testID="alt-cubuk" style={[styles.cubuk, { paddingBottom: Math.max(insets.bottom, 6) }]}>
-      {ALT_SEKMELER.map((s) => {
-        const acik = s.eslesen.test(yol);
-        const renk = acik ? '#FFFFFF' : 'rgba(255,255,255,0.78)';
-        return (
-          <Pressable
-            key={s.key}
-            testID={`alt-${s.key}`}
-            accessibilityRole="button"
-            accessibilityLabel={s.ad}
-            accessibilityState={{ selected: acik }}
-            onPress={() => {
-              if (!acik) router.navigate(s.rota as never);
-            }}
-            style={styles.oge}
-          >
-            <View style={[styles.hap, acik && styles.hapAcik]}>
-              <Ikon k={s.key} renk={renk} />
-            </View>
-            <Text style={[styles.yazi, { color: renk }, acik && styles.yaziAcik]} numberOfLines={1}>
-              {s.ad}
-            </Text>
-          </Pressable>
-        );
-      })}
+    <View testID="alt-cubuk" style={styles.kap}>
+      <View style={styles.bant} pointerEvents="none" />
+      <View style={[styles.satir, { paddingBottom: Math.max(insets.bottom, 6) }]}>
+        {ALT_SEKMELER.map((s) => {
+          const acik = s.eslesen.test(yol);
+          const git = () => {
+            if (!acik) router.navigate(s.rota as never);
+          };
+          if (s.key === 'yz') {
+            return (
+              <Pressable
+                key={s.key}
+                testID="alt-yz"
+                accessibilityRole="button"
+                accessibilityLabel={s.ad}
+                accessibilityState={{ selected: acik }}
+                onPress={git}
+                style={styles.orta}
+              >
+                <View style={styles.daire}>
+                  <Robot size={50} id="robot-alt" />
+                </View>
+                <Text style={[styles.yazi, styles.yaziOrta]} numberOfLines={1}>
+                  {s.ad}
+                </Text>
+              </Pressable>
+            );
+          }
+          const renk = acik ? KOYU : '#FFFFFF';
+          return (
+            <Pressable
+              key={s.key}
+              testID={`alt-${s.key}`}
+              accessibilityRole="button"
+              accessibilityLabel={s.ad}
+              accessibilityState={{ selected: acik }}
+              onPress={git}
+              style={styles.oge}
+            >
+              <View style={[styles.hap, acik && styles.hapAcik]}>
+                <Ikon k={s.key} renk={renk} />
+              </View>
+              <Text
+                style={[styles.yazi, { color: acik ? '#FFFFFF' : 'rgba(255,255,255,0.92)' }]}
+                numberOfLines={1}
+              >
+                {s.ad}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cubuk: {
-    flexDirection: 'row',
+  // Sayfa zemini: bandın yuvarlak köşelerinin arkası koyu değil, sayfayla aynı renk.
+  kap: { backgroundColor: colors.background },
+  bant: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: TASMA,
+    bottom: 0,
     backgroundColor: homeColors.band,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    paddingTop: 6,
-    paddingHorizontal: 8,
-    borderTopWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
-    shadowColor: '#0B3B3C',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 12,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderTopWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.45)',
   },
-  oge: { flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  hap: { width: 52, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-  hapAcik: { backgroundColor: 'rgba(255,255,255,0.26)' },
+  satir: { flexDirection: 'row', paddingHorizontal: 6, alignItems: 'flex-start' },
+  oge: { flex: 1, alignItems: 'center', paddingTop: TASMA + 8, gap: 3, minHeight: 56 },
+  // Kabartmalı düğme: bandan biraz açık dolgu, ışık kenarı, kısa gölge.
+  hap: {
+    width: 50,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#63C4C4',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.55)',
+    shadowColor: '#0B3B3C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  hapAcik: { backgroundColor: '#E9F4F1', borderColor: '#FFFFFF' },
+  orta: { flex: 1, alignItems: 'center', gap: 1, minHeight: 56 },
+  daire: {
+    width: DAIRE,
+    height: DAIRE,
+    borderRadius: DAIRE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E9F4F1',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    shadowColor: '#0B3B3C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 8,
+  },
   yazi: { fontFamily: fontFamily.semibold, fontSize: 12 },
-  yaziAcik: { fontFamily: fontFamily.extrabold },
+  yaziOrta: { fontFamily: fontFamily.extrabold, color: '#FFFFFF' },
 });

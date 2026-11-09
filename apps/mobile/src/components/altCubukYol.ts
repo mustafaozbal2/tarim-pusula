@@ -1,10 +1,11 @@
-export type Anahtar = 'ana' | 'takvim' | 'yz' | 'pazar';
+export type Anahtar = 'ana' | 'takvim' | 'yz' | 'hava' | 'pazar';
 
 /** Alt gezinme çubuğu: üst bantla aynı renk ve dil. Yalnız ana sayfalarda görünür (form ve sohbet ekranlarında yok). */
 export const ALT_SEKMELER: { key: Anahtar; ad: string; rota: string; eslesen: RegExp }[] = [
   { key: 'ana', ad: 'Ana sayfa', rota: '/', eslesen: /^\/(index)?$/ },
   { key: 'takvim', ad: 'Takvim', rota: '/takvim', eslesen: /^\/takvim/ },
   { key: 'yz', ad: 'Yapay zekâ', rota: '/yapay-zeka', eslesen: /^\/yapay-zeka/ },
+  { key: 'hava', ad: 'Hava', rota: '/hava', eslesen: /^\/hava/ },
   { key: 'pazar', ad: 'Pazar', rota: '/pazar', eslesen: /^\/pazar/ },
 ];
 
