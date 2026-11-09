@@ -128,7 +128,9 @@ function KoseParilti({ sahne, w, h, az }: { sahne: HavaSahne; w: number; h: numb
   const opacity = nefes.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
   return (
     <>
-      <Animated.View style={{ position: 'absolute', right: -r * 0.6, top: h * 0.42 - r / 2, opacity }}>
+      <Animated.View
+        style={{ position: 'absolute', right: -r * 0.6, top: h * 0.42 - r / 2, opacity }}
+      >
         <Hale id={`kose-ust-${sahne}`} size={r} color={renk} strength={guc} />
       </Animated.View>
       <Animated.View style={{ position: 'absolute', left: -r * 0.6, top: h - r * 0.4, opacity }}>

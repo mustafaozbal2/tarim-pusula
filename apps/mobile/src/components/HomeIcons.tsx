@@ -202,7 +202,13 @@ export function HomeIconButton({
           <Image
             testID={`ikon-gorsel-${item.key}`}
             source={IMAGE_FILES[item.file] as number}
-            style={{ width: size, height: size, margin: -1.5, borderRadius: size / 2, opacity: 0.9 }}
+            style={{
+              width: size,
+              height: size,
+              margin: -1.5,
+              borderRadius: size / 2,
+              opacity: 0.9,
+            }}
           />
         ) : (
           <Glyph k={item.key} size={size * 0.72} />

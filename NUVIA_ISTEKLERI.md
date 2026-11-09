@@ -6,6 +6,7 @@
 > Değişmez kurallarımız: ilaç dozu / karışım oranı / gübre miktarı / tarih UYDURULMAZ; bilinmeyen ilaç önerilmez. Sunucumuz dozlu cevabı zaten atar, ama işlev baştan üretmesin.
 
 ## İşlev 1 — haber_analiz
+
 - **Ne için?** Günde 5 kez, resmî sitelerden (il/ilçe tarım müdürlükleri, üniversiteler) toplanan duyuru metni çiftçiye uygun mu, hangi ürünlerle ilgili, nasıl özetlenir? Sonuç haber kartı olur ("otomatik alındı" notuyla, uzman onayı bekler; bildirim ÜRETMEZ).
 - **Girdi (örnek):**
   `{"kaynak":"Isparta İl Tarım ve Orman Müdürlüğü","baslik":"Kiraz üreticilerine fidan desteği başvuruları başladı","metin":"... (en çok 3000 karakter)","urunler":["zeytin","antep-fistigi","elma-kiraz-armut"],"kategoriler":["yonlendirme","onlem","teknoloji","bilgilendirme","guncel"]}`
@@ -21,6 +22,7 @@
 - **Kalite:** ucuz.
 
 ## İşlev 2 — soru_cevapla
+
 - **Ne için?** Çiftçi "Uzmana sor"da soru sordu, uzman 12 saat içinde cevaplamadı; sunucu soruyu Nuvia'ya gönderir, cevap "geçici yapay zekâ cevabı" olarak gösterilir (uzman cevaplarsa o geçerli olur).
 - **Girdi (örnek):**
   `{"soru":"Zeytin yapraklarında sarı lekeler var, ne olabilir?","il":"Aydın","ilce":"Efeler","urun":"Zeytin","gorsel":"var (metin geçidinde iletilmedi)"}` (`gorsel`: fotoğraf varsa not olarak gelir; görüntü metin geçidinden geçmez.)
@@ -36,6 +38,7 @@
 - **Kalite:** iyi (yanlış bilgi riski yüksek; gerekçe: çiftçi kararını etkiler). Bütçe sorun olursa ucuz kalabilir; uzmana yönlendirmeyi biz zaten ekliyoruz.
 
 ## Ek yetenek istekleri
+
 - [ ] Görsel üretme/düzenleme — gerekmiyor.
 - [ ] Sesten yazıya çevirme — gerekmiyor (şimdilik).
 - [ ] Dosya (PDF/Word) okuma — gerekmiyor.
@@ -43,6 +46,7 @@
 - [x] Başka: **Görsel (fotoğraf) alan işlev.** Hastalık/zararlı fotoğraf analizi için `soru_cevapla`'nın `gorsel: {mime, base64}` alanını alabilen bir kip (veya ayrı `foto_analiz` işlevi); geçit şu an yalnız metin. Hazır olunca sunucuda yalnız `apps/api/src/nuvia/client.ts` içindeki tek yer değişir. Neden: kullanıcı isteği (fotoğraflı soru).
 
 ## Sorular / belirsizlikler
+
 - `girdi` string olduğundan JSON'u string olarak gönderiyoruz; işlev yönergesi "girdi bir JSON metnidir" demeli. İsterseniz geçide nesne kabulü eklenebilir (biz uyarlarız).
 - `NUVIA_PROJE_ANAHTARI` değeri `tarim_pusula.nvp_...` biçiminde mi, yalnız `nvp_...` mi? İkisini de kabul ediyoruz.
 - Sağlayıcılar dolarsa (`502 beyin_yok`) sunucu bir kez yeniden dener; olmazsa haber kural analizine, soru uzman beklemesine düşer. Kullanıcı hata görmez.

@@ -155,7 +155,9 @@ export function CardStrip({ items, onOpen }: { items: HomeCard[]; onOpen: (c: Ho
   const gap = L.strip.gap * k;
   const step = cardW + gap;
   const shown = items.slice(0, MAX_CARDS);
-  const loop = shown.length > 1;
+  // Kopya yalnız kartlar ekrana sığmıyorsa çizilir; 2-3 haberde aynı kart iki kez görünmesin.
+  const { width: ekranGen } = useWindowDimensions();
+  const loop = shown.length > 1 && L.strip.padL * k + shown.length * step > ekranGen;
 
   useEffect(() => {
     if (paused || !loop) return;
