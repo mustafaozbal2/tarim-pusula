@@ -139,12 +139,17 @@ export function kisalt(s: string, max: number): string {
  * arıcılık desteği, besilik sığır başvurusu) ve geçirdiği ilgisizler (ziyaret) bu listeyle düzeltildi.
  */
 const RED =
-  /\b(ziyaret|toplanti|staj|personel|ihale|kiralama|kantin|gida (isletme|guvenlig|denetim|kaybi)|hijyen|numune|denetim|spor|sampiyon|finalinde|masa tenisi|festival|senlik|fuar|odul|kutla|gunu\b|konsey|kurul|imha|sivil savunma|yangin|is sagligi|bakanimiz|valimiz|genel mudur|mudurumuz|baskanliginda|derecelendir|intibak|belgesi almaya|av sezonu|su urunleri denetim)/;
+  /\b(ziyaret|toplanti|staj|personel|ihale|kiralama|kantin|gida (isletme|guvenlig|denetim|kaybi)|hijyen|numune|denetim|spor|sampiyon|finalinde|masa tenisi|festival|senlik|fuar|odul|kutla|(dunya|kadin ciftciler|gida|farkindalik) [a-z ]*gunu|konsey|kurulu\b|kurul\b|imha|sivil savunma|yangin|is sagligi|bakanimiz|valimiz|genel mudur|mudurumuz|baskanliginda|derecelendir|intibak|belgesi almaya|av sezonu|su urunleri denetim)/;
 const KABUL =
   /\b(destek|hibe|basvuru|muracaat|dagit|mucadele|zararli|hastalik|uyari|zirai don|dolu|kurakl|sulama|tohum|fidan|gubre|toprak analiz|asilama|ilaclama|egitim|ciftci okulu|tarsim|kayit|cks|rekolte|hasat|ekim\b|dikim|budama)/;
 
+const CIFTCI_EGITIM =
+  /\b(ciftci|uretici|yetistirici|arici|hayvancilara?)[a-z]*\b.*\b(egitim|bilgilendirme|kurs|seminer)/;
+
 export function baslikKarari(baslik: string): 'kabul' | 'red' | null {
   const n = normalizeTr(baslik);
+  // Çiftçiye/üreticiye yönelik eğitim ve bilgilendirme toplantısı ilgilidir ("toplantı" reddinden önce).
+  if (CIFTCI_EGITIM.test(n) && !/\b(ziyaret|ihale|personel|odul)/.test(n)) return 'kabul';
   if (RED.test(n)) return 'red';
   if (KABUL.test(n)) return 'kabul';
   return null;

@@ -319,3 +319,22 @@ describe('metni <p> içinde olmayan sayfa', () => {
     expect(m.text).toContain('Turunçgil bahçelerinde');
   });
 });
+
+describe('başlık kuralı: "kuruldu" ve "iş günü" yanlış red olmaz', () => {
+  it('kurulum ve süre ifadeleri red sayılmaz', async () => {
+    const { baslikKarari } = await import('./analiz');
+    expect(
+      baslikKarari("Adıyaman'da badem bahçesine yüzey altı damla sulama sistemi kuruldu"),
+    ).toBe('kabul');
+    expect(
+      baslikKarari(
+        'Uydu destekli ürün tespit raporları askıda; itiraz için 5 iş günü süre içinde başvuru',
+      ),
+    ).toBe('kabul');
+    expect(baslikKarari('İl Hayvanları Koruma Kurulu Toplantısı Gerçekleştirildi')).toBe('red');
+    expect(baslikKarari('15 Ekim Dünya Kadın Çiftçiler Günü')).toBe('red');
+    expect(baslikKarari('Çiftçilere Yönelik Bilgilendirme Toplantısı Düzenlendi')).toBe('kabul');
+    expect(baslikKarari('Koordinasyon ve Değerlendirme Toplantısı Gerçekleştirildi')).toBe('red');
+    expect(baslikKarari('Bakan Çiftçi Eğitim Merkezini Ziyaret Etti')).toBe('red');
+  });
+});
