@@ -110,6 +110,13 @@ export function extractArticle(html: string, pageUrl: string): Makale {
     const t = stripTags(m[1] ?? '');
     if (t.length >= 40 && !MENU_WORDS.test(t)) paras.push(t);
   }
+  // Bazı siteler metni <p> yerine <div>/<span>/<td> içine koyar: paragraf yoksa uzun metin düğümleri alınır.
+  if (paras.join('').length < 40) {
+    for (const m of clean.matchAll(/>([^<>]{60,})</g)) {
+      const t = stripTags(m[1] ?? '');
+      if (t.length >= 60 && !MENU_WORDS.test(t) && !paras.includes(t)) paras.push(t);
+    }
+  }
   const text = paras.join('\n').slice(0, 3000);
   const abs = (src: string): string | null => {
     try {

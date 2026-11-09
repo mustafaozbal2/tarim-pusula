@@ -280,3 +280,42 @@ describe('yayın tarihi (TP-V4)', () => {
     expect(m.date).toBe('2026-11-03');
   });
 });
+
+describe('başlık kuralı (9 Kasım canlı denemesinden)', () => {
+  it('kaçırılan ilgili haberler kabul, protokol/toplantı red', async () => {
+    const { baslikKarari } = await import('./analiz');
+    for (const b of [
+      'TURUNÇGİL BAHÇELERİNDE KASIM AYI MÜCADELE PLANI',
+      'Uşak’ta Arıcılık ve Örtü Altı Üretime Destek',
+      '2027 YILI BESİLİK SIĞIR İTHALATI İÇİN MÜRACAATLAR BAŞLADI',
+      'Batman’da Mercimek Üretimine Güçlü Destek',
+      'ESKİŞEHİR’DE TOPRAK ANALİZİNİN ÖNEMİ VE TOPRAĞA UYGUN GÜBRELEME TEKNİKLERİ EĞİTİMİ',
+      'Giresun’da Damızlık Manda Boğası Dağıtıldı',
+    ])
+      expect(baslikKarari(b), b).toBe('kabul');
+    for (const b of [
+      'VAKIFBANK ERZURUM BÖLGE MÜDÜRÜ, İL MÜDÜRLÜĞÜMÜZE ZİYARETTE BULUNDU',
+      'Ulusal Staj Programı 2027 Yılı Başvuruları',
+      'SÖZLEŞMELİ PERSONELİN İNTİBAK EĞİTİM PROGRAMI BAŞLADI',
+      'Islah Amaçlı Kiralama İhalesi',
+      'MASA TENİSİ TAKIMIMIZ TÜRKİYE FİNALİNDE!',
+      'Sayın Bakanımız Kayısı Hasadına Katıldı',
+      'HAKKARİ İL TARIM VE ORMAN MÜDÜRLÜĞÜ PERSONELİNE İŞ SAĞLIĞI VE GÜVENLİĞİ EĞİTİMİ VERİLDİ',
+    ])
+      expect(baslikKarari(b), b).toBe('red');
+    expect(baslikKarari('Tarsuslu Üreticilerimize Geçmiş Olsun')).toBeNull();
+  });
+});
+
+describe('metni <p> içinde olmayan sayfa', () => {
+  it('uzun metin düğümleri alınır', async () => {
+    const { extractArticle } = await import('./html');
+    const govde =
+      'Turunçgil bahçelerinde kasım ayında yapılacak mücadele çalışmaları hakkında üreticilerimize bilgi verilmiştir.';
+    const m = extractArticle(
+      `<html><title>T</title><body><div class="icerik"><span>${govde}</span></div></body></html>`,
+      'https://a.gov.tr/Haber/1/x',
+    );
+    expect(m.text).toContain('Turunçgil bahçelerinde');
+  });
+});

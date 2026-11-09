@@ -131,6 +131,25 @@ export function kisalt(s: string, max: number): string {
   return (sp > 0 ? cut.slice(0, sp) : cut) + '…';
 }
 
+/**
+ * Başlığa göre kesin karar (yapay zekâdan önce): protokol, toplantı, personel, ihale, gıda denetimi, spor,
+ * festival gibi haberler çiftçiye ilgisizdir (red); destek, hibe, başvuru, dağıtım, mücadele, uyarı, zararlı,
+ * eğitim gibi haberler ilgilidir (kabul). Red önce gelir. İkisi de yoksa karar yapay zekânındır.
+ * 9 Kasım 2026 canlı denemesinde yapay zekânın kaçırdığı ilgili haberler (turunçgil mücadele planı,
+ * arıcılık desteği, besilik sığır başvurusu) ve geçirdiği ilgisizler (ziyaret) bu listeyle düzeltildi.
+ */
+const RED =
+  /\b(ziyaret|toplanti|staj|personel|ihale|kiralama|kantin|gida (isletme|guvenlig|denetim|kaybi)|hijyen|numune|denetim|spor|sampiyon|finalinde|masa tenisi|festival|senlik|fuar|odul|kutla|gunu\b|konsey|kurul|imha|sivil savunma|yangin|is sagligi|bakanimiz|valimiz|genel mudur|mudurumuz|baskanliginda|derecelendir|intibak|belgesi almaya|av sezonu|su urunleri denetim)/;
+const KABUL =
+  /\b(destek|hibe|basvuru|muracaat|dagit|mucadele|zararli|hastalik|uyari|zirai don|dolu|kurakl|sulama|tohum|fidan|gubre|toprak analiz|asilama|ilaclama|egitim|ciftci okulu|tarsim|kayit|cks|rekolte|hasat|ekim\b|dikim|budama)/;
+
+export function baslikKarari(baslik: string): 'kabul' | 'red' | null {
+  const n = normalizeTr(baslik);
+  if (RED.test(n)) return 'red';
+  if (KABUL.test(n)) return 'kabul';
+  return null;
+}
+
 export class KuralAnalizci implements HaberAnalizci {
   readonly id = 'kural';
   async analiz(g: AnalizGirdi, urunKimlikleri: string[]): Promise<Analiz> {

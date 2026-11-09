@@ -2,7 +2,7 @@ import { Inject, Injectable, type OnModuleDestroy, type OnModuleInit } from '@ne
 import { DataService } from '../data.service';
 import { parseRobots, robotsAllows, type RobotsRules } from '../market/robots';
 import { CLOCK } from '../weather/tokens';
-import type { HaberAnalizci } from './analiz';
+import { baslikKarari, type HaberAnalizci } from './analiz';
 import { extractArticle, extractListItems, type ListeOgesi } from './html';
 import { ilceleriBul } from './ilce';
 import { bitisAni, sonTarih, VARSAYILAN_GUN } from './sure';
@@ -233,8 +233,17 @@ ${a.text}`,
           },
           urunler,
         );
-        if (!r.ilgili) {
-          await this.kayit(s, it.url, baslik, 'ilgisiz', `${r.kategori}: ${r.ozet.slice(0, 200)}`);
+        // Başlık kuralı yapay zekâdan önce gelir (protokol/toplantı red; destek/başvuru/mücadele kabul).
+        const karar = baslikKarari(baslik);
+        const ilgili = karar === 'red' ? false : karar === 'kabul' ? true : r.ilgili;
+        if (!ilgili) {
+          await this.kayit(
+            s,
+            it.url,
+            baslik,
+            'ilgisiz',
+            `${karar === 'red' ? 'başlık kuralı' : r.kategori}: ${r.ozet.slice(0, 200)}`,
+          );
           continue;
         }
         const ilceler =
