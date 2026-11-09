@@ -165,3 +165,10 @@ Yarım:
 Sonraki:
 - Uzmanlar panelden eşik ve şablon onaylamalı.
 - `scan_log`'dan haftalık red oranı izlenmeli.
+
+## G33 — Telefon turu (2026-11-09)
+- Başka arazinin haberi detayda "artık yok" diyordu: detay artık tüm arazilerin listesinde arar.
+- Aynı başlıklı haberler tek kart; şerit kopyası yalnız kartlar ekrana sığmıyorsa çizilir (az kartta çift görünüyordu).
+- Alt gezinme çubuğu: Ana sayfa, Takvim, Yapay zekâ, Pazar (üst bantla aynı renk). Sohbet, form ve giriş ekranlarında görünmez.
+- Üst düğmeler: saf beyaz yerine nane tonu, ince kenar ve gölge.
+- Telefonda (Redmi, kablosuz hata ayıklama) ana sayfa, haber detayı, menü, yapay zekâ ve takvim elle denendi.
