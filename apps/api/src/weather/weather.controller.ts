@@ -122,4 +122,11 @@ export class JobsController {
   frostScan() {
     return this.notify.scanFrost();
   }
+
+  /** Meteorolojik don/kar/rüzgâr bildirim taramasını elle başlatır. */
+  @Post('hava-scan')
+  @HttpCode(200)
+  havaScan() {
+    return this.notify.scanHava();
+  }
 }

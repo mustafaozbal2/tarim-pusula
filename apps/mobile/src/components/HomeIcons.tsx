@@ -13,7 +13,14 @@ import { IMAGE_FILES, type ImageName } from '../assets';
 import { IMAGE_IS_PLACEHOLDER } from '../imageStatus.generated';
 
 export type HomeIconKey =
-  'arazilerim' | 'arazi-islemleri' | 'verim-haritasi' | 'hava' | 'uzman' | 'bildirim' | 'ayarlar';
+  | 'arazilerim'
+  | 'arazi-islemleri'
+  | 'verim-haritasi'
+  | 'hava'
+  | 'uzman'
+  | 'bildirim'
+  | 'ayarlar'
+  | 'menu';
 
 /** Her ikonun görsel yuvası (images/ klasörü) ve ekran okuyucu adı. */
 export const HOME_ICONS: {
@@ -48,7 +55,8 @@ export const HOME_ICONS: {
     route: '/bildirimler',
     glyphOnly: true,
   },
-  { key: 'ayarlar', file: 'ikon_ayarlar.png', label: 'Profil Ayarları', route: '/ayarlar' },
+  // Ayarlar yan menüye taşındı; bu düğme sağdan açılan menüyü açar.
+  { key: 'menu', file: 'ikon_ayarlar.png', label: 'Menü', route: '#menu', glyphOnly: true },
 ];
 
 const GREEN = '#3E9A44';
@@ -126,6 +134,14 @@ export function Glyph({ k, size }: { k: HomeIconKey; size: number }) {
           <Path d="M7 22c2-2 2-5 2-8a7 7 0 0 1 14 0c0 3 0 6 2 8z" fill="#F6C342" />
           <Ellipse cx={16} cy={25} rx={3} ry={2.2} fill="#E0A21A" />
           <Rect x={14.8} y={4} width={2.4} height={3} rx={1} fill="#E0A21A" />
+        </Svg>
+      );
+    case 'menu':
+      return (
+        <Svg {...common}>
+          <Rect x={7} y={9} width={18} height={2.6} rx={1.3} fill="#222222" />
+          <Rect x={7} y={14.7} width={18} height={2.6} rx={1.3} fill="#222222" />
+          <Rect x={7} y={20.4} width={12} height={2.6} rx={1.3} fill="#E0A21A" />
         </Svg>
       );
     case 'ayarlar':

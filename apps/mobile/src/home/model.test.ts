@@ -354,3 +354,47 @@ describe('havaUyariSatirlari (MP-2): gerçek tahminden erken uyarı', () => {
     expect(havaUyariSatirlari(today([gun('2026-11-07', 40, 50)]), '2026-11-08')).toEqual([]);
   });
 });
+
+describe('birden çok arazi: seçili olmasa da tüm arazilerin işleri ve uyarıları görünür', () => {
+  const olay = (templateId: string, title: string) =>
+    ({
+      templateId,
+      title,
+      detail: '',
+      why: '',
+      start: '2026-11-12',
+      end: '2026-11-20',
+      needsBadge: false,
+      source: 'Kaynak',
+      sourceVersion: 'v1',
+      sourceDate: '2026-01-01',
+    }) as unknown as CalendarEventDto;
+  const cal = (...e: CalendarEventDto[]) => ({ events: e }) as never;
+  it('diğer arazinin işi arazi adıyla gelir; aynı iş iki arazide tek satırda birleşir', () => {
+    const rows = buildHomeRows({
+      calendar: cal(olay('t1', 'Budama')),
+      today: null,
+      supports: [],
+      announcements: [],
+      todayIso: '2026-11-09',
+      seciliAd: 'Ev',
+      digerleri: [
+        { ad: 'Tarlam', today: null, calendar: cal(olay('t1', 'Budama'), olay('t2', 'Hasat')) },
+      ],
+    });
+    const z = rows.filter((r) => r.kind === 'zaman').map((r) => r.title);
+    expect(z.some((t) => t.startsWith('Ev, Tarlam: Budama ('))).toBe(true);
+    expect(z.filter((t) => t.includes('Budama'))).toHaveLength(1);
+    expect(z.some((t) => t.startsWith('Tarlam: Hasat'))).toBe(true);
+  });
+  it('tek arazide ön ek yok', () => {
+    const rows = buildHomeRows({
+      calendar: cal(olay('t1', 'Budama')),
+      today: null,
+      supports: [],
+      announcements: [],
+      todayIso: '2026-11-09',
+    });
+    expect(rows[0]!.title.startsWith('Budama')).toBe(true);
+  });
+});

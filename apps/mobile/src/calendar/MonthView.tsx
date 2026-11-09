@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, fontFamily, fontSize, homeColors, spacing } from '@tarim/ui';
 import type { CalendarEventDto } from '../api/client';
+import type { Not } from '../notlar/notlar';
 import { Icon } from '../components/Icon';
 import { tr } from '../i18n/tr';
 import { eventsOnDate, monthGrid, monthTitle, shiftMonth, WEEKDAYS } from './month';
@@ -16,10 +17,20 @@ const t = tr.calendar;
 export function MonthView({
   events,
   today,
+  notlar = [],
+  notEkle,
+  notSil,
 }: {
   events: readonly CalendarEventDto[];
   today: string;
+  /** Çiftçinin kendi notları (altın nokta). */
+  notlar?: readonly Not[];
+  notEkle?: (tarih: string, metin: string) => void;
+  notSil?: (id: string) => void;
 }) {
+  const [yaziyor, setYaziyor] = useState(false);
+  const [notMetni, setNotMetni] = useState('');
+  const notGunleri = useMemo(() => new Set(notlar.map((n) => n.tarih)), [notlar]);
   const [ym, setYm] = useState(() => ({
     year: Number(today.slice(0, 4)),
     month: Number(today.slice(5, 7)),
@@ -83,16 +94,19 @@ export function MonthView({
               ]}
             >
               <Text style={[styles.day, picked === c.date && { color: '#FFFFFF' }]}>{c.day}</Text>
-              {c.events.length > 0 ? (
-                <View style={[styles.dot, picked === c.date && { backgroundColor: '#FFFFFF' }]} />
-              ) : null}
+              <View style={styles.dots}>
+                {c.events.length > 0 ? (
+                  <View style={[styles.dot, picked === c.date && { backgroundColor: '#FFFFFF' }]} />
+                ) : null}
+                {notGunleri.has(c.date) ? <View style={[styles.dot, styles.notDot]} /> : null}
+              </View>
             </Pressable>
           ))}
         </View>
       ))}
       {picked ? (
         <View style={styles.dayList} testID="gun-isleri">
-          {day.length === 0 ? (
+          {day.length === 0 && !notlar.some((n) => n.tarih === picked) ? (
             <Text style={styles.small}>{t.dayEmpty}</Text>
           ) : (
             day.map((e) => (
@@ -101,6 +115,65 @@ export function MonthView({
               </Text>
             ))
           )}
+          {notlar
+            .filter((n) => n.tarih === picked)
+            .map((n) => (
+              <View key={n.id} style={styles.notSatir} testID="takvim-notu">
+                <Text style={styles.notYazi}>{`Notum: ${n.metin}`}</Text>
+                {notSil ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Notu sil"
+                    onPress={() => notSil(n.id)}
+                  >
+                    <Text style={styles.notSil}>Sil</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ))}
+          {notEkle ? (
+            yaziyor ? (
+              <View style={styles.notForm}>
+                <TextInput
+                  value={notMetni}
+                  onChangeText={setNotMetni}
+                  placeholder="Örn. Zeytin hasadına başla"
+                  placeholderTextColor={colors.textMuted}
+                  style={styles.notGiris}
+                  maxLength={300}
+                  autoFocus
+                  testID="not-metni"
+                />
+                <Pressable
+                  accessibilityRole="button"
+                  testID="not-kaydet"
+                  onPress={() => {
+                    if (notMetni.trim()) notEkle(picked, notMetni);
+                    setNotMetni('');
+                    setYaziyor(false);
+                  }}
+                  style={styles.notKaydet}
+                >
+                  <Text style={styles.notKaydetYazi}>Kaydet</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                testID="not-al"
+                onPress={() => setYaziyor(true)}
+                style={styles.notAl}
+              >
+                <Text style={styles.notAlYazi}>+ Bu güne not al</Text>
+              </Pressable>
+            )
+          ) : null}
+          {notEkle ? (
+            <Text style={styles.small}>
+              Not aldığın işin 2 gün ve 1 gün öncesinde, bir de o gün sabah 09:00'da telefonuna
+              bildirim gelir.
+            </Text>
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -145,7 +218,49 @@ const styles = StyleSheet.create({
     backgroundColor: homeColors.tabSelected,
     marginTop: 1,
   },
-  dayList: { paddingTop: spacing.md, gap: 2 },
+  dayList: { paddingTop: spacing.md, gap: 6 },
+  dots: { flexDirection: 'row', gap: 3 },
+  notDot: { backgroundColor: '#E0A21A' },
+  notSatir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF6E0',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    gap: 8,
+  },
+  notYazi: { flex: 1, fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: '#6B4A00' },
+  notSil: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: '#B23A2B' },
+  notAl: {
+    alignSelf: 'flex-start',
+    borderWidth: 1.5,
+    borderColor: colors.forest,
+    borderRadius: 99,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    marginTop: 4,
+  },
+  notAlYazi: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.forest },
+  notForm: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  notGiris: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontFamily: fontFamily.medium,
+    fontSize: fontSize.body,
+    color: '#14302D',
+  },
+  notKaydet: {
+    backgroundColor: colors.forest,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  notKaydetYazi: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: '#FFFFFF' },
   dayItem: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.forest },
   small: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },
 });

@@ -4,6 +4,11 @@ import { parseRobots, robotsAllows, type RobotsRules } from '../market/robots';
 import { CLOCK } from '../weather/tokens';
 import type { HaberAnalizci } from './analiz';
 import { extractArticle, extractListItems, type ListeOgesi } from './html';
+import { ilceleriBul } from './ilce';
+import { bitisAni, sonTarih, VARSAYILAN_GUN } from './sure';
+import { PLACES } from '../controllers.g2';
+import type { Places } from '../places';
+import { Optional } from '@nestjs/common';
 
 export const TARAMA_FETCH = Symbol('TARAMA_FETCH');
 export const TARAMA_ANALIZ = Symbol('TARAMA_ANALIZ');
@@ -46,7 +51,35 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     @Inject(CLOCK) private readonly now: () => Date,
     @Inject(TARAMA_FETCH) private readonly fetchFn: typeof fetch,
     @Inject(TARAMA_ANALIZ) private readonly analizci: HaberAnalizci,
+    @Optional() @Inject(PLACES) private readonly places?: Places,
   ) {}
+
+  /** Değerlendirilen haberin sonucu (neden haber olmadı?); kayıt hatası taramayı durdurmaz. */
+  private async kayit(
+    s: KaynakSatiri,
+    url: string,
+    title: string | null,
+    outcome: string,
+    reason: string | null,
+  ) {
+    try {
+      await this.data.system((q) =>
+        q.query(
+          `INSERT INTO scan_log(source_id, url, title, outcome, reason, analyzer) VALUES ($1,$2,$3,$4,$5,$6)`,
+          [
+            s.id,
+            url,
+            title?.slice(0, 300) ?? null,
+            outcome,
+            reason?.slice(0, 500) ?? null,
+            this.analizci.id,
+          ],
+        ),
+      );
+    } catch {
+      // kayıt opsiyonel
+    }
+  }
 
   onModuleInit(): void {
     // Günde TARAMA_GUNDE kez (varsayılan 5; 0 kapatır). Test ve geliştirmede kapalıdır: HABER_TARAMA=1 ister.
@@ -146,19 +179,52 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     const urunler = catalog.map((c) => c.id);
     const tamam: ListeOgesi[] = [];
     let yeni = 0;
+    const bugun = new Date(this.now().getTime() + 3 * 3_600_000).toISOString().slice(0, 10);
     for (const it of al) {
       if (!robotsAllows(robots, new URL(it.url).pathname)) {
         tamam.push(it);
+        await this.kayit(s, it.url, it.title, 'robots', 'robots.txt bu sayfaya izin vermiyor');
         continue;
       }
       try {
         const page = await this.get(it.url);
-        if (page.status >= 400 || !page.text) continue;
+        if (page.status >= 400 || !page.text) {
+          await this.kayit(s, it.url, it.title, 'hata', `sayfa ${page.status}`);
+          continue;
+        }
         const a = extractArticle(page.text, it.url);
         const date = it.date ?? a.date;
         tamam.push(it);
-        if (date && date < cutoff) continue;
+        if (date && date < cutoff) {
+          await this.kayit(
+            s,
+            it.url,
+            it.title,
+            'eski',
+            `yayın ${date} (${EN_ESKI_GUN} günden eski)`,
+          );
+          continue;
+        }
         const baslik = it.title.length >= 8 ? it.title : a.title;
+        // Başvuru süresi geçmiş duyuru hiç eklenmez; geçerli olan bitiş gününün sonunda kalkar.
+        const son = sonTarih(
+          `${baslik}
+${a.text}`,
+          bugun,
+        );
+        if (son && son < bugun) {
+          await this.kayit(s, it.url, baslik, 'suresi-gecmis', `bitiş ${son}`);
+          continue;
+        }
+        if (a.text.trim().length < 40) {
+          await this.kayit(
+            s,
+            it.url,
+            baslik,
+            'metin-yok',
+            'sayfada okunabilir metin yok (yalnız başlık)',
+          );
+        }
         const r = await this.analizci.analiz(
           {
             kaynak: { ad: s.name, tur: s.kind, il: s.province, ilce: s.district },
@@ -167,12 +233,30 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
           },
           urunler,
         );
-        if (!r.ilgili) continue;
-        yeni += await this.yaz(s, it.url, r, a.image, date);
+        if (!r.ilgili) {
+          await this.kayit(s, it.url, baslik, 'ilgisiz', `${r.kategori}: ${r.ozet.slice(0, 200)}`);
+          continue;
+        }
+        const ilceler =
+          s.province && !s.district && this.places
+            ? ilceleriBul(baslik, a.text, s.province, this.places.districts(s.province))
+            : [];
+        const n = await this.yaz(s, it.url, r, a.image, date, son, ilceler);
+        yeni += n;
+        await this.kayit(
+          s,
+          it.url,
+          baslik,
+          'eklendi',
+          [son ? `bitiş ${son}` : null, ilceler.length ? `ilçe ${ilceler.join(', ')}` : null]
+            .filter(Boolean)
+            .join('; ') || null,
+        );
         await bekle(this.pauseMs);
       } catch (e) {
         // Geçici hata: bu haber "görüldü" sayılmaz, sonraki turda yeniden denenir.
         console.warn('haber atlandı:', it.url, (e as Error).message);
+        await this.kayit(s, it.url, it.title, 'hata', (e as Error).message);
       }
     }
     // İlk taramada alınmayan eski haberler de görüldü sayılır; sonraki turlarda yalnız işlenenler.
@@ -194,14 +278,20 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     r: { baslik: string; ozet: string; urunler: string[]; kategori: string },
     image: string | null,
     date: string | null,
+    son: string | null = null,
+    ilceler: string[] = [],
   ): Promise<number> {
     const places =
       s.district && s.province
         ? [{ province: s.province, district: s.district }]
-        : s.province
-          ? [{ province: s.province }]
-          : [];
+        : s.province && ilceler.length
+          ? ilceler.map((d) => ({ province: s.province!, district: d }))
+          : s.province
+            ? [{ province: s.province }]
+            : [];
     const yayin = date ? new Date(`${date}T09:00:00+03:00`) : this.now();
+    // Bitiş: başvuru son günü; yoksa yayından VARSAYILAN_GUN sonra (eski haber kendiliğinden kalkar).
+    const bitis = son ? bitisAni(son) : new Date(yayin.getTime() + VARSAYILAN_GUN * 86_400_000);
     const govde = [
       r.ozet,
       date ? '' : 'Yayın tarihi kaynakta bulunamadı; alındığı gün gösteriliyor.',
@@ -212,8 +302,8 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     const rows = await this.data.system((q) =>
       q.query(
         `INSERT INTO announcements(source_org, title, body, source_url, published_at, targeting,
-           review_status, category, auto, source_site_id, image_url)
-         VALUES ($1,$2,$3,$4,$5,$6::jsonb,'taslak-uzman-onayi-bekliyor',$7,true,$8,$9)
+           review_status, category, auto, source_site_id, image_url, expires_at)
+         VALUES ($1,$2,$3,$4,$5,$6::jsonb,'taslak-uzman-onayi-bekliyor',$7,true,$8,$9,$10)
          ON CONFLICT (source_url) WHERE auto DO NOTHING RETURNING id`,
         [
           s.name,
@@ -225,6 +315,7 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
           r.kategori,
           s.id,
           image,
+          bitis > yayin ? bitis : new Date(yayin.getTime() + 86_400_000),
         ],
       ),
     );

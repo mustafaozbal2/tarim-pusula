@@ -3,6 +3,7 @@ import { haberGorselEslesen } from '../today/haberGorseli';
 import type {
   AnnouncementDto,
   CalendarDto,
+  CalendarEventDto,
   OrnekIcerikDto,
   SupportMatchDto,
   TodayDto,
@@ -69,6 +70,12 @@ export interface HomeInput {
   sample?: OrnekIcerikDto | null;
   /** Bugünün yerel tarihi (YYYY-MM-DD): örnek satırların tarihi buna göre hesaplanır. */
   todayIso?: string;
+  /** Seçili arazinin adı (birden çok arazi varken satırların başına yazılır). */
+  seciliAd?: string;
+  /** Kullanıcının diğer arazileri: işleri ve uyarıları da gösterilir. */
+  digerleri?: DigerArazi[];
+  /** Çiftçinin takvime kendi aldığı notlar (bugün ve sonrası). */
+  notlar?: { id: string; tarih: string; metin: string }[];
 }
 
 /** Her sekmede gösterilecek kayıt sayısı; demo örnek verisi gerçek kaydı bu sayıya tamamlar. */
@@ -225,6 +232,24 @@ export function havaUyariSatirlari(today: TodayDto, todayIso: string): HomeRow[]
       });
     }
   }
+  // Sunucunun hava tehlikeleri (WMO/FAO tanımlı olgular): hava donu, kar, kuvvetli rüzgâr.
+  for (const t of today.tehlikeler ?? []) {
+    if (t.tur === 'yagis') continue; // yukarıda hesaplandı
+    rows.push({
+      id: `uyari-${t.tur}-${t.tarih}`,
+      kind: 'uyari',
+      date: t.tarih,
+      title: t.baslik,
+      detail:
+        t.tur === 'don'
+          ? 'Hava sıcaklığı 0° ve altına iniyor (tahmin). Açık ve durgun gecede bitki yüzeyi daha soğuk olabilir.'
+          : t.tur === 'kar'
+            ? 'Kar yağışı bekleniyor (tahmin). Sera ve örtü altı yapılarını kontrol edin.'
+            : 'Kuvvetli rüzgâr bekleniyor (tahmin). Örtü, sera naylonu ve fidan bağlarını kontrol edin.',
+      source,
+      tone: t.tur === 'don' ? 'warning' : 'normal',
+    });
+  }
   return rows;
 }
 
@@ -232,16 +257,44 @@ export function havaUyariSatirlari(today: TodayDto, todayIso: string): HomeRow[]
  * Tüm satırlar: yalnız ONAYLI ve kaynaklı bilgi. Onaysız (needsBadge/badge) satır hiç üretilmez ve
  * ekranda "onay bekliyor" yazısı da çıkmaz (G19.7, değişmez kural 1).
  */
+/** Diğer araziler: seçili olmasa da onların işleri ve uyarıları da ana sayfada görünür. */
+export interface DigerArazi {
+  ad: string;
+  today: TodayDto | null;
+  calendar: CalendarDto | null;
+}
+
+/** "Ev" · "Ev, Tarlam" · "Ev, Tarlam ve 2 arazi" */
+export function araziEtiketi(adlar: string[]): string {
+  const t = [...new Set(adlar)];
+  return t.length <= 2 ? t.join(', ') : `${t.slice(0, 2).join(', ')} ve ${t.length - 2} arazi`;
+}
+
 export function buildHomeRows(input: HomeInput): HomeRow[] {
   const rows: HomeRow[] = [];
-  for (const e of input.calendar?.events ?? []) {
-    if (e.needsBadge || !e.source) continue;
+  const kaynaklar: DigerArazi[] = [
+    { ad: input.seciliAd ?? '', today: input.today, calendar: input.calendar },
+    ...(input.digerleri ?? []),
+  ];
+  const cokArazi = kaynaklar.length > 1;
+  const onEk = (adlar: string[]) => (cokArazi ? `${araziEtiketi(adlar)}: ` : '');
+  // Takvim: aynı iş (aynı ürün şablonu, aynı gün) birden çok arazide varsa tek satırda arazi adlarıyla.
+  const isler = new Map<string, { e: CalendarEventDto; adlar: string[] }>();
+  for (const k of kaynaklar)
+    for (const e of k.calendar?.events ?? []) {
+      if (e.needsBadge || !e.source) continue;
+      const key = `${e.templateId}-${e.start}`;
+      const m = isler.get(key) ?? { e, adlar: [] };
+      m.adlar.push(k.ad);
+      isler.set(key, m);
+    }
+  for (const { e, adlar } of isler.values()) {
     const src = `${e.source} · ${e.sourceVersion} · ${e.sourceDate}`;
     rows.push({
       id: `zaman-${e.templateId}-${e.start}`,
       kind: 'zaman',
       date: e.start,
-      title: `${e.title} (${rangeText(e)})`,
+      title: `${onEk(adlar)}${e.title} (${rangeText(e)})`,
       detail: e.detail,
       source: src,
       tone: 'normal',
@@ -250,29 +303,44 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
       id: `rehber-${e.templateId}-${e.start}`,
       kind: 'rehber',
       date: e.start,
-      title: e.detail ? `${e.title}: ${e.detail}` : e.title,
+      title: `${onEk(adlar)}${e.detail ? `${e.title}: ${e.detail}` : e.title}`,
       detail: e.why,
       source: src,
       tone: 'normal',
       hideInAll: true,
     });
   }
-  if (input.today) {
-    const f = frostCardModel(input.today.frost);
+  const bugun = input.todayIso ?? localIso();
+  for (const n of input.notlar ?? []) {
+    if (n.tarih < bugun) continue;
+    rows.push({
+      id: `not-${n.id}`,
+      kind: 'zaman',
+      date: n.tarih,
+      title: `Notum: ${n.metin}`,
+      detail: 'Takvime kendi aldığın not. 2 gün ve 1 gün önce, bir de o gün sabah bildirim gelir.',
+      source: 'Kendi notun',
+      tone: 'normal',
+    });
+  }
+  kaynaklar.forEach((k, i) => {
+    if (!k.today) return;
+    const f = frostCardModel(k.today.frost);
     if (f.kind === 'warning' || f.kind === 'watch') {
       rows.push({
-        id: 'uyari-don',
+        id: `uyari-don-${i}`,
         kind: 'uyari',
         // Yerel gün (UTC değil): gece yarısından sonra UTC tarihi dünü gösterir ve uyarı listenin altına düşerdi.
-        date: input.todayIso ?? localIso(),
-        title: f.title,
+        date: bugun,
+        title: `${onEk([k.ad])}${f.title}`,
         detail: `${f.body} ${f.why}`,
-        source: `${input.today.frost.source} · ${input.today.frost.fetchedAt.slice(0, 10)}`,
+        source: `${k.today.frost.source} · ${k.today.frost.fetchedAt.slice(0, 10)}`,
         tone: 'warning',
       });
     }
-  }
-  if (input.today) rows.push(...havaUyariSatirlari(input.today, input.todayIso ?? localIso()));
+    for (const r of havaUyariSatirlari(k.today, bugun))
+      rows.push({ ...r, id: `${r.id}-${i}`, title: `${onEk([k.ad])}${r.title}` });
+  });
   for (const m of input.supports) {
     if (m.badge || m.status === 'kapali' || m.status === 'onay-bekliyor') continue;
     const s = m.support;

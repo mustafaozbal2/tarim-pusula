@@ -398,3 +398,65 @@ describe('push belirteci ve don bildirimi', () => {
     expect(push.sent).toHaveLength(before);
   });
 });
+
+describe('meteorolojik don (ürün eşiğinden bağımsız): bildirim + SMS', () => {
+  it('yerel 18:00, bu gece 0° altı: telefon bildirimi ve tek SMS; ikinci tur çift göndermez; 23:00 sonrası gönderilmez', async () => {
+    const { DataService } = await import('../data.service');
+    const { WEATHER } = await import('./tokens');
+    const saat18 = new Date('2026-10-21T15:00:00Z'); // yerel 18:00
+    const temel = sampleBundle(0, 0, { now: saat18 });
+    const gece = [6, 4, 3, 2, 1, 0.4, 0.1, -0.4, -1, -2.3, -2, -1, -0.2, 0.5, 2, 4];
+    const hourly = gece.map((t, i) => {
+      const d = new Date(Date.parse('2026-10-21T18:00:00Z') + i * 3_600_000).toISOString();
+      return {
+        time: `${d.slice(0, 13)}:00`,
+        tempC: t,
+        dewC: t - 2,
+        windMs: 0.8,
+        cloudPct: 5,
+        snowCm: 0,
+        precipMm: 0,
+      };
+    });
+    const hava = { get: async () => ({ ...temel, utcOffsetSeconds: 10800, hourly }) };
+    const smsGelen = new FakeSmsProvider();
+    process.env['DON_SMS'] = '1';
+    try {
+      const svc = new NotifyService(
+        app.get(DataService),
+        hava as never,
+        () => saat18,
+        queue,
+        push,
+        smsGelen,
+      );
+      const once = push.sent.length;
+      const r = await svc.scanHava();
+      await queue.idle();
+      expect(r.queued).toBeGreaterThanOrEqual(1);
+      expect(r.sms).toBe(1);
+      expect(smsGelen.sent[0]!.text).toContain('Bu gece don bekleniyor');
+      const yeni = push.sent.slice(once);
+      expect(
+        yeni.some((p) =>
+          /Bu gece .* arazinizde don bekleniyor: 01:00-06:00 arası en düşük -2.3°/.test(p.body),
+        ),
+      ).toBe(true);
+      expect((await svc.scanHava()).sms).toBe(0);
+      await queue.idle();
+      expect(push.sent.length).toBe(once + yeni.length);
+      const gec = new NotifyService(
+        app.get(DataService),
+        hava as never,
+        () => new Date('2026-10-21T20:30:00Z'),
+        queue,
+        push,
+        smsGelen,
+      );
+      expect((await gec.scanHava()).queued).toBe(0);
+      void WEATHER;
+    } finally {
+      delete process.env['DON_SMS'];
+    }
+  });
+});

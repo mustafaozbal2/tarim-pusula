@@ -82,3 +82,31 @@ describe('RobotController', () => {
     expect(sinirli('k', 3, t + 61_000)).toBe(false);
   });
 });
+
+describe('robot/foto', () => {
+  it("fotoğraf Nuvia'ya gerçek görüntüyle gider; Nuvia yoksa yedek cümle", async () => {
+    const { RobotController } = await import('./robot.controller');
+    let giden: unknown = null;
+    const nuvia = {
+      id: 'nuvia',
+      soruCevapla: async (s: unknown) => (
+        (giden = s),
+        { metin: 'Yaprakta leke var. UYARI', kaynak: 'Nuvia' }
+      ),
+    };
+    const c = new RobotController(nuvia as never);
+    const me = { userId: 'u-foto', roles: ['farmer'] } as never;
+    const b64 = 'A'.repeat(200);
+    const r = await c.foto(me, { gorsel: { mime: 'image/jpeg', base64: b64 } });
+    expect(r.cevap).toContain('Yaprakta');
+    expect((giden as { gorsel: { base64: string } }).gorsel.base64).toBe(b64);
+    const yok = new RobotController({ id: 'kapali', soruCevapla: async () => null } as never);
+    expect(
+      (
+        await yok.foto({ userId: 'u2', roles: [] } as never, {
+          gorsel: { mime: 'image/png', base64: b64 },
+        })
+      ).kaynak,
+    ).toBe('yedek');
+  });
+});

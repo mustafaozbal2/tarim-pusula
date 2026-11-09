@@ -454,6 +454,32 @@ export interface TodayDto {
     /** G30: önümüzdeki 7 gecenin görünümü (eski sunucuda yoktur). */
     outlook?: FrostDayDto[];
   };
+  /** Bu gecenin hava donu penceresi (saatlik tahmin; olgu). Eski sunucuda yoktur. */
+  gece?: GeceDonuDto | null;
+  /** 7 günün hava tehlikeleri (don, kar, kuvvetli rüzgâr, kuvvetli yağış). */
+  tehlikeler?: TehlikeDto[];
+}
+
+export interface GeceDonuDto {
+  var: boolean;
+  sabah: string;
+  enDusukC: number | null;
+  enDusukSaat: string | null;
+  baslangic: string | null;
+  bitis: string | null;
+  sure: number;
+  tur: 'radyasyon' | 'adveksiyon' | 'karisik' | null;
+  saatler: { saat: string; tempC: number }[];
+  ortRuzgarMs: number | null;
+  ortBulutPct: number | null;
+}
+
+export interface TehlikeDto {
+  tur: 'don' | 'kar' | 'ruzgar' | 'yagis';
+  tarih: string;
+  gunFarki: number;
+  deger: number;
+  baslik: string;
 }
 
 export interface FrostDayDto {
@@ -745,6 +771,12 @@ export function createApi(opts: ApiOptions) {
         '/robot/sohbet',
         body,
       ),
+    robotFoto: (body: {
+      soru?: string | null;
+      urun?: string | null;
+      il?: string | null;
+      gorsel: { mime: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string };
+    }) => request<{ cevap: string; kaynak: string }>('POST', '/robot/foto', body),
     robotSes: (metin: string) =>
       request<{ ses: { mime: string; ses_b64: string } | null }>('POST', '/robot/ses', { metin }),
     nearbyCreateCode: () => request<{ code: string; expiresAt: string }>('POST', '/nearby/codes'),

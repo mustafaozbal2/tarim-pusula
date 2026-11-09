@@ -18,6 +18,9 @@ import { SunucuKarti } from '../../src/components/SunucuKarti';
 import { Iskelet, YuklemeHatasi } from '../../src/components/Yukleme';
 import { loadHome, loadHomeCache, type HomeData } from '../../src/home/load';
 import { havaSahnesi } from '../../src/design/havaSahne';
+import { DonKarti } from '../../src/home/DonKarti';
+import { YanMenu } from '../../src/menu/YanMenu';
+import { notlariOku, type Not } from '../../src/notlar/notlar';
 import { CardStrip, FieldBlock, GovdeHavasi, TabsCard, TopBand } from '../../src/home/HomeParts';
 import {
   buildHomeRows,
@@ -49,6 +52,8 @@ export default function HomeScreen() {
   const [state, setState] = useState<'loading' | 'empty' | 'ready' | 'error'>('loading');
   const [tab, setTab] = useState<HomeTab>('hepsi');
   const [picking, setPicking] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const [notlar, setNotlar] = useState<Not[]>([]);
   const [seen, setSeen] = useState<string[]>([]);
   const [inbox, setInbox] = useState<InboxItemDto[]>([]);
 
@@ -86,6 +91,7 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       void load();
+      void notlariOku(kv).then(setNotlar);
     }, [load]),
   );
   // TP-T5: ana sayfada tek Geri uygulamayı kapatmaz; 2 sn içinde ikinci Geri çıkar.
@@ -114,9 +120,12 @@ export default function HomeScreen() {
             announcements: data.announcements,
             sample: data.sample,
             todayIso: localIso(),
+            seciliAd: data.base.field.name,
+            digerleri: data.digerleri,
+            notlar,
           })
         : [],
-    [data],
+    [data, notlar],
   );
   const unread = useMemo(
     () =>
@@ -137,11 +146,32 @@ export default function HomeScreen() {
         });
 
   const field = data?.base.field;
+  // Bu gece don: önce seçili arazi; seçilide yoksa don olan ilk diğer arazi. Diğerleri adıyla yazılır.
+  const gece = useMemo(() => {
+    if (!data) return null;
+    const hepsi = [
+      { ad: data.base.field.name, cropId: data.base.field.cropId, today: data.base.today },
+      ...data.digerleri.map((d) => ({
+        ad: d.ad,
+        cropId: data.fields.find((f) => f.name === d.ad)?.cropId ?? null,
+        today: d.today,
+      })),
+    ].filter((x) => x.today?.gece?.var);
+    const ilk = hepsi[0];
+    if (!ilk?.today?.gece) return null;
+    const w = ilk.today.weather;
+    return {
+      g: ilk.today.gece,
+      cropId: ilk.cropId ?? null,
+      kaynak: `${w.source.split(' (')[0]} tahmini, ${w.fetchedAt.slice(11, 16)} · ${ilk.ad}`,
+      digerAdlar: hepsi.slice(1).map((x) => x.ad),
+    };
+  }, [data]);
   const sahne = havaSahnesi(data?.base.today.weather.current?.weatherCode, new Date().getHours());
   return (
     <View style={styles.root}>
       <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-        <TopBand unread={unread} sahne={sahne} />
+        <TopBand unread={unread} sahne={sahne} onMenu={() => setMenu(true)} />
         {state === 'loading' ? (
           <View style={styles.pad}>
             <Iskelet rows={3} />
@@ -208,6 +238,14 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
             ) : null}
+            {gece ? (
+              <DonKarti
+                g={gece.g}
+                cropId={gece.cropId}
+                kaynak={gece.kaynak}
+                digerAdlar={gece.digerAdlar}
+              />
+            ) : null}
             <TabsCard tab={tab} onTab={setTab} rows={rowsForTab(rows, tab)} />
             {data.base.offline ? <Text style={styles.note}>{t.offline}</Text> : null}
           </>
@@ -215,6 +253,13 @@ export default function HomeScreen() {
       </ScrollView>
       {/* MP-4: hava, bandın altında tüm sayfada hafifçe görünür (dokunuşu engellemez). */}
       <GovdeHavasi sahne={sahne} />
+      <YanMenu
+        acik={menu}
+        kapat={() => setMenu(false)}
+        araziler={(data?.fields ?? []).filter((f) => f.lat !== null)}
+        seciliId={data?.base.field.id ?? null}
+        araziSec={(id) => void load(id)}
+      />
       {/* Kaydırınca içerik saat/pil satırının altına girmesin. */}
       <View pointerEvents="none" style={[styles.statusCover, { height: insets.top }]} />
       {/* G26: yeşil robot asistan (ilk açılışta "Ne yapmak istersin?"). */}

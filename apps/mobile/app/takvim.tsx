@@ -16,6 +16,7 @@ import { tr } from '../src/i18n/tr';
 import { kv } from '../src/offline/kvStore';
 import { api } from '../src/session';
 import { nextFieldId } from '../src/today/load';
+import { notEkle, notlariOku, notSil, type Not } from '../src/notlar/notlar';
 
 const t = tr.calendar;
 
@@ -40,6 +41,12 @@ export default function CalendarScreen() {
   const { fieldId } = useLocalSearchParams<{ fieldId?: string }>();
   const router = useRouter();
   const [res, setRes] = useState<CalendarResult | null | undefined>(undefined);
+  const [notlar, setNotlar] = useState<Not[]>([]);
+  useFocusEffect(
+    useCallback(() => {
+      void notlariOku(kv).then(setNotlar);
+    }, []),
+  );
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [exportMsg, setExportMsg] = useState<string | null>(null);
 
@@ -123,7 +130,13 @@ export default function CalendarScreen() {
           />
         </Card>
       ) : null}
-      <MonthView events={approved} today={data.today} />
+      <MonthView
+        events={approved}
+        today={data.today}
+        notlar={notlar}
+        notEkle={(tarih, metin) => void notEkle(kv, tarih, metin).then(setNotlar)}
+        notSil={(id) => void notSil(kv, id).then(setNotlar)}
+      />
       {/* Aktarılacak iş yokken telefona ekle/paylaş düğmeleri gösterilmez. */}
       {approved.length > 0 ? (
         <View style={styles.exportRow}>

@@ -1,3 +1,4 @@
+import type { SaatlikHava } from './gece';
 /**
  * Open-Meteo istemcisi (https://open-meteo.com). Veri CC BY 4.0; ticari kullanım için ücretli plan gerekir
  * (docs/RISKLER.md). Her yanıt kaynak + çekilme tarihi taşır (değişmez kural 6).
@@ -13,6 +14,9 @@ export interface DailyWeather {
   precipMm: number | null;
   /** Open-Meteo'nun kendi ET0 değeri; yalnız karşılaştırma içindir, kararda kullanılmaz. */
   et0OpenMeteoMm: number | null;
+  /** Günlük kar yağışı (cm) ve en büyük rüzgâr hamlesi (m/s); sağlayıcı vermezse yok. */
+  snowCm?: number | null;
+  gustMaxMs?: number | null;
 }
 
 export interface EnsembleDay {
@@ -50,6 +54,8 @@ export interface WeatherBundle {
   utcOffsetSeconds: number;
   current: CurrentWeather | null;
   days: DailyWeather[];
+  /** Saatlik tahmin (yerel saat); gece donu penceresi için. */
+  hourly?: SaatlikHava[];
   ensemble: { model: string; elevationM: number; days: EnsembleDay[] } | null;
 }
 
@@ -82,7 +88,8 @@ export interface OpenMeteoOptions {
 
 const SOURCE = 'Open-Meteo (open-meteo.com, CC BY 4.0)';
 const DAILY =
-  'temperature_2m_max,temperature_2m_min,shortwave_radiation_sum,relative_humidity_2m_mean,wind_speed_10m_mean,precipitation_sum,et0_fao_evapotranspiration';
+  'temperature_2m_max,temperature_2m_min,shortwave_radiation_sum,relative_humidity_2m_mean,wind_speed_10m_mean,precipitation_sum,et0_fao_evapotranspiration,snowfall_sum,wind_gusts_10m_max';
+const HOURLY = 'temperature_2m,dew_point_2m,wind_speed_10m,cloud_cover,snowfall,precipitation';
 
 type Json = Record<string, unknown>;
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
@@ -168,6 +175,7 @@ export class OpenMeteoClient implements WeatherProvider {
         daily: DAILY,
         current:
           'temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weather_code',
+        hourly: HOURLY,
         wind_speed_unit: 'ms',
         forecast_days: days,
       }),
@@ -207,8 +215,21 @@ export function parseBundle(
       windMeanMs: num(col('wind_speed_10m_mean')[i]),
       precipMm: num(col('precipitation_sum')[i]),
       et0OpenMeteoMm: num(col('et0_fao_evapotranspiration')[i]),
+      snowCm: num(col('snowfall_sum')[i]),
+      gustMaxMs: num(col('wind_gusts_10m_max')[i]),
     };
   });
+  const h = (forecast['hourly'] ?? null) as Json | null;
+  const hcol = (name: string) => arr(h?.[name]);
+  const hourly: SaatlikHava[] = (arr(h?.['time']) as string[]).map((time, i) => ({
+    time,
+    tempC: num(hcol('temperature_2m')[i]),
+    dewC: num(hcol('dew_point_2m')[i]),
+    windMs: num(hcol('wind_speed_10m')[i]),
+    cloudPct: num(hcol('cloud_cover')[i]),
+    snowCm: num(hcol('snowfall')[i]),
+    precipMm: num(hcol('precipitation')[i]),
+  }));
   const cur = forecast['current'] as Json | undefined;
   const t = num(cur?.['temperature_2m']);
   const code = num(cur?.['weather_code']);
@@ -251,6 +272,7 @@ export function parseBundle(
           }
         : null,
     days,
+    ...(hourly.length ? { hourly } : {}),
     ensemble,
   };
 }

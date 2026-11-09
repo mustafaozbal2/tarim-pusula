@@ -65,25 +65,76 @@ export function HavaEfekti({
         style={[StyleSheet.absoluteFill, styles.clip]}
         testID={govde ? `hava-govde-${sahne}` : `hava-efekti-${sahne}`}
       >
-        {sahne === 'gunes' ? <Gunes w={w} h={h} az={az} /> : null}
-        {sahne === 'bulut' || sahne === 'sis' ? (
-          <Bulutlar w={w} h={h} az={az} sis={sahne === 'sis'} />
-        ) : null}
+        {govde ? (
+          <KoseParilti sahne={sahne} w={w} h={h} az={az} />
+        ) : (
+          <>
+            {sahne === 'gunes' ? <Gunes w={w} h={h} az={az} /> : null}
+            {sahne === 'bulut' || sahne === 'sis' ? (
+              <Bulutlar w={w} h={h} az={az} sis={sahne === 'sis'} />
+            ) : null}
+          </>
+        )}
         {sahne === 'yagmur' || sahne === 'firtina' ? (
           <Yagmur
             w={w}
             h={h}
             az={az}
-            n={Math.round(PARCACIK[sahne] * (govde ? 1.6 : 1))}
+            n={govde ? Math.round(PARCACIK[sahne] * 0.6) : PARCACIK[sahne]}
             hizli={sahne === 'firtina'}
+            kenar={govde}
           />
         ) : null}
         {sahne === 'kar' ? (
-          <Kar w={w} h={h} az={az} n={Math.round(PARCACIK.kar * (govde ? 1.6 : 1))} />
+          <Kar
+            w={w}
+            h={h}
+            az={az}
+            n={govde ? Math.round(PARCACIK.kar * 0.6) : PARCACIK.kar}
+            kenar={govde}
+          />
         ) : null}
         {sahne === 'gece' ? <Yildizlar w={w} h={h} az={az} n={PARCACIK.gece} /> : null}
       </View>
     </PaletCtx.Provider>
+  );
+}
+
+/** Parçacık yalnız sol ve sağ kenar şeridinde (%14): içerik ve kayan haberler örtülmez. */
+function kenarX(i: number, w: number): number {
+  const serit = w * 0.14;
+  const t = tohum(i + 1) * serit;
+  return i % 2 === 0 ? t - 4 : w - serit + t;
+}
+
+/**
+ * Sayfa gövdesi için köşe parıltısı: güneşte sağ kenarın ortasında ve sol alt köşede (kayan haberlerin üstüne düşmez) sıcak, çok hafif bir ışık; bulut ve
+ * sisli havada köşelerden yayılan soluk gri; yağmur ve karda köşelerde serin mavi bir ton. Yavaş nefes alır.
+ */
+function KoseParilti({ sahne, w, h, az }: { sahne: HavaSahne; w: number; h: number; az: boolean }) {
+  const nefes = useDongu(7000, 0, az, true);
+  const renk =
+    sahne === 'gunes'
+      ? '#FFC94D'
+      : sahne === 'bulut'
+        ? '#9AAAB5'
+        : sahne === 'sis'
+          ? '#C3CBCF'
+          : sahne === 'kar'
+            ? '#BFD9EE'
+            : '#6F9FC7';
+  const guc = sahne === 'gunes' ? 0.32 : 0.22;
+  const r = Math.max(w, 260) * 0.75;
+  const opacity = nefes.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
+  return (
+    <>
+      <Animated.View style={{ position: 'absolute', right: -r * 0.6, top: h * 0.42 - r / 2, opacity }}>
+        <Hale id={`kose-ust-${sahne}`} size={r} color={renk} strength={guc} />
+      </Animated.View>
+      <Animated.View style={{ position: 'absolute', left: -r * 0.6, top: h - r * 0.4, opacity }}>
+        <Hale id={`kose-alt-${sahne}`} size={r} color={renk} strength={guc * 0.8} />
+      </Animated.View>
+    </>
   );
 }
 
@@ -130,7 +181,7 @@ function Gunes({ w, h, az }: { w: number; h: number; az: boolean }) {
   const don = useDongu(60_000, 0, az);
   const nabiz = useDongu(5000, 0, az, true);
   // Işık sağ üstte; sol üstteki amblemin üstüne taşmaz.
-  const r = Math.min(w * 0.42, h * 1.1);
+  const r = Math.min(w * 0.3, h * 0.8);
   const cx = w * 0.88;
   const cy = h * 0.1;
   const rotate = don.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
@@ -138,7 +189,7 @@ function Gunes({ w, h, az }: { w: number; h: number; az: boolean }) {
   return (
     <>
       <Animated.View style={{ position: 'absolute', left: cx - r, top: cy - r, opacity }}>
-        <Hale id="gunes-hale" size={r * 2} color={p.gunes} strength={0.65} />
+        <Hale id="gunes-hale" size={r * 2} color={p.gunes} strength={0.4} />
       </Animated.View>
       <Animated.View
         style={{
@@ -147,7 +198,7 @@ function Gunes({ w, h, az }: { w: number; h: number; az: boolean }) {
           top: cy - r,
           width: r * 2,
           height: r * 2,
-          opacity: 0.32,
+          opacity: 0.16,
           transform: [{ rotate }],
         }}
       >
@@ -234,17 +285,19 @@ function Yagmur({
   az,
   n,
   hizli,
+  kenar = false,
 }: {
   w: number;
   h: number;
   az: boolean;
   n: number;
   hizli: boolean;
+  kenar?: boolean;
 }) {
   return (
     <>
       {Array.from({ length: n }, (_, i) => (
-        <Damla key={i} i={i} w={w} h={h} az={az} hizli={hizli} />
+        <Damla key={i} i={i} w={w} h={h} az={az} hizli={hizli} kenar={kenar} />
       ))}
     </>
   );
@@ -256,18 +309,20 @@ function Damla({
   h,
   az,
   hizli,
+  kenar = false,
 }: {
   i: number;
   w: number;
   h: number;
   az: boolean;
   hizli: boolean;
+  kenar?: boolean;
 }) {
   const p = useContext(PaletCtx);
   const ms = (hizli ? 520 : 820) + tohum(i) * 420;
   const v = useDongu(ms, tohum(i + 5) * 1500, az);
   const len = 10 + tohum(i + 9) * 10;
-  const x = tohum(i + 1) * (w + 30) - 15;
+  const x = kenar ? kenarX(i, w) : tohum(i + 1) * (w + 30) - 15;
   const translateY = v.interpolate({ inputRange: [0, 1], outputRange: [-len - 10, h + 10] });
   const translateX = v.interpolate({ inputRange: [0, 1], outputRange: [0, -(h * 0.2)] });
   return (
@@ -278,7 +333,7 @@ function Damla({
           left: x,
           height: len,
           backgroundColor: p.yagmur,
-          opacity: az ? 0 : 0.35 + tohum(i + 2) * 0.35,
+          opacity: az ? 0 : (kenar ? 0.18 : 0.35) + tohum(i + 2) * (kenar ? 0.2 : 0.35),
           transform: [{ translateY }, { translateX }, { rotate: '12deg' }],
         },
       ]}
@@ -286,23 +341,47 @@ function Damla({
   );
 }
 
-function Kar({ w, h, az, n }: { w: number; h: number; az: boolean; n: number }) {
+function Kar({
+  w,
+  h,
+  az,
+  n,
+  kenar = false,
+}: {
+  w: number;
+  h: number;
+  az: boolean;
+  n: number;
+  kenar?: boolean;
+}) {
   return (
     <>
       {Array.from({ length: n }, (_, i) => (
-        <Tane key={i} i={i} w={w} h={h} az={az} />
+        <Tane key={i} i={i} w={w} h={h} az={az} kenar={kenar} />
       ))}
     </>
   );
 }
 
-function Tane({ i, w, h, az }: { i: number; w: number; h: number; az: boolean }) {
+function Tane({
+  i,
+  w,
+  h,
+  az,
+  kenar = false,
+}: {
+  i: number;
+  w: number;
+  h: number;
+  az: boolean;
+  kenar?: boolean;
+}) {
   const p = useContext(PaletCtx);
   const ms = 5200 + tohum(i) * 3800;
   const v = useDongu(ms, tohum(i + 4) * 4000, az);
   const salin = useDongu(2600 + tohum(i + 8) * 1800, 0, az, true);
   const d = 3 + tohum(i + 6) * 4;
-  const x = tohum(i + 1) * w;
+  const x = kenar ? kenarX(i, w) : tohum(i + 1) * w;
   const translateY = v.interpolate({ inputRange: [0, 1], outputRange: [-d - 4, h + 4] });
   const translateX = salin.interpolate({ inputRange: [0, 1], outputRange: [-8, 8] });
   return (
@@ -317,7 +396,7 @@ function Tane({ i, w, h, az }: { i: number; w: number; h: number; az: boolean })
           backgroundColor: p.kar,
           borderWidth: p.karKenar === 'transparent' ? 0 : 0.8,
           borderColor: p.karKenar,
-          opacity: az ? 0 : 0.6 + tohum(i + 3) * 0.4,
+          opacity: az ? 0 : (kenar ? 0.35 : 0.6) + tohum(i + 3) * (kenar ? 0.3 : 0.4),
           transform: [{ translateY }, { translateX }],
         },
       ]}

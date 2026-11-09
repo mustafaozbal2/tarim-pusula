@@ -134,7 +134,7 @@ export function AsistanDugmesi() {
   );
 }
 
-function KartGorunumu({ k }: { k: Kart }) {
+export function KartGorunumu({ k }: { k: Kart }) {
   if (k.tur === 'video') {
     return (
       <Pressable

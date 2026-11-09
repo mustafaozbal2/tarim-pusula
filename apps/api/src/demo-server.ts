@@ -105,6 +105,12 @@ export function demoWeather(env: NodeJS.ProcessEnv = process.env): WeatherProvid
   if (env['DEMO_WEATHER'] === 'ornek') return demoSampleWeather();
   // Open-Meteo paylaşılan bulut IP'sinde 429 verebiliyor: ikinci gerçek kaynak MET Norway; ikisi de
   // yoksa örnek veri (don uyarısı üretmez).
+  const gercek = new ChainWeatherProvider([
+    new OpenMeteoClient({ timeoutMs: 6000, apiKey: env['OPEN_METEO_API_KEY'] || undefined }),
+    new MetNorwayClient(),
+  ]);
+  // Canlıda örnek hava gösterilmez: kaynak yoksa "alınamadı" denir (yanıltıcı örnek veri yok).
+  if (env['ORNEK_TOHUM'] === '0') return gercek;
   return new FallbackWeatherProvider(
     new ChainWeatherProvider([
       new OpenMeteoClient({ timeoutMs: 6000, apiKey: env['OPEN_METEO_API_KEY'] || undefined }),
@@ -160,10 +166,15 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   await importCropCatalog(db);
   await importCalendarTemplates(db);
   await importResmiKaynaklar(db);
-  const seeded = await alreadySeeded(db);
-  if (!seeded) await seedDemoData(db);
-  // Kalıcı veritabanında sonradan eklenen örnek duyurular (yalnız eksikler yazılır).
-  else await systemTx(db, (q) => seedKurumOrnek(q, new Date()));
+  // Canlı (gerçek kullanım): ORNEK_TOHUM=0 iken hiçbir örnek/test verisi yazılmaz (duyuru, takvim, eşik,
+  // belge, pazar fiyatı). Sistem yalnız gerçek kaynaklarla (resmî site taraması, hava, kullanıcı) dolar.
+  const ornekTohum = process.env['ORNEK_TOHUM'] !== '0';
+  if (ornekTohum) {
+    const seeded = await alreadySeeded(db);
+    if (!seeded) await seedDemoData(db);
+    // Kalıcı veritabanında sonradan eklenen örnek duyurular (yalnız eksikler yazılır).
+    else await systemTx(db, (q) => seedKurumOrnek(q, new Date()));
+  }
   const broker = new InMemoryBroker();
   const sms = o.sms ?? createSmsProvider();
   const push =
@@ -178,7 +189,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
       push,
       demo: isRealSms(sms) ? { ...info, codeOnlyFor: DEMO_PHONES } : info,
       broker,
-      market: demoMarket(),
+      ...(ornekTohum ? { market: demoMarket() } : {}),
       weather: o.weather ?? demoWeather(),
     }),
     { logger: false },
@@ -188,7 +199,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   app.disable('x-powered-by');
   app.use(securityHeaders({ hsts: true }));
   app.useGlobalFilters(new GovdeHatasiFiltresi());
-  app.useBodyParser('json', { limit: '1mb' }); // duyuru görseli (en çok ~300 KB)
+  app.useBodyParser('json', { limit: '2mb' }); // duyuru görseli (~300 KB) ve yapay zekâ fotoğrafı (~900 KB)
   await app.listen(o.apiPort, o.host ?? '127.0.0.1');
   const base = `http://127.0.0.1:${o.apiPort}`;
 
@@ -280,7 +291,7 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
     });
   }
   try {
-    await seedDemoMarket(app.get(MarketCollector));
+    if (ornekTohum) await seedDemoMarket(app.get(MarketCollector));
   } catch (e) {
     console.warn('demo pazar tohumu atlandı:', (e as Error).message);
   }

@@ -78,7 +78,15 @@ export function GovdeHavasi({ sahne }: { sahne: HavaSahne }) {
 }
 
 /** Üst bant: amblem + 7 yuvarlak ikon. Üst boşluk safe-area'dan gelir (saat/çentik ile karışmaz). */
-export function TopBand({ unread, sahne = 'yok' }: { unread: number; sahne?: HavaSahne }) {
+export function TopBand({
+  unread,
+  sahne = 'yok',
+  onMenu,
+}: {
+  unread: number;
+  sahne?: HavaSahne;
+  onMenu?: () => void;
+}) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const k = useHomeScale();
@@ -117,7 +125,7 @@ export function TopBand({ unread, sahne = 'yok' }: { unread: number; sahne?: Hav
           size={d}
           pitch={44}
           badge={item.key === 'bildirim' ? unread : undefined}
-          onPress={() => router.push(item.route as never)}
+          onPress={() => (item.route === '#menu' ? onMenu?.() : router.push(item.route as never))}
           style={{
             position: 'absolute',
             left: (L.icon.cx0 + i * L.icon.pitch) * k - 22,

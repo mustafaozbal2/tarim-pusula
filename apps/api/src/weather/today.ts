@@ -1,3 +1,4 @@
+import { geceDonu, tehlikeler, type GeceDonu, type Tehlike } from './gece';
 import {
   adjustTempForElevation,
   assessFrost,
@@ -234,6 +235,10 @@ export interface TodayResponse {
     source?: string;
   };
   frost: FrostCard;
+  /** Bu gecenin hava donu penceresi (saatlik tahmin; olgu). */
+  gece: GeceDonu | null;
+  /** 7 günün hava tehlikeleri: don, kar, kuvvetli rüzgâr, kuvvetli yağış (olgu). */
+  tehlikeler: Tehlike[];
 }
 
 export function buildToday(i: TodayInput): TodayResponse {
@@ -271,5 +276,14 @@ export function buildToday(i: TodayInput): TodayResponse {
         ? { ...advice, cropId: i.field.cropId, packVersion: i.pack.version, source: i.pack.source }
         : advice,
     frost: frostCard(i),
+    gece: bundle.hourly?.length
+      ? geceDonu(bundle.hourly, yerelSimdi(i.now, bundle.utcOffsetSeconds))
+      : null,
+    tehlikeler: tehlikeler(bundle.days, date),
   };
+}
+
+/** Yerel "YYYY-MM-DDTHH:MM". */
+export function yerelSimdi(now: Date, offsetSec: number): string {
+  return new Date(now.getTime() + offsetSec * 1000).toISOString().slice(0, 16);
 }

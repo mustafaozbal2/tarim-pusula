@@ -28,6 +28,10 @@ export interface Mesaj {
   kartlar?: Kart[];
   /** İstenirse açılabilecek ekran (sohbet kartından çıkmaz; yalnız çiftçi dokunursa). */
   eylem?: Eylem;
+  /** Gönderilen fotoğraf (yalnız ekranda; geçmişe yazılmaz). */
+  gorsel?: string;
+  /** Fotoğraf gönderildi notu (geçmişte görünür). */
+  fotoNotu?: boolean;
 }
 
 interface Taslak {

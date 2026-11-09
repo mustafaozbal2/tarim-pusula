@@ -6,9 +6,11 @@ import type {
   FieldDto,
   OrnekIcerikDto,
   SupportMatchDto,
+  TodayDto,
 } from '../api/client';
 import type { KV } from '../offline/kv';
 import { announcementsKey, loadAnnouncements } from '../today/announcements';
+import type { DigerArazi } from './model';
 import { FIELDS_CACHE, SELECTED, loadToday, todayKey, type TodayResult } from '../today/load';
 
 export interface HomeData {
@@ -19,6 +21,8 @@ export interface HomeData {
   announcements: AnnouncementDto[];
   /** Demo örnek içeriği (yalnız demo sunucusu verir; gerçek modda uç yoktur → null). */
   sample: OrnekIcerikDto | null;
+  /** Diğer araziler (seçili olmayan): işleri, uyarıları; duyuruları zaten `announcements` içinde. */
+  digerleri: DigerArazi[];
 }
 
 const calKey = (id: string) => `cache.home.calendar.v1.${id}`;
@@ -83,7 +87,38 @@ export async function loadHome(
   ]);
   const raw = await kv.get(FIELDS_CACHE);
   const fields = raw ? (JSON.parse(raw) as { fields: FieldDto[] }).fields : [base.field];
-  return { base, fields, calendar, supports, announcements, sample };
+  // Diğer araziler (en çok 7): çiftçi arazi değiştirmeden tüm arazilerinin haberini, işini, uyarısını görür.
+  const digerFields = fields
+    .filter((f) => f.id !== id && f.lat !== null && f.lon !== null)
+    .slice(0, 7);
+  const diger = await Promise.all(
+    digerFields.map(async (f) => {
+      const [cal, anns, today] = await Promise.all([
+        cached<CalendarDto | null>(kv, calKey(f.id), () => api.calendar(f.id, 90), null),
+        loadAnnouncements(api, kv, f.id),
+        cached<TodayDto | null>(kv, `cache.home.today.v1.${f.id}`, () => api.today(f.id), null),
+      ]);
+      return { arazi: { ad: f.name, today, calendar: cal } satisfies DigerArazi, anns };
+    }),
+  );
+  const gorulen = new Set(announcements.map((a) => a.id));
+  const tumDuyurular = [...announcements];
+  for (const d of diger)
+    for (const a of d.anns)
+      if (!gorulen.has(a.id)) {
+        gorulen.add(a.id);
+        tumDuyurular.push(a);
+      }
+  tumDuyurular.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
+  return {
+    base,
+    fields,
+    calendar,
+    supports,
+    announcements: tumDuyurular,
+    sample,
+    digerleri: diger.map((d) => d.arazi),
+  };
 }
 
 /**
@@ -116,6 +151,7 @@ export async function loadHomeCache(kv: KV): Promise<HomeData | null> {
       supports: await read<SupportMatchDto[]>(supKey(field.id), []),
       announcements: await read<AnnouncementDto[]>(announcementsKey(field.id), []),
       sample: null,
+      digerleri: [],
     };
   } catch {
     return null;
