@@ -71,3 +71,22 @@ Büyük çoğunluk kaynakla tutarlı. Bulunan hatalar:
 
 ## 8. Önerilen iyileştirmeler
 İ1 ilçe haberini ilçeye hedefle; İ2 atılan haberleri nedeniyle kaydet; İ3 tur geçmişi tablosu; İ4 eski/ilgisiz otomatik haberleri ayıkla; İ5 test verisini yedek alıp sil (onayla); İ6 0 haber veren 21 ilin sayfa yapısını tek tek incele; İ7 MGM zirai don uyarısı için ayrı okuyucu.
+
+## Ek: 9 Kasım 2026 incelemesi ve temizlik
+
+**243 haberden neden 93'ü yayında?**
+- İlk taramada kaynak başına yalnız en yeni 3 haber yapay zekâya gönderildi, kalanlar "görüldü" sayıldı. Sonraki taramalar yalnız yeni çıkanları alır.
+- Bugünkü tam deneme (81 kaynak × 3 haber, 231 haber değerlendirildi): 121 kabul, 87 ilgisiz, 8 süresi geçmiş, 7 eski, 8 bağlantı/çözümleme hatası.
+- İlgisiz sayılanların çoğu doğruydu: ziyaret, protokol toplantısı, staj, gıda denetimi, spor, fuar, ödül.
+- Yanlış red örnekleri: turunçgil mücadele planı, arıcılık desteği, besilik sığır başvurusu, mercimek desteği, toprak analizi eğitimi, manda dağıtımı. Bunlar için yapay zekâdan önce çalışan başlık kuralı eklendi.
+- 14 sayfada metin `<p>` içinde değildi ve okunamıyordu. Uzun metin düğümü ayıklama eklendi.
+- Artık her haberin sonucu (eklendi, ilgisiz, eski, süresi geçmiş, metin yok, hata, robots) `scan_log` tablosuna yazılıyor.
+
+**Temizlik:** örnek duyuru, soru, takvim şablonu, pazar fiyatı ve cihaz kayıtları silindi. Yedek `.yedek/` klasöründe, git dışında.
+
+**Bitiş ve ilçe güncellemesi:** var olan 108 otomatik haber yeniden okundu.
+- 24 habere metinden başvuru bitişi verildi; Bir Sürü Olsun haberleri 13.11.2026 gün sonunda kalkacak.
+- 19 habere ilçe hedefi verildi.
+- Diğerlerine yayından 45 gün sonrası bitiş verildi.
+- Başlık kuralı ya da geçmiş bitiş nedeniyle 11 haber yayından kalktı.
+- Sonuç: 97 haber yayında.
