@@ -40,7 +40,7 @@ test('Ana sayfa: 7 ikon, arazi adı, 5 sekme; onaysız eşikte uyarı ve onay ya
     'Hava Durumu',
     'Uzman Desteği',
     'Mobil Bildirim',
-    'Profil Ayarları',
+    'Menü',
   ]) {
     await expect(page.getByRole('button', { name: new RegExp(`^${name}`) })).toBeVisible();
   }

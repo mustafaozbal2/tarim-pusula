@@ -191,6 +191,7 @@ export function HomeIconButton({
     >
       {/* Gerçek ikon görseli beyaz daireyi kendi içerir: tam çapta çizilir. */}
       <View
+        testID={usePng ? undefined : `ikon-gorsel-${item.key}`}
         style={[
           styles.circle,
           { width: size, height: size, borderRadius: size / 2 },

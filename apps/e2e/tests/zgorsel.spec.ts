@@ -287,7 +287,7 @@ test('görsel: ana sayfada 7 yuvarlak ikon, kayan kart şeridi ve arazi adı', a
     'Hava Durumu',
     'Uzman Desteği',
     'Mobil Bildirim',
-    'Profil Ayarları',
+    'Menü',
   ]) {
     await expect(page.getByRole('button', { name: new RegExp(`^${label}`) })).toBeVisible();
   }

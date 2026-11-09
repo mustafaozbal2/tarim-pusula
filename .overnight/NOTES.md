@@ -143,3 +143,25 @@ Yarım/sonraki: (1) `site/config.js` içine WhatsApp/e-posta yazılmalı (geri b
 Yapıldı: tarama servisi + 81 il müdürlüğü CSV, 7 günlük don, Nuvia geçidi + bekleme servisi, sohbet robotu, ada/parsel isteğe bağlı, resmi-kaynaklar sayfası, NUVIA_ISTEKLERI/NUVIA_ENTEGRASYON dolduruldu.
 Yarım: Nuvia işlevleri (haber_analiz, soru_cevapla) Nuvia tarafında yazılacak; fotoğraf için geçit metin-only; e2e tasarim.spec güncellendi ama koşulmadı; g14 APK gizli tarama testi (önceden var).
 Sonraki: Render'a HABER_TARAMA=1, anahtar gelince NUVIA_* ve NUVIA_SAHTE silinmesi.
+
+## G32 — Son sürüm turu (2026-11-09)
+Yapıldı:
+- Ana sayfa: haber şeridi ve sekmeler artık tüm arazilerden doluyor.
+- Gece don kartı (saatlik grafik, "Neler yapabilirim?" ürün grubuna göre kaynaklı rehber).
+- Don push + SMS bildirimi.
+- Kar, rüzgâr ve kuvvetli yağış tehlikeleri.
+- Takvim notları: o gün ve 1-2 gün önce yerel bildirim.
+- Menü düğmesi ve sağ yan menü.
+- Tam ekran yapay zekâ sayfası (geçmiş, fotoğraf, ses).
+- Hava efekti köşelere alındı.
+- Test verisi silindi; `ORNEK_TOHUM=0`.
+- Haber bitiş tarihi, ilçe hedefleme, başlık kuralı ve `scan_log` tablosu.
+- 243 → 93 incelemesi yapıldı; ayrıntı VERITABANI_ANALIZ_RAPORU.md'de.
+
+Yarım:
+- Zeytin hasat tarihi: kaynaklı olgunluk eşiği bulunamadı, bekletildi (KARARLAR G32).
+- Ürün don eşikleri ve takvim şablonları uzman onayı bekliyor; şu an onaylı kayıt yok.
+
+Sonraki:
+- Uzmanlar panelden eşik ve şablon onaylamalı.
+- `scan_log`'dan haftalık red oranı izlenmeli.

@@ -125,6 +125,7 @@ export function MonthView({
                     accessibilityRole="button"
                     accessibilityLabel="Notu sil"
                     onPress={() => notSil(n.id)}
+                    style={styles.notSilDokun}
                   >
                     <Text style={styles.notSil}>Sil</Text>
                   </Pressable>
@@ -232,11 +233,14 @@ const styles = StyleSheet.create({
   },
   notYazi: { flex: 1, fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: '#6B4A00' },
   notSil: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: '#B23A2B' },
+  notSilDokun: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   notAl: {
     alignSelf: 'flex-start',
     borderWidth: 1.5,
     borderColor: colors.forest,
     borderRadius: 99,
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: 8,
     paddingHorizontal: 14,
     marginTop: 4,
@@ -257,6 +261,8 @@ const styles = StyleSheet.create({
   notKaydet: {
     backgroundColor: colors.forest,
     borderRadius: 10,
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 14,
   },

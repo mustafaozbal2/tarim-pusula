@@ -165,6 +165,8 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   readAll: {
     alignSelf: 'flex-end',
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: radius.card,

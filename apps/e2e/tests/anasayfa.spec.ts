@@ -57,7 +57,7 @@ for (const size of [
       'hava',
       'uzman',
       'bildirim',
-      'ayarlar',
+      'menu',
     ]) {
       await expect(page.getByTestId(`ikon-${k}`)).toBeVisible();
     }
@@ -91,13 +91,22 @@ test('ana sayfa: her ikon doğru sayfaya gider', async ({ browser }) => {
     ['hava', /\/hava$/],
     ['uzman', /\/soru-sor$/],
     ['bildirim', /\/bildirimler$/],
-    ['ayarlar', /\/ayarlar$/],
   ];
   for (const [key, url] of routes) {
     await page.goto('/');
     await page.getByTestId(`ikon-${key}`).click();
     await expect(page).toHaveURL(url);
   }
+  // Menü ikonu sağdan yan menüyü açar; ayarlar ve yapay zekâ oradan açılır.
+  await page.goto('/');
+  await page.getByTestId('ikon-menu').click();
+  await expect(page.getByTestId('yan-menu')).toBeVisible();
+  await page.getByTestId('menu-ayarlar').click();
+  await expect(page).toHaveURL(/\/ayarlar$/);
+  await page.goto('/');
+  await page.getByTestId('ikon-menu').click();
+  await page.getByTestId('menu-yapay-zeka').click();
+  await expect(page).toHaveURL(/\/yapay-zeka$/);
   await ctx.close();
 });
 

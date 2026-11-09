@@ -132,7 +132,7 @@ test('G22.4-5 ürüne göre içerik: Antep fıstığı, zeytin, domates', async 
 const TARGET: Record<string, { x: number; y: number; w: number; h: number; label: string }> = {
   amblem: { x: 6.7, y: 2.8, w: 77, h: 97, label: 'Amblem (TARIM PUSULA yazısı dahil)' },
   'ikon-gorsel-arazilerim': { x: 84.8, y: 25.1, w: 42, h: 42, label: 'İkon 1 (Arazilerim)' },
-  'ikon-gorsel-ayarlar': { x: 344, y: 25.1, w: 42, h: 42, label: 'İkon 7 (Profil Ayarları)' },
+  'ikon-gorsel-menu': { x: 344, y: 25.1, w: 42, h: 42, label: 'İkon 7 (Menü)' },
   'kart-gorsel-1': { x: 7.4, y: 141.1, w: 76, h: 136, label: 'Kart 1 görseli' },
   'kart-gorsel-2': { x: 89.4, y: 141.1, w: 76, h: 136, label: 'Kart 2 görseli' },
   ciftci: { x: 84.3, y: 314.1, w: 53, h: 104, label: 'Çiftçi görseli' },
@@ -189,7 +189,6 @@ const PAGES: { name: string; open: (p: Page) => Promise<void>; url: RegExp }[] =
       ['hava', /\/hava$/],
       ['uzman', /\/soru-sor$/],
       ['bildirim', /\/bildirimler$/],
-      ['ayarlar', /\/ayarlar$/],
     ] as const
   ).map(([key, url]) => ({
     name: key,
@@ -198,6 +197,15 @@ const PAGES: { name: string; open: (p: Page) => Promise<void>; url: RegExp }[] =
       await p.getByTestId(`ikon-${key}`).click();
     },
   })),
+  // G32: Menü ikonu yan menüyü açar; ayarlar oradan.
+  {
+    name: 'ayarlar',
+    url: /\/ayarlar$/,
+    open: async (p: Page) => {
+      await p.getByTestId('ikon-menu').click();
+      await p.getByTestId('menu-ayarlar').click();
+    },
+  },
   // G23: sağ kenar menüsü kaldırıldı; aynı sayfalar Arazi İşlemleri kartlarından açılır.
   ...(
     [
