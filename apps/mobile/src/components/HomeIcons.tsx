@@ -202,7 +202,7 @@ export function HomeIconButton({
           <Image
             testID={`ikon-gorsel-${item.key}`}
             source={IMAGE_FILES[item.file] as number}
-            style={{ width: size, height: size, borderRadius: size / 2 }}
+            style={{ width: size, height: size, margin: -1.5, borderRadius: size / 2, opacity: 0.9 }}
           />
         ) : (
           <Glyph k={item.key} size={size * 0.72} />
@@ -222,8 +222,20 @@ const TOUCH = 44;
 
 const styles = StyleSheet.create({
   touch: { width: TOUCH, height: TOUCH, alignItems: 'center', justifyContent: 'center' },
-  circle: { backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
-  clear: { backgroundColor: 'transparent' },
+  // Kabartmalı ama sırıtmayan düğme: saf beyaz yerine yumuşak nane tonu, ince ışık kenarı, kısa gölge.
+  circle: {
+    backgroundColor: '#E9F4F1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.7)',
+    shadowColor: '#0B3B3C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.28,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  clear: { backgroundColor: '#E9F4F1' },
   badge: {
     position: 'absolute',
     top: 1,

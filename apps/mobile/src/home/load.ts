@@ -8,6 +8,7 @@ import type {
   SupportMatchDto,
   TodayDto,
 } from '../api/client';
+import { normalizeTr } from '@tarim/agro-core';
 import type { KV } from '../offline/kv';
 import { announcementsKey, loadAnnouncements } from '../today/announcements';
 import type { DigerArazi } from './model';
@@ -101,14 +102,16 @@ export async function loadHome(
       return { arazi: { ad: f.name, today, calendar: cal } satisfies DigerArazi, anns };
     }),
   );
-  const gorulen = new Set(announcements.map((a) => a.id));
-  const tumDuyurular = [...announcements];
-  for (const d of diger)
-    for (const a of d.anns)
-      if (!gorulen.has(a.id)) {
-        gorulen.add(a.id);
-        tumDuyurular.push(a);
-      }
+  // Aynı başlıklı haber farklı illerin müdürlüklerinden ayrı kayıt olarak gelebilir (ör. Bir Sürü Olsun): tek kart.
+  const gorulen = new Set<string>();
+  const tumDuyurular: AnnouncementDto[] = [];
+  for (const a of [...announcements, ...diger.flatMap((d) => d.anns)]) {
+    const baslik = normalizeTr(a.title);
+    if (gorulen.has(a.id) || gorulen.has(baslik)) continue;
+    gorulen.add(a.id);
+    gorulen.add(baslik);
+    tumDuyurular.push(a);
+  }
   tumDuyurular.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
   return {
     base,

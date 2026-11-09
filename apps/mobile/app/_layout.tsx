@@ -10,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform, useWindowDimensions, View } from 'react-native';
 import { I18nextProvider } from 'react-i18next';
+import { AltCubuk } from '../src/components/AltCubuk';
 import { i18n } from '../src/i18n';
 import { onPushTap } from '../src/push';
 import { queue, useSessionKind, useToken } from '../src/session';
@@ -90,11 +91,14 @@ export default function RootLayout() {
   const { textSize } = useSettings();
   const { width } = useWindowDimensions();
   const wide = (useSegments()[0] as string | undefined) === 'yetkili';
+  const token = useToken();
+  const kind = useSessionKind();
   return (
     <I18nextProvider i18n={i18n}>
       <StatusBar style="dark" />
       <View key={textSize} style={webFrame(width, wide)}>
         <Stack screenOptions={{ headerShown: false }} />
+        {token && kind !== 'yetkili' ? <AltCubuk /> : null}
         {/* Soğuk açılışta yeni sürüm varsa "Güncelle" ekranı örter; güncellenmeden girilmez. */}
         <UpdateGate api={expoUpdates} installed={installedVersion()} />
       </View>

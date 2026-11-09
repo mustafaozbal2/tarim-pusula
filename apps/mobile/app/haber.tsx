@@ -37,9 +37,17 @@ export default function NewsScreen() {
         return c.kartlar[n] ? { kind: 'ornek', c, i: n } : null;
       }
       if (!fieldId) return null;
-      const list = await loadAnnouncements(api, kv, fieldId);
-      const a = list.find((x) => x.id === id && gosterilir(x));
-      return a ? { kind: 'duyuru', a } : null;
+      // Haber başka bir arazinin listesinden gelmiş olabilir (ana sayfa tüm arazileri toplar): önce o arazi, sonra diğerleri.
+      const diger = await api
+        .fields()
+        .then((r) => r.map((f) => f.id).filter((x) => x !== fieldId))
+        .catch((): string[] => []);
+      for (const fid of [fieldId, ...diger]) {
+        const list = await loadAnnouncements(api, kv, fid);
+        const a = list.find((x) => x.id === id && gosterilir(x));
+        if (a) return { kind: 'duyuru', a };
+      }
+      return null;
     };
     void withDeadline(work())
       .then(setShown)
