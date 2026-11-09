@@ -20,6 +20,7 @@
       "@maplibre/maplibre-react-native",
       "expo-secure-store",
       "./plugins/with-cleartext",
+      "./plugins/with-play",
       "expo-sharing",
       [
         "expo-calendar",

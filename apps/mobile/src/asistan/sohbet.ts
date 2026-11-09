@@ -244,6 +244,8 @@ export async function ilerle(durum: Durum, girdi: string, o: Ortam): Promise<Adi
       if (hayirMi(g)) {
         return { durum: { k: 'il', t: {} }, mesajlar: [robot('Peki, araziniz hangi ilde?')] };
       }
+      // Evet/hayır değil, alakasız bir soru: akıştan çık, soruyu normal sohbet gibi cevapla (aynı soruyu tekrarlama).
+      if (g.includes('?') || g.split(/\s+/).length > 4) return serbest(g, o, undefined);
       return {
         durum,
         mesajlar: [

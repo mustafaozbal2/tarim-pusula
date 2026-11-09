@@ -713,6 +713,8 @@ export function createApi(opts: ApiOptions) {
       ),
     wallet: () => request<WalletDto>('GET', '/me/wallet'),
     exportData: () => request<unknown>('GET', '/me/export'),
+    /** Hesap silme (KVKK/Play): kullanıcıya ait tüm veri sunucuda silinir. Onay sözcüğü SIL. */
+    deleteAccount: () => request<undefined>('DELETE', '/me', { confirm: 'SIL' }),
     revokeShare: (id: string) => request<undefined>('DELETE', `/me/shares/${q(id)}`),
     today: (fieldId: string) => request<TodayDto>('GET', `/fields/${q(fieldId)}/today`),
     ndvi: (fieldId: string) => request<NdviDto>('GET', `/fields/${q(fieldId)}/ndvi`),

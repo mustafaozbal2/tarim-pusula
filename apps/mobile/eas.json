@@ -35,7 +35,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.example.invalid"
+        "EXPO_PUBLIC_API_URL": "https://tarim-pusula-api.onrender.com",
+        "EXPO_PUBLIC_PLAY": "1"
       },
       "channel": "production"
     }

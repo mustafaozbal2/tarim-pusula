@@ -13,6 +13,7 @@ import { fontFamily } from '@tarim/ui';
 import { IMAGE_FILES } from '../assets';
 import { tr } from '../i18n/tr';
 import { apkKur, gercekKurucu } from './apkKur';
+import { PLAY_SURUMU } from './play';
 import { applyUpdate, checkApk, checkAtStart, type ApkManifest, type UpdatesApi } from './core';
 
 const t = tr.gate;
@@ -56,7 +57,11 @@ export function UpdateGate({
     if (!active) return;
     let alive = true;
     void (async () => {
-      const [apk, ota] = await Promise.all([checkApk(installed, apkLoader), checkAtStart(api)]);
+      // Play sürümünde güncellemeyi Play yapar: site APK denetimi yok.
+      const [apk, ota] = await Promise.all([
+        PLAY_SURUMU ? Promise.resolve({ kind: 'tamam' as const }) : checkApk(installed, apkLoader),
+        checkAtStart(api),
+      ]);
       if (!alive) return;
       if (apk.kind === 'zorunlu') setPhase({ k: 'apk', adres: apk.adres });
       else setPhase(ota === 'var' ? { k: 'update' } : { k: 'open' });

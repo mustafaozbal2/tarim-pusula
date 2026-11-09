@@ -38,3 +38,41 @@
 - **Yönetici/uzman paneli, haber taraması tetikleme, takvim/erken uyarı demo-gerçek ayrımı:** yönetici/uzman kimlik bilgim yok; canlı veriyi değiştirecek uçlara dokunmadım.
 - **Haber görselleri uygun mu:** giriş gerektiriyor, görmedim.
   Bunlar için hesap bilgisi (ya da demo hesabı) ve emülatör sırası verilirse devam ederim.
+
+## 2. tur — yerel demo ile girişli ekranlar (ayna-a0, 9 Kasım 2026)
+
+Yöntem: `pnpm run demo` (yerel, sahte veri; canlıya dokunulmadı), Playwright ile 390×844 mobil web, demo hesabı +905320000001 / `Tarla2026`.
+**Not (TP-6):** ilk demo derlemesi eski kaldı (robot düğmesi `asistan-ac` yoktu, giriş SMS koduydu); `pnpm run demo -- --rebuild` sonrası güncel kodla denendi.
+
+### Geçenler
+
+| No  | Ne denendi                                                   | Sonuç                                                                                                         |
+| --- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| G12 | Haber/duyuru şeridi görselleri (örnek verideki 5 kart)       | Konuyla uyumlu görseller: yeşil buğday, traktör, toprak/gübre, çiftçi, tarla; metinler kırpılıyor ama okunur  |
+| G13 | Bildirimler (`/bildirimler`)                                 | Liste doluyor, "Yeni" rozetleri, geri tuşu ana sayfaya dönüyor                                                |
+| G14 | Hava (`/hava`)                                               | Doldu: anlık, 5 günlük tahmin, don olasılığı %0 ("tahmindir", kaynak Open-Meteo CC BY 4.0), referans su kaybı |
+| G15 | Takvim (`/takvim`)                                           | Ay takvimi, "Şimdi / Yaklaşan" işler, kaynak ve "Neden?", telefon takvimine ekle/.ics paylaş görünüyor        |
+| G16 | İlaç dozu sorusu ("İlaç dozu ne kadar olmalı?")              | Doz verilmiyor; etiket/ziraat mühendisi/BKÜ'ye yönlendirme (kural 2 doğru)                                    |
+| G17 | Robot asistan (`asistan-ac`): "yeni tarla eklemek istiyorum" | Sohbet içinde kalıyor, sayfa değişmiyor; "Arazini ekleyelim. Şu an arazinde misin?" + Evet/Hayır              |
+| G18 | Açılış hızı (demo, localhost)                                | ~1,4 sn ağ boşta; konsol/sayfa hatası yok (yalnız girişten önce `/fields` 401)                                |
+| G19 | Canlı CB-2 (güvenlik başlıkları)                             | DÜZELDİ: HSTS, nosniff, X-Frame-Options, Referrer-Policy var; `x-powered-by` yok                              |
+| G20 | Canlı CB-3 (bozuk JSON)                                      | DÜZELDİ: "İstek gövdesi geçerli JSON değil."                                                                  |
+
+### Bulgular
+
+| No             | Ekran/uç                                                                                                                       | Olan                                                                                                                                                                                                   | Önem                               |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| TP-1           | Soru sor ekranı → "Yazarak sor" → "tarla eklemek istiyorum" (ESKİ demo derlemesinde denendi, yeni derlemede yeniden denenmedi) | "Güvenilir bir kaynak bulamadım. Sorunu uzmana ilettim." — niyet yakalanmadı, gereksiz soru uzman kuyruğuna gitti. Robot panelinde doğru çalışıyor; Soru sor ekranında da aynı niyet yakalayıcı olmalı | orta (yeni derlemede doğrulanmalı) |
+| TP-2           | Robot sohbeti                                                                                                                  | Karşılama cümlesi "Hoş geldiniz efendim!" — Jarvis/Nuvia üslubu; çiftçi uygulamasında "efendim" ürün kararı olmalı                                                                                     | düşük                              |
+| TP-3           | Robot, tarla ekleme akışı ortadayken alakasız soru ("Zeytin ne zaman budanır?")                                                | Cevap yerine "Arazinde misin, değil misin? Evet ya da hayır yazabilirsin." tekrarı; akıştan çıkış/"vazgeç" seçeneği görünmedi                                                                          | orta                               |
+| TP-4           | Ayarlar → Hakkında                                                                                                             | "Sürüm 0.0.0" (eski demo derlemesinde; yeni derlemede kontrol edilmedi)                                                                                                                                | düşük                              |
+| TP-5           | `docs/DEMO_REHBERI.md`                                                                                                         | Giriş "Demo kodu 123456" diyor; güncel kod rol seçimi + telefon + şifre (`Tarla2026`). Rehber eski                                                                                                     | düşük                              |
+| TP-6           | `pnpm run demo`                                                                                                                | Önceden derlenmiş mobil paketi güncel kaynağı yansıtmıyor (robot yoktu); `--rebuild` gerekti. Demo kapanınca kendiliğinden çıkış yaptı, ikinci başlatmada sorun yok                                    | düşük                              |
+| CB-4 (yeniden) | Canlı API                                                                                                                      | 0,6–2,9 sn (öncekinden iyi; hâlâ dalgalı, Render uykusu riski sürüyor)                                                                                                                                 | düşük                              |
+| CB-6 (yeniden) | Yayındaki APK 0.3.0                                                                                                            | `SYSTEM_ALERT_WINDOW` hâlâ var — düzeltme (b5175dc) yeni APK'da; yayındaki APK değişmedi                                                                                                               | AÇIK (yeni APK bekliyor)           |
+
+### Denenemeyenler
+
+- Takvimin "Bu hafta için önemli bir iş yok" boş durumu: demo verisinde iş var, tetiklenemedi.
+- Emülatörde APK, gerçek bildirime dokunma (push), gerçek GPS/konum izni, sesli sorma: emülatör kilidi/APK demo sunucusuna yönlendirilemediği için web ile sınırlı kaldım.
+- Yönetici/uzman paneli (8201) yalnız ayakta olduğu doğrulandı (200), gezilmedi.

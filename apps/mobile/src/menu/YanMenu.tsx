@@ -143,6 +143,7 @@ export const MENU: { baslik: string; ogeler: MenuOgesi[]; vurgulu?: boolean }[] 
     baslik: 'Hesap',
     ogeler: [
       { ad: 'Hesabım ve ayarlar', rota: '/ayarlar', ikon: 'hesap' },
+      { ad: 'Görsel kaynakları', rota: '/gorsel-kaynaklari', ikon: 'haber' },
       { ad: 'Veri cüzdanı', rota: '/veri-cuzdani', ikon: 'cuzdan' },
       { ad: 'ÇKS ve bağlantılar', rota: '/entegrasyonlar', ikon: 'baglanti' },
     ],

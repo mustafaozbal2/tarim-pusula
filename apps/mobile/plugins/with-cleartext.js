@@ -4,6 +4,7 @@
 const { withAndroidManifest } = require('expo/config-plugins');
 
 module.exports = function withCleartext(config) {
+  if (process.env.EXPO_PUBLIC_PLAY === '1') return config; // Play sürümü: with-play.js https zorlar
   return withAndroidManifest(config, (cfg) => {
     const app = cfg.modResults.manifest.application?.[0];
     if (app) app.$['android:usesCleartextTraffic'] = 'true';

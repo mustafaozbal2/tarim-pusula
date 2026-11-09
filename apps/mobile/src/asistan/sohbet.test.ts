@@ -118,6 +118,13 @@ describe('robot sohbeti: tarla ekleme (sayfa değiştirmeden)', () => {
     expect(a.mesajlar[0]!.metin).toContain('Ağılköy Bahçesi');
   });
 
+  it('konum sorusunda alakasız soru gelirse akıştan çıkılır ve soru cevaplanır (aynı soru tekrarlanmaz)', async () => {
+    const o = ortam();
+    const r = await ilerle({ k: 'konum', t: {} }, 'Domatesin yaprakları neden sararıyor?', o);
+    expect(r.durum.k).not.toBe('konum');
+    expect(JSON.stringify(r.mesajlar)).not.toContain('Arazinde misin, değil misin');
+  });
+
   it('konum izni yoksa il sorusuna düşer', async () => {
     const o = ortam({ konumAl: async () => null });
     const a = await sohbet(o, 'tarla ekle', 'evet');

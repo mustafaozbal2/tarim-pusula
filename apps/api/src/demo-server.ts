@@ -168,6 +168,15 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
   await importResmiKaynaklar(db);
   // Canlı (gerçek kullanım): ORNEK_TOHUM=0 iken hiçbir örnek/test verisi yazılmaz (duyuru, takvim, eşik,
   // belge, pazar fiyatı). Sistem yalnız gerçek kaynaklarla (resmî site taraması, hava, kullanıcı) dolar.
+  /**
+   * Google Play inceleyicisi için SMS'siz giriş: PLAY_INCELEME_TELEFON (+90...) verilirse yalnız o numara sabit kodla
+   * girer (hesap boştur, gerçek veri yoktur). Ayarlanmazsa kapalıdır. İnceleme bitince env silinir.
+   */
+  function playIncelemeTelefonu(): string[] {
+    const t = (process.env['PLAY_INCELEME_TELEFON'] ?? '').trim();
+    return /^\+90\d{10}$/.test(t) ? [t] : [];
+  }
+
   const ornekTohum = process.env['ORNEK_TOHUM'] !== '0';
   if (ornekTohum) {
     const seeded = await alreadySeeded(db);
@@ -187,7 +196,9 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
       db,
       sms,
       push,
-      demo: isRealSms(sms) ? { ...info, codeOnlyFor: DEMO_PHONES } : info,
+      demo: isRealSms(sms)
+        ? { ...info, codeOnlyFor: [...DEMO_PHONES, ...playIncelemeTelefonu()] }
+        : info,
       broker,
       ...(ornekTohum ? { market: demoMarket() } : {}),
       weather: o.weather ?? demoWeather(),

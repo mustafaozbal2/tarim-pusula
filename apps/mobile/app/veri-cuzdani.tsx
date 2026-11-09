@@ -1,11 +1,11 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Platform, Share, StyleSheet, Text } from 'react-native';
+import { Platform, Share, StyleSheet, Text, TextInput } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, spacing } from '@tarim/ui';
 import { NetworkError } from '../src/api/client';
 import { FlowHeader, FlowScreen, Notice } from '../src/components/FlowParts';
 import { tr } from '../src/i18n/tr';
-import { api } from '../src/session';
+import { api, setToken } from '../src/session';
 import {
   categoryNames,
   exportFileName,
@@ -35,6 +35,9 @@ export default function WalletScreen() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
+  const [silAcik, setSilAcik] = useState(false);
+  const [silOnay, setSilOnay] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -72,6 +75,19 @@ export default function WalletScreen() {
       await load();
     } catch {
       setError(t.error);
+    }
+  };
+
+  const hesabiSil = async () => {
+    if (busy || silOnay.trim().toUpperCase() !== 'SIL') return;
+    setBusy(true);
+    try {
+      await api.deleteAccount();
+      await setToken(null);
+      router.replace('/giris');
+    } catch (e) {
+      setError(e instanceof NetworkError ? t.offline : t.error);
+      setBusy(false);
     }
   };
 
@@ -123,6 +139,43 @@ export default function WalletScreen() {
           </Card>
         </>
       ) : null}
+
+      <Text style={styles.section}>Hesabı sil</Text>
+      <Card style={{ gap: spacing.sm }} testID="hesap-sil-kart">
+        <Text style={styles.muted}>
+          Hesabını silersen telefon numaran, arazilerin, sorun ve cevapların, notların, cihazların
+          ve paylaşımların sunucudan kalıcı olarak silinir. Bu işlem geri alınamaz. Silmeden önce
+          verilerini yukarıdan indirebilirsin.
+        </Text>
+        {silAcik ? (
+          <>
+            <Text style={styles.name}>Onaylamak için kutuya SIL yaz</Text>
+            <TextInput
+              testID="hesap-sil-onay"
+              value={silOnay}
+              onChangeText={setSilOnay}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              style={styles.sil}
+              accessibilityLabel="Silme onayı"
+            />
+            <Button
+              testID="hesap-sil-gonder"
+              label="Hesabımı ve tüm verilerimi sil"
+              variant="danger"
+              onPress={() => void hesabiSil()}
+            />
+            <Button label="Vazgeç" onPress={() => setSilAcik(false)} />
+          </>
+        ) : (
+          <Button
+            testID="hesap-sil-ac"
+            label="Hesabımı sil"
+            variant="danger"
+            onPress={() => setSilAcik(true)}
+          />
+        )}
+      </Card>
     </FlowScreen>
   );
 }
@@ -133,4 +186,14 @@ const styles = StyleSheet.create({
   row: { gap: 2 },
   name: { fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.forest },
   muted: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: colors.textMuted },
+  sil: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    minHeight: 44,
+    paddingHorizontal: 12,
+    fontFamily: fontFamily.bold,
+    fontSize: fontSize.body,
+    color: colors.forest,
+  },
 });
