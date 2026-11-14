@@ -1,6 +1,10 @@
 # SOHBET_DEVAM — Yeni sohbet buradan başlar
 
-## Durum — 13.11.2026
+## Durum — 14.11.2026
+
+**Son iş (G34, 14.11):** İkiz Tarım yayınlandı (commit ce8d871, OTA gönderildi, Render canlı). Ayrıntı: docs/KARARLAR.md G34 ve .overnight/NOTES.md. Yarım: geçmişe dönük sınama, uydu özümsemesi, Ky uzman onayı, sahada sensör sınaması.
+
+## Önceki durum — 13.11.2026
 
 **Proje:** Tarım Pusula, çiftçiler için mobil + web uygulaması (Expo/NestJS, Teknofest Tarım Teknolojileri); hesaplar agro-core'da matematiksel olarak dayanaklı ve test edilmiş.
 
