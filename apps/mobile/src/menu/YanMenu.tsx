@@ -38,6 +38,7 @@ type IkonAdi =
   | 'soru'
   | 'pazar'
   | 'yz'
+  | 'ikiz'
   | 'arazi'
   | 'harita'
   | 'uydu'
@@ -56,6 +57,7 @@ type IkonAdi =
 
 /** Çizgi ikonlar (24x24): sade, tek renk. */
 const IKON: Record<IkonAdi, string> = {
+  ikiz: 'M4 18V9l4-3 4 3v9M12 18V9l4-3 4 3v9M2 18h20M8 13v2M16 13v2',
   ev: 'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
   hava: 'M7 18a4 4 0 0 1-.6-8A6 6 0 0 1 18 9.5 4.3 4.3 0 0 1 17.5 18z',
   takvim: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
@@ -104,7 +106,10 @@ export const MENU: { baslik: string; ogeler: MenuOgesi[]; vurgulu?: boolean }[] 
   {
     baslik: 'Yapay zekâ',
     vurgulu: true,
-    ogeler: [{ ad: 'Pusula Yapay Zekâ', rota: '/yapay-zeka', ikon: 'yz', etiket: 'Yeni' }],
+    ogeler: [
+      { ad: 'Pusula Yapay Zekâ', rota: '/yapay-zeka', ikon: 'yz', etiket: 'Yeni' },
+      { ad: 'İkiz Tarım (dijital ikiz)', rota: '/ikiz-tarim', ikon: 'ikiz', etiket: 'Yeni' },
+    ],
   },
   {
     baslik: 'Günlük',

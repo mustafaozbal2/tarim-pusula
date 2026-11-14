@@ -150,7 +150,7 @@ export class DeviceReadingsController {
   }
 }
 
-interface SoilRow {
+export interface SoilRow {
   key: string;
   nameTr: string;
   thetaFc: number;
@@ -163,7 +163,7 @@ interface SoilRow {
 export const SOIL_COLS = `key, name_tr AS "nameTr", theta_fc::float8 AS "thetaFc", theta_wp::float8 AS "thetaWp",
   review_status AS "reviewStatus", source, source_version AS "sourceVersion", source_date::text AS "sourceDate"`;
 
-interface WaterParamRow {
+export interface WaterParamRow {
   cropId: string;
   rootDepthM: number;
   pTable: number;
@@ -172,7 +172,7 @@ interface WaterParamRow {
   sourceVersion: string;
   sourceDate: string;
 }
-const WP_COLS = `crop_id AS "cropId", root_depth_m::float8 AS "rootDepthM", p_table::float8 AS "pTable",
+export const WP_COLS = `crop_id AS "cropId", root_depth_m::float8 AS "rootDepthM", p_table::float8 AS "pTable",
   review_status AS "reviewStatus", source, source_version AS "sourceVersion", source_date::text AS "sourceDate"`;
 
 const waterParamsSchema = z.object({

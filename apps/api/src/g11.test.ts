@@ -230,6 +230,10 @@ describe('veri cüzdanı: dışa aktarma tüm kullanıcı verisini içerir', () 
       [dev.id, aliField, ali.userId],
     );
     await sql(
+      `INSERT INTO twin_events(field_id, user_id, on_date, kind, mm) VALUES ($1,$2, current_date, 'sulama', 30)`,
+      [aliField, ali.userId],
+    );
+    await sql(
       `INSERT INTO irrigation_commands(device_id, field_id, user_id, action, minutes, idempotency_key,
          created_at, expires_at) VALUES ($1,$2,$3,'open',10,'idem-12345678', now(), now() + interval '1 minute')`,
       [dev.id, aliField, ali.userId],

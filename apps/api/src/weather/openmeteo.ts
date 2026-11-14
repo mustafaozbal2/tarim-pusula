@@ -66,7 +66,31 @@ export interface WeatherProvider {
    * hesapları için. Sağlayıcı desteklemezse tanımsız olabilir.
    */
   history?(lat: number, lon: number, pastDays: number): Promise<WeatherBundle>;
+  /**
+   * İkiz Tarım paketi: geçmiş pencere + 16 günlük tahmin, topluluk üyelerinin günlük yağış/ET0'ı ve
+   * sezon başından beri sıcaklıklar (derece-gün). Sağlayıcı desteklemezse tanımsız olabilir.
+   */
+  twin?(lat: number, lon: number, seasonFrom: string): Promise<TwinWeather>;
 }
+
+export interface TwinWeather {
+  source: string;
+  version: string;
+  sample: boolean;
+  fetchedAt: string;
+  stale: boolean;
+  elevationM: number;
+  utcOffsetSeconds: number;
+  /** Geçmiş pencere (TWIN_PAST_DAYS gün) + bugün + tahmin günleri, tarih sırasıyla. */
+  days: DailyWeather[];
+  /** Topluluk üyeleri (yalnız tahmin günleri): aynı sıradaki üye aynı senaryo yoludur. */
+  members: { date: string; et0: number[]; rainMm: number[] }[];
+  /** Sezon başından pencere başına kadar günlük sıcaklıklar (derece-gün için; arşiv). */
+  season: { date: string; tMinC: number; tMaxC: number }[];
+}
+
+export const TWIN_PAST_DAYS = 60;
+export const TWIN_FORECAST_DAYS = 16;
 
 export class WeatherUnavailableError extends Error {
   constructor(detail: string) {
@@ -97,6 +121,7 @@ const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
 
 export class OpenMeteoClient implements WeatherProvider {
   private readonly cache = new Map<string, { at: number; bundle: WeatherBundle }>();
+  private readonly twinCache = new Map<string, { at: number; bundle: TwinWeather }>();
   private readonly doFetch: typeof fetch;
   private readonly ttl: number;
   private readonly now: () => number;
@@ -141,6 +166,51 @@ export class OpenMeteoClient implements WeatherProvider {
       });
       const bundle = parseBundle(forecast, null, 'none', new Date(this.now()).toISOString());
       this.cache.set(key, { at: this.now(), bundle });
+      return bundle;
+    } catch (e) {
+      if (hit) return { ...hit.bundle, stale: true };
+      throw e instanceof WeatherUnavailableError ? e : new WeatherUnavailableError(String(e));
+    }
+  }
+
+  /** İkiz Tarım: tahmin (past_days + 16 gün) + topluluk (yağış, ET0) + arşiv (sezon sıcaklıkları). */
+  async twin(lat: number, lon: number, seasonFrom: string): Promise<TwinWeather> {
+    const key = `t:${(Math.round(lat * 20) / 20).toFixed(2)},${(Math.round(lon * 20) / 20).toFixed(2)},${seasonFrom}`;
+    const hit = this.twinCache.get(key);
+    if (hit && this.now() - hit.at < this.ttl) return hit.bundle;
+    const loc = { latitude: String(lat), longitude: String(lon), timezone: 'auto' };
+    const model = this.opts.ensembleModel ?? 'icon_seamless';
+    const archiveEnd = new Date(this.now() - (TWIN_PAST_DAYS + 1) * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    try {
+      const [forecast, ens, archive] = await Promise.all([
+        this.getJson('https://api.open-meteo.com', '/v1/forecast', {
+          ...loc,
+          daily: DAILY,
+          wind_speed_unit: 'ms',
+          past_days: String(TWIN_PAST_DAYS),
+          forecast_days: String(TWIN_FORECAST_DAYS),
+        }),
+        this.getJson('https://ensemble-api.open-meteo.com', '/v1/ensemble', {
+          ...loc,
+          daily: 'precipitation_sum,et0_fao_evapotranspiration',
+          models: model,
+          forecast_days: String(TWIN_FORECAST_DAYS),
+        }).catch(() => null),
+        seasonFrom < archiveEnd
+          ? this.getJson('https://archive-api.open-meteo.com', '/v1/archive', {
+              ...loc,
+              daily: 'temperature_2m_max,temperature_2m_min',
+              start_date: seasonFrom,
+              end_date: archiveEnd,
+            }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      const bundle = parseTwin(forecast, ens, archive, model, new Date(this.now()).toISOString());
+      this.twinCache.set(key, { at: this.now(), bundle });
+      if (this.twinCache.size > 200)
+        this.twinCache.delete(this.twinCache.keys().next().value as string);
       return bundle;
     } catch (e) {
       if (hit) return { ...hit.bundle, stale: true };
@@ -201,11 +271,11 @@ export function parseBundle(
   const dates = arr(d['time']) as string[];
   if (dates.length === 0) throw new WeatherUnavailableError('boş tahmin');
   const col = (name: string) => arr(d[name]);
-  const days: DailyWeather[] = dates.map((date, i) => {
+  // Uzun pencerede (past_days + 16 gün) son günler bazen boş gelir: o günler atlanır; hiç gün kalmazsa hata.
+  const days: DailyWeather[] = dates.flatMap((date, i) => {
     const tMin = num(col('temperature_2m_min')[i]);
     const tMax = num(col('temperature_2m_max')[i]);
-    if (tMin === null || tMax === null)
-      throw new WeatherUnavailableError(`${date} sıcaklığı eksik`);
+    if (tMin === null || tMax === null) return [];
     return {
       date,
       tMinC: tMin,
@@ -217,8 +287,9 @@ export function parseBundle(
       et0OpenMeteoMm: num(col('et0_fao_evapotranspiration')[i]),
       snowCm: num(col('snowfall_sum')[i]),
       gustMaxMs: num(col('wind_gusts_10m_max')[i]),
-    };
+    } satisfies DailyWeather;
   });
+  if (days.length === 0) throw new WeatherUnavailableError('sıcaklık verisi yok');
   const h = (forecast['hourly'] ?? null) as Json | null;
   const hcol = (name: string) => arr(h?.[name]);
   const hourly: SaatlikHava[] = (arr(h?.['time']) as string[]).map((time, i) => ({
@@ -277,6 +348,60 @@ export function parseBundle(
   };
 }
 
+/** İkiz paketi ayrıştırma: günlük seri parseBundle ile; topluluk üyeleri sütun adından (…_memberNN). */
+export function parseTwin(
+  forecast: Json,
+  ens: Json | null,
+  archive: Json | null,
+  model: string,
+  fetchedAt: string,
+): TwinWeather {
+  const b = parseBundle(forecast, null, model, fetchedAt);
+  const members: TwinWeather['members'] = [];
+  const ed = (ens?.['daily'] ?? null) as Json | null;
+  if (ed) {
+    const dates = arr(ed['time']) as string[];
+    const rainKeys = Object.keys(ed).filter((k) => /^precipitation_sum_member\d+$/.test(k));
+    const et0Keys = Object.keys(ed).filter((k) => /^et0_fao_evapotranspiration_member\d+$/.test(k));
+    const n = Math.min(rainKeys.length, et0Keys.length);
+    dates.forEach((date, i) => {
+      const et0: number[] = [];
+      const rainMm: number[] = [];
+      for (let k = 0; k < n; k++) {
+        const e = num(arr(ed[et0Keys[k]!])[i]);
+        const r = num(arr(ed[rainKeys[k]!])[i]);
+        if (e !== null && r !== null) {
+          et0.push(e);
+          rainMm.push(r);
+        }
+      }
+      if (et0.length > 0) members.push({ date, et0, rainMm });
+    });
+  }
+  const season: TwinWeather['season'] = [];
+  const ad = (archive?.['daily'] ?? null) as Json | null;
+  if (ad) {
+    const dates = arr(ad['time']) as string[];
+    dates.forEach((date, i) => {
+      const tMin = num(arr(ad['temperature_2m_min'])[i]);
+      const tMax = num(arr(ad['temperature_2m_max'])[i]);
+      if (tMin !== null && tMax !== null) season.push({ date, tMinC: tMin, tMaxC: tMax });
+    });
+  }
+  return {
+    source: SOURCE,
+    version: `Open-Meteo API v1 (forecast past_days; ensemble ${model}; archive ERA5)`,
+    sample: false,
+    fetchedAt,
+    stale: false,
+    elevationM: b.elevationM,
+    utcOffsetSeconds: b.utcOffsetSeconds,
+    days: b.days,
+    members,
+    season,
+  };
+}
+
 /** Ağ ya da anahtar olmadan çalışmak için sahte sağlayıcı (geliştirme, test, e2e). */
 export class FakeWeatherProvider implements WeatherProvider {
   calls = 0;
@@ -298,6 +423,39 @@ export class FakeWeatherProvider implements WeatherProvider {
       return { ...base, date };
     });
     return { ...b, days };
+  }
+  /** Sahte ikiz paketi: 60 gün geçmiş + 16 gün tahmin, 5 sabit üye; 3 günde bir 6 mm yağış. */
+  async twin(lat: number, lon: number, seasonFrom: string): Promise<TwinWeather> {
+    const b = this.make(lat, lon);
+    const base = b.days[0]!;
+    const t0 = new Date(`${base.date}T00:00:00Z`).getTime();
+    const at = (k: number) => new Date(t0 + k * 86_400_000).toISOString().slice(0, 10);
+    const days: DailyWeather[] = [];
+    for (let k = -TWIN_PAST_DAYS; k < TWIN_FORECAST_DAYS; k++) {
+      days.push({ ...base, date: at(k), precipMm: k % 3 === 0 ? 6 : 0 });
+    }
+    const members = Array.from({ length: TWIN_FORECAST_DAYS }, (_, k) => ({
+      date: at(k),
+      et0: [2.2, 2.5, 2.7, 3.0, 3.3],
+      rainMm: k % 3 === 0 ? [0, 2, 6, 10, 14] : [0, 0, 0, 0, 1],
+    }));
+    const season: TwinWeather['season'] = [];
+    const from = new Date(`${seasonFrom}T00:00:00Z`).getTime();
+    for (let t = from; t < t0 - TWIN_PAST_DAYS * 86_400_000; t += 86_400_000) {
+      season.push({ date: new Date(t).toISOString().slice(0, 10), tMinC: 8, tMaxC: 22 });
+    }
+    return {
+      source: b.source,
+      version: b.version ?? 'ornek',
+      sample: true,
+      fetchedAt: b.fetchedAt,
+      stale: false,
+      elevationM: b.elevationM,
+      utcOffsetSeconds: b.utcOffsetSeconds,
+      days,
+      members,
+      season,
+    };
   }
 }
 
@@ -389,6 +547,25 @@ export class FallbackWeatherProvider implements WeatherProvider {
     } catch (e) {
       console.warn('hava: Open-Meteo erişilemedi, örnek veri:', e instanceof Error ? e.message : e);
       return this.mark(await this.fallback.get(lat, lon), e);
+    }
+  }
+  async twin(lat: number, lon: number, seasonFrom: string): Promise<TwinWeather> {
+    try {
+      if (!this.primary.twin) throw new WeatherUnavailableError('ikiz paketi yok');
+      return await this.primary.twin(lat, lon, seasonFrom);
+    } catch (e) {
+      if (!this.fallback.twin) throw new WeatherUnavailableError('ikiz paketi yok');
+      const t = await this.fallback.twin(lat, lon, seasonFrom);
+      this.fallbacks++;
+      const why = (e instanceof Error ? e.message : String(e)).replace(
+        /Hava verisi alınamadı: /g,
+        '',
+      );
+      return {
+        ...t,
+        sample: true,
+        source: `Örnek veri (Open-Meteo şu an erişilemedi: ${why.slice(0, 120)})`,
+      };
     }
   }
   async history(lat: number, lon: number, pastDays: number): Promise<WeatherBundle> {

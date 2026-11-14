@@ -13,6 +13,7 @@ export type EylemKey =
   | 'takvim'
   | 'pazar'
   | 'bildirimler'
+  | 'ikiz'
   | 'ayarlar';
 
 export interface Eylem {
@@ -72,6 +73,12 @@ export const EYLEMLER: Record<EylemKey, Eylem> = {
     route: '/pazar',
     say: 'Hal ve borsa fiyatlarını açıyorum.',
   },
+  ikiz: {
+    key: 'ikiz',
+    label: 'İkiz Tarım',
+    route: '/ikiz-tarim',
+    say: 'İkiz Tarım ekranını açıyorum: orada "sulamayı ertelesem ne olur" gibi senaryoları deneyebilirsin.',
+  },
   bildirimler: {
     key: 'bildirimler',
     label: 'Bildirimler',
@@ -109,6 +116,10 @@ const KURALLAR: [EylemKey, RegExp][] = [
   [
     'uzmana-sor',
     /\buzman|\bdanis|\bziraat muhendis|\bhastalik|\bleke|\bbocek|\bzararli|\bkurtlan|\bsarar|\bkuru(yor|du)|\bciftci sor|\bsoru sor/,
+  ],
+  [
+    'ikiz',
+    /\bikiz|\bsimulasyon|\bsenaryo|\bertele|\bbekle(sem|rsem)|\bne olur|\bsulamazsam|\bsulasam|\bkisintili|\bsularsam/,
   ],
   ['sulama', /\bsula|\bsu ihtiyac|\bvana|\bdamla|\bsuyu/],
   ['hava', /\bhava|\byagmur|\bdon\b|\bdon olacak|\bsicaklik|\bruzgar|\bkar yag|\bdolu/],

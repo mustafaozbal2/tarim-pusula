@@ -308,6 +308,100 @@ export type SavingsReportDto = {
   assumptions: string[];
 };
 
+// ---- İkiz Tarım (dijital ikiz) ----
+export interface TwinQuantiles {
+  p10: number;
+  p50: number;
+  p90: number;
+}
+export interface TwinStateDayDto {
+  date: string;
+  drStart: number;
+  drEnd: number;
+  taw: number;
+  raw: number;
+  ks: number;
+  etc: number;
+  etcAdj: number;
+  rainMm: number;
+  irrigationMm: number;
+  deepPercolationMm: number;
+  sigmaMm: number;
+  corrected: { drObs: number; gain: number; source: string } | null;
+  stress: boolean;
+}
+export interface TwinScenarioDto {
+  plan:
+    | { kind: 'yok' }
+    | { kind: 'kural' }
+    | { kind: 'bekle'; days: number }
+    | { kind: 'aralik'; everyDays: number; depthMm: number }
+    | { kind: 'simdi'; fraction: number }
+    | { kind: 'kisintili'; fraction: number };
+  label: string;
+  days: { date: string; dr: TwinQuantiles; stressFraction: number; irrigationMm: number }[];
+  waterMm: TwinQuantiles;
+  irrigations: number;
+  stressDays: TwinQuantiles;
+  minKs: number;
+  deepPercolationMm: number;
+  etaOverEtx: TwinQuantiles;
+  members: number;
+  yieldLoss: {
+    fraction: TwinQuantiles;
+    model:
+      | { kind: 'ky'; ky: number; basis: 'kaynak' | 'varsayim'; source: string }
+      | { kind: 'egri'; source: string };
+    caveat: string;
+  };
+}
+export interface TwinEventDto {
+  id: string;
+  date: string;
+  kind: 'sulama' | 'yagis';
+  mm: number;
+  source: string;
+  note: string | null;
+}
+export interface TwinDto {
+  fieldId: string;
+  fieldName: string;
+  cropId: string | null;
+  generatedAt: string;
+  today: string;
+  mode: 'oneri' | 'bilgi';
+  badge: boolean;
+  unapproved: string[];
+  params: {
+    kc: number;
+    thetaFc: number;
+    thetaWp: number;
+    rootDepthM: number;
+    pTable: number;
+    soilKey: string;
+  };
+  state: {
+    days: TwinStateDayDto[];
+    end: { date: string; dr: number; sigmaMm: number; taw: number; raw: number };
+    assumptions: string[];
+  };
+  scenarios: TwinScenarioDto[];
+  ruleFirstIrrigation: { date: string; mm: number } | null;
+  gdd: { sum: number; baseC: number; from: string; source: string; days: number } | null;
+  events: TwinEventDto[];
+  observations: number;
+  scorecard: { count: number; maeMm: number; coverage: number; biasMm: number };
+  weather: { source: string; version: string; sample: boolean; stale: boolean; fetchedAt: string };
+  sources: {
+    kc: string | null;
+    soil: string | null;
+    waterParams: string;
+    yield: string;
+    method: string;
+  };
+  assumptions: string[];
+}
+
 export interface SavingsDto {
   fieldId: string;
   fieldName: string;
@@ -746,6 +840,14 @@ export function createApi(opts: ApiOptions) {
       ),
     reminders: (fieldId: string, params: string) =>
       request<RemindersDto>('GET', `/fields/${q(fieldId)}/reminders?${params}`),
+    twin: (fieldId: string, params = '') =>
+      request<TwinDto>('GET', `/fields/${q(fieldId)}/twin${params ? `?${params}` : ''}`),
+    twinAddEvent: (
+      fieldId: string,
+      e: { onDate: string; kind: 'sulama' | 'yagis'; mm: number; note?: string },
+    ) => request<{ id: string }>('POST', `/fields/${q(fieldId)}/twin/events`, e),
+    twinRemoveEvent: (fieldId: string, eventId: string) =>
+      request<undefined>('DELETE', `/fields/${q(fieldId)}/twin/events/${q(eventId)}`),
     savings: (fieldId: string, params: string) =>
       request<SavingsDto>('GET', `/fields/${q(fieldId)}/savings?${params}`),
     deviceStatus: (id: string) => request<DeviceStatusDto>('GET', `/devices/${q(id)}/status`),

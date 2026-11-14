@@ -1,3 +1,5 @@
+Yeni sohbette önce SOHBET_DEVAM.md'yi oku.
+
 # Tarım Pusula — Claude çalışma kuralları
 
 Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Üretim"). Teknofest Tarım Teknolojileri, lisans üstü kategori. Jüri profesördür: her hesap matematiksel olarak dayanaklı ve test edilmiş olmalı.

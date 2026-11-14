@@ -172,3 +172,8 @@ Sonraki:
 - Alt gezinme çubuğu: Ana sayfa, Takvim, Yapay zekâ, Pazar (üst bantla aynı renk). Sohbet, form ve giriş ekranlarında görünmez.
 - Üst düğmeler: saf beyaz yerine nane tonu, ince kenar ve gölge.
 - Telefonda (Redmi, kablosuz hata ayıklama) ana sayfa, haber detayı, menü, yapay zekâ ve takvim elle denendi.
+
+## G34 — İkiz Tarım (2026-11-14)
+Yapıldı: agro-core `twin.ts` (durum motoru, Kalman, topluluk senaryoları, Ky/FAO-66 verim, karne, FAO-56 Tablo 22 taslakları) + 22 test; Open-Meteo ikiz paketi (past_days + 16 gün ensemble + ERA5 arşiv); `twin_events`, `twin_forecasts` tabloları (0023); `TwinController` + 6 API testi; mobil `/ikiz-tarim` ekranı (durum, zaman çubuğu, 4-5 senaryo, kayıt, toprak, karne, neden); alt çubuk Takvim → İkiz Tarım; yan menü; e2e `ikiz.spec.ts`.
+Yarım: geçmişe dönük sınama (sezon ortasından başlatıp hata ölçme), uydu LAI özümsemesi, sesli senaryo sorusu (yapay zekâ niyeti yalnız ekrana yönlendirir), Ky uzman onayı (fıstık/badem/kiraz varsayım), sensörle saha sınaması.
+Sonraki: Nuvia'ya "sulamayı 3 gün ertelesem" cümlesini senaryo parametresine çeviren işlev; EnKF.

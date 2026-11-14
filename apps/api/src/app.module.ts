@@ -64,6 +64,7 @@ import { YonetimController } from './yonetim';
 import { TARAMA_ANALIZ, TARAMA_FETCH, TaramaService } from './tarama/servis';
 import { MarketService } from './market/service';
 import { NdviController } from './ndvi/ndvi.controller';
+import { TwinController } from './twin/twin.controller';
 import { CopernicusNdviClient, FakeNdviProvider, type NdviProvider } from './ndvi/provider';
 import { NDVI } from './ndvi/tokens';
 import { InMemoryBroker } from '@tarim/device-sim';
@@ -159,6 +160,7 @@ export class AppModule {
         NearbyController,
         TodayController,
         NdviController,
+        TwinController,
         PushTokenController,
         JobsController,
         FieldCalendarController,

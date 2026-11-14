@@ -2,7 +2,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Keyboard, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { colors, fontFamily, homeColors } from '@tarim/ui';
 import { Robot } from '../asistan/Robot';
 import { ALT_SEKMELER, altCubukGorunur, type Anahtar } from './altCubukYol';
@@ -27,20 +27,18 @@ function Ikon({ k, renk }: { k: Anahtar; renk: string }) {
           />
         </Svg>
       );
-    case 'takvim':
+    case 'ikiz':
+      // İki yan yana tarla: gerçek ve sanal ikiz.
       return (
         <Svg {...p}>
-          <Rect
-            x={3.5}
-            y={5}
-            width={17}
-            height={15.5}
-            rx={2.5}
+          <Path
+            d="M3 18V9.5l4-3 4 3V18M13 18V9.5l4-3 4 3V18M2 18h20M7 13.5v2M17 13.5v2"
             fill="none"
             stroke={renk}
             strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
           />
-          <Path d="M3.5 10h17M8 3v4M16 3v4" stroke={renk} strokeWidth={2} strokeLinecap="round" />
         </Svg>
       );
     case 'hava':

@@ -1,6 +1,7 @@
 import {
   WeatherUnavailableError,
   type DailyWeather,
+  type TwinWeather,
   type WeatherBundle,
   type WeatherProvider,
 } from './openmeteo';
@@ -203,5 +204,18 @@ export class ChainWeatherProvider implements WeatherProvider {
       }
     }
     throw new WeatherUnavailableError(errs.join('; ') || 'geçmiş yok');
+  }
+
+  async twin(lat: number, lon: number, seasonFrom: string): Promise<TwinWeather> {
+    const errs: string[] = [];
+    for (const p of this.providers) {
+      if (!p.twin) continue;
+      try {
+        return await p.twin(lat, lon, seasonFrom);
+      } catch (e) {
+        errs.push(e instanceof Error ? e.message : String(e));
+      }
+    }
+    throw new WeatherUnavailableError(errs.join('; ') || 'ikiz paketi yok');
   }
 }

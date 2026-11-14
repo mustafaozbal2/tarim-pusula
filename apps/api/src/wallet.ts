@@ -12,6 +12,7 @@ export const EXPORT_COVERAGE: Record<string, { key: string } | { excluded: strin
   field_access: { key: 'fieldAccess' },
   devices: { key: 'devices' },
   device_readings: { key: 'deviceReadings' },
+  twin_events: { key: 'twinEvents' },
   consents: { key: 'consents' },
   nearby_codes: { key: 'nearbyCodes' },
   nearby_proposals: { key: 'nearbyProposals' },
@@ -93,6 +94,13 @@ export async function buildExport(q: Queryable, me: Principal, profile: unknown)
       `SELECT r.device_id AS "deviceId", r.at, r.metric, r.value, r.unit, r.source
        FROM device_readings r JOIN fields f ON f.id = r.field_id WHERE f.owner_id = $1
        ORDER BY r.at, r.id`,
+      [me.userId],
+    ),
+    twinEvents: await q.query(
+      `SELECT e.field_id AS "fieldId", e.on_date::text AS "onDate", e.kind, e.mm, e.note, e.source,
+              e.created_at AS "createdAt"
+       FROM twin_events e JOIN fields f ON f.id = e.field_id WHERE f.owner_id = $1
+       ORDER BY e.on_date, e.id`,
       [me.userId],
     ),
     irrigationCommands: await q.query(

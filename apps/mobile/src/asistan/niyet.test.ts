@@ -34,6 +34,13 @@ describe('asistan niyet eşleyici', () => {
     expect(k('yazı boyutunu büyüt')).toBe('ayarlar');
   });
 
+  it('ikiz tarım: senaryo cümleleri', () => {
+    expect(niyetBul('Sulamayı 3 gün ertelesem ne olur?')?.key).toBe('ikiz');
+    expect(niyetBul('10 gün sulamazsam ne olur')?.key).toBe('ikiz');
+    expect(niyetBul('ikiz tarımı aç')?.key).toBe('ikiz');
+    expect(niyetBul('vanayı aç')?.key).toBe('sulama');
+  });
+
   it('bilmediğinde uydurmaz: null döner (uzmana yönlendirme önerilir)', () => {
     expect(k('')).toBeNull();
     expect(k('merhaba')).toBeNull();
