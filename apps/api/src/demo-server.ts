@@ -14,6 +14,7 @@ import { createSmsProvider, isRealSms, type SmsProvider } from './auth/sms';
 import { ExpoPushClient, type PushClient } from '@tarim/workers';
 import { importCalendarTemplates } from './calendar';
 import { importResmiKaynaklar } from './tarama/kaynak';
+import { bekleyenleriYayinla } from './onay';
 import { importCropCatalog } from './crops';
 import {
   DEMO_FARMER_PHONE,
@@ -184,6 +185,8 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
     // Kalıcı veritabanında sonradan eklenen örnek duyurular (yalnız eksikler yazılır).
     else await systemTx(db, (q) => seedKurumOrnek(q, new Date()));
   }
+  // G36: uzman onayı aşaması kapalıyken bekleyen bütün kaynaklı kayıtlar (haber, katsayı, toprak, destek) yayına alınır.
+  await bekleyenleriYayinla(db);
   const broker = new InMemoryBroker();
   const sms = o.sms ?? createSmsProvider();
   const push =

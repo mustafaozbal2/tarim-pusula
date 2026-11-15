@@ -25,6 +25,7 @@ import {
 } from '@tarim/agro-core';
 import { announcementCreateSchema, reasonSchema } from '@tarim/schemas';
 import { Me, parse, RequireMfa, Roles } from './auth/access';
+import { onayZorunlu } from './onay';
 import { templatesForCrop } from './calendar';
 import { PLACES } from './controllers.g2';
 import { DataService } from './data.service';
@@ -61,12 +62,14 @@ interface AnnouncementRow {
   /** G30: resmi siteden otomatik alındı (uzman onayı yoktur; özgün bağlantı sourceUrl'dedir). */
   auto?: boolean;
   imageUrl?: string | null;
+  /** G36: metinden bulunan başvuru son günü (YYYY-MM-DD). */
+  applyUntil?: string | null;
 }
 
 const ANN_COLS = `id, source_org AS "sourceOrg", title, body, source_url AS "sourceUrl",
   published_at AS "publishedAt", expires_at AS "expiresAt", targeting, version,
   review_status AS "reviewStatus", image_data_url AS "imageDataUrl", category,
-  auto, image_url AS "imageUrl"`;
+  auto, image_url AS "imageUrl", apply_until::text AS "applyUntil"`;
 
 /** Liste görünümü: görselin kendisi dönmez (yük), yalnız var mı bilgisi. */
 const ANN_LIST_COLS = ANN_COLS.replace(
@@ -180,6 +183,9 @@ export class FieldCalendarController {
         category: a.category ?? null,
         auto: a.auto === true,
         imageUrl: a.imageUrl ?? null,
+        applyUntil: a.applyUntil ?? null,
+        // Ülke geneli (hedef yeri olmayan) duyuru: ekranda yerel haberlerin arkasına sıralanır.
+        nationwide: (a.targeting.places ?? []).length === 0 && !a.targeting.circle,
         needsBadge: needsDraftBadge(a.reviewStatus),
         why: explainMatch(a.targeting, site),
       }));
@@ -201,7 +207,9 @@ export class AnnouncementsController {
   @Roles('institution_admin', 'expert', 'admin')
   async create(@Me() me: Principal, @Body() body: unknown) {
     const a = parse(announcementCreateSchema, body);
-    const approved = me.roles.includes('expert');
+    // Onay kapalıyken (apps/api/src/onay.ts) kurum yetkilisinin duyurusu da doğrudan yayına girer.
+    const uzman = me.roles.includes('expert');
+    const approved = uzman || !onayZorunlu();
     const [row] = await this.data.run(me, 'announcements.create', async (q) => {
       const chk = checkTargeting(await resolveScope(q, me), a.targeting);
       if (!chk.ok) throw new ForbiddenException(chk.reason);
@@ -220,11 +228,13 @@ export class AnnouncementsController {
           me.userId,
           a.imageDataUrl ?? null,
           a.category ?? null,
-          approved ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor',
-          approved ? me.userId : null,
+          uzman ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor',
+          uzman ? me.userId : null,
         ],
       );
     });
+    // Satır güvenliği yalnız uzmanın onaylı kayıt eklemesine izin verir; onay kapalıyken sistem yayına alır.
+    if (approved && !uzman) await this.yayinaAl(row!.id);
     return {
       id: row!.id,
       reviewStatus: approved ? 'uzman-onayli' : 'taslak-uzman-onayi-bekliyor',
@@ -263,7 +273,22 @@ export class AnnouncementsController {
         throw e;
       }
     });
+    // Düzenleme kaydı taslağa döndürür; onay kapalıyken yeniden yayına alınır.
+    if (!onayZorunlu()) {
+      await this.yayinaAl(id);
+      return { id, version, reviewStatus: 'uzman-onayli' };
+    }
     return { id, version, reviewStatus: 'taslak-uzman-onayi-bekliyor' };
+  }
+
+  private yayinaAl(id: string) {
+    return this.data.system((q) =>
+      q.query(
+        `UPDATE announcements SET review_status = 'uzman-onayli'
+         WHERE id = $1 AND review_status = 'taslak-uzman-onayi-bekliyor'`,
+        [id],
+      ),
+    );
   }
 
   @Delete(':id')

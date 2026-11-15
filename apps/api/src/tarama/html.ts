@@ -1,6 +1,42 @@
 /** Resmi site sayfalarından haber/duyuru ayıklama. Siteye özel değil, genel sezgiseldir; sayfa metni GÜVENİLMEYEN veridir. */
 
-const ENT: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+/** Adlı HTML varlıkları: Türkçe harfler ve sık geçen noktalama (büyük/küçük harf ayrımı önemlidir: &Uuml; ≠ &uuml;). */
+const ENT: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+  uuml: 'ü',
+  Uuml: 'Ü',
+  ouml: 'ö',
+  Ouml: 'Ö',
+  ccedil: 'ç',
+  Ccedil: 'Ç',
+  acirc: 'â',
+  Acirc: 'Â',
+  icirc: 'î',
+  Icirc: 'Î',
+  ucirc: 'û',
+  Ucirc: 'Û',
+  rsquo: '’',
+  lsquo: '‘',
+  rdquo: '”',
+  ldquo: '“',
+  ndash: '–',
+  mdash: '—',
+  hellip: '…',
+  laquo: '«',
+  raquo: '»',
+  deg: '°',
+  middot: '·',
+  bull: '•',
+  euro: '€',
+  times: '×',
+  frac12: '½',
+  shy: '',
+};
 
 export function decodeEntities(s: string): string {
   return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e: string) => {
@@ -8,7 +44,7 @@ export function decodeEntities(s: string): string {
       const n = e[1]!.toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
       return Number.isFinite(n) && n > 0 && n < 0x110000 ? String.fromCodePoint(n) : m;
     }
-    return ENT[e.toLowerCase()] ?? m;
+    return ENT[e] ?? ENT[e.toLowerCase()] ?? m;
   });
 }
 
@@ -35,8 +71,44 @@ export function trDate(s: string): string | null {
   return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
+/**
+ * Siteye özel bağlantı kalıbı (official_sources.link_pattern). Bozuk ya da tehlikeli (çok uzun) ifade
+ * varsayılan kalıba düşer; ifade yalnız bağlantının YOLUNDA aranır.
+ */
+export function baglantiKalibi(kalip: string | null | undefined): RegExp {
+  if (!kalip || kalip.length > 300) return NEWS_PATH;
+  try {
+    return new RegExp(kalip, 'i');
+  } catch {
+    return NEWS_PATH;
+  }
+}
+
+/**
+ * Haberin sıra numarası (büyük = yeni): /Haber/512/..., ...-13197 ya da ...-29-11-2026/ biçimlerinden.
+ * Çıkarılamazsa 0 (sayfadaki sıra korunur; siteler yeniyi üste koyar).
+ */
+export function siraNo(url: string): number {
+  let yol: string;
+  try {
+    yol = new URL(url).pathname;
+  } catch {
+    return 0;
+  }
+  const tarih = /-(\d{2})-(\d{2})-(20\d{2})\/?$/.exec(yol);
+  if (tarih) return Number(`${tarih[3]}${tarih[2]}${tarih[1]}`);
+  const ara = /\/(\d{1,9})\//.exec(yol);
+  if (ara) return Number(ara[1]);
+  const son = /-(\d{2,9})\/?$/.exec(yol);
+  return son ? Number(son[1]) : 0;
+}
+
 /** Liste sayfasındaki haber/duyuru bağlantıları: yalnız kaynakla AYNI sunucudaki yollar. */
-export function extractListItems(html: string, baseUrl: string): ListeOgesi[] {
+export function extractListItems(
+  html: string,
+  baseUrl: string,
+  kalip: RegExp = NEWS_PATH,
+): ListeOgesi[] {
   const base = new URL(baseUrl);
   const found = new Map<string, ListeOgesi>();
   for (const m of html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)) {
@@ -49,8 +121,10 @@ export function extractListItems(html: string, baseUrl: string): ListeOgesi[] {
     } catch {
       continue;
     }
-    if (u.protocol !== 'https:' || u.hostname !== base.hostname || !NEWS_PATH.test(u.pathname))
-      continue;
+    const ayniSite =
+      u.hostname === base.hostname ||
+      u.hostname.replace(/^www\./, '') === base.hostname.replace(/^www\./, '');
+    if (u.protocol !== 'https:' || !ayniSite || !kalip.test(u.pathname)) continue;
     u.hash = '';
     const key = u.toString();
     const titleAttr = /\btitle\s*=\s*"([^"]+)"/i.exec(attrs)?.[1];
@@ -62,6 +136,29 @@ export function extractListItems(html: string, baseUrl: string): ListeOgesi[] {
     } else if (!prev.date && date) prev.date = date;
   }
   return [...found.values()];
+}
+
+/**
+ * TÜİK ana sayfasındaki "Haberler/Bültenler" şeridi: tarımla ilgili haber bültenleri (başlık + dönem + bağlantı).
+ * Bültenin metni yalnız TÜİK veri portalının kendi uygulamasında açıldığından burada ALINMAZ; karta yalnız
+ * bültenin adı ve dönemi yazılır, rakamlar için çiftçi bültenin kendisine gider (rakam uydurulmaz).
+ */
+const TUIK_TARIM =
+  /tar[ıi]m|bitkisel|hayvan|k[üu]mes|s[üu]t\b|s[üu]t [üu]r|su [üu]r[üu]nleri|orman|[çc]ift[çc]i|tah[ıi]l|meyve|sebze|g[üu]bre|arazi/i;
+
+export function extractTuik(html: string): ListeOgesi[] {
+  const out = new Map<string, ListeOgesi>();
+  for (const blok of html.split(/<div class="carousel-item\b/i).slice(1)) {
+    const adres = /https:\/\/veriportali\.tuik\.gov\.tr\/tr\/press\/(\d{3,9})/i.exec(blok)?.[0];
+    if (!adres) continue;
+    const ana = stripTags(/hbranabaslik[^>]*>([\s\S]*?)<\/div>/i.exec(blok)?.[1] ?? '');
+    const alt = stripTags(/hbraltbaslik[^>]*>([\s\S]*?)<\/div>/i.exec(blok)?.[1] ?? '');
+    if (ana.length < 4) continue;
+    const tarimSimgesi = /tuik-icon-Tarim/i.test(blok);
+    if (!tarimSimgesi && !TUIK_TARIM.test(ana)) continue;
+    out.set(adres, { url: adres, title: alt ? `${ana}, ${alt}` : ana, date: null });
+  }
+  return [...out.values()];
 }
 
 /** ISO tarihin (2026-11-03T..) gün kısmı; makul aralık dışıysa null. */

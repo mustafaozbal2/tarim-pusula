@@ -24,6 +24,7 @@ import { z } from 'zod';
 import { Me, parse } from '../auth/access';
 import { DataService } from '../data.service';
 import type { Principal } from '../db/db';
+import { etkinDurum } from '../onay';
 import { CLOCK } from '../weather/tokens';
 import { NeEksemData } from './data';
 
@@ -159,7 +160,9 @@ export class NeEksemController {
         balanceSource: b ? { period: b.period, source: b.source, date: b.date } : null,
         inDistrictPlan: districtCrops.has(c.id),
         inProvincePlan: plan.provinceCrops.has(c.id),
-        restricted: k ? { rule: k.rule, source: k.source, reviewStatus: k.reviewStatus } : null,
+        restricted: k
+          ? { rule: k.rule, source: k.source, reviewStatus: etkinDurum(k.reviewStatus) }
+          : null,
         suitability: null,
         priceTrend: trendOf.get(c.id) ?? null,
       };
@@ -167,8 +170,9 @@ export class NeEksemController {
     const r = rankCandidates(cands);
     const nameOf = new Map(crops.map((c) => [c.id, c.name]));
     const statuses: ReviewStatus[] = [
-      ...r.restricted.map((x) => x.restricted!.reviewStatus),
-      'taslak-uzman-onayi-bekliyor', // havza ürün deseni OCR ile çıkarıldı; uzman kontrolü bekliyor
+      ...r.restricted.map((x) => etkinDurum(x.restricted!.reviewStatus)),
+      // Havza ürün deseni resmî karardan (8859) OCR ile çıkarıldı; onay kapalıyken yayında sayılır.
+      etkinDurum<ReviewStatus>('taslak-uzman-onayi-bekliyor'),
     ];
     const mode = neEksemMode(statuses);
     const mineOf = new Map(mine.map((m) => [m.cropId, m.dekar]));

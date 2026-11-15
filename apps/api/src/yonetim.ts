@@ -131,6 +131,10 @@ export class YonetimController {
       kaynakToplam,
       kaynakVeren,
       fiyat,
+      haberGecerli,
+      haberGorselli,
+      turBugun,
+      tur7,
     ] = await Promise.all([
       say('SELECT count(*) AS n FROM users'),
       say('SELECT count(*) AS n FROM fields'),
@@ -147,6 +151,15 @@ export class YonetimController {
       say('SELECT count(*) AS n FROM official_sources WHERE active'),
       say('SELECT count(DISTINCT source_site_id) AS n FROM announcements WHERE auto'),
       say('SELECT count(*) AS n FROM market_prices'),
+      // G36: çiftçinin ekranına şu an düşebilen haberler ve tarama turları (günde 5 hedefi izlenir).
+      say(
+        "SELECT count(*) AS n FROM announcements WHERE review_status = 'uzman-onayli' AND (expires_at IS NULL OR expires_at > now())",
+      ),
+      say(
+        'SELECT count(*) AS n FROM announcements WHERE auto AND (image_url IS NOT NULL OR image_data_url IS NOT NULL)',
+      ),
+      say("SELECT count(*) AS n FROM scan_runs WHERE started_at > now() - interval '24 hours'"),
+      say("SELECT count(*) AS n FROM scan_runs WHERE started_at > now() - interval '7 days'"),
     ]);
     const [gunluk, ilArazi, urun, haberIl, durumlar] = await Promise.all([
       liste<{ gun: string; kullanici: number; arazi: number; soru: number; haber: number }>(`
@@ -189,6 +202,10 @@ export class YonetimController {
         kaynakToplam,
         kaynakVeren,
         fiyat,
+        haberGecerli,
+        haberGorselli,
+        turBugun,
+        tur7,
       },
       gunluk,
       ilArazi,
@@ -312,6 +329,17 @@ export class YonetimController {
             a.image_url IS NOT NULL OR a.image_data_url IS NOT NULL AS gorsel, a.targeting AS hedef, s.province AS il
           FROM announcements a LEFT JOIN official_sources s ON s.id = a.source_site_id
           ORDER BY a.created_at DESC LIMIT 500`);
+      case 'turlar':
+        return q(`
+          SELECT started_at AS basladi, finished_at AS bitti, sources AS kaynak, evaluated AS degerlendirilen,
+            new_count AS eklenen, error AS hata
+          FROM scan_runs ORDER BY started_at DESC LIMIT 200`);
+      case 'tarama':
+        return q(`
+          SELECT l.at AS zaman, s.name AS kaynak, s.province AS il, l.outcome AS sonuc, l.title AS baslik,
+            l.reason AS neden, l.analyzer AS analiz, l.url AS adres
+          FROM scan_log l LEFT JOIN official_sources s ON s.id = l.source_id
+          ORDER BY l.at DESC LIMIT 600`);
       case 'kaynaklar':
         return q(`
           SELECT name AS ad, kind AS tur, province AS il, url AS adres, active AS aktif,

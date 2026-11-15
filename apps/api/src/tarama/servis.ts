@@ -2,8 +2,16 @@ import { Inject, Injectable, type OnModuleDestroy, type OnModuleInit } from '@ne
 import { DataService } from '../data.service';
 import { parseRobots, robotsAllows, type RobotsRules } from '../market/robots';
 import { CLOCK } from '../weather/tokens';
-import { baslikKarari, type HaberAnalizci } from './analiz';
-import { extractArticle, extractListItems, type ListeOgesi } from './html';
+import { baslikKarari, kisalt, urunleriBul, type HaberAnalizci } from './analiz';
+import {
+  baglantiKalibi,
+  extractArticle,
+  extractListItems,
+  extractTuik,
+  siraNo,
+  type ListeOgesi,
+} from './html';
+import { yeniKayitDurumu } from '../onay';
 import { ilceleriBul } from './ilce';
 import { bitisAni, sonTarih, VARSAYILAN_GUN } from './sure';
 import { PLACES } from '../controllers.g2';
@@ -14,13 +22,29 @@ export const TARAMA_FETCH = Symbol('TARAMA_FETCH');
 export const TARAMA_ANALIZ = Symbol('TARAMA_ANALIZ');
 export const USER_AGENT = 'TarimPusulaBot/0.1 (resmi duyuru okuyucu; egitim projesi)';
 
-/** İlk taramada yalnız en yeni bu kadar haber alınır, kalanı "görüldü" sayılır (eski arşiv akmasın). */
-const ILK_TARAMA_EN_COK = 3;
+/** İlk taramada kaynak başına en çok bu kadar haber değerlendirilir, kalanı "görüldü" sayılır (eski arşiv akmasın). */
+const ILK_TARAMA_EN_COK = 10;
 /** Bir turda kaynak başına en çok yeni haber. */
-const TUR_EN_COK = 6;
+const TUR_EN_COK = 10;
+/** Ülke geneli kaynaklar (kurum, enstitü, istatistik) herkese gider: tur başına daha az haber alınır. */
+const ULKE_EN_COK = 4;
 /** Haber bu günden eskiyse alınmaz. */
-const EN_ESKI_GUN = 45;
+export const HABER_EN_ESKI_GUN = 45;
+/**
+ * Duyuru (hibe, destek, başvuru, kayıt) haber gibi çabuk eskimez: il müdürlüğü sitelerinde "destekler devam ediyor",
+ * "ÇKS başvuruları" gibi duyurular aylarca geçerlidir. 15.11.2026 canlı incelemesi: Gaziantep'te 3 geçerli destek
+ * duyurusu yalnız 45 gün kuralı yüzünden çiftçiye ulaşmamıştı. Sınır bizim seçimimizdir (literatür sabiti değil).
+ */
+export const DUYURU_EN_ESKI_GUN = 120;
 const MAX_BYTES = 1_500_000;
+/** Tur aralığı denetimi: sunucu yeniden başlasa da günde TARAMA_GUNDE tur korunur (son tur veritabanından okunur). */
+const DENETIM_MS = 10 * 60_000;
+
+const GENEL_YAZI =
+  /^(devam[ıi]n?[ıi]? ?(oku)?|detay(lar)?|t[üu]m[üu]|daha fazla|haberin devam[ıi]|oku|incele)\b/i;
+
+/** Bağlantı bir duyuru sayfası mı (haber değil)? */
+export const duyuruMu = (url: string): boolean => /\/[a-z-]*duyuru/i.test(url);
 
 export interface KaynakSatiri {
   id: string;
@@ -29,6 +53,8 @@ export interface KaynakSatiri {
   province: string | null;
   district: string | null;
   url: string;
+  link_pattern?: string | null;
+  format?: string | null;
 }
 
 export interface KaynakSonucu {
@@ -43,6 +69,8 @@ const bekle = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export class TaramaService implements OnModuleInit, OnModuleDestroy {
   private timer: ReturnType<typeof setInterval> | null = null;
   private running = false;
+  /** Bu turda değerlendirilen haber sayısı (tur kaydı için). */
+  private degerlendirilen = 0;
   /** Testte bekleme süresi kısaltılır. */
   pauseMs = 1000;
 
@@ -62,6 +90,7 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     outcome: string,
     reason: string | null,
   ) {
+    this.degerlendirilen += 1;
     try {
       await this.data.system((q) =>
         q.query(
@@ -86,11 +115,26 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     if (process.env['HABER_TARAMA'] !== '1') return;
     const perDay = Number(process.env['TARAMA_GUNDE'] ?? 5);
     if (!Number.isFinite(perDay) || perDay <= 0) return;
-    const ms = Math.floor(86_400_000 / perDay);
-    this.timer = setInterval(() => void this.runAll().catch(console.error), ms);
+    const aralik = Math.floor(86_400_000 / perDay);
+    // Sabit sayaç yerine saat denetimi: ücretsiz sunucu uyuyup uyanınca sayaç sıfırlanıyor, turlar kayıyordu.
+    // Her 10 dakikada "son turun üstünden aralık kadar süre geçti mi?" diye bakılır.
+    const denetle = () => void this.zamaniGeldiyse(aralik).catch(console.error);
+    this.timer = setInterval(denetle, DENETIM_MS);
     this.timer.unref?.();
-    // Açılıştan 2 dk sonra ilk tur (sunucu ısınsın).
-    setTimeout(() => void this.runAll().catch(console.error), 120_000).unref?.();
+    // Açılıştan 2 dk sonra ilk denetim (sunucu ısınsın).
+    setTimeout(denetle, 120_000).unref?.();
+  }
+
+  /** Son turdan bu yana `aralikMs` geçtiyse yeni tur başlatır. */
+  async zamaniGeldiyse(aralikMs: number): Promise<boolean> {
+    if (this.running) return false;
+    const [son] = await this.data.system((q) =>
+      q.query<{ at: Date | string }>(`SELECT max(started_at) AS at FROM scan_runs`),
+    );
+    const sonAn = son?.at ? new Date(son.at).getTime() : 0;
+    if (this.now().getTime() - sonAn < aralikMs) return false;
+    await this.runAll();
+    return true;
   }
 
   onModuleDestroy(): void {
@@ -111,21 +155,45 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
   async runAll(): Promise<KaynakSonucu[]> {
     if (this.running) return [];
     this.running = true;
+    this.degerlendirilen = 0;
+    const out: KaynakSonucu[] = [];
+    let turId: string | null = null;
+    let hata: string | null = null;
     try {
+      const [tur] = await this.data.system((q) =>
+        q.query<{ id: string }>(`INSERT INTO scan_runs(started_at) VALUES ($1) RETURNING id`, [
+          this.now(),
+        ]),
+      );
+      turId = tur?.id ?? null;
       const sources = await this.data.system((q) =>
         q.query<KaynakSatiri>(
-          `SELECT id, name, kind, province, district, url FROM official_sources
+          `SELECT id, name, kind, province, district, url, link_pattern, format FROM official_sources
            WHERE active ORDER BY last_checked_at NULLS FIRST`,
         ),
       );
-      const out: KaynakSonucu[] = [];
       for (const s of sources) {
         out.push(await this.runOne(s));
         await bekle(this.pauseMs);
       }
       return out;
+    } catch (e) {
+      hata = (e as Error).message.slice(0, 300);
+      throw e;
     } finally {
       this.running = false;
+      if (turId) {
+        const yeni = out.reduce((t, k) => t + k.yeni, 0);
+        await this.data
+          .system((q) =>
+            q.query(
+              `UPDATE scan_runs SET finished_at = $2, sources = $3, evaluated = $4, new_count = $5, error = $6
+               WHERE id = $1`,
+              [turId, this.now(), out.length, this.degerlendirilen, yeni, hata],
+            ),
+          )
+          .catch(() => undefined);
+      }
     }
   }
 
@@ -143,7 +211,12 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
       } else {
         const list = await this.get(s.url);
         if (list.status >= 400) throw new Error(`liste ${list.status}`);
-        yeni = await this.isle(s, extractListItems(list.text, s.url), robots);
+        const ogeler =
+          s.format === 'tuik'
+            ? extractTuik(list.text)
+            : extractListItems(list.text, s.url, baglantiKalibi(s.link_pattern));
+        yeni =
+          s.format === 'tuik' ? await this.isleTuik(s, ogeler) : await this.isle(s, ogeler, robots);
       }
     } catch (e) {
       durum = `hata: ${(e as Error).message}`.slice(0, 200);
@@ -157,26 +230,77 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
     return { kaynak: s.name, durum, yeni };
   }
 
+  private async goruldu(s: KaynakSatiri): Promise<Set<string>> {
+    const rows = await this.data.system((q) =>
+      q.query<{ url: string }>(`SELECT url FROM scan_seen WHERE source_id = $1`, [s.id]),
+    );
+    return new Set(rows.map((r) => r.url));
+  }
+
+  private async gorulduYaz(s: KaynakSatiri, ogeler: ListeOgesi[]): Promise<void> {
+    await this.data.system(async (q) => {
+      for (const m of ogeler) {
+        await q.query(
+          `INSERT INTO scan_seen(source_id, url) VALUES ($1,$2) ON CONFLICT DO NOTHING`,
+          [s.id, m.url],
+        );
+      }
+    });
+  }
+
+  private async urunKimlikleri(): Promise<string[]> {
+    const catalog = await this.data.system((q) => q.query<{ id: string }>(`SELECT id FROM crops`));
+    return catalog.map((c) => c.id);
+  }
+
+  /**
+   * TÜİK haber bültenleri: bülten metni alınamadığından (yalnız TÜİK veri portalı uygulamasında açılır) yapay zekâ
+   * özeti üretilmez; karta bültenin adı ve dönemi yazılır, çiftçi "Kaynağı aç" ile bültenin kendisine gider.
+   */
+  private async isleTuik(s: KaynakSatiri, items: ListeOgesi[]): Promise<number> {
+    if (items.length === 0) return 0;
+    const seen = await this.goruldu(s);
+    const fresh = items.filter((i) => !seen.has(i.url)).slice(0, ULKE_EN_COK);
+    const urunler = await this.urunKimlikleri();
+    let yeni = 0;
+    for (const it of fresh) {
+      const n = await this.yaz(
+        s,
+        it.url,
+        {
+          baslik: kisalt(`TÜİK: ${it.title}`, 160),
+          ozet:
+            `Türkiye İstatistik Kurumu "${it.title}" haber bültenini yayımladı. ` +
+            'Rakamlar, tablolar ve grafikler bültenin kendisindedir.',
+          urunler: urunleriBul(it.title, urunler),
+          kategori: 'guncel',
+        },
+        null,
+        null,
+      );
+      yeni += n;
+      await this.kayit(s, it.url, it.title, 'eklendi', 'TÜİK bülten şeridi');
+    }
+    await this.gorulduYaz(s, fresh);
+    return yeni;
+  }
+
   private async isle(s: KaynakSatiri, items: ListeOgesi[], robots: RobotsRules): Promise<number> {
     if (items.length === 0) return 0;
-    const seen = new Set(
-      (
-        await this.data.system((q) =>
-          q.query<{ url: string }>(`SELECT url FROM scan_seen WHERE source_id = $1`, [s.id]),
-        )
-      ).map((r) => r.url),
-    );
+    const seen = await this.goruldu(s);
     const first = seen.size === 0;
-    const cutoff = new Date(this.now().getTime() - EN_ESKI_GUN * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
+    const gunOnce = (g: number) =>
+      new Date(this.now().getTime() - g * 86_400_000).toISOString().slice(0, 10);
+    const haberSiniri = gunOnce(HABER_EN_ESKI_GUN);
+    const duyuruSiniri = gunOnce(DUYURU_EN_ESKI_GUN);
     const fresh = items.filter((i) => !seen.has(i.url));
-    // Haber numarası büyük = yeni (…/Haber/512/…): yeniden eskiye.
-    const no = (u: string) => Number(/\/(\d+)\//.exec(u)?.[1] ?? 0);
-    fresh.sort((a, b) => no(b.url) - no(a.url));
-    const al = fresh.slice(0, first ? ILK_TARAMA_EN_COK : TUR_EN_COK);
-    const catalog = await this.data.system((q) => q.query<{ id: string }>(`SELECT id FROM crops`));
-    const urunler = catalog.map((c) => c.id);
+    // Yeniden eskiye; duyurular (hibe, destek, başvuru) haberlerden önce değerlendirilir.
+    fresh.sort(
+      (a, b) => Number(duyuruMu(b.url)) - Number(duyuruMu(a.url)) || siraNo(b.url) - siraNo(a.url),
+    );
+    const ulke = !s.province;
+    const al = fresh.slice(0, ulke ? ULKE_EN_COK : first ? ILK_TARAMA_EN_COK : TUR_EN_COK);
+    const urunler = await this.urunKimlikleri();
     const tamam: ListeOgesi[] = [];
     let yeni = 0;
     const bugun = new Date(this.now().getTime() + 3 * 3_600_000).toISOString().slice(0, 10);
@@ -195,23 +319,19 @@ export class TaramaService implements OnModuleInit, OnModuleDestroy {
         const a = extractArticle(page.text, it.url);
         const date = it.date ?? a.date;
         tamam.push(it);
-        if (date && date < cutoff) {
-          await this.kayit(
-            s,
-            it.url,
-            it.title,
-            'eski',
-            `yayın ${date} (${EN_ESKI_GUN} günden eski)`,
-          );
+        // "Devamını oku" gibi genel bağlantı yazısı başlık değildir: sayfanın kendi başlığı kullanılır.
+        const baslik = it.title.length >= 8 && !GENEL_YAZI.test(it.title) ? it.title : a.title;
+        const karar = baslikKarari(baslik);
+        const duyuru = duyuruMu(it.url);
+        // Duyuru 45 günden eskiyse yalnız başlığı açıkça destek/başvuru/mücadele türündeyse alınır.
+        const uzun = duyuru && karar === 'kabul';
+        if (date && date < (uzun ? duyuruSiniri : haberSiniri)) {
+          const gun = uzun ? DUYURU_EN_ESKI_GUN : HABER_EN_ESKI_GUN;
+          await this.kayit(s, it.url, it.title, 'eski', `yayın ${date} (${gun} günden eski)`);
           continue;
         }
-        const baslik = it.title.length >= 8 ? it.title : a.title;
         // Başvuru süresi geçmiş duyuru hiç eklenmez; geçerli olan bitiş gününün sonunda kalkar.
-        const son = sonTarih(
-          `${baslik}
-${a.text}`,
-          bugun,
-        );
+        const son = sonTarih(`${baslik}\n${a.text}`, bugun);
         if (son && son < bugun) {
           await this.kayit(s, it.url, baslik, 'suresi-gecmis', `bitiş ${son}`);
           continue;
@@ -234,23 +354,23 @@ ${a.text}`,
           urunler,
         );
         // Başlık kuralı yapay zekâdan önce gelir (protokol/toplantı red; destek/başvuru/mücadele kabul).
-        const karar = baslikKarari(baslik);
-        const ilgili = karar === 'red' ? false : karar === 'kabul' ? true : r.ilgili;
+        let ilgili = karar === 'red' ? false : karar === 'kabul' ? true : r.ilgili;
+        let neden: string = karar === 'red' ? 'başlık kuralı' : r.kategori;
+        // Ülke geneli kaynak herkese gider: enstitü haberi yalnız bir ürünle ya da açık bir çiftçi konusuyla
+        // ilgiliyse alınır (kurum içi haberler akmasın).
+        if (ilgili && ulke && s.kind === 'enstitu' && karar !== 'kabul' && r.urunler.length === 0) {
+          ilgili = false;
+          neden = 'enstitü haberi: ürün ya da çiftçi konusu yok';
+        }
         if (!ilgili) {
-          await this.kayit(
-            s,
-            it.url,
-            baslik,
-            'ilgisiz',
-            `${karar === 'red' ? 'başlık kuralı' : r.kategori}: ${r.ozet.slice(0, 200)}`,
-          );
+          await this.kayit(s, it.url, baslik, 'ilgisiz', `${neden}: ${r.ozet.slice(0, 200)}`);
           continue;
         }
         const ilceler =
           s.province && !s.district && this.places
             ? ilceleriBul(baslik, a.text, s.province, this.places.districts(s.province))
             : [];
-        const n = await this.yaz(s, it.url, r, a.image, date, son, ilceler);
+        const n = await this.yaz(s, it.url, r, a.image, date, son, ilceler, duyuru);
         yeni += n;
         await this.kayit(
           s,
@@ -270,14 +390,7 @@ ${a.text}`,
     }
     // İlk taramada alınmayan eski haberler de görüldü sayılır; sonraki turlarda yalnız işlenenler.
     const mark = first ? fresh.filter((f) => !al.includes(f) || tamam.includes(f)) : tamam;
-    await this.data.system(async (q) => {
-      for (const m of mark) {
-        await q.query(
-          `INSERT INTO scan_seen(source_id, url) VALUES ($1,$2) ON CONFLICT DO NOTHING`,
-          [s.id, m.url],
-        );
-      }
-    });
+    await this.gorulduYaz(s, mark);
     return yeni;
   }
 
@@ -289,6 +402,7 @@ ${a.text}`,
     date: string | null,
     son: string | null = null,
     ilceler: string[] = [],
+    duyuru = false,
   ): Promise<number> {
     const places =
       s.district && s.province
@@ -299,8 +413,9 @@ ${a.text}`,
             ? [{ province: s.province }]
             : [];
     const yayin = date ? new Date(`${date}T09:00:00+03:00`) : this.now();
-    // Bitiş: başvuru son günü; yoksa yayından VARSAYILAN_GUN sonra (eski haber kendiliğinden kalkar).
-    const bitis = son ? bitisAni(son) : new Date(yayin.getTime() + VARSAYILAN_GUN * 86_400_000);
+    // Bitiş: başvuru son günü; yoksa haber yayından VARSAYILAN_GUN, duyuru DUYURU_EN_ESKI_GUN sonra kalkar.
+    const omur = duyuru ? DUYURU_EN_ESKI_GUN : VARSAYILAN_GUN;
+    const bitis = son ? bitisAni(son) : new Date(yayin.getTime() + omur * 86_400_000);
     const govde = [
       r.ozet,
       date ? '' : 'Yayın tarihi kaynakta bulunamadı; alındığı gün gösteriliyor.',
@@ -311,8 +426,8 @@ ${a.text}`,
     const rows = await this.data.system((q) =>
       q.query(
         `INSERT INTO announcements(source_org, title, body, source_url, published_at, targeting,
-           review_status, category, auto, source_site_id, image_url, expires_at)
-         VALUES ($1,$2,$3,$4,$5,$6::jsonb,'taslak-uzman-onayi-bekliyor',$7,true,$8,$9,$10)
+           review_status, category, auto, source_site_id, image_url, expires_at, apply_until)
+         VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,true,$9,$10,$11,$12)
          ON CONFLICT (source_url) WHERE auto DO NOTHING RETURNING id`,
         [
           s.name,
@@ -321,10 +436,13 @@ ${a.text}`,
           url,
           yayin,
           JSON.stringify({ places, circle: null, cropIds: r.urunler }),
+          // Onay kapalıyken resmî kaynak haberi doğrudan yayındadır (apps/api/src/onay.ts).
+          yeniKayitDurumu(),
           r.kategori,
           s.id,
           image,
           bitis > yayin ? bitis : new Date(yayin.getTime() + 86_400_000),
+          son,
         ],
       ),
     );

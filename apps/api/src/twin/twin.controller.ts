@@ -40,6 +40,7 @@ import { pickPack } from '../controllers.g2';
 import { SOIL_COLS, WP_COLS, type SoilRow, type WaterParamRow } from '../controllers.g21';
 import { DataService } from '../data.service';
 import type { Principal } from '../db/db';
+import { etkinDurum } from '../onay';
 import { et0ForDay } from '../weather/today';
 import {
   TWIN_FORECAST_DAYS,
@@ -203,7 +204,8 @@ export class TwinController {
         ? {
             rootDepthM: draft.rootDepthM,
             pTable: draft.pTable,
-            status: draft.reviewStatus,
+            // Kaynaklı tablo değeri (FAO-56 Tablo 22): onay kapalıyken yayında sayılır.
+            status: etkinDurum(draft.reviewStatus),
             source: draft.source,
           }
         : {

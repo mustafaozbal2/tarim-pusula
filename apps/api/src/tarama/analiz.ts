@@ -139,7 +139,7 @@ export function kisalt(s: string, max: number): string {
  * arıcılık desteği, besilik sığır başvurusu) ve geçirdiği ilgisizler (ziyaret) bu listeyle düzeltildi.
  */
 const RED =
-  /\b(ziyaret|toplanti|staj|personel|ihale|kiralama|kantin|gida (isletme|guvenlig|denetim|kaybi)|hijyen|numune|denetim|spor|sampiyon|finalinde|masa tenisi|festival|senlik|fuar|odul|kutla|(dunya|kadin ciftciler|gida|farkindalik) [a-z ]*gunu|konsey|kurulu\b|kurul\b|imha|sivil savunma|yangin|is sagligi|bakanimiz|valimiz|genel mudur|mudurumuz|baskanliginda|derecelendir|intibak|belgesi almaya|av sezonu|su urunleri denetim)/;
+  /\b(ziyaret|toplanti|staj|personel|ihale|anket|sinav|mulakat|kpss|atama|gorevde yukselme|kiralama|kantin|gida (isletme|guvenlig|denetim|kaybi)|hijyen|numune|denetim|spor|sampiyon|finalinde|masa tenisi|festival|senlik|fuar|odul|kutla|(dunya|kadin ciftciler|gida|farkindalik) [a-z ]*gunu|konsey|kurulu\b|kurul\b|imha|sivil savunma|yangin|is sagligi|bakanimiz|valimiz|genel mudur|mudurumuz|baskanliginda|derecelendir|intibak|belgesi almaya|av sezonu|su urunleri denetim)/;
 const KABUL =
   /\b(destek|hibe|basvuru|muracaat|dagit|mucadele|zararli|hastalik|uyari|zirai don|dolu|kurakl|sulama|tohum|fidan|gubre|toprak analiz|asilama|ilaclama|egitim|ciftci okulu|tarsim|kayit|cks|rekolte|hasat|ekim\b|dikim|budama)/;
 

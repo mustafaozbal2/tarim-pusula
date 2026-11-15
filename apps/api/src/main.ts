@@ -6,6 +6,7 @@ import { MarketCollector } from './market/collector';
 import { createSmsProvider } from './auth/sms';
 import { importCalendarTemplates } from './calendar';
 import { importResmiKaynaklar } from './tarama/kaynak';
+import { bekleyenleriYayinla } from './onay';
 import { importCropCatalog } from './crops';
 import { ExpoPushClient, FakePushClient, createQueue } from '@tarim/workers';
 import { OpenMeteoClient, FakeWeatherProvider } from './weather/openmeteo';
@@ -27,6 +28,7 @@ async function bootstrap() {
   await importCropCatalog(db);
   await importCalendarTemplates(db);
   await importResmiKaynaklar(db);
+  await bekleyenleriYayinla(db);
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule.register({
       db,
