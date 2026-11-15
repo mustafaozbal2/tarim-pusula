@@ -363,6 +363,49 @@ export interface TwinEventDto {
   source: string;
   note: string | null;
 }
+export interface NeEksemRankedDto {
+  cropId: string;
+  name: string;
+  lifespan: 'yillik' | 'cok-yillik';
+  gap: number | null;
+  band: 'acik-buyuk' | 'acik' | 'dengede' | 'fazla' | 'cok-fazla' | null;
+  bandLabel: string | null;
+  bar: number;
+  score: number;
+  confidence: 'temel' | 'uydu-destekli' | 'yerinde-dogrulanmis';
+  inDistrictPlan: boolean;
+  inProvincePlan: boolean;
+  suitability: 'cok-uygun' | 'uygun' | 'sinirda' | 'uygun-degil' | null;
+  priceTrend: number | null;
+  restricted: { rule: string; source: string; reviewStatus: string } | null;
+  reasons: string[];
+  balanceSource: { period: string; source: string; date: string } | null;
+  intents: { decare: number; count: number };
+  remainingQuota: number | null;
+  mine: number | null;
+}
+export interface NeEksemDto {
+  fieldId: string;
+  fieldName: string;
+  province: string | null;
+  district: string | null;
+  areaDecare: number | null;
+  currentCropId: string | null;
+  season: string;
+  generatedAt: string;
+  mode: 'oneri' | 'bilgi';
+  badge: boolean;
+  confidence: 'temel' | 'uydu-destekli' | 'yerinde-dogrulanmis';
+  confidenceLabel: string;
+  plan: { district: boolean; provinceRows: number; source: string | null; date: string | null };
+  ranked: NeEksemRankedDto[];
+  restricted: Omit<NeEksemRankedDto, 'intents' | 'remainingQuota' | 'mine'>[];
+  noData: { cropId: string; name: string }[];
+  myIntents: { id: string; cropId: string; name: string; dekar: number }[];
+  weights: Record<string, unknown>;
+  sources: { balance: string[]; plan: string | null; restriction: string | null; prices: string };
+  assumptions: string[];
+}
 export interface TwinDto {
   fieldId: string;
   fieldName: string;
@@ -848,6 +891,11 @@ export function createApi(opts: ApiOptions) {
     ) => request<{ id: string }>('POST', `/fields/${q(fieldId)}/twin/events`, e),
     twinRemoveEvent: (fieldId: string, eventId: string) =>
       request<undefined>('DELETE', `/fields/${q(fieldId)}/twin/events/${q(eventId)}`),
+    neEksem: (fieldId: string) => request<NeEksemDto>('GET', `/fields/${q(fieldId)}/ne-eksem`),
+    neEksemNiyet: (fieldId: string, b: { cropId: string; dekar: number }) =>
+      request<{ id: string; season: string }>('POST', `/fields/${q(fieldId)}/ne-eksem/niyet`, b),
+    neEksemNiyetSil: (fieldId: string, niyetId: string) =>
+      request<undefined>('DELETE', `/fields/${q(fieldId)}/ne-eksem/niyet/${q(niyetId)}`),
     savings: (fieldId: string, params: string) =>
       request<SavingsDto>('GET', `/fields/${q(fieldId)}/savings?${params}`),
     deviceStatus: (id: string) => request<DeviceStatusDto>('GET', `/devices/${q(id)}/status`),

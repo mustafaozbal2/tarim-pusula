@@ -41,6 +41,13 @@ describe('asistan niyet eşleyici', () => {
     expect(niyetBul('vanayı aç')?.key).toBe('sulama');
   });
 
+  it('ne eksem: ürün seçimi cümleleri', () => {
+    expect(k('bu yıl ne eksem')).toBe('neeksem');
+    expect(k('Ne ekeyim?')).toBe('neeksem');
+    expect(k('hangi ürünü ekmeliyim')).toBe('neeksem');
+    expect(k('bahçeme ne diksem')).toBe('neeksem');
+  });
+
   it('bilmediğinde uydurmaz: null döner (uzmana yönlendirme önerilir)', () => {
     expect(k('')).toBeNull();
     expect(k('merhaba')).toBeNull();

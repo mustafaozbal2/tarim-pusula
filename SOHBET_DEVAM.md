@@ -1,8 +1,10 @@
 # SOHBET_DEVAM — Yeni sohbet buradan başlar
 
-## Durum — 14.11.2026
+## Durum — 15.11.2026
 
-**Son iş (G34, 14.11):** İkiz Tarım yayınlandı (commit ce8d871, OTA gönderildi, Render canlı). Ayrıntı: docs/KARARLAR.md G34 ve .overnight/NOTES.md. Yarım: geçmişe dönük sınama, uydu özümsemesi, Ky uzman onayı, sahada sensör sınaması.
+**Son iş (G35, 15.11):** Ne Eksem? modülü (alt çubukta Pazar yerine; `/ne-eksem`; `ekim_niyetleri` göç 0024). Ayrıntı: docs/KARARLAR.md G35 ve .overnight/NOTES.md G35. Yarım: uydu sınıflandırma ve ÇKS etiketi (güven "temel"), TÜİK tonajıyla kota, OCR plan satırlarının uzman kontrolü.
+
+**Önceki iş (G34, 14.11):** İkiz Tarım yayınlandı (commit ce8d871, OTA gönderildi, Render canlı). Ayrıntı: docs/KARARLAR.md G34 ve .overnight/NOTES.md. Yarım: geçmişe dönük sınama, uydu özümsemesi, Ky uzman onayı, sahada sensör sınaması.
 
 ## Önceki durum — 13.11.2026
 

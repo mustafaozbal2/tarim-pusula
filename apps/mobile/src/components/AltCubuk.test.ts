@@ -8,6 +8,7 @@ describe('alt çubuk', () => {
       '/index',
       '/takvim',
       '/ikiz-tarim',
+      '/ne-eksem',
       '/pazar',
       '/hava',
       '/haber',
@@ -23,10 +24,11 @@ describe('alt çubuk', () => {
       '/ikiz-tarim',
       '/yapay-zeka',
       '/hava',
-      '/pazar',
+      '/ne-eksem',
     ]);
     expect(ALT_SEKMELER[2]?.key).toBe('yz');
     expect(ALT_SEKMELER.find((s) => s.eslesen.test('/ikiz-tarim'))?.key).toBe('ikiz');
     expect(ALT_SEKMELER.find((s) => s.eslesen.test('/'))?.key).toBe('ana');
+    expect(ALT_SEKMELER.find((s) => s.eslesen.test('/ne-eksem'))?.key).toBe('neeksem');
   });
 });

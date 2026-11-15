@@ -65,6 +65,8 @@ import { TARAMA_ANALIZ, TARAMA_FETCH, TaramaService } from './tarama/servis';
 import { MarketService } from './market/service';
 import { NdviController } from './ndvi/ndvi.controller';
 import { TwinController } from './twin/twin.controller';
+import { NeEksemData } from './neeksem/data';
+import { NE_EKSEM_DATA, NeEksemController } from './neeksem/neeksem.controller';
 import { CopernicusNdviClient, FakeNdviProvider, type NdviProvider } from './ndvi/provider';
 import { NDVI } from './ndvi/tokens';
 import { InMemoryBroker } from '@tarim/device-sim';
@@ -94,6 +96,8 @@ export interface AppOptions {
   sms: SmsProvider;
   auth?: Partial<AuthConfig>;
   places?: Places;
+  /** Ne Eksem veri dosyaları (testte sahte verilebilir). */
+  neEksem?: NeEksemData;
   /** Verilmezse ağa çıkmayan sahte sağlayıcı (testler ve anahtarsız geliştirme). */
   weather?: WeatherProvider;
   /** Verilmezse COPERNICUS_CLIENT_ID/SECRET varsa Copernicus, yoksa açıkça "örnek" işaretli sahte sağlayıcı. */
@@ -161,6 +165,7 @@ export class AppModule {
         TodayController,
         NdviController,
         TwinController,
+        NeEksemController,
         PushTokenController,
         JobsController,
         FieldCalendarController,
@@ -209,6 +214,7 @@ export class AppModule {
           },
         },
         { provide: PLACES, useFactory: () => opts.places ?? Places.load() },
+        { provide: NE_EKSEM_DATA, useFactory: () => opts.neEksem ?? NeEksemData.load() },
         { provide: WEATHER, useValue: opts.weather ?? new FakeWeatherProvider() },
         { provide: NDVI, useFactory: () => opts.ndvi ?? defaultNdvi() },
         { provide: NOTIFY_QUEUE, useValue: opts.queue ?? new InMemoryQueue() },

@@ -234,6 +234,10 @@ describe('veri cüzdanı: dışa aktarma tüm kullanıcı verisini içerir', () 
       [aliField, ali.userId],
     );
     await sql(
+      `INSERT INTO ekim_niyetleri(field_id, user_id, crop_id, dekar, season) VALUES ($1,$2,'bugday', 5, '2027')`,
+      [aliField, ali.userId],
+    );
+    await sql(
       `INSERT INTO irrigation_commands(device_id, field_id, user_id, action, minutes, idempotency_key,
          created_at, expires_at) VALUES ($1,$2,$3,'open',10,'idem-12345678', now(), now() + interval '1 minute')`,
       [dev.id, aliField, ali.userId],

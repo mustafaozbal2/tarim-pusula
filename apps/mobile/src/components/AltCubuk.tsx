@@ -60,13 +60,23 @@ function Ikon({ k, renk }: { k: Anahtar; renk: string }) {
           />
         </Svg>
       );
-    case 'pazar':
+    case 'neeksem':
+      // Filiz ve soru: "ne eksem?"
       return (
         <Svg {...p}>
           <Path
-            d="M4 19V10M10 19V5M16 19v-7M21 19H3"
+            d="M12 21v-8M12 13c0-3.5-2.5-6-6-6 0 3.5 2.5 6 6 6zM12 13c0-3.5 2.5-6 6-6 0 3.5-2.5 6-6 6z"
+            fill="none"
             stroke={renk}
-            strokeWidth={2.2}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          <Path
+            d="M9.5 3.6a2.5 2.5 0 0 1 4.9.6c0 1.6-2.4 1.9-2.4 3.3"
+            fill="none"
+            stroke={renk}
+            strokeWidth={2}
             strokeLinecap="round"
           />
         </Svg>
