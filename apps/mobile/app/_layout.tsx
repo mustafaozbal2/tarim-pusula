@@ -16,6 +16,7 @@ import { onPushTap } from '../src/push';
 import { queue, useSessionKind, useToken } from '../src/session';
 import { expoUpdates, installedVersion, useAutoUpdate } from '../src/updates';
 import { UpdateGate } from '../src/updates/UpdateGate';
+import { TanitimKatmani } from '../src/tanitim/TanitimKatmani';
 import { useSettings } from '../src/settings';
 
 /** Çevrimdışıyken sıraya alınan işleri bağlantı gelince gönderir. */
@@ -99,6 +100,8 @@ export default function RootLayout() {
       <View key={textSize} style={webFrame(width, wide)}>
         <Stack screenOptions={{ headerShown: false }} />
         {token && kind !== 'yetkili' ? <AltCubuk /> : null}
+        {/* İlk girişte karşılama kartı; ilk kez girilen her sayfada adım adım tanıtım (mavi ampulle yeniden açılır). */}
+        <TanitimKatmani etkin={!!token && kind !== undefined && kind !== 'yetkili'} />
         {/* Soğuk açılışta yeni sürüm varsa "Güncelle" ekranı örter; güncellenmeden girilmez. */}
         <UpdateGate api={expoUpdates} installed={installedVersion()} />
       </View>

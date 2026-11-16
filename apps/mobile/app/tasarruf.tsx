@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -137,7 +138,7 @@ export default function SavingsScreen() {
       ) : null}
       {view?.kind === 'report' ? (
         <>
-          <View style={styles.headline} testID="tasarruf-sonuc">
+          <View style={styles.headline} ref={hedefRef('tasarruf.sonuc')} testID="tasarruf-sonuc">
             <Text style={styles.headlineLabel}>{t.result}</Text>
             <Text style={styles.headlineValue}>{view.headline}</Text>
           </View>

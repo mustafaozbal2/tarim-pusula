@@ -19,6 +19,8 @@ import { ImageSlot } from '../components/ImageSlot';
 import { HavaEfekti } from '../design/HavaEfekti';
 import type { HavaSahne } from '../design/havaSahne';
 import { tr } from '../i18n/tr';
+import { hedefRef } from '../tanitim/hedef';
+import { YardimDugmesi } from '../tanitim/YardimDugmesi';
 import {
   CARD_INTERVAL_MS,
   dateBox,
@@ -134,6 +136,16 @@ export function TopBand({
           }}
         />
       ))}
+      {/* Mavi ampul: menü düğmesinin hemen altında; ana sayfanın tanıtımını yeniden açar. */}
+      <YardimDugmesi
+        boyut={32}
+        style={{
+          position: 'absolute',
+          left: (L.icon.cx0 + (HOME_ICONS.length - 1) * L.icon.pitch) * k - 22,
+          top: top + L.icon.cy * k + 20,
+          zIndex: 3,
+        }}
+      />
       <View style={styles.demo} pointerEvents="none">
         <DemoBadge />
       </View>
@@ -199,7 +211,10 @@ export function CardStrip({ items, onOpen }: { items: HomeCard[]; onOpen: (c: Ho
   );
   return (
     <ScrollView
-      ref={ref}
+      ref={(n) => {
+        ref.current = n;
+        return hedefRef('ana.kartlar')(n);
+      }}
       horizontal
       showsHorizontalScrollIndicator={false}
       testID="kart-seridi"
@@ -247,6 +262,7 @@ export function FieldBlock({
       />
       {name ? (
         <Pressable
+          ref={hedefRef('ana.arazi')}
           accessibilityRole="button"
           accessibilityLabel={canSwitch ? `${t.switchField}: ${name}` : name}
           testID="arazi-blogu"
@@ -314,7 +330,11 @@ export function TabsCard({
       ]}
       testID="ana-sekmeli-kart"
     >
-      <View style={[styles.tabsHead, { height: L.tabs.headH * k }]} testID="ana-sekme-basligi">
+      <View
+        ref={hedefRef('ana.sekmeler')}
+        style={[styles.tabsHead, { height: L.tabs.headH * k }]}
+        testID="ana-sekme-basligi"
+      >
         {HOME_TABS.map((x, i) => {
           const on = x.key === tab;
           return (
@@ -352,7 +372,7 @@ export function TabsCard({
         }}
       >
         {empty ? (
-          <View style={styles.emptyBox} testID="ana-bos-durum">
+          <View ref={hedefRef('ana.tarla-ekle')} style={styles.emptyBox} testID="ana-bos-durum">
             <Text style={styles.empty}>{t.empty}</Text>
             <Button label={t.addField} onPress={empty.onAdd} testID="ana-tarla-ekle" />
           </View>
@@ -366,6 +386,7 @@ export function TabsCard({
             return (
               <View key={r.id}>
                 <Pressable
+                  ref={i === 0 ? hedefRef('ana.satir') : undefined}
                   accessibilityRole="button"
                   accessibilityLabel={`${d.month} ${d.day} ${d.year}: ${r.title}`}
                   testID="liste-satiri"

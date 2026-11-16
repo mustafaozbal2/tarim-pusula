@@ -270,6 +270,24 @@ export function araziEtiketi(adlar: string[]): string {
   return t.length <= 2 ? t.join(', ') : `${t.slice(0, 2).join(', ')} ve ${t.length - 2} arazi`;
 }
 
+/**
+ * Resmî haberin ana sayfa sekmesi: başvuru/hibe/destek → Hibe sekmesi; önlem (don, zararlı, hastalık) →
+ * Erken Uyarılar; bilgilendirme ve teknoloji → Faaliyet Rehberi; diğerleri yalnız "Hepsi".
+ */
+export function duyuruSekmesi(kategori: string | null | undefined): HomeRow['kind'] {
+  switch (kategori) {
+    case 'yonlendirme':
+      return 'hibe';
+    case 'onlem':
+      return 'uyari';
+    case 'bilgilendirme':
+    case 'teknoloji':
+      return 'rehber';
+    default:
+      return 'duyuru';
+  }
+}
+
 export function buildHomeRows(input: HomeInput): HomeRow[] {
   const rows: HomeRow[] = [];
   const kaynaklar: DigerArazi[] = [
@@ -357,15 +375,30 @@ export function buildHomeRows(input: HomeInput): HomeRow[] {
   }
   for (const a of input.announcements) {
     if (!gosterilir(a) || !a.sourceOrg) continue;
+    const kaynak = `${a.sourceOrg} · ${a.publishedAt.slice(0, 10)}`;
     rows.push({
       id: `duyuru-${a.id}`,
-      kind: 'duyuru',
+      // G36: resmî haber konusuna göre kendi sekmesine de düşer (hibe/destek, erken uyarı, rehber).
+      kind: duyuruSekmesi(a.category),
       date: a.publishedAt.slice(0, 10),
       title: a.title,
       detail: a.body,
-      source: `${a.sourceOrg} · ${a.publishedAt.slice(0, 10)}`,
+      source: kaynak,
       tone: 'normal',
     });
+    // Başvuru son günü olan duyuru "Faaliyet Zamanı"nda son gün satırı olur (geçmiş son gün yazılmaz).
+    if (a.applyUntil && a.applyUntil >= bugun) {
+      rows.push({
+        id: `songun-${a.id}`,
+        kind: 'zaman',
+        date: a.applyUntil,
+        title: `Son başvuru günü: ${a.title}`,
+        detail: a.body,
+        source: kaynak,
+        tone: 'normal',
+        hideInAll: true,
+      });
+    }
   }
   if (input.sample) rows.push(...sampleRows(rows, input.sample, input.todayIso ?? localIso()));
   // Bugün ve sonrası önce (yakından uzağa: yapılacaklar), geçmiş sonra (en yeniden eskiye: son duyurular
@@ -398,13 +431,13 @@ export function attentionCount(rows: HomeRow[]): number {
 export function emptyText(tab: HomeTab): string {
   switch (tab) {
     case 'zaman':
-      return 'Bu hafta için önemli bir iş yok.';
+      return 'Yaklaşan iş ya da başvuru son günü yok. Takvime kendi notunu ekleyebilirsin.';
     case 'rehber':
-      return 'Bu hafta için önemli bir rehber notu yok.';
+      return 'Bölgen için yeni bir bilgilendirme yok. Resmî siteler günde 5 kez taranıyor; gelince burada görünür.';
     case 'uyari':
       return 'Şu an erken uyarı yok. Hava değişirse burada görünür.';
     case 'hibe':
-      return 'Bu arazi için açık hibe, kredi ya da destek kaydı yok.';
+      return 'Bölgen için açık hibe, kredi ya da destek duyurusu yok. Resmî siteler günde 5 kez taranıyor.';
     default:
       return 'Bu hafta için önemli bir kayıt yok.';
   }

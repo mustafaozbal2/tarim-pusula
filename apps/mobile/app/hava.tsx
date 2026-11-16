@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useRouter } from 'expo-router';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
@@ -73,7 +74,7 @@ export default function WeatherScreen() {
   };
   return (
     <Screen title={t.title}>
-      <View style={styles.hero} testID="hava-ozet">
+      <View ref={hedefRef('hava.ozet')} style={styles.hero} testID="hava-ozet">
         <Text style={styles.heroPlace} numberOfLines={1}>
           {field.name}
         </Text>
@@ -95,7 +96,7 @@ export default function WeatherScreen() {
       </View>
 
       <Bolum title={t.now}>
-        <View style={styles.grid} testID="hava-simdi">
+        <View ref={hedefRef('hava.simdi')} style={styles.grid} testID="hava-simdi">
           {now.slice(1).map((r) => (
             <View key={r.label} style={styles.cell}>
               <Icon name={metricIcon[r.label] ?? 'sun'} size={22} color={homeColors.tabSelected} />
@@ -108,6 +109,7 @@ export default function WeatherScreen() {
 
       <Bolum title={t.forecast}>
         <ScrollView
+          ref={hedefRef('hava.tahmin')}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.days}
@@ -129,7 +131,11 @@ export default function WeatherScreen() {
       </Bolum>
 
       {showFrost ? (
-        <Card style={[styles.frost, warn && styles.warn]} testID="hava-don">
+        <Card
+          ref={hedefRef('hava.don')}
+          style={[styles.frost, warn && styles.warn]}
+          testID="hava-don"
+        >
           <View style={styles.frostHead}>
             <Icon name="warning" size={20} color={warn ? colors.amberText : colors.forest} />
             <Text style={styles.label}>{t.frost}</Text>
@@ -144,7 +150,7 @@ export default function WeatherScreen() {
 
       {don.length > 0 ? (
         <Bolum title={t.donGorunum}>
-          <Card style={styles.donList} testID="hava-don-gorunum">
+          <Card ref={hedefRef('hava.don7')} style={styles.donList} testID="hava-don-gorunum">
             {don.map((r) => (
               <View key={r.key} style={styles.donRow} testID="hava-don-gun">
                 <View style={styles.donHead}>
@@ -168,7 +174,7 @@ export default function WeatherScreen() {
         </Bolum>
       ) : null}
 
-      <Card style={styles.water}>
+      <Card ref={hedefRef('hava.su')} style={styles.water}>
         <Icon name="drop" size={22} color={colors.water} />
         <Text style={styles.waterText}>
           {t.et0}: {today.et0.mmPerDay.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} mm/gün
@@ -190,9 +196,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     padding: 16,
     gap: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.65)',
+    borderBottomWidth: 4,
+    borderBottomColor: '#3D8E8D',
     ...elevation.raised,
   },
-  heroPlace: { fontFamily: fontFamily.extrabold, fontSize: 18, color: homeColors.text },
+  heroPlace: { fontFamily: fontFamily.extrabold, fontSize: 20, color: homeColors.text },
   heroSub: { fontFamily: fontFamily.semibold, fontSize: 14, color: homeColors.text },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 6 },
   heroIcon: { width: 84, height: 84 },
@@ -222,9 +232,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: 12,
     gap: 2,
+    borderTopColor: '#EAF6F4',
+    borderBottomWidth: 3,
+    borderBottomColor: '#BFDCD7',
     ...elevation.card,
   },
-  cellValue: { fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.forest },
+  cellValue: { fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.forest },
   cellLabel: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },
   days: { gap: 10, paddingVertical: 4, paddingRight: 4 },
   day: {
@@ -236,9 +249,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     borderWidth: 1,
     borderColor: colors.border,
+    borderBottomWidth: 3,
+    borderBottomColor: '#BFDCD7',
     ...elevation.card,
   },
-  dayToday: { backgroundColor: homeColors.band, borderColor: homeColors.band },
+  dayToday: {
+    backgroundColor: homeColors.band,
+    borderColor: 'rgba(255,255,255,0.7)',
+    borderBottomColor: '#3D8E8D',
+    ...elevation.raised,
+  },
   dayName: { fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.forest },
   dayTemp: { fontFamily: fontFamily.bold, fontSize: 14, color: colors.forest },
   dayRain: { fontFamily: fontFamily.medium, fontSize: 12, color: colors.textMuted },

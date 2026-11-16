@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -31,7 +32,7 @@ const CHART_HEIGHT = 160;
 function Chart({ s }: { s: Series }) {
   const list = bars(s);
   return (
-    <View accessibilityLabel={t.chartLabel} testID="ndvi-grafik">
+    <View accessibilityLabel={t.chartLabel} ref={hedefRef('ndvi.grafik')} testID="ndvi-grafik">
       <View style={styles.chart}>
         {list.map((b, i) => (
           <View
@@ -111,7 +112,7 @@ export default function NdviScreen() {
     >
       {header}
       <SayfaGorseli image="kart_12.jpg" focusY={0.55} text={t.intro} />
-      <Text style={styles.body} testID="ndvi-tarla">
+      <Text style={styles.body} ref={hedefRef('ndvi.tarla')} testID="ndvi-tarla">
         {field.name}
       </Text>
       {res.offline ? <Notice tone="warn">{t.offline}</Notice> : null}
@@ -148,7 +149,11 @@ export default function NdviScreen() {
       {s && src && trend ? (
         <>
           {level ? (
-            <View style={[styles.level, { backgroundColor: level.color }]} testID="ndvi-duzey">
+            <View
+              style={[styles.level, { backgroundColor: level.color }]}
+              ref={hedefRef('ndvi.duzey')}
+              testID="ndvi-duzey"
+            >
               <Icon name="leaf" size={22} color="#FFFFFF" />
               <Text style={styles.levelText}>{level.text}</Text>
             </View>
@@ -161,7 +166,7 @@ export default function NdviScreen() {
           <Card style={styles.card}>
             <Text style={styles.small}>{t.chartLabel}</Text>
             {latest ? (
-              <Text style={styles.big} testID="ndvi-son">
+              <Text style={styles.big} ref={hedefRef('ndvi.son')} testID="ndvi-son">
                 {latest.value}{' '}
                 <Text style={styles.small}>
                   {t.latest}: {latest.date}
@@ -191,7 +196,12 @@ export default function NdviScreen() {
       {data.kind === 'none' && data.reason === 'sinir-yok' ? (
         <BilgiKarti title={t.stepsTitle} lines={[...t.steps]} />
       ) : null}
-      <BilgiKarti title={t.howTitle} lines={[...t.how]} testID="ndvi-nasil" />
+      <BilgiKarti
+        title={t.howTitle}
+        lines={[...t.how]}
+        ref={hedefRef('ndvi.nasil')}
+        testID="ndvi-nasil"
+      />
     </FlowScreen>
   );
 }

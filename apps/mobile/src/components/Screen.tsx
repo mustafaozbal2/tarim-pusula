@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontFamily, fontSize, homeColors, spacing } from '@tarim/ui';
+import { useTanitimKaydirici } from '../tanitim/useKaydirici';
 import { DemoBadge } from './DemoBadge';
 import { UstBant } from './UstBant';
 
@@ -23,8 +24,13 @@ export function Screen({
   hero?: ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  // Tanıtım turu ekranın altında kalan düğmeyi göstermek için sayfayı kaydırabilir.
+  const kaydirici = useTanitimKaydirici();
   const scroll = (
     <ScrollView
+      ref={kaydirici.ref}
+      onScroll={kaydirici.onScroll}
+      scrollEventThrottle={32}
       keyboardShouldPersistTaps="handled"
       style={styles.root}
       contentContainerStyle={[styles.content, { paddingBottom: spacing.xl + insets.bottom }]}

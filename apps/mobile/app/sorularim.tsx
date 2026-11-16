@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -54,7 +55,7 @@ export default function Sorularim() {
       {items === null && !failed ? <Iskelet /> : null}
       {failed ? <YuklemeHatasi onRetry={() => void load()} /> : null}
       {items?.length === 0 ? <Durum kind="bos" text={t.empty} /> : null}
-      <View style={{ gap: 10 }} testID="sorularim-listesi">
+      <View style={{ gap: 10 }} ref={hedefRef('sorularim.liste')} testID="sorularim-listesi">
         {items?.map((q) => {
           const done = q.status === 'cevaplandi';
           return (

@@ -137,7 +137,7 @@ export function DonKarti({
               </Pressable>
             </View>
             <ScrollView contentContainerStyle={{ paddingBottom: 28 }}>
-              <Text style={s.rozet}>Bilgi notu · uzman onayı bekliyor</Text>
+              <Text style={s.rozet}>Bilgi notu · kaynak: FAO 2005</Text>
               <Text style={s.giris}>{r.giris}</Text>
               <Bolum ad="Bu gece" liste={r.hemen} />
               <Bolum ad="Dondan sonra" liste={r.sonra} />

@@ -54,7 +54,7 @@ test('Ne Eksem: sıralama, niyet beyanı, tarla değiştirme, neden kartı', asy
   await expect(page).toHaveURL(/\/ne-eksem$/);
   await expect(page.getByTestId('neeksem-ozet')).toBeVisible();
   await expect(page.getByTestId('neeksem-bolge')).toContainText('Gaziantep');
-  await expect(page.getByText('Bilgi notu · uzman onayı bekliyor')).toBeVisible();
+  await expect(page.getByText('Bilgi notu', { exact: true })).toBeVisible();
   await expect(page.getByTestId('neeksem-ozet')).toContainText('bilgi notudur');
   // Nizip: ayçiçeği açık + resmî planda → birinci.
   await expect(page.getByTestId('neeksem-urun-aycicegi')).toBeVisible();

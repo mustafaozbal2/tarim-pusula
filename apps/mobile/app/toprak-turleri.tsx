@@ -33,7 +33,7 @@ export default function SoilListScreen() {
             <View style={kartStil.head}>
               <Text style={kartStil.name}>{r.nameTr}</Text>
               <Text style={[kartStil.tag, !r.needsBadge && kartStil.tagOk]}>
-                {r.needsBadge ? 'Taslak' : 'Onaylı'}
+                {r.needsBadge ? 'Taslak' : 'FAO-56'}
               </Text>
             </View>
             {r.hint ? <Text style={kartStil.hint}>{r.hint}</Text> : null}

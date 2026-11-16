@@ -1,8 +1,11 @@
+import { hedefRef } from '../src/tanitim/hedef';
+import { YardimDugmesi } from '../src/tanitim/YardimDugmesi';
+import { DusunmeNoktalari, ZiplayanRobot } from '../src/asistan/ZiplayanRobot';
+import { Robot } from '../src/asistan/Robot';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -34,8 +37,18 @@ const YESIL = '#0E3B37';
 const yeniId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 const ilkMesaj = () =>
   robot(
-    'Merhaba, ben Pusula. Tarlanla ilgili her şeyi sorabilirsin: hava, don, sulama, budama, hastalık. Bitkinin fotoğrafını çekip gönderirsen bakarım.',
+    'Merhaba, ben Nuvia; Tarım Pusula’nın yapay zekâsıyım. Tarlanla ilgili her şeyi sorabilirsin: hava, don, sulama, budama, hastalık. Bitkinin fotoğrafını çekip gönderirsen bakarım.',
   );
+
+/** Sohbet boşken robotun altında çıkan hazır sorular: dokununca yazılmış gibi gönderilir. */
+const HAZIR_SORULAR = [
+  'Bu gece don var mı?',
+  'Bugün sulamam gerekir mi?',
+  'Bu hafta hava nasıl olacak?',
+  'Tarlama ne eksem?',
+  'Açık hibe ve destekler neler?',
+  'Yeni tarla eklemek istiyorum',
+];
 
 function Ikon({ d, renk = YESIL, boy = 22 }: { d: string; renk?: string; boy?: number }) {
   return (
@@ -85,6 +98,19 @@ export default function YapayZekaEkrani() {
     mime: 'image/jpeg' | 'image/png' | 'image/webp';
     base64: string;
   } | null>(null);
+  /** Bildirilmek üzere seçilen robot cevabı (neden seçenekleri o balonun altında açılır) ve bildirilenler. */
+  const [bildirilen, setBildirilen] = useState<Mesaj['id'] | null>(null);
+  const [bildirildi, setBildirildi] = useState<Record<string, 'tamam' | 'hata'>>({});
+  const bildirimAnahtari = (m: Mesaj) => String(m.id);
+  const bildir = async (m: Mesaj, neden: 'yanlis' | 'sakincali' | 'zararli') => {
+    setBildirilen(null);
+    try {
+      const r = await api.robotBildir({ mesaj: m.metin.slice(0, 2000), neden });
+      setBildirildi((b) => ({ ...b, [bildirimAnahtari(m)]: r.alindi ? 'tamam' : 'hata' }));
+    } catch {
+      setBildirildi((b) => ({ ...b, [bildirimAnahtari(m)]: 'hata' }));
+    }
+  };
   const kaydir = useRef<ScrollViewInstance>(null);
   const sesleSordu = useRef(false);
 
@@ -93,7 +119,15 @@ export default function YapayZekaEkrani() {
     return () => sustur();
   }, []);
   useEffect(() => {
-    const t = setTimeout(() => kaydir.current?.scrollToEnd({ animated: true }), 80);
+    // Sohbet boşken (yalnız karşılama) en üstte kalır: zıplayan robot ve hazır sorular görünsün.
+    const bos = !sohbet.mesajlar.some((m) => m.kimden === 'ben');
+    const t = setTimeout(
+      () =>
+        bos
+          ? kaydir.current?.scrollTo({ y: 0, animated: false })
+          : kaydir.current?.scrollToEnd({ animated: true }),
+      80,
+    );
     return () => clearTimeout(t);
   }, [sohbet.mesajlar.length, mesgul]);
 
@@ -225,13 +259,18 @@ export default function YapayZekaEkrani() {
         >
           <Ikon d={GERI} renk="#FFFFFF" />
         </Pressable>
+        <View style={s.ustRobot}>
+          <Robot size={32} id="robot-yz-ust" />
+        </View>
         <View style={{ flex: 1 }}>
-          <Text style={s.baslik}>Pusula Yapay Zekâ</Text>
+          <Text style={s.baslik}>Nuvia</Text>
           <Text style={s.altBaslik} numberOfLines={1}>
-            {sohbet.baslik || 'Yeni sohbet'}
+            {sohbet.baslik || 'Pusula yapay zekâ · yeni sohbet'}
           </Text>
         </View>
+        <YardimDugmesi boyut={32} />
         <Pressable
+          ref={hedefRef('yz.gecmis')}
           accessibilityRole="button"
           accessibilityLabel="Geçmiş sohbetler"
           testID="yz-gecmis"
@@ -241,6 +280,7 @@ export default function YapayZekaEkrani() {
           <Ikon d={GECMIS} renk="#FFFFFF" />
         </Pressable>
         <Pressable
+          ref={hedefRef('yz.yeni')}
           accessibilityRole="button"
           accessibilityLabel="Yeni sohbet"
           testID="yz-yeni"
@@ -262,8 +302,44 @@ export default function YapayZekaEkrani() {
           keyboardShouldPersistTaps="handled"
           testID="yz-mesajlar"
         >
-          {sohbet.mesajlar.map((m) => (
+          {/* Sohbet boşken: ortada zıplayan Nuvia ve dokunulabilir hazır sorular. */}
+          {!sohbet.mesajlar.some((m) => m.kimden === 'ben') ? (
+            <View style={s.karsilama} testID="yz-karsilama">
+              <View ref={hedefRef('yz.robot')} collapsable={false}>
+                <ZiplayanRobot size={104} />
+              </View>
+              <Text style={s.karsilamaBaslik}>Merhaba, ben Nuvia</Text>
+              <Text style={s.karsilamaAlt}>
+                Tarım Pusula’nın yapay zekâsıyım. Hava, don, sulama, budama, hastalık: ne istersen
+                sor. Yazabilir, konuşabilir ya da bitkinin fotoğrafını gönderebilirsin.
+              </Text>
+              <View ref={hedefRef('yz.hazir')} style={s.hazirlar}>
+                {HAZIR_SORULAR.map((q) => (
+                  <Pressable
+                    key={q}
+                    accessibilityRole="button"
+                    accessibilityLabel={q}
+                    testID="yz-hazir-soru"
+                    onPress={() => void gonder(q)}
+                    style={({ pressed }) => [s.hazir, pressed && s.hazirBasili]}
+                  >
+                    <Text style={s.hazirYazi}>{q}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ) : null}
+          {/* Sohbet boşken karşılama balonu çizilmez: aynı selam yukarıda robotun altında yazıyor. */}
+          {(sohbet.mesajlar.length === 1 && sohbet.mesajlar[0]!.kimden === 'robot'
+            ? []
+            : sohbet.mesajlar
+          ).map((m) => (
             <View key={m.id} style={m.kimden === 'robot' ? s.satirRobot : s.satirBen}>
+              {m.kimden === 'robot' ? (
+                <View style={s.avatar}>
+                  <Robot size={24} id={`robot-m-${m.id}`} />
+                </View>
+              ) : null}
               <View style={m.kimden === 'robot' ? s.balonRobot : s.balonBen}>
                 {m.gorsel ? (
                   <Image source={{ uri: m.gorsel }} style={s.foto} resizeMode="cover" />
@@ -284,6 +360,48 @@ export default function YapayZekaEkrani() {
                     <Text style={s.gitYazi}>{`${m.eylem.label}: aç`}</Text>
                   </Pressable>
                 ) : null}
+                {/* Play politikası: yapay zekâ cevabı uygulama içinden bildirilebilir. Karşılama mesajı hariç. */}
+                {m.kimden === 'robot' && sohbet.mesajlar[0]?.id !== m.id ? (
+                  bildirildi[bildirimAnahtari(m)] ? (
+                    <Text style={s.bildirNot} testID="yz-bildirildi">
+                      {bildirildi[bildirimAnahtari(m)] === 'tamam'
+                        ? 'Teşekkürler, bildirimin alındı. Ekibimiz inceleyecek.'
+                        : 'Bildirim gönderilemedi. Bağlantını kontrol edip yeniden dene.'}
+                    </Text>
+                  ) : bildirilen === m.id ? (
+                    <View style={s.bildirSecenekler} testID="yz-bildir-nedenler">
+                      <Text style={s.bildirSoru}>Bu cevapta sorun ne?</Text>
+                      {(
+                        [
+                          ['yanlis', 'Bilgi yanlış'],
+                          ['sakincali', 'Uygunsuz içerik'],
+                          ['zararli', 'Zarar verebilir'],
+                        ] as const
+                      ).map(([k, ad]) => (
+                        <Pressable
+                          key={k}
+                          accessibilityRole="button"
+                          accessibilityLabel={ad}
+                          testID={`yz-bildir-${k}`}
+                          onPress={() => void bildir(m, k)}
+                          style={s.bildirNeden}
+                        >
+                          <Text style={s.bildirNedenYazi}>{ad}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Bu cevabı bildir"
+                      testID="yz-bildir"
+                      onPress={() => setBildirilen(m.id)}
+                      style={s.bildir}
+                    >
+                      <Text style={s.bildirYazi}>Cevabı bildir</Text>
+                    </Pressable>
+                  )
+                ) : null}
                 {m.secenekler?.length ? (
                   <View style={s.secenekler}>
                     {m.secenekler.map((o) => (
@@ -302,10 +420,13 @@ export default function YapayZekaEkrani() {
             </View>
           ))}
           {mesgul ? (
-            <View style={s.satirRobot}>
-              <View style={[s.balonRobot, { flexDirection: 'row', alignItems: 'center', gap: 8 }]}>
-                <ActivityIndicator color={YESIL} />
-                <Text style={s.yaziRobot}>Düşünüyorum…</Text>
+            <View style={s.satirRobot} testID="yz-dusunuyor">
+              <View style={s.avatar}>
+                <Robot size={24} id="robot-dusunen" />
+              </View>
+              <View style={[s.balonRobot, { flexDirection: 'row', alignItems: 'center', gap: 10 }]}>
+                <Text style={s.yaziRobot}>Düşünüyorum</Text>
+                <DusunmeNoktalari />
               </View>
             </View>
           ) : null}
@@ -327,8 +448,9 @@ export default function YapayZekaEkrani() {
         ) : null}
 
         <View style={[s.alt, { paddingBottom: insets.bottom + 8 }]}>
-          <View style={s.giris}>
+          <View style={s.giris} ref={hedefRef('yz.giris')}>
             <Pressable
+              ref={hedefRef('yz.kamera')}
               accessibilityRole="button"
               accessibilityLabel="Fotoğraf çek"
               testID="yz-kamera"
@@ -338,6 +460,7 @@ export default function YapayZekaEkrani() {
               <Ikon d={KAMERA} />
             </Pressable>
             <Pressable
+              ref={hedefRef('yz.galeri')}
               accessibilityRole="button"
               accessibilityLabel="Galeriden seç"
               onPress={() => void fotoAl(false)}
@@ -367,8 +490,10 @@ export default function YapayZekaEkrani() {
               </Pressable>
             ) : (
               <Pressable
+                ref={hedefRef('yz.ses')}
                 accessibilityRole="button"
                 accessibilityLabel="Sesle sor"
+                testID="yz-ses"
                 onPress={() => void sesle()}
                 style={[s.gonder, dinliyor && { backgroundColor: '#B23A2B' }]}
               >
@@ -376,7 +501,9 @@ export default function YapayZekaEkrani() {
               </Pressable>
             )}
           </View>
-          <Text style={s.uyari}>{SORU_UYARISI}</Text>
+          <Text style={s.uyari} ref={hedefRef('yz.uyari')}>
+            {SORU_UYARISI}
+          </Text>
         </View>
       </KeyboardAvoidingView>
 
@@ -450,9 +577,86 @@ const s = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 10,
     gap: 4,
+    borderBottomWidth: 3,
+    borderBottomColor: '#1F7A6D',
+    shadowColor: '#041F1D',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+    zIndex: 2,
   },
-  ustDugme: { padding: 10 },
-  baslik: { fontFamily: fontFamily.extrabold, fontSize: 18, color: '#FFFFFF' },
+  ustDugme: {
+    padding: 10,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ustRobot: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E9F4F1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    marginRight: 6,
+  },
+  baslik: { fontFamily: fontFamily.extrabold, fontSize: 19, color: '#FFFFFF', letterSpacing: 0.3 },
+  karsilama: { alignItems: 'center', gap: 8, paddingTop: 6, paddingBottom: 8 },
+  karsilamaBaslik: { fontFamily: fontFamily.extrabold, fontSize: 22, color: YESIL },
+  karsilamaAlt: {
+    fontFamily: fontFamily.medium,
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#4A5F5E',
+    textAlign: 'center',
+    paddingHorizontal: 12,
+  },
+  hazirlar: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+    marginTop: 6,
+  },
+  // Hazır soru: kabartmalı hap düğme (alt kenarı koyu, basınca iner).
+  hazir: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#BFDCD7',
+    borderBottomWidth: 3.5,
+    borderBottomColor: '#9CC7C0',
+    shadowColor: '#1F6E6D',
+    shadowOpacity: 0.14,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  hazirBasili: {
+    borderBottomWidth: 1.5,
+    transform: [{ translateY: 2 }],
+    backgroundColor: '#E8F4F1',
+  },
+  hazirYazi: { fontFamily: fontFamily.bold, fontSize: 14, color: '#1F6E6D' },
+  avatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#E9F4F1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+    marginTop: 2,
+    borderWidth: 1,
+    borderColor: '#CFE7E3',
+  },
   altBaslik: { fontFamily: fontFamily.medium, fontSize: 12.5, color: '#B2E2DA' },
   akis: { padding: 14, gap: 10, paddingBottom: 24 },
   satirRobot: { flexDirection: 'row', justifyContent: 'flex-start' },
@@ -462,9 +666,16 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderTopLeftRadius: 6,
     padding: 13,
-    maxWidth: '88%',
+    maxWidth: '80%',
     borderWidth: 1,
-    borderColor: '#E2E8E6',
+    borderColor: '#DCE8E5',
+    borderBottomWidth: 2.5,
+    borderBottomColor: '#C9DDD9',
+    shadowColor: '#1F6E6D',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
   },
   balonBen: {
     backgroundColor: '#1F7A6D',
@@ -472,6 +683,8 @@ const s = StyleSheet.create({
     borderTopRightRadius: 6,
     padding: 13,
     maxWidth: '82%',
+    borderBottomWidth: 2.5,
+    borderBottomColor: '#14574D',
   },
   yaziRobot: { fontFamily: fontFamily.medium, fontSize: 15.5, color: '#14302D', lineHeight: 22 },
   yaziBen: { fontFamily: fontFamily.semibold, fontSize: 15.5, color: '#FFFFFF', lineHeight: 22 },
@@ -486,6 +699,27 @@ const s = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   gitYazi: { fontFamily: fontFamily.bold, fontSize: 14, color: YESIL },
+  bildir: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
+  bildirYazi: { fontFamily: fontFamily.semibold, fontSize: 12, color: '#7B948F' },
+  bildirSecenekler: {
+    marginTop: 8,
+    gap: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8E6',
+    paddingTop: 8,
+  },
+  bildirSoru: { fontFamily: fontFamily.bold, fontSize: 13, color: '#14302D' },
+  bildirNeden: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#D8B5AE',
+    backgroundColor: '#FFF6F4',
+  },
+  bildirNedenYazi: { fontFamily: fontFamily.bold, fontSize: 13.5, color: '#8A2E22' },
+  bildirNot: { fontFamily: fontFamily.medium, fontSize: 12, color: '#4A5F5E', marginTop: 8 },
   secenekler: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   secenek: {
     borderWidth: 1.5,
@@ -517,11 +751,22 @@ const s = StyleSheet.create({
     borderRadius: 24,
     paddingHorizontal: 6,
     paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#DCE5E2',
+    borderWidth: 1.5,
+    borderColor: '#BFDCD7',
     gap: 2,
+    shadowColor: '#1F6E6D',
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
-  ikonDugme: { padding: 9 },
+  ikonDugme: {
+    padding: 9,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   kutu: {
     flex: 1,
     fontFamily: fontFamily.medium,
@@ -533,11 +778,13 @@ const s = StyleSheet.create({
   },
   gonder: {
     backgroundColor: '#1F7A6D',
-    borderRadius: 20,
-    width: 42,
-    height: 42,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: '#14574D',
   },
   uyari: {
     fontFamily: fontFamily.medium,

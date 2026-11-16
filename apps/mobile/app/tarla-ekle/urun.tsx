@@ -1,3 +1,4 @@
+import { hedefRef } from '../../src/tanitim/hedef';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Text, TextInput } from 'react-native';
@@ -82,7 +83,7 @@ export default function CropScreen() {
       />
 
       {draft.cropId ? (
-        <Text style={subtitleStyle} testID="secilen-urun">
+        <Text style={subtitleStyle} ref={hedefRef('urun.urun')} testID="secilen-urun">
           {picked ?? tr.commonCrops.find((c) => c.id === draft.cropId)?.name ?? draft.cropId}
         </Text>
       ) : null}
@@ -91,6 +92,7 @@ export default function CropScreen() {
       <Text style={subtitleStyle}>{t.fieldName}</Text>
       <TextInput
         accessibilityLabel={t.fieldName}
+        ref={hedefRef('urun.ad')}
         testID="tarla-adi"
         value={draft.name ?? defaultFieldName(draft)}
         onChangeText={(name: string) => updateDraft((d) => ({ ...d, name }))}

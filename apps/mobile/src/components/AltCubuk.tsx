@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { colors, fontFamily, homeColors } from '@tarim/ui';
 import { Robot } from '../asistan/Robot';
+import { hedefRef } from '../tanitim/hedef';
 import { ALT_SEKMELER, altCubukGorunur, type Anahtar } from './altCubukYol';
 
 const KOYU = '#14504F';
@@ -118,6 +119,7 @@ export function AltCubuk() {
             return (
               <Pressable
                 key={s.key}
+                ref={hedefRef('alt.yz')}
                 testID="alt-yz"
                 accessibilityRole="button"
                 accessibilityLabel={s.ad}
@@ -138,6 +140,7 @@ export function AltCubuk() {
           return (
             <Pressable
               key={s.key}
+              ref={hedefRef(`alt.${s.key}`)}
               testID={`alt-${s.key}`}
               accessibilityRole="button"
               accessibilityLabel={s.ad}

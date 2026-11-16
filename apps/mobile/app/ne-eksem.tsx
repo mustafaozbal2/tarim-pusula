@@ -1,8 +1,19 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Path, Text as SvgText } from 'react-native-svg';
-import { Badge, Button, Card, colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  colors,
+  elevation,
+  fontFamily,
+  fontSize,
+  radius,
+  spacing,
+} from '@tarim/ui';
 import type { FieldDto, NeEksemDto, NeEksemRankedDto } from '../src/api/client';
 import { NetworkError } from '../src/api/client';
 import { BilgiKarti } from '../src/components/BilgiKarti';
@@ -234,8 +245,13 @@ export default function NeEksemScreen() {
         testID={`neeksem-urun-${r.cropId}`}
         accessibilityRole="button"
         accessibilityState={{ expanded: acikMi }}
+        ref={i === 0 ? hedefRef('neeksem.urun') : undefined}
         onPress={() => setAcik(acikMi ? null : r.cropId)}
-        style={[styles.urun, i === 0 && styles.urunBirinci]}
+        style={({ pressed }) => [
+          styles.urun,
+          i === 0 && styles.urunBirinci,
+          pressed && styles.basili,
+        ]}
       >
         <View style={styles.rowBetween}>
           <View style={styles.sira}>
@@ -299,6 +315,7 @@ export default function NeEksemScreen() {
       {/* Tarla seçici */}
       <Text style={styles.etiket}>Hangi tarla için?</Text>
       <ScrollView
+        ref={hedefRef('neeksem.tarla')}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.secRow}
@@ -322,10 +339,10 @@ export default function NeEksemScreen() {
         })}
       </ScrollView>
       <View style={styles.rowBetween}>
-        <Text style={styles.body} testID="neeksem-tarla">
+        <Text style={styles.tarlaAdi} testID="neeksem-tarla">
           {field.name}
         </Text>
-        {dto.badge ? <Badge label="Bilgi notu · uzman onayı bekliyor" /> : null}
+        {dto.badge ? <Badge label="Bilgi notu" /> : null}
       </View>
       <Text style={styles.small} testID="neeksem-bolge">
         {bolgeBasligi(dto)}
@@ -334,7 +351,7 @@ export default function NeEksemScreen() {
       {offline ? <Notice tone="warn">Sunucuya ulaşılamadı; son hesap gösteriliyor.</Notice> : null}
 
       {/* Özet kartı */}
-      <Card style={[styles.card, styles.koyu]} testID="neeksem-ozet">
+      <Card ref={hedefRef('neeksem.ozet')} style={[styles.card, styles.koyu]} testID="neeksem-ozet">
         <Text style={styles.koyuUst}>
           {dto.season} SEZONU · GÜVEN: {guvenMetni(dto.confidence).toUpperCase()}
         </Text>
@@ -352,7 +369,7 @@ export default function NeEksemScreen() {
       {/* İlk üç */}
       <Bolum title="Açığı en yüksek görünen 3 ürün">
         {ilkUc.length > 0 ? (
-          <Card style={styles.card}>
+          <Card ref={hedefRef('neeksem.halka')} style={styles.card}>
             <PayHalkasi paylar={paylar} adlar={ilkUc.map((r) => r.name)} />
             <Text style={styles.small}>
               Halka, ilk üçün sıralama puanı payını gösterir; verim ya da kazanç payı değildir.
@@ -365,7 +382,7 @@ export default function NeEksemScreen() {
       {/* Sıralama tablosu */}
       {kalan.length > 0 ? (
         <Bolum title="Sıralamanın devamı">
-          <Card style={styles.card} testID="neeksem-tablo">
+          <Card ref={hedefRef('neeksem.tablo')} style={styles.card} testID="neeksem-tablo">
             {(tumu ? kalan : kalan.slice(0, 3)).map((r, i) => (
               <View key={r.cropId} style={styles.satir}>
                 <Text style={styles.satirSira}>{i + 4}.</Text>
@@ -391,15 +408,15 @@ export default function NeEksemScreen() {
       {/* Kısıtlı ve verisiz */}
       {dto.restricted.length > 0 ? (
         <Bolum title="Yeni bahçe kısıtlı ürünler">
-          <Card style={styles.card} testID="neeksem-kisitli">
+          <Card ref={hedefRef('neeksem.kisitli')} style={styles.card} testID="neeksem-kisitli">
             {dto.restricted.map((r) => (
               <Text key={r.cropId} style={styles.small}>
                 · {r.name}: {r.bandLabel ?? 'denge verisi yok'}; {r.restricted?.rule}
               </Text>
             ))}
             <Text style={styles.small}>
-              Yeterliliği %150'yi aşan meyve türlerinde yeni bahçe tesisi izne bağlıdır (uzman onayı
-              bekleyen kural; il müdürlüğüne sor).
+              Yeterliliği %150'yi aşan meyve türlerinde yeni bahçe tesisi izne bağlıdır. Dikmeden
+              önce il ya da ilçe tarım müdürlüğüne sor.
             </Text>
           </Card>
         </Bolum>
@@ -407,7 +424,7 @@ export default function NeEksemScreen() {
 
       {/* Niyet */}
       <Bolum title="Ekim niyeti">
-        <Card style={styles.card} testID="neeksem-niyet-kart">
+        <Card ref={hedefRef('neeksem.niyet')} style={styles.card} testID="neeksem-niyet-kart">
           <Text style={styles.small}>
             Hangi ürüne kaç dekar ayırmayı düşünüyorsun? Beyanın bağlayıcı değildir; bölge toplamı
             herkese kişisiz gösterilir, böylece herkes aynı ürüne yığılmaz.
@@ -462,6 +479,7 @@ export default function NeEksemScreen() {
 
       {/* Kaynaklar */}
       <Pressable
+        ref={hedefRef('neeksem.neden')}
         accessibilityRole="button"
         onPress={() => setNeden((v) => !v)}
         style={styles.nedenDugme}
@@ -498,6 +516,8 @@ export default function NeEksemScreen() {
 const styles = StyleSheet.create({
   card: { gap: spacing.sm },
   body: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
+  tarlaAdi: { fontFamily: fontFamily.extrabold, fontSize: 19, color: colors.forest, flex: 1 },
+  basili: { transform: [{ translateY: 2 }], borderBottomWidth: 1.5, opacity: 0.94 },
   small: {
     fontFamily: fontFamily.medium,
     fontSize: fontSize.small,
@@ -513,14 +533,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  koyu: { backgroundColor: KOYU, borderRadius: radius.card, padding: spacing.lg },
+  // Özet kartı: koyu zemin, ışıklı kenar ve derin gölge (sayfanın en önemli kutusu).
+  koyu: {
+    backgroundColor: KOYU,
+    borderRadius: radius.card,
+    padding: spacing.lg,
+    borderColor: '#2E8C89',
+    borderTopColor: '#49A9A5',
+    borderBottomColor: '#0C3433',
+    borderBottomWidth: 4,
+    shadowColor: '#0B3B3C',
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
   koyuUst: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.caption,
     color: '#9FC9C3',
     letterSpacing: 1,
   },
-  koyuBaslik: { fontFamily: fontFamily.extrabold, fontSize: 20, color: '#FFFFFF' },
+  koyuBaslik: { fontFamily: fontFamily.extrabold, fontSize: 21, lineHeight: 27, color: '#FFFFFF' },
   koyuAlt: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: '#CFE7E2' },
   urun: {
     backgroundColor: colors.surface,
@@ -529,8 +563,18 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.lg,
     gap: 6,
+    borderBottomWidth: 3.5,
+    borderBottomColor: '#BFDCD7',
+    ...elevation.card,
   },
-  urunBirinci: { borderColor: colors.forest, borderWidth: 2 },
+  // Birinci ürün: kalın çerçeve ve daha derin gölge.
+  urunBirinci: {
+    borderColor: colors.forest,
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    borderBottomColor: '#14504F',
+    ...elevation.raised,
+  },
   sira: {
     width: 32,
     height: 32,
@@ -587,8 +631,9 @@ const styles = StyleSheet.create({
     borderColor: colors.forest,
     justifyContent: 'center',
     backgroundColor: colors.surface,
+    borderBottomWidth: 3,
   },
-  secAktif: { backgroundColor: colors.forest },
+  secAktif: { backgroundColor: colors.forest, borderBottomColor: '#14504F' },
   secYazi: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.forest },
   secYaziAktif: { color: '#FFFFFF' },
   giris: {

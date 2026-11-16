@@ -10,6 +10,7 @@ import {
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import { fontFamily } from '@tarim/ui';
 import { IMAGE_FILES, type ImageName } from '../assets';
+import { hedefRef } from '../tanitim/hedef';
 import { IMAGE_IS_PLACEHOLDER } from '../imageStatus.generated';
 
 export type HomeIconKey =
@@ -183,11 +184,17 @@ export function HomeIconButton({
   const usePng = IMAGE_IS_PLACEHOLDER[item.file] === false && !item.glyphOnly;
   return (
     <Pressable
+      ref={hedefRef(`ana.ikon.${item.key}`)}
       accessibilityRole="button"
       accessibilityLabel={badge && badge > 0 ? `${item.label}, ${badge} okunmamış` : item.label}
       testID={`ikon-${item.key}`}
       onPress={onPress}
-      style={[styles.touch, { marginHorizontal: (pitch - TOUCH) / 2 }, style]}
+      style={({ pressed }) => [
+        styles.touch,
+        { marginHorizontal: (pitch - TOUCH) / 2 },
+        style,
+        pressed && { transform: [{ scale: 0.92 }] },
+      ]}
     >
       {/* Gerçek ikon görseli beyaz daireyi kendi içerir: tam çapta çizilir. */}
       <View

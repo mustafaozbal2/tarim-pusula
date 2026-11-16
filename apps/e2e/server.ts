@@ -38,6 +38,10 @@ const MIME: Record<string, string> = {
   '.map': 'application/json',
 };
 
+// Uçtan uca testler onay düzeneğini (taslak > uzman onayı > yayın) sınar; canlıda onay kapalıdır
+// (apps/api/src/onay.ts). Kapalı kipin davranışı apps/api/src/onay.test.ts içinde sınanır.
+process.env['UZMAN_ONAYI'] ??= '1';
+
 async function main() {
   const db = new PgliteDb();
   const sms = new FakeSmsProvider();

@@ -110,7 +110,7 @@ export const MENU: { baslik: string; ogeler: MenuOgesi[]; vurgulu?: boolean }[] 
     baslik: 'Yapay zekâ',
     vurgulu: true,
     ogeler: [
-      { ad: 'Pusula Yapay Zekâ', rota: '/yapay-zeka', ikon: 'yz', etiket: 'Yeni' },
+      { ad: 'Nuvia (yapay zekâ)', rota: '/yapay-zeka', ikon: 'yz', etiket: 'Yeni' },
       { ad: 'İkiz Tarım (dijital ikiz)', rota: '/ikiz-tarim', ikon: 'ikiz', etiket: 'Yeni' },
       { ad: 'Ne Eksem? (arz-talep dengesi)', rota: '/ne-eksem', ikon: 'neeksem', etiket: 'Yeni' },
     ],

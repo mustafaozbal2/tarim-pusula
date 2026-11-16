@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Platform, Share, StyleSheet, Text, TextInput } from 'react-native';
@@ -141,7 +142,7 @@ export default function WalletScreen() {
       ) : null}
 
       <Text style={styles.section}>Hesabı sil</Text>
-      <Card style={{ gap: spacing.sm }} testID="hesap-sil-kart">
+      <Card style={{ gap: spacing.sm }} ref={hedefRef('cuzdan.sil')} testID="hesap-sil-kart">
         <Text style={styles.muted}>
           Hesabını silersen telefon numaran, arazilerin, sorun ve cevapların, notların, cihazların
           ve paylaşımların sunucudan kalıcı olarak silinir. Bu işlem geri alınamaz. Silmeden önce

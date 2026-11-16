@@ -1,3 +1,4 @@
+import { hedefRef } from '../../src/tanitim/hedef';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -25,7 +26,7 @@ export default function MapScreen() {
 
   return (
     <View style={styles.root}>
-      <View style={StyleSheet.absoluteFill}>
+      <View style={StyleSheet.absoluteFill} ref={hedefRef('harita.harita')}>
         <FieldMap
           testID="harita"
           center={start}
@@ -46,6 +47,7 @@ export default function MapScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t.zoomIn}
+          ref={hedefRef('harita.yakinlas')}
           testID="yakinlas"
           style={styles.zoomBtn}
           onPress={() => setZoom((z) => clampZoom(z + 1))}
@@ -65,7 +67,7 @@ export default function MapScreen() {
 
       <View style={styles.sheet}>
         <Text style={styles.sheetKicker}>{t.mapTitle}</Text>
-        <Text style={styles.sheetTitle} testID="harita-yer">
+        <Text style={styles.sheetTitle} ref={hedefRef('harita.yer')} testID="harita-yer">
           {draft.village ? `${draft.village} ${t.mapNearPlace}` : t.mapPickedPoint}
         </Text>
         <Text style={styles.sheetHint}>{marker ? t.mapHint : t.mapEmpty}</Text>

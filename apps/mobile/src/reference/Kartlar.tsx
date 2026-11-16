@@ -1,3 +1,4 @@
+import { hedefRef } from '../tanitim/hedef';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
@@ -44,7 +45,7 @@ export function KartListesi<T extends { id: string; ad: string }>(props: {
   return (
     <Screen title={props.title}>
       <SayfaGorseli image={props.image} text={props.hero} />
-      <View style={styles.search}>
+      <View style={styles.search} ref={hedefRef('liste.ara')}>
         <Icon name="target" size={18} color={colors.textMuted} />
         <TextInput
           accessibilityLabel={props.searchLabel}
@@ -57,7 +58,7 @@ export function KartListesi<T extends { id: string; ad: string }>(props: {
       </View>
       {failed ? <YuklemeHatasi onRetry={run} /> : null}
       {!failed && rows === null ? <Iskelet rows={3} /> : null}
-      <View style={styles.list} testID={props.testID}>
+      <View style={styles.list} ref={hedefRef('liste.kartlar')} testID={props.testID}>
         {shown.map((r) => (
           <View key={r.id} style={styles.card}>
             {props.render(r)}
@@ -65,7 +66,7 @@ export function KartListesi<T extends { id: string; ad: string }>(props: {
         ))}
         {rows && shown.length === 0 ? <Text style={styles.empty}>{tr.lists.empty}</Text> : null}
       </View>
-      <BilgiKarti title={props.howTitle} lines={props.howLines} />
+      <BilgiKarti ref={hedefRef('liste.nasil')} title={props.howTitle} lines={props.howLines} />
     </Screen>
   );
 }
@@ -120,8 +121,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: colors.surface,
     borderRadius: radius.pill,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
+    ...elevation.card,
   },
   input: {
     flex: 1,
@@ -138,6 +140,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     borderWidth: 1,
     borderColor: colors.border,
+    borderTopColor: '#EAF6F4',
+    borderBottomWidth: 3,
+    borderBottomColor: '#BFDCD7',
     ...elevation.card,
   },
   empty: { fontFamily: fontFamily.medium, fontSize: fontSize.small, color: colors.textMuted },

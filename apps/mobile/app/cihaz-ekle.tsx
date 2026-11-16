@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
@@ -98,7 +99,7 @@ export default function AddDeviceScreen() {
       ) : null}
       {field ? (
         <>
-          <Text style={styles.field} testID="cihaz-ekle-arazi">
+          <Text style={styles.field} ref={hedefRef('cihazekle.arazi')} testID="cihaz-ekle-arazi">
             {field.name}
           </Text>
           <Text style={styles.label}>{t.kindTitle}</Text>
@@ -130,11 +131,18 @@ export default function AddDeviceScreen() {
           ) : null}
           {method ? (
             <Card style={styles.form}>
-              <FormAlani label={t.name} value={name} onChangeText={setName} testID="cihaz-ad" />
+              <FormAlani
+                label={t.name}
+                value={name}
+                onChangeText={setName}
+                ref={hedefRef('cihazekle.ad')}
+                testID="cihaz-ad"
+              />
               <FormAlani
                 label={t.manufacturer}
                 value={manufacturer}
                 onChangeText={setManufacturer}
+                ref={hedefRef('cihazekle.uretici')}
                 testID="cihaz-uretici"
               />
               <FormAlani
@@ -148,6 +156,7 @@ export default function AddDeviceScreen() {
                   label={needsCode ? t.pairingCode : t.accountCode}
                   value={code}
                   onChangeText={setCode}
+                  ref={hedefRef('cihazekle.kod')}
                   testID="cihaz-kod"
                 />
               ) : null}
@@ -164,6 +173,7 @@ export default function AddDeviceScreen() {
           ) : null}
           <Button
             label={busy ? t.saving : t.save}
+            ref={hedefRef('cihazekle.kaydet')}
             testID="cihaz-kaydet"
             onPress={() => void submit()}
           />

@@ -40,7 +40,7 @@ test('İkiz Tarım: durum, senaryolar, sulama kaydı, neden kartı', async ({ pa
   await expect(page.getByTestId('ikiz-tarla')).toHaveText('Yayla zeytinliği');
   await expect(page.getByTestId('ikiz-durum')).toBeVisible();
   // Onaysız girdi: rozet var, öneri cümlesi "bilgi" der.
-  await expect(page.getByText('Bilgi notu · uzman onayı bekliyor')).toBeVisible();
+  await expect(page.getByText('Bilgi notu', { exact: true })).toBeVisible();
   await expect(page.getByTestId('ikiz-oneri')).toContainText('bilgi');
   for (const k of ['kural', 'bekle', 'kisintili', 'yok']) {
     await expect(page.getByTestId(`ikiz-senaryo-${k}`)).toBeVisible();

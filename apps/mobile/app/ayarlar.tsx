@@ -1,3 +1,5 @@
+import { tanitimSifirla } from '../src/tanitim/durum';
+import { hedefRef } from '../src/tanitim/hedef';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -53,6 +55,7 @@ export default function SettingsScreen() {
           icon="book"
           title={tr.wallet.open}
           hint={t.walletHint}
+          ref={hedefRef('ayar.cuzdan')}
           testID="ayar-veri-cuzdani"
           onPress={() => router.push('/veri-cuzdani')}
         />
@@ -61,6 +64,7 @@ export default function SettingsScreen() {
           icon="chip"
           title={tr.cks.open}
           hint={t.cksHint}
+          ref={hedefRef('ayar.cks')}
           testID="ayar-cks"
           onPress={() => router.push('/entegrasyonlar')}
         />
@@ -69,6 +73,7 @@ export default function SettingsScreen() {
           icon="bell"
           title={tr.reminders.open}
           hint={t.reminderHint}
+          ref={hedefRef('ayar.hatirlatici')}
           testID="ayar-hatirlatici"
           onPress={() => router.push('/hatirlaticilar')}
         />
@@ -80,6 +85,7 @@ export default function SettingsScreen() {
           icon="book"
           title={tr.resmiKaynak.open}
           hint={tr.resmiKaynak.hint}
+          ref={hedefRef('ayar.kaynak')}
           testID="ayar-resmi-kaynaklar"
           onPress={() => router.push('/resmi-kaynaklar')}
         />
@@ -102,6 +108,7 @@ export default function SettingsScreen() {
       <Card style={styles.card}>
         <Text style={styles.label}>{t.voice}</Text>
         <SekmeAnahtari<'on' | 'off'>
+          ref={hedefRef('ayar.ses')}
           testID="ayar-ses"
           value={s.voiceGuide ? 'on' : 'off'}
           onChange={(v) => void updateSettings({ voiceGuide: v === 'on' })}
@@ -113,7 +120,7 @@ export default function SettingsScreen() {
         <Text style={styles.hint}>{t.voiceHint}</Text>
       </Card>
 
-      <Card style={styles.card} testID="ayar-hakkinda">
+      <Card style={styles.card} ref={hedefRef('ayar.hakkinda')} testID="ayar-hakkinda">
         <Text style={styles.label}>{t.about}</Text>
         <Pressable
           accessibilityRole="button"
@@ -136,6 +143,7 @@ export default function SettingsScreen() {
         <Button
           label={t.updateCheck}
           variant="secondary"
+          ref={hedefRef('ayar.guncelle')}
           testID="ayar-guncelle"
           onPress={update === 'bekliyor' ? undefined : checkUpdate}
         />
@@ -165,6 +173,7 @@ export default function SettingsScreen() {
       <Card style={styles.card}>
         <Text style={styles.label}>{t.textSize}</Text>
         <SekmeAnahtari<TextSize>
+          ref={hedefRef('ayar.yazi')}
           testID="ayar-yazi-boyutu"
           value={s.textSize}
           onChange={(v) => void updateSettings({ textSize: v })}
@@ -175,7 +184,26 @@ export default function SettingsScreen() {
         />
       </Card>
 
+      <Card style={styles.card}>
+        <Text style={styles.label}>Uygulama tanıtımı</Text>
+        <Text style={styles.hint}>
+          Karşılama kartını ve her sayfanın adım adım anlatımını ilk girişteki gibi yeniden
+          gösterir. Tek bir sayfayı yeniden anlatmak için o sayfanın üstündeki mavi ampule dokunman
+          yeter.
+        </Text>
+        <Button
+          ref={hedefRef('ayar.tanitim')}
+          label="Tanıtımı baştan göster"
+          variant="secondary"
+          testID="ayar-tanitim"
+          onPress={() => {
+            void tanitimSifirla().then(() => router.replace('/'));
+          }}
+        />
+      </Card>
+
       <Button
+        ref={hedefRef('ayar.cikis')}
         label={t.logout}
         variant="danger"
         onPress={() => {

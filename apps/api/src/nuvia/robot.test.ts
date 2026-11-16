@@ -110,3 +110,44 @@ describe('robot/foto', () => {
     ).toBe('yedek');
   });
 });
+
+describe('yapay zekâ cevabını bildirme (G36, Play politikası)', () => {
+  it('bildirim kaydedilir; yalnız sahibi ve yönetici okur; dakikada 6 bildirimden sonrası alınmaz', async () => {
+    const { DataService } = await import('../data.service');
+    const { migrate, PgliteDb, systemTx, userTx } = await import('../db/db');
+    const db = new PgliteDb();
+    await migrate(db);
+    const [ali, veli] = await systemTx(db, (q) =>
+      q.query<{ id: string }>(
+        `INSERT INTO users(phone) VALUES ('+905320000091'), ('+905320000092') RETURNING id`,
+      ),
+    );
+    const c = new RobotController(new KapaliNuvia(), new DataService(db as never));
+    const aliMe = { userId: ali!.id, roles: ['farmer'] };
+    const r = await c.bildir(aliMe, {
+      mesaj: 'Zeytine şu ilacı at.',
+      neden: 'yanlis',
+      not: 'İlaç adı vermemeliydi',
+    });
+    expect(r).toEqual({ alindi: true });
+    const satirlar = await systemTx(db, (q) =>
+      q.query<{ user_id: string; reason: string; message: string }>(
+        `SELECT user_id, reason, message FROM yz_bildirimleri`,
+      ),
+    );
+    expect(satirlar).toEqual([
+      { user_id: ali!.id, reason: 'yanlis', message: 'Zeytine şu ilacı at.' },
+    ]);
+    // Başka çiftçi bu kaydı göremez (satır güvenliği).
+    const baskasi = await userTx(db, { userId: veli!.id, roles: ['farmer'] }, (q) =>
+      q.query(`SELECT id FROM yz_bildirimleri`),
+    );
+    expect(baskasi).toEqual([]);
+    // Geçersiz neden reddedilir.
+    await expect(c.bildir(aliMe, { mesaj: 'x', neden: 'keyfi' })).rejects.toThrow();
+    // Sınır: aynı dakikada 6 bildirim (ilki yukarıda), yedincisi alınmaz.
+    for (let i = 0; i < 5; i++)
+      expect((await c.bildir(aliMe, { mesaj: `m${i}`, neden: 'diger' })).alindi).toBe(true);
+    expect((await c.bildir(aliMe, { mesaj: 'fazla', neden: 'diger' })).alindi).toBe(false);
+  }, 60_000);
+});

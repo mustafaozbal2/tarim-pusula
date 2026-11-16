@@ -3,7 +3,7 @@
     "name": "Tarım Pusula",
     "slug": "tarim-pusula",
     "scheme": "tarimpusula",
-    "version": "0.3.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "plugins": [
@@ -105,9 +105,7 @@
       }
     },
     "owner": "kumsal27s-team",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "0.3.0",
     "updates": {
       "url": "https://u.expo.dev/eeedaf04-d003-4304-acbc-081656c29df5",
       "checkAutomatically": "ON_LOAD",

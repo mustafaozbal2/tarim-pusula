@@ -532,6 +532,12 @@ export interface AnnouncementDto {
   auto?: boolean;
   /** Resmi sitedeki https görsel. */
   imageUrl?: string | null;
+  /** Slayt kategorisi: guncel, bilgilendirme, yonlendirme (hibe/destek/başvuru), onlem, teknoloji. */
+  category?: string | null;
+  /** G36: metinden bulunan başvuru son günü (YYYY-MM-DD). */
+  applyUntil?: string | null;
+  /** G36: ülke geneli duyuru (TÜİK, TKDK...): yerel haberlerin arkasına sıralanır. */
+  nationwide?: boolean;
 }
 
 export interface CalendarEventDto {
@@ -929,6 +935,12 @@ export function createApi(opts: ApiOptions) {
       il?: string | null;
       gorsel: { mime: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string };
     }) => request<{ cevap: string; kaynak: string }>('POST', '/robot/foto', body),
+    /** Yapay zekâ cevabını bildir (yanlış, sakıncalı, zararlı): yönetim panelinde incelenir. */
+    robotBildir: (body: {
+      mesaj: string;
+      neden: 'yanlis' | 'sakincali' | 'zararli' | 'diger';
+      not?: string | null;
+    }) => request<{ alindi: boolean }>('POST', '/robot/bildir', body),
     robotSes: (metin: string) =>
       request<{ ses: { mime: string; ses_b64: string } | null }>('POST', '/robot/ses', { metin }),
     nearbyCreateCode: () => request<{ code: string; expiresAt: string }>('POST', '/nearby/codes'),

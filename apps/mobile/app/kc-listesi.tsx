@@ -37,7 +37,7 @@ export default function KcListScreen() {
             <View style={kartStil.head}>
               <Text style={kartStil.name}>{r.nameTr}</Text>
               <Text style={[kartStil.tag, !r.needsBadge && kartStil.tagOk]}>
-                {r.needsBadge ? 'Taslak' : 'Onaylı'}
+                {r.needsBadge ? 'Taslak' : 'FAO-56'}
               </Text>
             </View>
             {level ? <Text style={kartStil.hint}>{t.kcLevel[level]}</Text> : null}

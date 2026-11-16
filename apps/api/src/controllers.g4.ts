@@ -79,6 +79,9 @@ const ANN_LIST_COLS = ANN_COLS.replace(
 
 const iso = (v: Date | string) => new Date(v).toISOString();
 
+/** Bir tarlaya en çok bu kadar duyuru döner (en yeniler). */
+const EN_COK_DUYURU = 80;
+
 /** Bugünün tarihi Türkiye saatiyle (UTC+3, sabit; G3 ile aynı kabul). */
 export function trToday(now: Date): string {
   return new Date(now.getTime() + 3 * 3600_000).toISOString().slice(0, 10);
@@ -156,39 +159,60 @@ export class FieldCalendarController {
     };
   }
 
-  /** Yalnız bu tarlayla eşleşen, yayında olan duyurular. Başka ilin duyurusu hiç dönmez. */
+  /**
+   * Yalnız bu tarlayla eşleşen, yayında olan duyurular. Başka ilin duyurusu hiç dönmez.
+   * Hız (G36): süresi dolmuş ve reddedilmiş kayıtlar veritabanında elenir; gömülü fotoğraf (300 KB'a kadar
+   * veri adresi) yalnız tarlayla eşleşen kayıtlar için ikinci sorguda okunur. Önceden her istekte en yeni
+   * 500 duyurunun fotoğrafı da çekiliyordu; ana sayfa bunu her arazi için ayrı ayrı istiyordu.
+   */
   @Get(':id/announcements')
   async announcements(@Me() me: Principal, @Param('id') id: string) {
-    const { f, site, extra } = await this.loadField(me, 'fields.announcements', id, (q) =>
-      q.query<AnnouncementRow>(
-        `SELECT ${ANN_COLS} FROM announcements ORDER BY published_at DESC LIMIT 500`,
-      ),
-    );
     const now = this.now();
-    const cards = (extra as AnnouncementRow[])
-      .filter(
-        (a) =>
-          a.reviewStatus !== 'reddedildi' && isActive(a, now) && matchesField(a.targeting, site),
-      )
-      .map((a) => ({
-        id: a.id,
-        sourceOrg: a.sourceOrg,
-        title: a.title,
-        body: a.body,
-        sourceUrl: a.sourceUrl,
-        publishedAt: iso(a.publishedAt),
-        expiresAt: a.expiresAt ? iso(a.expiresAt) : null,
-        version: a.version,
-        imageDataUrl: a.imageDataUrl,
-        category: a.category ?? null,
-        auto: a.auto === true,
-        imageUrl: a.imageUrl ?? null,
-        applyUntil: a.applyUntil ?? null,
-        // Ülke geneli (hedef yeri olmayan) duyuru: ekranda yerel haberlerin arkasına sıralanır.
-        nationwide: (a.targeting.places ?? []).length === 0 && !a.targeting.circle,
-        needsBadge: needsDraftBadge(a.reviewStatus),
-        why: explainMatch(a.targeting, site),
-      }));
+    const { f, site, extra } = await this.loadField(
+      me,
+      'fields.announcements',
+      id,
+      async (q, s) => {
+        const rows = await q.query<AnnouncementRow & { hasImage: boolean }>(
+          `SELECT ${ANN_LIST_COLS} FROM announcements
+         WHERE review_status <> 'reddedildi' AND published_at <= $1
+           AND (expires_at IS NULL OR expires_at > $1)
+         ORDER BY published_at DESC LIMIT 800`,
+          [now],
+        );
+        const uyan = rows
+          .filter((a) => isActive(a, now) && matchesField(a.targeting, s))
+          .slice(0, EN_COK_DUYURU);
+        const gorselli = uyan.filter((a) => a.hasImage).map((a) => a.id);
+        const gorseller = gorselli.length
+          ? await q.query<{ id: string; imageDataUrl: string }>(
+              `SELECT id, image_data_url AS "imageDataUrl" FROM announcements WHERE id = ANY($1::uuid[])`,
+              [gorselli],
+            )
+          : [];
+        const gorselOf = new Map(gorseller.map((g) => [g.id, g.imageDataUrl]));
+        return uyan.map((a) => ({ ...a, imageDataUrl: gorselOf.get(a.id) ?? null }));
+      },
+    );
+    const cards = (extra as AnnouncementRow[]).map((a) => ({
+      id: a.id,
+      sourceOrg: a.sourceOrg,
+      title: a.title,
+      body: a.body,
+      sourceUrl: a.sourceUrl,
+      publishedAt: iso(a.publishedAt),
+      expiresAt: a.expiresAt ? iso(a.expiresAt) : null,
+      version: a.version,
+      imageDataUrl: a.imageDataUrl,
+      category: a.category ?? null,
+      auto: a.auto === true,
+      imageUrl: a.imageUrl ?? null,
+      applyUntil: a.applyUntil ?? null,
+      // Ülke geneli (hedef yeri olmayan) duyuru: ekranda yerel haberlerin arkasına sıralanır.
+      nationwide: (a.targeting.places ?? []).length === 0 && !a.targeting.circle,
+      needsBadge: needsDraftBadge(a.reviewStatus),
+      why: explainMatch(a.targeting, site),
+    }));
     return { fieldId: f.id, announcements: cards };
   }
 }

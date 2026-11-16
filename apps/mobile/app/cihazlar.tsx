@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
@@ -50,14 +51,14 @@ export default function DevicesScreen() {
   return (
     <Screen title={t.title}>
       {field ? (
-        <Text style={styles.field} testID="cihazlar-arazi">
+        <Text style={styles.field} ref={hedefRef('cihaz.arazi')} testID="cihazlar-arazi">
           {field.name}
         </Text>
       ) : null}
       {devices === null ? <Durum kind="yukleniyor" text={tr.today.loading} /> : null}
       {devices?.length === 0 ? <Durum kind="bos" text={t.empty} /> : null}
       {devices?.map((d) => (
-        <Card key={d.id} style={styles.card} testID="cihaz-karti">
+        <Card key={d.id} style={styles.card} ref={hedefRef('cihaz.kart')} testID="cihaz-karti">
           <Text style={styles.name}>{d.name}</Text>
           {deviceLines(d).map((l) => (
             <Text key={l} style={styles.small}>
@@ -86,6 +87,7 @@ export default function DevicesScreen() {
       ))}
       <Button
         label={t.add}
+        ref={hedefRef('cihaz.ekle')}
         testID="cihaz-ekle-dugme"
         onPress={() => router.push({ pathname: '/cihaz-ekle', params: { fieldId: field?.id } })}
       />

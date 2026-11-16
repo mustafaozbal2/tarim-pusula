@@ -15,6 +15,8 @@ export interface ButtonStyle {
   backgroundColor: string;
   borderColor: string;
   textColor: string;
+  /** Kabartma: düğmenin alt kenarındaki koyu şerit (basılınca incelir). */
+  edgeColor: string;
 }
 
 const variants: Record<ButtonVariant, Omit<ButtonStyle, 'minHeight'>> = {
@@ -22,14 +24,26 @@ const variants: Record<ButtonVariant, Omit<ButtonStyle, 'minHeight'>> = {
     backgroundColor: colors.forest,
     borderColor: colors.forest,
     textColor: colors.onForest,
+    edgeColor: '#14504F',
   },
   secondary: {
     backgroundColor: colors.pistachio,
     borderColor: colors.border,
     textColor: colors.pistachioText,
+    edgeColor: '#B4D8D2',
   },
-  danger: { backgroundColor: colors.brick, borderColor: colors.brick, textColor: '#FFFFFF' },
-  water: { backgroundColor: colors.water, borderColor: colors.water, textColor: '#FFFFFF' },
+  danger: {
+    backgroundColor: colors.brick,
+    borderColor: colors.brick,
+    textColor: '#FFFFFF',
+    edgeColor: '#7E1335',
+  },
+  water: {
+    backgroundColor: colors.water,
+    borderColor: colors.water,
+    textColor: '#FFFFFF',
+    edgeColor: '#123F56',
+  },
 };
 
 export function buttonStyle(

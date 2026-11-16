@@ -15,7 +15,7 @@ export const tr = {
   },
   today: {
     autoNote:
-      'Bu duyuru resmi kurum sitesinden otomatik alındı; uzman onayından geçmedi. Başvuru ve ayrıntı için özgün sayfayı aç.',
+      'Bu haber resmî kurum sitesinden alındı ve Nuvia tarafından özetlendi. Başvuru ve ayrıntı için özgün sayfayı aç.',
     openSource: 'Kaynağı aç',
     noField: 'Henüz tarla eklemedin.',
     noFieldHint: 'Hava ve don bilgisi için önce tarlanı ekle.',
@@ -155,7 +155,7 @@ export const tr = {
     now: 'Şu an',
     donGorunum: 'Gelecek 7 gece',
     donNot:
-      'Olasılık, onaylı kritik sıcaklık ve hava modeli topluluğundan hesaplanır; tahmindir. Onaylı eşik yoksa yalnız tahmin edilen sıcaklık gösterilir.',
+      'Olasılık, ürünün kritik sıcaklığı ve hava modeli topluluğundan hesaplanır; tahmindir. Ürün için kritik sıcaklık yoksa yalnız tahmin edilen sıcaklık gösterilir.',
     forecast: '7 günlük tahmin',
     day: 'Gün',
     minMax: 'En düşük / en yüksek',
@@ -495,12 +495,12 @@ export const tr = {
     hint: 'Duyuruları hangi resmi sitelerden aldığımızı gör',
     title: 'Resmi kaynaklar',
     intro:
-      'Tarım Pusula, il ve ilçe tarım müdürlüklerinin resmi sitelerini günde birkaç kez okur; arazine uyan yeni haber ve duyuruyu kartlarda özgün bağlantısıyla gösterir. Siteler kendi kurallarına (robots.txt) uyularak taranır.',
+      'Tarım Pusula, il tarım müdürlüklerinin, TÜİK’in, TKDK’nin, TİGEM’in ve araştırma enstitülerinin resmî sitelerini günde 5 kez okur; arazine uyan yeni haber ve duyuruyu kartlarda özgün bağlantısıyla gösterir. Siteler kendi kurallarına (robots.txt) uyularak taranır.',
     open2: 'Siteyi aç',
     never: 'Henüz taranmadı',
     lastCheck: 'Son kontrol',
     empty: 'Kaynak listesi alınamadı.',
-    note: 'Bu duyurular uzman onayından geçmeden, olduğu gibi alınır; kartında "otomatik alındı" yazar. Başvuru ve ayrıntı için her zaman özgün sayfaya bak.',
+    note: 'Haberler bu sitelerden günde 5 kez alınır ve Nuvia tarafından özetlenir; her kartta kaynağı ve özgün bağlantısı yazar. Başvuru ve ayrıntı için her zaman özgün sayfaya bak.',
   },
   asistan: {
     name: 'Nuvia',
@@ -701,9 +701,9 @@ export const tr = {
     intro: 'Önümüzdeki aylarda ürününe göre yapılacak işler.',
     nowTitle: 'Şimdi',
     soonTitle: 'Yaklaşan',
-    empty: 'Bu ürün için uzman onaylı iş takvimi henüz hazır değil.',
+    empty: 'Bu ürün için hazır iş takvimi henüz yüklenmedi.',
     emptyHint:
-      'Onaylanınca budama, gübreleme ve hasat gibi işler burada ay ay görünür. Şimdilik sorunu uzmana sorabilirsin.',
+      'Takvimde bir güne dokunup kendi notunu ekleyebilirsin; o gün ve 1-2 gün önce bildirim gelir. Başvuru son günleri ana sayfada Faaliyet Zamanı sekmesinde görünür.',
     askExpert: 'Uzmana sor',
     noCrop: 'Takvim için tarlanın ürününü seç.',
     noField: 'Önce bir tarla ekle.',
@@ -750,7 +750,7 @@ export const tr = {
     error: 'Bilgi alınamadı. İnternet gelince tekrar dene.',
     why: 'Neden?',
     whyBody:
-      'Sentinel-2 uydusunun kırmızı ve yakın kızılötesi ışık ölçümünden hesaplanan NDVI değeri. Bulutlu pikseller çıkarılır. Düşüş kuralı (son ölçüm, önceki dört ölçümün ortancasından 0,15 düşükse) henüz uzman onaylı değildir; yalnız ipucu verir.',
+      'Sentinel-2 uydusunun kırmızı ve yakın kızılötesi ışık ölçümünden hesaplanan NDVI değeri. Bulutlu pikseller çıkarılır. Düşüş kuralı (son ölçüm, önceki dört ölçümün ortancasından 0,15 düşükse) yalnız ipucu verir; kesin teşhis değildir.',
     source: 'Kaynak',
     nextField: 'Başka tarla seç',
     howTitle: 'Bu ekran nasıl okunur?',
@@ -758,7 +758,7 @@ export const tr = {
       'Yeşillik değeri (NDVI) 0 ile 1 arasında okunur; yüksek değer sık ve yeşil bitki örtüsü demektir.',
       'Uydu: Sentinel-2, yaklaşık 5 günde bir geçer. Bulutlu günlerin ölçümü gösterilmez.',
       'Kaynak: Copernicus Data Space. Her ölçümün tarihi grafikte yazılıdır.',
-      'Düşüş ipucu uzman onaylı değildir; uyarı ya da öneri üretmez, yalnız bilgidir.',
+      'Düşüş ipucu kesin teşhis değildir; tarlaya gidip bakman için bir işarettir.',
     ],
     stepsTitle: 'Sınır nereden gelir?',
     steps: [
@@ -847,29 +847,27 @@ export const tr = {
       çok: 'Büyüyünce çok su içer.',
     },
     kcSearch: 'Bitki ara',
-    kcNote:
-      'Kc: bitkinin su ihtiyacı katsayısı. Kaynak: FAO-56. Taslak değerler karar için kullanılmaz.',
+    kcNote: 'Kc: bitkinin su ihtiyacı katsayısı. Kaynak: FAO-56.',
     kcHow: 'Kc nasıl okunur?',
     kcHowLines: [
       'Kartlardaki sayıya Kc denir. 1 ise bitki kısa çim kadar su içer; 1,2 ise biraz daha fazla.',
       'Bitkinin günlük su ihtiyacı (ETc) = Kc × referans buharlaşma (ET0). Örnek: Kc 0,70 ve ET0 5 mm ise ETc 3,5 mm.',
       'Kc ilk: gelişme başı, Kc orta: tam gelişme, Kc son: olgunlaşma dönemi değeridir.',
-      'Kaynak: FAO-56, Tablo 12. Onaylanmamış değer "Taslak" yazar; hesapta ve önerilerde kullanılmaz.',
+      'Kaynak: FAO-56, Tablo 12 (Birleşmiş Milletler Gıda ve Tarım Örgütü sulama el kitabı).',
     ],
     soilHow: 'Değerler nasıl okunur?',
     soilHowLines: [
       'Tarla kapasitesi (θFC): yağış ya da sulamadan sonra toprağın tuttuğu en çok su oranı.',
       'Solma noktası (θWP): bitkinin topraktan su alamadığı oranın altı.',
       'Faydalı su (mm/m) = 1000 × (θFC − θWP). Kök derinliği 1 m ise bitkinin kullanabileceği su miktarıdır.',
-      'Kaynak: FAO-56, Tablo 19 (aralık orta değeri). Taslak değerler hesapta kullanılmaz.',
+      'Kaynak: FAO-56, Tablo 19 (aralık orta değeri).',
     ],
     whc: 'Faydalı su (mm/m)',
     soilTitle: 'Toprak türleri',
     soilHero: 'Toprağını elinde sık: dağılıyor mu, top mu oluyor? Kartlardan toprağını bul.',
     holdsWater: 'Suyu tutması:',
     soilSearch: 'Toprak türü ara',
-    soilNote:
-      'Tarla kapasitesi ve solma noktası hacim oranıdır (m³/m³). Taslak değerler karar için kullanılmaz.',
+    soilNote: 'Tarla kapasitesi ve solma noktası hacim oranıdır (m³/m³).',
     plant: 'Bitki türü',
     soil: 'Toprak türü',
     fc: 'Tarla kapasitesi',

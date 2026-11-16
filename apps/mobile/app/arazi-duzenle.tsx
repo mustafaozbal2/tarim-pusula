@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -126,6 +127,7 @@ export default function FieldEditScreen() {
                 accessibilityRole="button"
                 accessibilityState={{ selected: f.id === id }}
                 accessibilityLabel={f.name}
+                ref={hedefRef('duzenle.arazi')}
                 testID="duzenle-arazi"
                 onPress={() => setId(f.id)}
                 style={[styles.pick, f.id === id && styles.pickOn]}
@@ -158,12 +160,19 @@ export default function FieldEditScreen() {
       {field && !removing ? (
         <>
           <Card style={styles.form}>
-            <FormAlani label={t.name} value={name} onChangeText={setName} testID="duzenle-ad" />
+            <FormAlani
+              label={t.name}
+              value={name}
+              onChangeText={setName}
+              ref={hedefRef('duzenle.ad')}
+              testID="duzenle-ad"
+            />
             <FormAlani
               label={t.area}
               value={area}
               onChangeText={setArea}
               keyboardType="numeric"
+              ref={hedefRef('duzenle.alan')}
               testID="duzenle-alan"
             />
             <FormAlani
@@ -184,6 +193,7 @@ export default function FieldEditScreen() {
           </Bolum>
           <Button
             label={busy ? t.saving : t.save}
+            ref={hedefRef('duzenle.kaydet')}
             testID="duzenle-kaydet"
             onPress={busy ? undefined : () => void save()}
           />

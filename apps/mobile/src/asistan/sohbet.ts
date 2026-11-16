@@ -438,7 +438,7 @@ async function serbest(g: string, o: Ortam, son?: string): Promise<Adim> {
         robot(
           t.length
             ? `Yaklaşan işlerin:\n${t.map((x) => `• ${x}`).join('\n')}`
-            : 'Şu an için onaylı bir iş kaydı yok. İstersen uzmana sorabilirsin.',
+            : 'Şu an için takvimde kayıtlı bir iş yok. İstersen uzmana sorabilirsin.',
         ),
       ],
     };

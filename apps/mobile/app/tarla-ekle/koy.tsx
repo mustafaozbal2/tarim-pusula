@@ -1,3 +1,4 @@
+import { hedefRef } from '../../src/tanitim/hedef';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
@@ -117,6 +118,7 @@ export default function VillageScreen() {
           <Text style={subtitleStyle}>{t.otherProvince}</Text>
           <TextInput
             accessibilityLabel={t.otherProvince}
+            ref={hedefRef('koy.il')}
             testID="il-ara"
             value={query}
             onChangeText={setQuery}

@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -102,6 +103,7 @@ export default function CalendarScreen() {
       footer={
         res.fields.length > 1 ? (
           <Button
+            ref={hedefRef('takvim.sonraki')}
             label={t.nextField}
             variant="secondary"
             onPress={() => void load(nextFieldId(res.fields, field.id))}
@@ -111,7 +113,7 @@ export default function CalendarScreen() {
     >
       {header}
       <SayfaGorseli image="kart_7.jpg" focusY={0.22} text={t.intro} />
-      <Text style={styles.body} testID="takvim-tarla">
+      <Text style={styles.body} ref={hedefRef('takvim.tarla')} testID="takvim-tarla">
         {field.name}
       </Text>
       {res.offline ? <Notice tone="warn">{t.offline}</Notice> : null}
@@ -120,7 +122,7 @@ export default function CalendarScreen() {
           {t.noCrop}
         </Text>
       ) : approved.length === 0 ? (
-        <Card testID="takvim-bos" style={styles.emptyCard}>
+        <Card ref={hedefRef('takvim.bos')} testID="takvim-bos" style={styles.emptyCard}>
           <Text style={styles.body}>{t.empty}</Text>
           <Text style={styles.small}>{t.emptyHint}</Text>
           <Button
@@ -130,18 +132,21 @@ export default function CalendarScreen() {
           />
         </Card>
       ) : null}
-      <MonthView
-        events={approved}
-        today={data.today}
-        notlar={notlar}
-        notEkle={(tarih, metin) => void notEkle(kv, tarih, metin).then(setNotlar)}
-        notSil={(id) => void notSil(kv, id).then(setNotlar)}
-      />
+      <View ref={hedefRef('takvim.ay')} collapsable={false}>
+        <MonthView
+          events={approved}
+          today={data.today}
+          notlar={notlar}
+          notEkle={(tarih, metin) => void notEkle(kv, tarih, metin).then(setNotlar)}
+          notSil={(id) => void notSil(kv, id).then(setNotlar)}
+        />
+      </View>
       {/* Aktarılacak iş yokken telefona ekle/paylaş düğmeleri gösterilmez. */}
       {approved.length > 0 ? (
         <View style={styles.exportRow}>
           <Button
             label={t.addToPhone}
+            ref={hedefRef('takvim.telefon')}
             testID="takvim-telefona-ekle"
             onPress={() =>
               void addEventsToPhoneCalendar(approved, field.name).then((r) =>
@@ -152,6 +157,7 @@ export default function CalendarScreen() {
           <Button
             label={t.shareIcs}
             variant="secondary"
+            ref={hedefRef('takvim.paylas')}
             testID="takvim-ics"
             onPress={() =>
               void shareIcs(approved, field.name).then((r) => setExportMsg(exportText(r)))
@@ -165,7 +171,7 @@ export default function CalendarScreen() {
         </View>
       ) : null}
       {groups.now.length > 0 ? (
-        <View style={styles.group} testID="takvim-simdi">
+        <View style={styles.group} ref={hedefRef('takvim.simdi')} testID="takvim-simdi">
           <Text accessibilityRole="header" style={styles.groupTitle}>
             {t.nowTitle}
           </Text>
@@ -175,7 +181,7 @@ export default function CalendarScreen() {
         </View>
       ) : null}
       {groups.soon.length > 0 ? (
-        <View style={styles.group} testID="takvim-yaklasan">
+        <View style={styles.group} ref={hedefRef('takvim.yaklasan')} testID="takvim-yaklasan">
           <Text accessibilityRole="header" style={styles.groupTitle}>
             {t.soonTitle}
           </Text>

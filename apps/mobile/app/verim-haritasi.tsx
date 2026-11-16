@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -66,7 +67,7 @@ export default function YieldMapScreen() {
         ) : null}
         {info ? (
           <>
-            <KartIzgara testID="verim-bolge-urunleri">
+            <KartIzgara ref={hedefRef('verim.urunler')} testID="verim-bolge-urunleri">
               {info.crops.map((id, i) => {
                 const c = crops[id];
                 const g = CROP_GROUPS[c?.group ?? ''] ?? { color: colors.forest, label: '' };
@@ -95,7 +96,7 @@ export default function YieldMapScreen() {
       </Bolum>
 
       <Bolum title={t.wheatTitle}>
-        <Card style={styles.chart} testID="verim-bugday">
+        <Card style={styles.chart} ref={hedefRef('verim.bugday')} testID="verim-bugday">
           {WHEAT_YIELD.rows.map((r) => (
             <View key={r.label} style={styles.barRow}>
               <Text style={styles.barLabel}>{r.label}</Text>

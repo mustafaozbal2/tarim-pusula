@@ -10,6 +10,8 @@ Yapıldı (depoda):
 - [x] PL-6 simge, öne çıkan görsel, metinler. Ekran görüntüleri cihazdan alınacak.
 - [x] PL-7 `INCELEME_ERISIMI.md`, `PLAY_INCELEME_TELEFON` (varsayılan kapalı).
 - [x] PL-8 `GELIR_ALTYAPI.md`.
+- [x] PL-9 (G36) Yapay zekâ ile üretilen içerik politikası: sohbette her yapay zekâ cevabının altında "Cevabı bildir" (bilgi yanlış / uygunsuz içerik / zarar verebilir); `POST /robot/bildir`, `yz_bildirimleri` tablosu, yönetim panelinde "Bildirilen Yapay Zekâ Cevapları". Resmî site haberleri Nuvia tarafından özetlenir ve her kartta "Kaynağı aç" ile özgün sayfa verilir.
+- [x] PL-10 (G36) Sürüm 1.0.0; `runtimeVersion` 0.3.0 sabit (yerel kod değişmedi). Play AAB'si `eas build -p android --profile production` ile alınır; `versionCode` EAS'ta kendiliğinden artar.
 
 Sahibinin yapacakları: Play Console hesabı/doğrulama; iletişim e-postasını `site/gizlilik.html` ve `site/hesap-sil.html` içine yaz; amblem/ikon/çiftçi çizimi sahipliğini `TELIF.md`'de teyit et; AAB için `eas build -p android --profile production` (Expo hesabı/anahtar gerekir, bu turda çalıştırılmadı); yükleme anahtarını yedekle; içerik derecelendirme anketi; ekran görüntüleri; iç test kanalı.
 Açık risk: haritada altlık sağlayıcısı atfı; Open-Meteo ticari kullanım; "Sağlık/tarım tavsiyesi" şikâyetine karşı yapay zekâ uyarısı uygulamada var.

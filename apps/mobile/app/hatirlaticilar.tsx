@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
@@ -62,7 +63,16 @@ export default function RemindersScreen() {
   const decisions = result?.data ? [result.data.moisture, result.data.daily] : [];
 
   return (
-    <FlowScreen footer={<Button label={t.save} onPress={() => void save()} testID="hat-kaydet" />}>
+    <FlowScreen
+      footer={
+        <Button
+          label={t.save}
+          onPress={() => void save()}
+          ref={hedefRef('hat.kaydet')}
+          testID="hat-kaydet"
+        />
+      }
+    >
       <FlowHeader title={t.title} />
       <Text style={styles.muted}>{t.intro}</Text>
       {info ? <Notice>{info}</Notice> : null}
@@ -81,6 +91,7 @@ export default function RemindersScreen() {
         <Text style={styles.muted}>{t.threshold}</Text>
         <TextInput
           accessibilityLabel={t.threshold}
+          ref={hedefRef('hat.esik')}
           testID="hat-esik"
           style={styles.input}
           keyboardType="decimal-pad"
@@ -102,6 +113,7 @@ export default function RemindersScreen() {
         <Text style={styles.muted}>{t.hour}</Text>
         <TextInput
           accessibilityLabel={t.hour}
+          ref={hedefRef('hat.saat')}
           testID="hat-saat"
           style={styles.input}
           keyboardType="number-pad"
@@ -137,6 +149,7 @@ export default function RemindersScreen() {
       <Button
         label={busy ? t.checking : t.check}
         variant="secondary"
+        ref={hedefRef('hat.kontrol')}
         testID="hat-kontrol"
         onPress={() => void check()}
       />

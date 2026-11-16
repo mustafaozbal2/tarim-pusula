@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -73,7 +74,10 @@ export default function NotificationsScreen() {
     });
     if (n.id.startsWith('uzman-')) void api.inboxRead().catch(() => undefined);
     const hedef = bildirimHedefi(n.id);
-    if (hedef) router.push(hedef as never);
+    // Haber bildirimi o haberi açar (kimliksiz açılınca "haber bulunamadı" çıkıyordu).
+    if (n.id.startsWith('duyuru-'))
+      router.push({ pathname: '/haber', params: { id: n.id.slice('duyuru-'.length) } });
+    else if (hedef) router.push(hedef as never);
   };
   const hepsiniOku = async () => {
     if (!items) return;
@@ -90,7 +94,7 @@ export default function NotificationsScreen() {
   const groups = items ? groupNotifications(items, localIso()) : [];
   return (
     <Screen title={t.title}>
-      <View style={styles.hero}>
+      <View style={styles.hero} ref={hedefRef('bildirim.ozet')}>
         {/* Çizimle zil (görseldeki sabit "1" rozeti gerçek sayıyla çelişiyordu). */}
         <View style={styles.heroIcon}>
           <Glyph k="bildirim" size={42} />
@@ -114,6 +118,7 @@ export default function NotificationsScreen() {
       {items && unreadKeys.size > 0 ? (
         <Pressable
           accessibilityRole="button"
+          ref={hedefRef('bildirim.hepsi')}
           testID="hepsini-okundu"
           onPress={() => void hepsiniOku()}
           style={styles.readAll}
@@ -124,7 +129,7 @@ export default function NotificationsScreen() {
       {items === null && !failed ? <Iskelet /> : null}
       {failed ? <YuklemeHatasi onRetry={() => void load()} /> : null}
       {items?.length === 0 ? <Durum kind="bos" text={t.empty} /> : null}
-      <View style={styles.list} testID="bildirim-listesi">
+      <View style={styles.list} ref={hedefRef('bildirim.liste')} testID="bildirim-listesi">
         {groups.map((g) => (
           <View key={g.title} style={styles.group}>
             <Text style={styles.groupTitle}>{g.title}</Text>
@@ -135,7 +140,11 @@ export default function NotificationsScreen() {
                 <Pressable
                   accessibilityRole="button"
                   key={n.key}
-                  style={[styles.card, look.kind === 'uyari' && styles.cardWarn]}
+                  style={({ pressed }) => [
+                    styles.card,
+                    look.kind === 'uyari' && styles.cardWarn,
+                    pressed && { transform: [{ translateY: 2 }], opacity: 0.92 },
+                  ]}
                   testID="liste-satiri"
                   accessibilityLabel={`${n.title}${unread ? `, ${t.unread}` : ''}`}
                   onPress={() => void ac(n)}

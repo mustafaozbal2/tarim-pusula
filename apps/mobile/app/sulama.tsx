@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import type { CommandDto, DeviceStatusDto } from '@tarim/schemas';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -132,7 +133,7 @@ export default function IrrigationScreen() {
     return (
       <FlowScreen>
         <FlowHeader title={t.pageTitle} />
-        <Card style={styles.empty} testID="sulama-cihaz-yok">
+        <Card style={styles.empty} ref={hedefRef('sulama.yok')} testID="sulama-cihaz-yok">
           <View style={styles.emptyIcon}>
             <Icon name="drop" size={34} color={colors.water} />
           </View>
@@ -166,7 +167,7 @@ export default function IrrigationScreen() {
       <FlowScreen
         footer={
           <>
-            <View style={styles.auditRow}>
+            <View style={styles.auditRow} ref={hedefRef('sulama.kayit')}>
               <Icon name="warning" size={18} color={colors.textMuted} />
               <Text style={styles.audit}>{t.audit}</Text>
             </View>
@@ -174,6 +175,7 @@ export default function IrrigationScreen() {
               <Button label={t.stop} variant="danger" onPress={() => void send('close')} />
             ) : (
               <Button
+                ref={hedefRef('sulama.baslat')}
                 label={t.start}
                 variant="water"
                 onPress={() => {
@@ -195,7 +197,7 @@ export default function IrrigationScreen() {
           </Text>
         </View>
 
-        <View style={styles.hero} testID="vana-durum">
+        <View style={styles.hero} ref={hedefRef('sulama.durum')} testID="vana-durum">
           <View style={[styles.drop, { backgroundColor: running ? colors.water : '#2F5A49' }]}>
             <Icon name="drop" size={44} color={running ? '#FFFFFF' : '#CFE0D6'} />
           </View>
@@ -206,7 +208,7 @@ export default function IrrigationScreen() {
         {!showSteps ? (
           <Card style={styles.advice}>
             <Text style={styles.adviceTitle}>{waterText ? t.adviceHas : t.advice}</Text>
-            <Text style={styles.muted} testID="sulama-oneri">
+            <Text style={styles.muted} ref={hedefRef('sulama.oneri')} testID="sulama-oneri">
               {waterText ? t.adviceNeed.replace('{{mm}}', waterText) : t.adviceBody}
             </Text>
           </Card>
@@ -230,7 +232,7 @@ export default function IrrigationScreen() {
         {error ? <Notice tone="warn">{error}</Notice> : null}
 
         {!stoppable ? (
-          <View style={styles.modeRow}>
+          <View style={styles.modeRow} ref={hedefRef('sulama.kip')}>
             <View style={[styles.mode, styles.modeOn]}>
               <Text style={[styles.modeText, { color: '#FFFFFF' }]}>{t.manual}</Text>
             </View>

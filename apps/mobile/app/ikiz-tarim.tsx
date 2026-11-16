@@ -1,8 +1,19 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Circle, Line, Path, Polyline, Rect, Text as SvgText } from 'react-native-svg';
-import { Badge, Button, Card, colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  colors,
+  elevation,
+  fontFamily,
+  fontSize,
+  radius,
+  spacing,
+} from '@tarim/ui';
 import type { FieldDto, SoilRowDto, TwinDto, TwinScenarioDto } from '../src/api/client';
 import { NetworkError } from '../src/api/client';
 import { BilgiKarti, OzetKarolari } from '../src/components/BilgiKarti';
@@ -255,6 +266,7 @@ export default function IkizTarimScreen() {
       footer={
         fields.length > 1 ? (
           <Button
+            ref={hedefRef('ikiz.arazi-sec')}
             label="Başka arazi seç"
             variant="secondary"
             onPress={() => {
@@ -271,11 +283,11 @@ export default function IkizTarimScreen() {
         focusY={0.4}
         text="Tarlanın dijital ikizi: bugünü gör, yarını dene."
       />
-      <View style={styles.rowBetween}>
-        <Text style={styles.body} testID="ikiz-tarla">
+      <View style={styles.rowBetween} ref={hedefRef('ikiz.tarla')}>
+        <Text style={styles.tarlaAdi} testID="ikiz-tarla">
           {field.name}
         </Text>
-        {dto.badge ? <Badge label="Bilgi notu · uzman onayı bekliyor" /> : null}
+        {dto.badge ? <Badge label="Bilgi notu" /> : null}
       </View>
       {offline ? <Notice tone="warn">Sunucuya ulaşılamadı; son hesap gösteriliyor.</Notice> : null}
       {dto.weather.sample ? (
@@ -283,7 +295,7 @@ export default function IkizTarimScreen() {
       ) : null}
 
       {/* Bugün */}
-      <Card style={[styles.card, styles.koyu]} testID="ikiz-durum">
+      <Card ref={hedefRef('ikiz.durum')} style={[styles.card, styles.koyu]} testID="ikiz-durum">
         <Text style={styles.koyuUst}>BUGÜN · {kisaTarih(dto.today)}</Text>
         <Text style={styles.koyuBaslik}>{durum.baslik}</Text>
         <Text style={styles.koyuAlt}>{durum.altBaslik}</Text>
@@ -295,6 +307,7 @@ export default function IkizTarimScreen() {
       </Card>
 
       <OzetKarolari
+        ref={hedefRef('ikiz.ozet')}
         items={[
           { label: 'Kökün tuttuğu su', value: mm(dto.state.end.taw) },
           { label: 'Rahat sınır', value: mm(dto.state.end.raw) },
@@ -305,7 +318,7 @@ export default function IkizTarimScreen() {
       />
 
       {/* Zaman çubuğu */}
-      <Bolum title="Son 14 gün ve önümüzdeki 16 gün">
+      <Bolum ref={hedefRef('ikiz.zaman')} title="Son 14 gün ve önümüzdeki 16 gün">
         <Card style={styles.card}>
           <View onLayout={(e) => setW(e.nativeEvent.layout.width)}>
             <ZamanCubugu seri={seri} w={w} today={dto.today} />
@@ -318,7 +331,7 @@ export default function IkizTarimScreen() {
       </Bolum>
 
       {/* Senaryolar */}
-      <Bolum title="Ya şunu yaparsam?">
+      <Bolum ref={hedefRef('ikiz.senaryo')} title="Ya şunu yaparsam?">
         {siralanmis.map((s, i) => {
           const o = senaryoOzeti(s, dekar);
           const aktif = i === secili;
@@ -329,7 +342,11 @@ export default function IkizTarimScreen() {
               accessibilityRole="button"
               accessibilityState={{ selected: aktif }}
               onPress={() => setSecili(i)}
-              style={[styles.senaryo, aktif && styles.senaryoAktif]}
+              style={({ pressed }) => [
+                styles.senaryo,
+                aktif && styles.senaryoAktif,
+                pressed && styles.basili,
+              ]}
             >
               <View style={styles.rowBetween}>
                 <Text style={[styles.senaryoBaslik, aktif && { color: '#FFFFFF' }]}>{o.label}</Text>
@@ -352,13 +369,13 @@ export default function IkizTarimScreen() {
         })}
         <Text style={styles.small}>
           {bilgi
-            ? 'Girdiler uzman onayı beklediği için bunlar bilgi notudur; sulama kararını uzmanla ver.'
+            ? 'Bu hesapta kesinleşmemiş bir girdi var; sonuçlar bilgi notudur, sulama kararı senindir.'
             : 'Vana kendiliğinden açılmaz; sulama kararı ve komutu senindir.'}
         </Text>
       </Bolum>
 
       {/* Kayıt */}
-      <Bolum title="Kayıt ekle">
+      <Bolum ref={hedefRef('ikiz.kayit')} title="Kayıt ekle">
         <Card style={styles.card}>
           <Text style={styles.small}>
             Suladığın ya da tarlanda ölçtüğün yağışı yazarsan ikiz daha doğru olur. Sensör cihazın
@@ -444,7 +461,7 @@ export default function IkizTarimScreen() {
 
       {/* Toprak */}
       {soils.length > 0 ? (
-        <Bolum title="Tarlanın toprağı">
+        <Bolum ref={hedefRef('ikiz.toprak')} title="Tarlanın toprağı">
           <View style={styles.secRow}>
             {soils.map((s) => (
               <Pressable
@@ -466,11 +483,12 @@ export default function IkizTarimScreen() {
       ) : null}
 
       {/* Karne ve kaynaklar */}
-      <Card style={styles.card} testID="ikiz-karne">
+      <Card ref={hedefRef('ikiz.karne')} style={styles.card} testID="ikiz-karne">
         <Text style={styles.body}>Tahmin karnesi</Text>
         <Text style={styles.small}>{karneMetni(dto.scorecard)}</Text>
       </Card>
       <Pressable
+        ref={hedefRef('ikiz.neden')}
         accessibilityRole="button"
         onPress={() => setNeden((v) => !v)}
         style={styles.neden}
@@ -503,6 +521,8 @@ export default function IkizTarimScreen() {
 const styles = StyleSheet.create({
   card: { gap: spacing.sm },
   body: { fontFamily: fontFamily.extrabold, fontSize: fontSize.row, color: colors.forest },
+  tarlaAdi: { fontFamily: fontFamily.extrabold, fontSize: 19, color: colors.forest, flex: 1 },
+  basili: { transform: [{ translateY: 2 }], borderBottomWidth: 1.5, opacity: 0.94 },
   small: {
     fontFamily: fontFamily.medium,
     fontSize: fontSize.small,
@@ -515,14 +535,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  koyu: { backgroundColor: KOYU, borderRadius: radius.card, padding: spacing.lg },
+  // Bugün kartı: koyu zemin, ışıklı kenar ve derin gölge (sayfanın en önemli kutusu).
+  koyu: {
+    backgroundColor: KOYU,
+    borderRadius: radius.card,
+    padding: spacing.lg,
+    borderColor: '#2E8C89',
+    borderTopColor: '#49A9A5',
+    borderBottomColor: '#0C3433',
+    borderBottomWidth: 4,
+    shadowColor: '#0B3B3C',
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
   koyuUst: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.caption,
     color: '#9FC9C3',
     letterSpacing: 1,
   },
-  koyuBaslik: { fontFamily: fontFamily.extrabold, fontSize: 20, color: '#FFFFFF' },
+  koyuBaslik: { fontFamily: fontFamily.extrabold, fontSize: 22, lineHeight: 28, color: '#FFFFFF' },
   koyuAlt: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, color: '#CFE7E2' },
   koyuOneri: {
     fontFamily: fontFamily.extrabold,
@@ -546,8 +580,16 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: 4,
     minHeight: 56,
+    borderBottomWidth: 3.5,
+    borderBottomColor: '#BFDCD7',
+    ...elevation.card,
   },
-  senaryoAktif: { backgroundColor: colors.forest, borderColor: colors.forest },
+  senaryoAktif: {
+    backgroundColor: colors.forest,
+    borderColor: colors.forest,
+    borderBottomColor: '#14504F',
+    ...elevation.raised,
+  },
   senaryoBaslik: {
     fontFamily: fontFamily.extrabold,
     fontSize: fontSize.row,
@@ -573,8 +615,9 @@ const styles = StyleSheet.create({
     borderColor: colors.forest,
     justifyContent: 'center',
     backgroundColor: colors.surface,
+    borderBottomWidth: 3,
   },
-  secAktif: { backgroundColor: colors.forest },
+  secAktif: { backgroundColor: colors.forest, borderBottomColor: '#14504F' },
   secYazi: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.forest },
   secYaziAktif: { color: '#FFFFFF' },
   etiket: { fontFamily: fontFamily.bold, fontSize: fontSize.small, color: colors.forest },

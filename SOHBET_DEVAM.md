@@ -2,6 +2,8 @@
 
 ## Durum — 15.11.2026
 
+**Son iş (G36, 15.11): SON SÜRÜM 1.0.0.** Uygulama içi tanıtım (karşılama + 32 sayfa turu + mavi ampul), uzman onayı aşaması kapalı (`UZMAN_ONAYI=1` ile açılır; CLAUDE.md kural 1 güncellendi), ülke geneli kaynaklar ve duyuru ömrü, haberlerin sekmelere dağılması, Nuvia sohbeti yenilendi, "Cevabı bildir" (Play), kabartmalı tasarım, hız. Ayrıntı: docs/KARARLAR.md G36 ve .overnight/NOTES.md G36. Yerel kod değişmedi: `runtimeVersion` 0.3.0 sabit, sürüm OTA ile gider. Mustafa'dan beklenenler: TÜİK SDMX servisi başvurusu, Play Console hesabı ve AAB derlemesi, `site/config.js` iletişim bilgisi, gerçek SMS sağlayıcısı (isteğe bağlı).
+
 **Son iş (G35, 15.11):** Ne Eksem? modülü (alt çubukta Pazar yerine; `/ne-eksem`; `ekim_niyetleri` göç 0024). Ayrıntı: docs/KARARLAR.md G35 ve .overnight/NOTES.md G35. Yarım: uydu sınıflandırma ve ÇKS etiketi (güven "temel"), TÜİK tonajıyla kota, OCR plan satırlarının uzman kontrolü.
 
 **Önceki iş (G34, 14.11):** İkiz Tarım yayınlandı (commit ce8d871, OTA gönderildi, Render canlı). Ayrıntı: docs/KARARLAR.md G34 ve .overnight/NOTES.md. Yarım: geçmişe dönük sınama, uydu özümsemesi, Ky uzman onayı, sahada sensör sınaması.

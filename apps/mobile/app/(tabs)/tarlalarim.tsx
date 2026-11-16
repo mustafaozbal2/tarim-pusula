@@ -1,3 +1,4 @@
+import { hedefRef } from '../../src/tanitim/hedef';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -118,6 +119,7 @@ export default function FieldsScreen() {
       {bilgi ? <Notice>{bilgi}</Notice> : null}
       <PendingProposals onChanged={() => void load()} />
       <OzetKarolari
+        ref={hedefRef('tarla.ozet')}
         items={[
           { label: tf.statFields, value: String(cache?.fields.length ?? 0) },
           { label: tf.statArea, value: totalArea },
@@ -125,6 +127,7 @@ export default function FieldsScreen() {
         ]}
       />
       <SekmeAnahtari<View2>
+        ref={hedefRef('tarla.gorunum')}
         testID="tarla-gorunum"
         value={view}
         onChange={setView}
@@ -148,6 +151,7 @@ export default function FieldsScreen() {
         </Card>
       ) : null}
       <TextInput
+        ref={hedefRef('tarla.ara')}
         accessibilityLabel={tf.search}
         placeholder={tf.search}
         placeholderTextColor={colors.textMuted}
@@ -168,7 +172,8 @@ export default function FieldsScreen() {
       {fieldsShown.map((f) => (
         <Card
           key={f.id}
-          style={[styles.card, selected?.id === f.id && { borderColor: colors.forest }]}
+          ref={f.id === fieldsShown[0]?.id ? hedefRef('tarla.kart') : undefined}
+          style={[styles.card, selected?.id === f.id && styles.cardOn]}
         >
           <Pressable
             accessibilityRole="button"
@@ -214,6 +219,7 @@ export default function FieldsScreen() {
           <Button
             label={tf.edit}
             variant="secondary"
+            ref={hedefRef('tarla.guncelle')}
             testID="tarla-guncelle"
             onPress={() => router.push({ pathname: '/arazi-duzenle', params: { fieldId: f.id } })}
           />
@@ -237,19 +243,32 @@ export default function FieldsScreen() {
       {offline && !cache ? <YuklemeHatasi onRetry={() => void load()} /> : null}
       {offline ? <Notice tone="warn">{t.offlineNote}</Notice> : null}
       <Button
+        ref={hedefRef('tarla.ekle')}
         label={t.add}
         onPress={() => {
           resetDraft();
           router.push('/tarla-ekle');
         }}
       />
-      <BilgiKarti title={tf.howTitle} lines={[...tf.how]} testID="arazi-nasil" />
+      <BilgiKarti
+        title={tf.howTitle}
+        lines={[...tf.how]}
+        ref={hedefRef('tarla.nasil')}
+        testID="arazi-nasil"
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   card: { gap: 8 },
+  // Seçili tarla: kalın koyu çerçeve ve daha derin gölge.
+  cardOn: {
+    borderColor: colors.forest,
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    borderBottomColor: '#14504F',
+  },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
   no: {
     width: 30,

@@ -1,3 +1,4 @@
+import { hedefRef } from '../../src/tanitim/hedef';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -207,6 +208,7 @@ export default function AskScreen() {
           <Button
             label={t.myQuestions}
             variant="secondary"
+            ref={hedefRef('soru.sorularim')}
             testID="sorularim-ac"
             onPress={() => router.push('/sorularim')}
           />
@@ -218,7 +220,7 @@ export default function AskScreen() {
 
   return (
     <Screen title={t.title}>
-      <View style={styles.hero}>
+      <View style={styles.hero} ref={hedefRef('soru.ust')}>
         <RNImage source={IMAGE_FILES['ikon_uzman.png'] as number} style={styles.heroIcon} />
         <View style={styles.heroText}>
           <Text style={styles.heroTitle}>{t.heroTitle}</Text>
@@ -227,7 +229,7 @@ export default function AskScreen() {
       </View>
 
       <Bolum title={t.whichField}>
-        <View style={styles.chips} testID="soru-arazi">
+        <View style={styles.chips} ref={hedefRef('soru.arazi')} testID="soru-arazi">
           {fields.map((f) => (
             <Pressable
               key={f.id}
@@ -258,8 +260,16 @@ export default function AskScreen() {
       {note ? <Text style={styles.muted}>{note}</Text> : null}
 
       <Bolum title={t.how3}>
-        <IkonKart wide icon="mic" title={t.voice} hint={t.voiceHint} onPress={() => void voice()} />
         <IkonKart
+          ref={hedefRef('soru.ses')}
+          wide
+          icon="mic"
+          title={t.voice}
+          hint={t.voiceHint}
+          onPress={() => void voice()}
+        />
+        <IkonKart
+          ref={hedefRef('soru.foto')}
           wide
           icon="camera"
           title={t.photo}
@@ -276,12 +286,14 @@ export default function AskScreen() {
               multiline
               maxLength={500}
               style={styles.input}
+              ref={hedefRef('soru.yaz')}
               testID="soru-girdi"
             />
             <Button label={t.send} onPress={() => void ask(text)} />
           </Card>
         ) : (
           <IkonKart
+            ref={hedefRef('soru.yazarak')}
             wide
             icon="book"
             title={t.type}
@@ -291,7 +303,7 @@ export default function AskScreen() {
         )}
       </Bolum>
 
-      <Bolum title={t.frequent}>
+      <Bolum ref={hedefRef('soru.sik')} title={t.frequent}>
         {t.questions.map((q) => (
           <Pressable
             key={q}
@@ -307,7 +319,12 @@ export default function AskScreen() {
           </Pressable>
         ))}
       </Bolum>
-      <BilgiKarti title={t.howTitle} lines={[...t.how]} testID="pusula-nasil" />
+      <BilgiKarti
+        title={t.howTitle}
+        lines={[...t.how]}
+        ref={hedefRef('soru.nasil')}
+        testID="pusula-nasil"
+      />
     </Screen>
   );
 }

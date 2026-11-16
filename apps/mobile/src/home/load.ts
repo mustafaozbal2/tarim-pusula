@@ -112,7 +112,12 @@ export async function loadHome(
     gorulen.add(baslik);
     tumDuyurular.push(a);
   }
-  tumDuyurular.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
+  // Önce yerel (il/ilçe) haberler, sonra ülke geneli; her grupta yeniden eskiye. Ülke geneli kaynaklar
+  // (TÜİK, TKDK, enstitüler) çok haber verdiğinde ilin kendi duyurusu şeritte arkada kalmasın.
+  tumDuyurular.sort(
+    (a, b) =>
+      Number(!!a.nationwide) - Number(!!b.nationwide) || (a.publishedAt < b.publishedAt ? 1 : -1),
+  );
   return {
     base,
     fields,

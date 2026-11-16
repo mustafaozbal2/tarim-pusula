@@ -36,13 +36,14 @@ export default function NewsScreen() {
         const n = Number(i ?? 0);
         return c.kartlar[n] ? { kind: 'ornek', c, i: n } : null;
       }
-      if (!fieldId) return null;
-      // Haber başka bir arazinin listesinden gelmiş olabilir (ana sayfa tüm arazileri toplar): önce o arazi, sonra diğerleri.
+      if (!id) return null;
+      // Haber başka bir arazinin listesinden gelmiş olabilir (ana sayfa tüm arazileri toplar): önce o arazi, sonra
+      // diğerleri. Bildirimden gelindiğinde arazi bilinmez: bütün arazilerde aranır.
       const diger = await api
         .fields()
         .then((r) => r.map((f) => f.id).filter((x) => x !== fieldId))
         .catch((): string[] => []);
-      for (const fid of [fieldId, ...diger]) {
+      for (const fid of [...(fieldId ? [fieldId] : []), ...diger]) {
         const list = await loadAnnouncements(api, kv, fid);
         const a = list.find((x) => x.id === id && gosterilir(x));
         if (a) return { kind: 'duyuru', a };

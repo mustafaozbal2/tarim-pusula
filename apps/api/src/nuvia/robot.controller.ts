@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Inject, Optional, Post } from '@nestjs/common';
 import { looksLikeInjection } from '@tarim/agro-core';
 import { z } from 'zod';
 import { Me, parse } from '../auth/access';
+import { DataService } from '../data.service';
 import type { Principal } from '../db/db';
 import { NUVIA } from './bekleme';
 import type { NuviaClient } from './client';
@@ -28,6 +29,13 @@ const fotoSema = z.object({
   }),
 });
 
+/** Yapay zekâ cevabını bildirme (Play politikası): cevabın metni, neden ve isteğe bağlı kısa not. */
+const bildirSema = z.object({
+  mesaj: z.string().trim().min(1).max(2000),
+  neden: z.enum(['yanlis', 'sakincali', 'zararli', 'diger']),
+  not: z.string().trim().max(300).nullish(),
+});
+
 /** Basit kullanıcı başına dakikalık sınır (bellek içi; Nuvia kotası boşa gitmesin). */
 const kova = new Map<string, number[]>();
 export function sinirli(anahtar: string, en: number, simdi = Date.now()): boolean {
@@ -50,7 +58,30 @@ export const ROBOT_YEDEK =
  */
 @Controller('robot')
 export class RobotController {
-  constructor(@Inject(NUVIA) private readonly nuvia: NuviaClient) {}
+  constructor(
+    @Inject(NUVIA) private readonly nuvia: NuviaClient,
+    @Optional() @Inject(DataService) private readonly data?: DataService,
+  ) {}
+
+  /**
+   * Çiftçi yanlış ya da sakıncalı bulduğu yapay zekâ cevabını bildirir; kayıt yönetim panelinde görünür.
+   * Dakikada en çok 6 bildirim (kötüye kullanım). Bildirim cevabı silmez; yönetici inceler.
+   */
+  @Post('bildir')
+  @HttpCode(200)
+  async bildir(@Me() me: Principal, @Body() body: unknown) {
+    const g = parse(bildirSema, body);
+    if (!this.data || sinirli(`b:${me.userId}`, 6)) return { alindi: false };
+    await this.data.run(me, 'robot.bildir', (q) =>
+      q.query(`INSERT INTO yz_bildirimleri(user_id, message, reason, note) VALUES ($1,$2,$3,$4)`, [
+        me.userId,
+        g.mesaj,
+        g.neden,
+        g.not ?? null,
+      ]),
+    );
+    return { alindi: true };
+  }
 
   @Post('sohbet')
   @HttpCode(200)

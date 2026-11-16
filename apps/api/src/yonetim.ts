@@ -329,6 +329,12 @@ export class YonetimController {
             a.image_url IS NOT NULL OR a.image_data_url IS NOT NULL AS gorsel, a.targeting AS hedef, s.province AS il
           FROM announcements a LEFT JOIN official_sources s ON s.id = a.source_site_id
           ORDER BY a.created_at DESC LIMIT 500`);
+      case 'yzbildirim': {
+        const r = await q(`
+          SELECT b.created_at AS zaman, b.reason AS neden, b.message AS cevap, b.note AS aciklama, u.phone
+          FROM yz_bildirimleri b LEFT JOIN users u ON u.id = b.user_id ORDER BY b.created_at DESC LIMIT 300`);
+        return r.map((x) => ({ ...x, phone: undefined, kullanici: maskele(x['phone'] as string) }));
+      }
       case 'turlar':
         return q(`
           SELECT started_at AS basladi, finished_at AS bitti, sources AS kaynak, evaluated AS degerlendirilen,

@@ -18,7 +18,7 @@ Proje: Çiftçiler için mobil + web uygulaması ("Bilinçli Tarım, Verimli Ür
 
 ## Değişmez kurallar
 
-1. Uzman onayı olmayan (taslak) bilgi: rozetle gösterilir, ASLA uyarı/öneri/komut üretmez.
+1. Uzman onayı aşaması ŞİMDİLİK KAPALI (Mustafa, 15.11.2026, KARARLAR G36: sistemde görevli uzman yok). Kaynaklı bilgi (resmî site haberi, FAO-56 katsayısı, kurum duyurusu) doğrudan yayınlanır; "uzman onayı bekliyor" yazısı çiftçiye gösterilmez. Uzman kadrosu kurulunca sunucuda `UZMAN_ONAYI=1` ile yeniden açılır; açıkken taslak bilgi rozetle gösterilir ve uyarı/öneri/komut üretmez. Kaynağı olmayan genel varsayım hiçbir kipte "öneri" diye sunulmaz.
 2. Yapay zekâ ilaç dozu veya karışım oranı UYDURMAZ; BKÜ'ye yönlendirir. Atıfsız iddia yok.
 3. Sulama komutu: sunucuda yetki kontrolü, TTL, idempotency, ack, cihazda azami süre 30 dk, audit log. Başkası başkasının vanasını açamaz.
 4. TC kimlik no toplanmaz. Telefon SMS-OTP. KVKK veri minimizasyonu.

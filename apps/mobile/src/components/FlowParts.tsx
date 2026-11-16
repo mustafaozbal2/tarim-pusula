@@ -1,12 +1,15 @@
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode, Ref } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
+import { colors, elevation, fontFamily, fontSize, radius, spacing } from '@tarim/ui';
+import { useTanitimKaydirici } from '../tanitim/useKaydirici';
 import { DemoBadge } from './DemoBadge';
 import { Icon, type IconName } from './Icon';
 import { UstBant } from './UstBant';
 
 /** Akış ekranı gövdesi: zemin rengi, kenar boşluğu, kaydırma. */
 export function FlowScreen({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+  // Tanıtım turu ekranın altında kalan bölümü göstermek için sayfayı kaydırabilir.
+  const kaydirici = useTanitimKaydirici();
   return (
     // Klavye açılınca yazı kutusu altta kalmasın (Android kenardan kenara: pencere küçülmez).
     <KeyboardAvoidingView
@@ -14,6 +17,9 @@ export function FlowScreen({ children, footer }: { children: ReactNode; footer?:
       style={{ flex: 1, backgroundColor: colors.background }}
     >
       <ScrollView
+        ref={kaydirici.ref}
+        onScroll={kaydirici.onScroll}
+        scrollEventThrottle={32}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: spacing.xl, paddingTop: 0, gap: spacing.md }}
       >
@@ -55,19 +61,22 @@ export function ChoiceRow(props: {
   tone: Tone;
   onPress: () => void;
   testID?: string;
+  ref?: Ref<ComponentRef<typeof View>>;
 }) {
   const dark = props.tone === 'primary';
   const soft = props.tone === 'soft';
   const fg = dark ? '#FFFFFF' : soft ? colors.pistachioText : colors.forest;
   return (
     <Pressable
+      ref={props.ref}
       testID={props.testID}
       accessibilityRole="button"
       accessibilityLabel={props.title}
       onPress={props.onPress}
-      style={[
+      style={({ pressed }) => [
         styles.choice,
-        dark && { backgroundColor: colors.forest },
+        pressed && styles.choicePressed,
+        dark && { backgroundColor: colors.forest, borderBottomColor: '#14504F' },
         props.tone === 'outline' && { backgroundColor: colors.surface, borderColor: colors.forest },
         soft && {
           backgroundColor: colors.pistachio,
@@ -138,7 +147,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
     paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 4,
+    ...elevation.card,
   },
+  choicePressed: { borderBottomWidth: 2, transform: [{ translateY: 2 }], opacity: 0.94 },
   choiceTitle: { fontFamily: fontFamily.extrabold, fontSize: 17 },
   choiceHint: { fontFamily: fontFamily.semibold, fontSize: fontSize.small, marginTop: 2 },
   notice: {

@@ -1,3 +1,4 @@
+import { hedefRef } from '../../src/tanitim/hedef';
 import { useRouter } from 'expo-router';
 import { Text } from 'react-native';
 import { colors, fontFamily, fontSize } from '@tarim/ui';
@@ -38,6 +39,7 @@ export default function WhereScreen() {
       </Text>
       <Text style={subtitleStyle}>{t.whereHint}</Text>
       <ChoiceRow
+        ref={hedefRef('ekle.gps')}
         testID="yol-gps"
         tone="primary"
         icon="target"
@@ -46,6 +48,7 @@ export default function WhereScreen() {
         onPress={() => router.push('/tarla-ekle/gps')}
       />
       <ChoiceRow
+        ref={hedefRef('ekle.koy')}
         testID="yol-koy"
         tone="outline"
         icon="village"
@@ -54,6 +57,7 @@ export default function WhereScreen() {
         onPress={() => router.push('/tarla-ekle/koy')}
       />
       <ChoiceRow
+        ref={hedefRef('ekle.harita')}
         testID="yol-harita"
         tone="outline"
         icon="map"
@@ -63,6 +67,7 @@ export default function WhereScreen() {
       />
       {helping ? null : (
         <ChoiceRow
+          ref={hedefRef('ekle.yakin')}
           testID="yol-yakin"
           tone="soft"
           icon="people"

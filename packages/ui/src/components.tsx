@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode, Ref } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -22,23 +22,42 @@ import {
 export { tabloSuz, type TabloSatiri, type TabloSutunu } from './styles';
 import { colors, elevation, fontFamily, fontSize, radius, ROW_HEIGHT, spacing } from './tokens';
 
+/** Dokunulabilir bileşenlere dışarıdan ref bağlanabilir (ör. tanıtım turu o düğmeyi ölçüp ışıklandırır). */
+type GorunumRef = Ref<ComponentRef<typeof View>>;
+
+/**
+ * Ana düğme: kabartmalı. Alt kenarda koyu şerit vardır; basılınca şerit incelir ve düğme 2 px iner
+ * (gerçek tuşa basma hissi). Renkler ve en az 44 px yükseklik `buttonStyle`'dan gelir (testli).
+ */
 export function Button(props: {
   label: string;
   onPress?: () => void;
   variant?: ButtonVariant;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+  disabled?: boolean;
+  ref?: GorunumRef;
 }) {
   const s = buttonStyle(props.variant);
   return (
     <Pressable
+      ref={props.ref}
       testID={props.testID}
       accessibilityRole="button"
       accessibilityLabel={props.label}
+      accessibilityState={{ disabled: !!props.disabled }}
+      disabled={props.disabled}
       onPress={props.onPress}
-      style={[
+      style={({ pressed }) => [
         styles.button,
-        { minHeight: s.minHeight, backgroundColor: s.backgroundColor, borderColor: s.borderColor },
+        {
+          minHeight: s.minHeight,
+          backgroundColor: s.backgroundColor,
+          borderColor: s.borderColor,
+          borderBottomColor: s.edgeColor,
+        },
+        pressed && styles.buttonPressed,
+        props.disabled && styles.buttonDisabled,
         props.style,
       ]}
     >
@@ -51,24 +70,35 @@ export function Card(props: {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+  ref?: GorunumRef;
 }) {
   return (
-    <View testID={props.testID} style={[styles.card, props.style]}>
+    <View ref={props.ref} testID={props.testID} style={[styles.card, props.style]}>
       {props.children}
     </View>
   );
 }
 
-export function Chip(props: { label: string; selected?: boolean; onPress?: () => void }) {
+export function Chip(props: {
+  label: string;
+  selected?: boolean;
+  onPress?: () => void;
+  testID?: string;
+  ref?: GorunumRef;
+}) {
   const s = chipStyle(props.selected ? 'selected' : 'idle');
   return (
     <Pressable
+      ref={props.ref}
+      testID={props.testID}
       accessibilityRole="button"
       accessibilityState={{ selected: !!props.selected }}
       onPress={props.onPress}
-      style={[
+      style={({ pressed }) => [
         styles.chip,
         { minHeight: s.minHeight, backgroundColor: s.backgroundColor, borderColor: s.borderColor },
+        props.selected && styles.chipOn,
+        pressed && styles.pressed,
       ]}
     >
       <Text style={[styles.chipText, { color: s.textColor }]}>{props.label}</Text>
@@ -95,15 +125,20 @@ export function BigChoice(props: {
   hint?: string;
   selected?: boolean;
   onPress?: () => void;
+  testID?: string;
+  ref?: GorunumRef;
 }) {
   return (
     <Pressable
+      ref={props.ref}
+      testID={props.testID}
       accessibilityRole="button"
       accessibilityState={{ selected: !!props.selected }}
       onPress={props.onPress}
-      style={[
+      style={({ pressed }) => [
         styles.choice,
-        props.selected && { backgroundColor: colors.pistachio, borderColor: colors.forest },
+        props.selected && styles.choiceOn,
+        pressed && styles.pressed,
       ]}
     >
       <Text style={styles.choiceTitle}>{props.title}</Text>
@@ -118,9 +153,10 @@ export function SekmeAnahtari<T extends string>(props: {
   value: T;
   onChange: (key: T) => void;
   testID?: string;
+  ref?: GorunumRef;
 }) {
   return (
-    <View style={styles.segment} testID={props.testID}>
+    <View ref={props.ref} style={styles.segment} testID={props.testID}>
       {props.options.map((o) => {
         const on = o.key === props.value;
         return (
@@ -209,9 +245,10 @@ export function FormAlani(props: {
   placeholder?: string;
   keyboardType?: 'default' | 'numeric' | 'phone-pad';
   testID?: string;
+  ref?: GorunumRef;
 }) {
   return (
-    <View style={styles.field}>
+    <View ref={props.ref} style={styles.field}>
       <Text style={styles.fieldLabel}>{props.label}</Text>
       <TextInput
         testID={props.testID}
@@ -305,10 +342,12 @@ export function Durum(props: {
   text: string;
   action?: { label: string; onPress: () => void };
   testID?: string;
+  ref?: GorunumRef;
 }) {
   const bad = props.kind === 'hata';
   return (
     <View
+      ref={props.ref}
       testID={props.testID}
       accessibilityRole={bad ? 'alert' : undefined}
       style={[
@@ -326,19 +365,38 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: radius.pill,
     borderWidth: 1,
+    borderBottomWidth: 4,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    ...elevation.card,
+    ...elevation.raised,
   },
-  buttonText: { fontFamily: fontFamily.bold, fontSize: fontSize.body },
-  card: { ...cardStyle, borderWidth: 1 },
+  // Basılı düğme: alt şerit incelir, düğme aşağı iner, gölge kısalır.
+  buttonPressed: {
+    borderBottomWidth: 1,
+    transform: [{ translateY: 2 }],
+    shadowOpacity: 0.08,
+    elevation: 1,
+  },
+  buttonDisabled: { opacity: 0.55 },
+  buttonText: { fontFamily: fontFamily.extrabold, fontSize: fontSize.body, letterSpacing: 0.2 },
+  pressed: { opacity: 0.88, transform: [{ scale: 0.98 }] },
+  // Kart: üstte ışık çizgisi, altta bir ton koyu kenar (hafif kabartı).
+  card: {
+    ...cardStyle,
+    borderWidth: 1,
+    borderTopColor: '#EAF6F4',
+    borderBottomWidth: 2,
+    borderBottomColor: '#C4DEDA',
+  },
   chip: {
     borderRadius: radius.pill,
     borderWidth: 1,
+    borderBottomWidth: 2,
     paddingHorizontal: spacing.lg,
     justifyContent: 'center',
   },
+  chipOn: { borderBottomColor: '#14504F', ...elevation.card },
   chipText: { fontFamily: fontFamily.bold, fontSize: fontSize.small },
   badge: {
     alignSelf: 'flex-start',
@@ -360,6 +418,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     justifyContent: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: '#C4DEDA',
+  },
+  choiceOn: {
+    backgroundColor: colors.pistachio,
+    borderColor: colors.forest,
+    borderBottomColor: colors.forest,
+    ...elevation.card,
   },
   choiceTitle: { fontFamily: fontFamily.bold, fontSize: fontSize.row, color: colors.forest },
   choiceHint: {
@@ -375,6 +441,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: 3,
     gap: 3,
+    ...elevation.card,
   },
   segmentItem: {
     flex: 1,
@@ -383,7 +450,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  segmentOn: { backgroundColor: colors.forest },
+  // Seçili sekme: dolgulu ve kabartmalı (alt kenarı koyu).
+  segmentOn: {
+    backgroundColor: colors.forest,
+    borderBottomWidth: 3,
+    borderBottomColor: '#14504F',
+  },
   segmentText: { fontFamily: fontFamily.bold, fontSize: fontSize.body, color: colors.textMuted },
   dateRow: {
     flexDirection: 'row',

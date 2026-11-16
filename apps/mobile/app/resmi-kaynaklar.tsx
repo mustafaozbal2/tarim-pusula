@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
@@ -36,7 +37,7 @@ export default function ResmiKaynaklar() {
       {items === null && !failed ? <Iskelet /> : null}
       {failed ? <YuklemeHatasi onRetry={() => void load()} /> : null}
       {items?.length === 0 ? <Durum kind="bos" text={t.empty} /> : null}
-      <View style={{ gap: 10 }} testID="resmi-kaynak-listesi">
+      <View style={{ gap: 10 }} ref={hedefRef('kaynak.liste')} testID="resmi-kaynak-listesi">
         {items?.map((s) => (
           <Card key={s.id} style={styles.card}>
             <Text style={styles.name}>{s.name}</Text>

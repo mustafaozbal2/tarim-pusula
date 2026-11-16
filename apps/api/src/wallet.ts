@@ -14,6 +14,7 @@ export const EXPORT_COVERAGE: Record<string, { key: string } | { excluded: strin
   device_readings: { key: 'deviceReadings' },
   twin_events: { key: 'twinEvents' },
   ekim_niyetleri: { key: 'ekimNiyetleri' },
+  yz_bildirimleri: { key: 'yzBildirimleri' },
   consents: { key: 'consents' },
   nearby_codes: { key: 'nearbyCodes' },
   nearby_proposals: { key: 'nearbyProposals' },
@@ -107,6 +108,11 @@ export async function buildExport(q: Queryable, me: Principal, profile: unknown)
     ekimNiyetleri: await q.query(
       `SELECT n.field_id AS "fieldId", n.crop_id AS "cropId", n.dekar, n.season, n.created_at AS "createdAt"
        FROM ekim_niyetleri n WHERE n.user_id = $1 ORDER BY n.created_at, n.id`,
+      [me.userId],
+    ),
+    yzBildirimleri: await q.query(
+      `SELECT message, reason, note, created_at AS "createdAt" FROM yz_bildirimleri
+       WHERE user_id = $1 ORDER BY created_at, id`,
       [me.userId],
     ),
     irrigationCommands: await q.query(

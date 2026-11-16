@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { capabilitiesFor } from '@tarim/schemas';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
@@ -69,7 +70,7 @@ export default function HubScreen() {
     <Screen title={t.title}>
       <SayfaGorseli image="kart_5.jpg" focusY={0.12} text={t.hero} />
       <Bolum title={t.fieldSection}>
-        <Text style={styles.field} testID="hub-arazi">
+        <Text style={styles.field} ref={hedefRef('hub.arazi')} testID="hub-arazi">
           {data.field.name}
         </Text>
         {showFrost ? (
@@ -90,6 +91,7 @@ export default function HubScreen() {
           image="ikon_ekle.png"
           title={t.add}
           hint={t.addHint}
+          ref={hedefRef('hub.ekle')}
           testID="hub-ekle"
           onPress={() => router.push('/tarla-ekle')}
         />
@@ -98,6 +100,7 @@ export default function HubScreen() {
           image="ikon_arazi_ekle.png"
           title={t.edit}
           hint={t.editHint}
+          ref={hedefRef('hub.guncelle')}
           testID="hub-guncelle"
           onPress={() => router.push({ pathname: '/arazi-duzenle', params: { fieldId } })}
         />
@@ -107,13 +110,14 @@ export default function HubScreen() {
           tone="danger"
           title={t.remove}
           hint={t.removeHint}
+          ref={hedefRef('hub.sil')}
           testID="hub-sil"
           onPress={() => router.push({ pathname: '/arazi-duzenle', params: { fieldId, sil: '1' } })}
         />
       </Bolum>
 
       <Bolum title={t.tools}>
-        <KartIzgara testID="hub-kartlar">
+        <KartIzgara ref={hedefRef('hub.araclar')} testID="hub-kartlar">
           {cards.map((c) => (
             <IkonKart
               key={c.key}

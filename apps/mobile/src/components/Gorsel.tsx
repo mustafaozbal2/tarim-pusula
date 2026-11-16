@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import {
   Image,
   Pressable,
@@ -24,10 +24,12 @@ export function SayfaGorseli({
   text,
   testID,
   focusY,
+  ref,
 }: {
   image: ImageName;
   text: string;
   testID?: string;
+  ref?: Ref<ComponentRef<typeof View>>;
   /**
    * Dikey resimde görünecek bölge (0 = üst, 1 = alt). Verilmezse ortalanır. Dikey kart resmi geniş
    * başlıkta kırpılırken önemli kısım (ör. kasadaki ürün) kesilmesin diye.
@@ -41,6 +43,7 @@ export function SayfaGorseli({
   const focused = imgH > HERO_H;
   return (
     <View
+      ref={ref}
       style={styles.hero}
       testID={testID ?? 'sayfa-gorseli'}
       onLayout={(e) => setW(e.nativeEvent.layout.width)}
@@ -113,6 +116,7 @@ export function IkonKart({
   testID,
   wide,
   tone = 'normal',
+  ref,
 }: {
   title: string;
   hint?: string;
@@ -123,9 +127,11 @@ export function IkonKart({
   /** Tam genişlik (yan yana iki yerine tek). */
   wide?: boolean;
   tone?: 'normal' | 'danger';
+  ref?: Ref<ComponentRef<typeof View>>;
 }) {
   return (
     <Pressable
+      ref={ref}
       accessibilityRole="button"
       accessibilityLabel={hint ? `${title}. ${hint}` : title}
       testID={testID}
@@ -155,9 +161,17 @@ export function IkonKart({
 }
 
 /** İkonlu kartların ızgarası (iki sütun). */
-export function KartIzgara({ children, testID }: { children: ReactNode; testID?: string }) {
+export function KartIzgara({
+  children,
+  testID,
+  ref,
+}: {
+  children: ReactNode;
+  testID?: string;
+  ref?: Ref<ComponentRef<typeof View>>;
+}) {
   return (
-    <View style={styles.grid} testID={testID}>
+    <View ref={ref} style={styles.grid} testID={testID}>
       {children}
     </View>
   );
@@ -168,13 +182,15 @@ export function Bolum({
   title,
   children,
   style,
+  ref,
 }: {
   title: string;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  ref?: Ref<ComponentRef<typeof View>>;
 }) {
   return (
-    <View style={[styles.section, style]}>
+    <View ref={ref} style={[styles.section, style]}>
       <View style={styles.sectionHead}>
         <View style={styles.sectionBar} />
         <Text accessibilityRole="header" style={styles.sectionTitle}>
@@ -195,7 +211,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'flex-end',
     backgroundColor: homeColors.band,
-    ...elevation.card,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    ...elevation.raised,
   },
   heroImage: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   heroShade: { zIndex: 1 },
@@ -210,7 +228,19 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 6,
   },
-  circle: { backgroundColor: colors.pistachio, alignItems: 'center', justifyContent: 'center' },
+  // İkon dairesi: açık turkuaz dolgu, beyaz ışık halkası (kabartmalı düğme hissi).
+  circle: {
+    backgroundColor: colors.pistachio,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#1F6E6D',
+    shadowOpacity: 0.22,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' },
   tile: {
     backgroundColor: colors.surface,
@@ -219,12 +249,15 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: 12,
     gap: 8,
+    borderTopColor: '#EAF6F4',
+    borderBottomWidth: 3,
+    borderBottomColor: '#BFDCD7',
     ...elevation.card,
   },
   tileHalf: { width: '48.4%', minHeight: 132, alignItems: 'center' },
   tileWide: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 12 },
   tileDanger: { borderColor: colors.brickSoft },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+  pressed: { opacity: 0.9, borderBottomWidth: 1, transform: [{ translateY: 2 }] },
   tileText: { alignItems: 'center', gap: 2 },
   tileTextWide: { flex: 1, gap: 2 },
   tileTitle: {
@@ -242,7 +275,16 @@ const styles = StyleSheet.create({
   left: { textAlign: 'left' },
   section: { gap: 10 },
   sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sectionBar: { width: 5, height: 20, borderRadius: 3, backgroundColor: homeColors.band },
+  sectionBar: {
+    width: 6,
+    height: 22,
+    borderRadius: 3,
+    backgroundColor: homeColors.band,
+    shadowColor: homeColors.band,
+    shadowOpacity: 0.7,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 0 },
+  },
   sectionTitle: {
     fontFamily: fontFamily.extrabold,
     fontSize: fontSize.title,

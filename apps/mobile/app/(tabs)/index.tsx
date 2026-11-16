@@ -36,6 +36,8 @@ import { kv } from '../../src/offline/kvStore';
 import { loadSeen, notificationItems, unreadCount } from '../../src/notifications/state';
 import { registerForPush } from '../../src/push';
 import { api } from '../../src/session';
+import { hedefRef } from '../../src/tanitim/hedef';
+import { useTanitimKaydirici } from '../../src/tanitim/useKaydirici';
 
 const t = tr.today;
 
@@ -56,6 +58,7 @@ export default function HomeScreen() {
   const [seen, setSeen] = useState<string[]>([]);
   const [inbox, setInbox] = useState<InboxItemDto[]>([]);
 
+  const kaydirici = useTanitimKaydirici();
   const tekrar = useRef(false);
   const load = useCallback(async (pick?: string) => {
     setState((s) => (s === 'error' ? 'loading' : s));
@@ -169,7 +172,13 @@ export default function HomeScreen() {
   const sahne = havaSahnesi(data?.base.today.weather.current?.weatherCode, new Date().getHours());
   return (
     <View style={styles.root}>
-      <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+      <ScrollView
+        ref={kaydirici.ref}
+        onScroll={kaydirici.onScroll}
+        scrollEventThrottle={32}
+        style={styles.root}
+        contentContainerStyle={styles.content}
+      >
         <TopBand unread={unread} sahne={sahne} onMenu={() => setMenu(true)} />
         {state === 'loading' ? (
           <View style={styles.pad}>
@@ -238,12 +247,14 @@ export default function HomeScreen() {
               </View>
             ) : null}
             {gece ? (
-              <DonKarti
-                g={gece.g}
-                cropId={gece.cropId}
-                kaynak={gece.kaynak}
-                digerAdlar={gece.digerAdlar}
-              />
+              <View ref={hedefRef('ana.don')} collapsable={false}>
+                <DonKarti
+                  g={gece.g}
+                  cropId={gece.cropId}
+                  kaynak={gece.kaynak}
+                  digerAdlar={gece.digerAdlar}
+                />
+              </View>
             ) : null}
             <TabsCard tab={tab} onTab={setTab} rows={rowsForTab(rows, tab)} />
             {data.base.offline ? <Text style={styles.note}>{t.offline}</Text> : null}

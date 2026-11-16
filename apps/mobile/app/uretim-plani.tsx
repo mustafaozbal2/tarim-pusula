@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -45,7 +46,12 @@ export default function PlanScreen() {
           <Bolum title={`${plan.name}: ${t.next}`}>
             {events.length === 0 ? <Durum kind="bos" text={t.noEvents} /> : null}
             {events.map((e) => (
-              <Card key={`${e.templateId}-${e.start}`} style={styles.card} testID="plan-is">
+              <Card
+                key={`${e.templateId}-${e.start}`}
+                style={styles.card}
+                ref={hedefRef('plan.is')}
+                testID="plan-is"
+              >
                 <View style={styles.dot}>
                   <Icon name="calendar" size={20} color="#FFFFFF" />
                 </View>

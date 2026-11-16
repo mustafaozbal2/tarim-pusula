@@ -1,3 +1,4 @@
+import { hedefRef } from '../src/tanitim/hedef';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card, colors, fontFamily, fontSize, homeColors } from '@tarim/ui';
@@ -44,7 +45,7 @@ export default function IntegrationsScreen() {
         ))}
       </Bolum>
 
-      <Card style={styles.card} testID="cks-durum">
+      <Card style={styles.card} ref={hedefRef('cks.durum')} testID="cks-durum">
         <Text style={styles.name}>{t.stateLabel}</Text>
         <Text style={styles.muted}>{t.statePending}</Text>
         {status ? <Notice>{status.message}</Notice> : null}

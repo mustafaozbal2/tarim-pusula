@@ -1,3 +1,4 @@
+import { hedefRef } from '../../src/tanitim/hedef';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
@@ -98,7 +99,7 @@ export default function MarketScreen() {
   return (
     <Screen title={t.title}>
       <SayfaGorseli image="kart_6.jpg" focusY={0.22} text={t.hero} />
-      <View style={styles.chips}>
+      <View style={styles.chips} ref={hedefRef('pazar.urun')}>
         {res.crops.map((c) => (
           <Chip
             key={c.id}
@@ -110,7 +111,7 @@ export default function MarketScreen() {
       </View>
 
       <Text style={styles.section}>{t.sellPlaceTitle}</Text>
-      <View style={styles.chips} testID="pazar-satis-yeri">
+      <View style={styles.chips} ref={hedefRef('pazar.yer')} testID="pazar-satis-yeri">
         <Chip
           label={res.fieldProvince ? t.myProvince.replace('{{il}}', res.fieldProvince) : t.myField}
           selected={res.chosenPlaceId === null}
@@ -127,7 +128,7 @@ export default function MarketScreen() {
       </View>
 
       {cur ? (
-        <Card>
+        <Card ref={hedefRef('pazar.fiyat')}>
           <View style={styles.head}>
             {IMAGE_IS_PLACEHOLDER[productImageName(cropIndex)] ? (
               // Ürün fotoğrafı henüz yok: "Resim N" yer tutucusu yerine yaprak simgesi.
@@ -201,7 +202,7 @@ export default function MarketScreen() {
 
       {res.offline ? <Text style={styles.small}>{t.offline}</Text> : null}
       {res.at ? (
-        <Text style={styles.small} testID="pazar-guncelleme">
+        <Text style={styles.small} ref={hedefRef('pazar.guncelleme')} testID="pazar-guncelleme">
           {t.lastUpdate}: {clock(res.at)}
         </Text>
       ) : null}
@@ -214,7 +215,7 @@ function PlaceCard({ p, open, onWhy }: { p: MarketPlaceDto; open: boolean; onWhy
   const dist = distanceText(p);
   const canRoute = typeof p.lat === 'number' && typeof p.lon === 'number';
   return (
-    <Card style={styles.place}>
+    <Card style={styles.place} ref={hedefRef('pazar.yerler')}>
       <View style={styles.placeTop}>
         <View style={{ flex: 1 }}>
           <Text style={styles.placeName} testID={`pazar-yer-${p.placeId}`}>
