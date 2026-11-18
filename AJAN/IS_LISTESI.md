@@ -13,6 +13,8 @@ Kaynak: SOHBET_DEVAM.md (15.11.2026), TEST_RAPORU.md C bölümü.
 | T-04 | P2 | TEST_RAPORU C bölümündeki "DENENMEDİ" maddeleri telefonda (APK güncelleme, OTA, robot sesi, fotoğraflı soru, hava/don, takvim) | 📱👤 | ⬜ |
 | T-05 | P2 | Yarım: uydu sınıflandırma ve ÇKS etiketi, TÜİK tonajıyla kota, OCR plan satırlarının uzman kontrolü | ☁️ | ⬜ |
 | T-06 | P1 | Uzman onayı: don eşikleri ve takvim şablonları onay bekliyor (CLAUDE.md kural 1) | 👤 | ⬜ Mustafa/uzman |
+| H-20261118-1 | P1 | Biçim denetimi kırmızı: `pnpm run verify` sonundaki `prettier --check .` `AJAN/IS_LISTESI.md` ve `AJAN/ROLLER.md` için hata veriyor. Adımlar: `pnpm run verify` → Beklenen: yeşil → Olan: "Code style issues found in 2 files" (lint/typecheck/test 30/30 yeşil). Çözüm: `pnpm exec prettier --write AJAN/` (Hata Avcısı kod/dosya düzeltmez) | ☁️ | ⬜ (18.11.2026) |
+| H-20261118-2 | P1 | `pnpm audit --prod`: birden çok YÜKSEK açık — node-forge <=1.4.0 (expo>@expo/cli, yalnız geliştirme aracı yolu), zod <4.6.6 (expo>@expo/cli), body-parser 2.0–2.3 (apps/api ve apps/e2e > @nestjs/platform-express>express; sunucuda çalışır, sıkıştırılmış gövdeyle DoS), multer (fileFilter DoS; çıktı kesildi, tam liste `pnpm audit --prod` ile). Kritik var mı: denetlenemedi (izin). Çözüm önerisi: `pnpm.overrides` ile body-parser>=2.4.0, multer yaması, expo güncellemesi | ☁️ | ⬜ (18.11.2026) |
 
 ## Fikirler (onay bekler)
 _(Araştırmacı buraya ekler.)_
