@@ -91,8 +91,12 @@ export class YonetimController {
     if (son.length >= 8)
       throw new BadRequestException('Çok fazla deneme. 15 dakika sonra tekrar deneyin.');
     const u = process.env['ADMIN_USER'] || 'admin';
-    const p = process.env['ADMIN_PASSWORD'] || '12345-6';
+    // Üretimde varsayılan şifre kabul edilmez: ADMIN_PASSWORD tanımlı değilse giriş kapalıdır.
+    const p =
+      process.env['ADMIN_PASSWORD'] ||
+      (process.env['NODE_ENV'] === 'production' ? null : '12345-6');
     const ok =
+      p !== null &&
       typeof b?.kullanici === 'string' &&
       typeof b?.sifre === 'string' &&
       esit(b.kullanici, u) &&
