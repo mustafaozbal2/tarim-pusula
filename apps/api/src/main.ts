@@ -1,3 +1,4 @@
+import { hizSiniri } from './hiz-siniri';
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
@@ -52,6 +53,9 @@ async function bootstrap() {
   app.disable('x-powered-by');
   app.useGlobalFilters(new GovdeHatasiFiltresi());
   app.use(securityHeaders({ hsts: process.env['NODE_ENV'] === 'production' }));
+  // Render önünde tek vekil var: gerçek istemci IP'si X-Forwarded-For'dan (hız sınırı IP başına sayar)
+  app.set('trust proxy', 1);
+  app.use(hizSiniri({ genel: 300, yz: 20 }));
   // Kimlik doğrulama çerezle değil Bearer jetonla olduğundan CORS CSRF riski doğurmaz; üretimde CORS_ORIGINS zorunlu.
   app.enableCors({ origin: corsOrigins(process.env) });
   await app.listen(Number(process.env['PORT'] ?? 3000));
