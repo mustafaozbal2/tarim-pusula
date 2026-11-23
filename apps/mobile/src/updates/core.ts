@@ -34,47 +34,23 @@ export async function syncUpdate(u: UpdatesApi): Promise<UpdateResult> {
   }
 }
 
-/** Açılışta denetim en çok bu kadar bekler; ağ yoksa/yavaşsa uygulama engellenmeden açılır. */
+/** APK sürüm dosyası en çok bu kadar beklenir; ağ yoksa/yavaşsa uygulama engellenmez. */
 export const START_CHECK_MS = 8_000;
 
 const timeout = <T>(ms: number, v: T) => new Promise<T>((r) => setTimeout(() => r(v), ms));
 
-export type StartCheck = 'kapali' | 'guncel' | 'var' | 'hata';
-
 /**
- * Soğuk açılışta: yeni sürüm VAR mı? (İndirmez.) Varsa arayüz "Güncelle" ekranıyla uygulamayı kilitler.
- * Ağ hatası ve zaman aşımı 'hata' döner: bağlantısız çiftçi uygulamaya yine girer.
+ * Arka planda sessizce indirir (yeniden açmaz; form ortasında veri kaybolmasın). Yeni sürüm indiyse true:
+ * arayüz "Yeni sürüm hazır" şeridini gösterir; çiftçi dokunmazsa sonraki açılışta zaten yeni sürüm açılır.
  */
-export async function checkAtStart(u: UpdatesApi, ms = START_CHECK_MS): Promise<StartCheck> {
-  if (!u.enabled) return 'kapali';
+export async function prefetchUpdate(u: UpdatesApi): Promise<boolean> {
+  if (!u.enabled) return false;
   try {
-    const c = await Promise.race([u.check(), timeout<null>(ms, null)]);
-    if (c === null) return 'hata';
-    return c.isAvailable ? 'var' : 'guncel';
-  } catch {
-    return 'hata';
-  }
-}
-
-/** "Güncelle" düğmesi: indir ve yeniden aç. İndirilemezse 'hata' (ekran kilitli kalır, tekrar denenir). */
-export async function applyUpdate(u: UpdatesApi): Promise<'yeniden-aciliyor' | 'guncel' | 'hata'> {
-  try {
-    const f = await u.fetch();
-    if (!f.isNew) return 'guncel';
-    await u.reload();
-    return 'yeniden-aciliyor';
-  } catch {
-    return 'hata';
-  }
-}
-
-/** Uygulama öne gelince sessizce indirir (yeniden açmaz; form ortasında veri kaybolmasın). Sonraki açılışta hazırdır. */
-export async function prefetchUpdate(u: UpdatesApi): Promise<void> {
-  if (!u.enabled) return;
-  try {
-    if ((await u.check()).isAvailable) await u.fetch();
+    if (!(await u.check()).isAvailable) return false;
+    return (await u.fetch()).isNew;
   } catch {
     // Ağ yok: sonra tekrar denenir.
+    return false;
   }
 }
 

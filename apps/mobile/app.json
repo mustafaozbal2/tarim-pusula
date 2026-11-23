@@ -40,7 +40,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/splash-logo.png",
-          "imageWidth": 220,
+          "imageWidth": 288,
           "resizeMode": "contain",
           "backgroundColor": "#0E3B37",
           "dark": { "image": "./assets/splash-logo.png", "backgroundColor": "#0E3B37" }
@@ -92,7 +92,7 @@
         "REQUEST_INSTALL_PACKAGES"
       ],
       "blockedPermissions": ["READ_CONTACTS", "READ_SMS", "SYSTEM_ALERT_WINDOW"],
-      "versionCode": 3
+      "versionCode": 4
     },
     "extra": {
       "router": {
@@ -109,7 +109,7 @@
     "updates": {
       "url": "https://u.expo.dev/eeedaf04-d003-4304-acbc-081656c29df5",
       "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 3000
+      "fallbackToCacheTimeout": 0
     }
   }
 }

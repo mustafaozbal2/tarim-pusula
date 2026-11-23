@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   RESUME_CHECK_MS,
-  applyUpdate,
   checkApk,
-  checkAtStart,
   compareVersions,
   prefetchUpdate,
   shouldCheckOnResume,
@@ -64,47 +62,22 @@ describe('uygulama içi güncelleme', () => {
   });
 });
 
-describe('açılış güncelleme kapısı', () => {
-  it('yeni sürüm varsa yalnız denetler (indirmez); kapı "Güncelle" ekranını açar', async () => {
+describe('arka plan güncellemesi (açılışta bekletmez)', () => {
+  it('sessizce indirir, yeniden AÇMAZ; yeni sürüm indiyse "hazır" der (şerit çıkar)', async () => {
     const f = fake({ available: true });
-    expect(await checkAtStart(f.api)).toBe('var');
-    expect(f.calls).toEqual(['check']);
-    expect(await checkAtStart(fake({ available: false }).api)).toBe('guncel');
-  });
-
-  it('ağ hatası, zaman aşımı ve kapalı sürümde giriş engellenmez', async () => {
-    expect(await checkAtStart(fake({ fail: true }).api)).toBe('hata');
-    expect(await checkAtStart(fake({ enabled: false, available: true }).api)).toBe('kapali');
-    const slow: UpdatesApi = {
-      ...fake({}).api,
-      check: () => new Promise(() => undefined),
-    };
-    expect(await checkAtStart(slow, 20)).toBe('hata');
-  });
-
-  it('"Güncelle": indirir ve yeniden açar; indirilemezse hata (ekran kilitli kalır, tekrar denenir)', async () => {
-    const ok = fake({});
-    expect(await applyUpdate(ok.api)).toBe('yeniden-aciliyor');
-    expect(ok.calls).toEqual(['fetch', 'reload']);
-    const notNew = fake({ isNew: false });
-    expect(await applyUpdate(notNew.api)).toBe('guncel');
-    const bad: UpdatesApi = {
-      ...fake({}).api,
-      fetch: async () => {
-        throw new Error('kesildi');
-      },
-    };
-    expect(await applyUpdate(bad)).toBe('hata');
-  });
-
-  it('öne gelişte sessizce indirir, yeniden AÇMAZ (form ortasında veri kaybolmasın)', async () => {
-    const f = fake({ available: true });
-    await prefetchUpdate(f.api);
+    expect(await prefetchUpdate(f.api)).toBe(true);
     expect(f.calls).toEqual(['check', 'fetch']);
     const g = fake({ available: false });
-    await prefetchUpdate(g.api);
+    expect(await prefetchUpdate(g.api)).toBe(false);
     expect(g.calls).toEqual(['check']);
-    await expect(prefetchUpdate(fake({ fail: true }).api)).resolves.toBeUndefined();
+    expect(await prefetchUpdate(fake({ available: true, isNew: false }).api)).toBe(false);
+  });
+
+  it('ağ hatası ve kapalı sürümde şerit çıkmaz, uygulama bozulmaz', async () => {
+    expect(await prefetchUpdate(fake({ fail: true }).api)).toBe(false);
+    const off = fake({ enabled: false, available: true });
+    expect(await prefetchUpdate(off.api)).toBe(false);
+    expect(off.calls).toEqual([]);
   });
 });
 
