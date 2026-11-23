@@ -21,19 +21,22 @@ export const updateDate = (): Date | null =>
 export const installedVersion = (): string => Updates.runtimeVersion ?? '0.0.0';
 
 /**
- * Uygulama her öne geldiğinde yeni sürümü sessizce indirir (yeniden açmaz, form ortasında veri kaybolmasın).
- * Soğuk açılışta güncelleme kapısı (UpdateGate) denetler ve "Güncelle" ekranıyla kilitler.
+ * Açılışta ve uygulama her öne geldiğinde yeni sürümü arka planda sessizce indirir (kimseyi bekletmez,
+ * yeniden açmaz; form ortasında veri kaybolmasın). İndiyse onReady çağrılır: "Yeni sürüm hazır" şeridi.
  */
-export function useAutoUpdate(api: UpdatesApi = expoUpdates) {
+export function useAutoUpdate(api: UpdatesApi, onReady: () => void) {
   const last = useRef<number | null>(null);
+  const ready = useRef(onReady);
+  ready.current = onReady;
   useEffect(() => {
     if (!api.enabled) return;
     const run = () => {
       const now = Date.now();
       if (!shouldCheckOnResume(last.current, now)) return;
       last.current = now;
-      void prefetchUpdate(api);
+      void prefetchUpdate(api).then((yeni) => yeni && ready.current());
     };
+    run();
     const sub = AppState.addEventListener('change', (s) => {
       if (s === 'active') run();
     });

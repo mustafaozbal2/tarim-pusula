@@ -3,9 +3,18 @@ import { hizSiniri } from './hiz-siniri';
 
 function cagir(mw: ReturnType<typeof hizSiniri>, path: string, ip = '1.1.1.1') {
   let durum = 200;
-  const res: any = { setHeader() {}, status(s: number) { durum = s; return { json() {} }; } };
+  type Mw = Parameters<typeof mw>;
+  const res = {
+    setHeader() {},
+    status(s: number) {
+      durum = s;
+      return { json() {} };
+    },
+  } as unknown as Mw[1];
   let gecti = false;
-  mw({ path, ip } as any, res, () => { gecti = true; });
+  mw({ path, ip } as unknown as Mw[0], res, () => {
+    gecti = true;
+  });
   return gecti ? 200 : durum;
 }
 

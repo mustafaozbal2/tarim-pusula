@@ -146,6 +146,8 @@ def main() -> None:
     # Uyarlanabilir simge: görünür daire 1024*72/108 = 683 px; amblem 720 px (kenar maskenin hemen dışında).
     tuvale(d, 1024, 720).save(ASSETS / "adaptive-icon.png", optimize=True)
     kenar_uzat(d, 1024, 720).save(ASSETS / "adaptive-bg.png", optimize=True)
+    # Android 12+ açılış simgesini tuvalin 2/3'ü çaplı daireyle keser; amblem 620 px (%60) kalınca kesilmez.
+    tuvale(d, 1024, 620).save(ASSETS / "splash-logo.png", optimize=True)
     tuvale(d, 512, 504).save(IMAGES / "logo_daire.png", optimize=True)
     for n in (192, 512):
         tuvale(d, n, n - 4).save(PUBLIC / f"icon-{n}.png", optimize=True)

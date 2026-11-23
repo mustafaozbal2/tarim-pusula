@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -9,22 +9,21 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFamily } from '@tarim/ui';
 import { IMAGE_FILES } from '../assets';
 import { tr } from '../i18n/tr';
 import { apkKur, gercekKurucu } from './apkKur';
 import { PLAY_SURUMU } from './play';
-import { applyUpdate, checkApk, checkAtStart, type ApkManifest, type UpdatesApi } from './core';
+import { checkApk, type ApkManifest, type UpdatesApi } from './core';
+import { useAutoUpdate } from './index';
 
 const t = tr.gate;
 const SITE = process.env['EXPO_PUBLIC_SITE_URL'] ?? 'https://tarimpusula.onrender.com';
 
 type Phase =
-  | { k: 'checking' }
   | { k: 'open' }
-  | { k: 'update' }
-  | { k: 'downloading' }
-  | { k: 'failed' }
+  | { k: 'ready' }
   | { k: 'apk'; adres: string }
   | { k: 'apk-indiriyor'; adres: string; oran: number };
 
@@ -36,10 +35,9 @@ export const loadApkManifest = async (): Promise<ApkManifest> => {
 };
 
 /**
- * Soğuk açılışta güncelleme kapısı: yeni sürüm varsa uygulamanın üstüne kapatılamayan tam ekran "Güncelle"
- * ekranı gelir; güncellenmeden uygulamaya girilmez. Bağlantı yoksa ya da denetim 8 sn'de bitmezse engellenmez
- * (tarlada internet çekmeyebilir). Yüklü APK çok eskiyse (yerel kod değişti) yeni APK indirme ekranı çıkar.
- * Altta uygulama kurulu kalır (oturum ve gezinme çalışır); kapı yalnız örtüdür.
+ * Güncelleme kimseyi bekletmez: uygulama hemen açılır, yeni sürüm arka planda iner. İnince üstte küçük
+ * "Yeni sürüm hazır" şeridi çıkar ("Yeniden başlat" ya da "Sonra"; dokunulmazsa sonraki açılışta zaten yeni
+ * sürüm açılır). Yalnız yüklü APK çok eskiyse (yerel kod değişti) yeni APK indirme ekranı örter.
  */
 export function UpdateGate({
   api,
@@ -51,33 +49,22 @@ export function UpdateGate({
   apkLoader?: () => Promise<ApkManifest>;
 }) {
   const active = api.enabled && Platform.OS !== 'web';
-  const [phase, setPhase] = useState<Phase>(active ? { k: 'checking' } : { k: 'open' });
+  const [phase, setPhase] = useState<Phase>({ k: 'open' });
+  const top = useSafeAreaInsets().top;
+
+  useAutoUpdate(api, () => setPhase((p) => (p.k === 'open' ? { k: 'ready' } : p)));
 
   useEffect(() => {
-    if (!active) return;
+    // Play sürümünde güncellemeyi Play yapar: site APK denetimi yok.
+    if (!active || PLAY_SURUMU) return;
     let alive = true;
-    void (async () => {
-      // Play sürümünde güncellemeyi Play yapar: site APK denetimi yok.
-      const [apk, ota] = await Promise.all([
-        PLAY_SURUMU ? Promise.resolve({ kind: 'tamam' as const }) : checkApk(installed, apkLoader),
-        checkAtStart(api),
-      ]);
-      if (!alive) return;
-      if (apk.kind === 'zorunlu') setPhase({ k: 'apk', adres: apk.adres });
-      else setPhase(ota === 'var' ? { k: 'update' } : { k: 'open' });
-    })();
+    void checkApk(installed, apkLoader).then((apk) => {
+      if (alive && apk.kind === 'zorunlu') setPhase({ k: 'apk', adres: apk.adres });
+    });
     return () => {
       alive = false;
     };
-  }, [active, api, installed, apkLoader]);
-
-  const update = useCallback(async () => {
-    setPhase({ k: 'downloading' });
-    const r = await applyUpdate(api);
-    // 'yeniden-aciliyor' ise uygulama kapanıp açılır; 'guncel' (başka yerden inmiş) ise girilir.
-    if (r === 'hata') setPhase({ k: 'failed' });
-    else if (r === 'guncel') setPhase({ k: 'open' });
-  }, [api]);
+  }, [active, installed, apkLoader]);
 
   // MP-6: APK uygulama içinde iner ve kurucu doğrudan açılır; olmazsa eski yol (tarayıcı).
   const apkGuncelle = async (adres: string) => {
@@ -88,34 +75,38 @@ export function UpdateGate({
             setPhase({ k: 'apk-indiriyor', adres, oran }),
           )
         : 'hata';
-    if (r === 'hata') {
-      void Linking.openURL(adres);
-      setPhase({ k: 'apk', adres });
-    } else {
-      setPhase({ k: 'apk', adres });
-    }
+    if (r === 'hata') void Linking.openURL(adres);
+    setPhase({ k: 'apk', adres });
   };
 
   if (phase.k === 'open') return null;
-  const busy = phase.k === 'checking' || phase.k === 'downloading' || phase.k === 'apk-indiriyor';
-  const title =
-    phase.k === 'apk' || phase.k === 'apk-indiriyor'
-      ? t.apkTitle
-      : phase.k === 'checking'
-        ? t.checking
-        : t.updateTitle;
-  const body =
-    phase.k === 'apk'
-      ? t.apkBody
-      : phase.k === 'apk-indiriyor'
-        ? `${t.apkIniyor} %${Math.round(phase.oran * 100)}`
-        : phase.k === 'downloading'
-          ? t.downloading
-          : phase.k === 'failed'
-            ? t.failed
-            : phase.k === 'update'
-              ? t.updateBody
-              : null;
+  if (phase.k === 'ready') {
+    return (
+      <View
+        style={[styles.strip, { top: top + 8 }]}
+        testID="yeni-surum-seridi"
+        accessibilityLiveRegion="polite"
+      >
+        <Text style={styles.stripText}>{t.readyTitle}</Text>
+        <Pressable
+          accessibilityRole="button"
+          testID="sonra-dugmesi"
+          onPress={() => setPhase({ k: 'open' })}
+          style={styles.stripLater}
+        >
+          <Text style={styles.stripLaterText}>{t.later}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          testID="yeniden-baslat-dugmesi"
+          onPress={() => void api.reload().catch(() => setPhase({ k: 'open' }))}
+          style={styles.stripButton}
+        >
+          <Text style={styles.stripButtonText}>{t.restart}</Text>
+        </Pressable>
+      </View>
+    );
+  }
   return (
     <View style={styles.cover} testID="guncelleme-kapisi" accessibilityViewIsModal>
       <Image
@@ -124,21 +115,14 @@ export function UpdateGate({
         resizeMode="contain"
       />
       <Text accessibilityRole="header" style={styles.title}>
-        {title}
+        {t.apkTitle}
       </Text>
-      {body ? <Text style={styles.body}>{body}</Text> : null}
-      {busy ? <ActivityIndicator color="#FFFFFF" size="large" style={styles.spin} /> : null}
-      {phase.k === 'update' || phase.k === 'failed' ? (
-        <Pressable
-          accessibilityRole="button"
-          testID="guncelle-dugmesi"
-          onPress={() => void update()}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>{phase.k === 'failed' ? t.retry : t.updateButton}</Text>
-        </Pressable>
-      ) : null}
-      {phase.k === 'apk' ? (
+      <Text style={styles.body}>
+        {phase.k === 'apk' ? t.apkBody : `${t.apkIniyor} %${Math.round(phase.oran * 100)}`}
+      </Text>
+      {phase.k === 'apk-indiriyor' ? (
+        <ActivityIndicator color="#FFFFFF" size="large" style={styles.spin} />
+      ) : (
         <Pressable
           accessibilityRole="button"
           testID="apk-dugmesi"
@@ -147,12 +131,38 @@ export function UpdateGate({
         >
           <Text style={styles.buttonText}>{t.apkButton}</Text>
         </Pressable>
-      ) : null}
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  strip: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    zIndex: 1000,
+    elevation: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingLeft: 14,
+    paddingRight: 8,
+    borderRadius: 12,
+    backgroundColor: '#0E3B37',
+  },
+  stripText: { flex: 1, fontFamily: fontFamily.bold, fontSize: 14, color: '#FFFFFF' },
+  stripLater: { minHeight: 44, paddingHorizontal: 10, justifyContent: 'center' },
+  stripLaterText: { fontFamily: fontFamily.semibold, fontSize: 14, color: '#B2E2DA' },
+  stripButton: {
+    minHeight: 44,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: '#D9A441',
+    justifyContent: 'center',
+  },
+  stripButtonText: { fontFamily: fontFamily.extrabold, fontSize: 14, color: '#0A2C28' },
   cover: {
     position: 'absolute',
     top: 0,

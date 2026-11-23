@@ -882,13 +882,9 @@ export const tr = {
     draftValues: 'Taslak değerler var',
   },
   gate: {
-    checking: 'Güncellemeler denetleniyor',
-    updateTitle: 'Yeni sürüm hazır',
-    updateBody: 'Uygulamayı kullanmaya devam etmek için önce güncelle. Birkaç saniye sürer.',
-    updateButton: 'Güncelle',
-    downloading: 'Güncelleme indiriliyor, uygulama kendiliğinden yeniden açılacak.',
-    failed: 'Güncelleme indirilemedi. İnternet bağlantını kontrol edip tekrar dene.',
-    retry: 'Tekrar dene',
+    readyTitle: 'Yeni sürüm hazır',
+    restart: 'Yeniden başlat',
+    later: 'Sonra',
     apkTitle: 'Uygulamanın yeni sürümünü kur',
     apkBody:
       'Bu sürüm eskidi. Yeni sürümü indirip kur; kurulumdan sonra bilgilerin ve tarlaların aynen duracak.',

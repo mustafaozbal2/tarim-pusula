@@ -14,7 +14,7 @@ import { AltCubuk } from '../src/components/AltCubuk';
 import { i18n } from '../src/i18n';
 import { onPushTap } from '../src/push';
 import { queue, useSessionKind, useToken } from '../src/session';
-import { expoUpdates, installedVersion, useAutoUpdate } from '../src/updates';
+import { expoUpdates, installedVersion } from '../src/updates';
 import { UpdateGate } from '../src/updates/UpdateGate';
 import { TanitimKatmani } from '../src/tanitim/TanitimKatmani';
 import { useSettings } from '../src/settings';
@@ -86,8 +86,6 @@ export default function RootLayout() {
   // Yazı tipi yüklenemese bile uygulama sistem yazısıyla açılır.
   useFonts({ Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
   useSessionGate();
-  // Uygulama öne gelince yeni sürüm sessizce inip sonraki açılışta hazır olur (açılış kapısı: UpdateGate).
-  useAutoUpdate();
   // Yazı boyutu değişince ağaç yeniden kurulur (Text sarmalayıcısı yeni ölçeği okur).
   const { textSize } = useSettings();
   const { width } = useWindowDimensions();
@@ -102,7 +100,7 @@ export default function RootLayout() {
         {token && kind !== 'yetkili' ? <AltCubuk /> : null}
         {/* İlk girişte karşılama kartı; ilk kez girilen her sayfada adım adım tanıtım (mavi ampulle yeniden açılır). */}
         <TanitimKatmani etkin={!!token && kind !== undefined && kind !== 'yetkili'} />
-        {/* Soğuk açılışta yeni sürüm varsa "Güncelle" ekranı örter; güncellenmeden girilmez. */}
+        {/* Yeni sürüm arka planda iner; hazır olunca üstte "Yeniden başlat" şeridi çıkar (bekletmez). */}
         <UpdateGate api={expoUpdates} installed={installedVersion()} />
       </View>
     </I18nextProvider>
