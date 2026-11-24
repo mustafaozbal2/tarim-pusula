@@ -60,14 +60,7 @@ async function bootstrap() {
   app.enableCors({ origin: corsOrigins(process.env) });
   await app.listen(Number(process.env['PORT'] ?? 3000));
   // Fiyat toplayıcıları: boşsa kapalı. Kaynak başına tekrar çekim aralığı ve robots.txt yine uygulanır.
-  const everyMin = Number(process.env['MARKET_COLLECT_INTERVAL_MIN']);
-  if (everyMin > 0) {
-    const collector = app.get(MarketCollector);
-    setInterval(
-      () => void collector.runAll().catch((e) => console.error('pazar toplayıcı', e)),
-      everyMin * 60_000,
-    );
-  }
+  app.get(MarketCollector).zamanla();
 }
 
 void bootstrap();

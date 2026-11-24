@@ -148,6 +148,9 @@ export default function MarketScreen() {
               <Text style={styles.small} testID="pazar-konum">
                 {cur.name}
               </Text>
+              <Text style={styles.small} testID="pazar-cesit">
+                {cur.product}
+              </Text>
               <Text style={styles.small} testID="pazar-konum-neden">
                 {basisText}
               </Text>
@@ -221,6 +224,7 @@ function PlaceCard({ p, open, onWhy }: { p: MarketPlaceDto; open: boolean; onWhy
           <Text style={styles.placeName} testID={`pazar-yer-${p.placeId}`}>
             {p.name}
           </Text>
+          <Text style={styles.small}>{p.product}</Text>
           {dist ? <Text style={styles.small}>{dist}</Text> : null}
         </View>
         <Text style={styles.placePrice}>{tl(p.price)}</Text>

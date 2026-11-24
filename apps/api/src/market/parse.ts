@@ -37,6 +37,16 @@ export function cropIdFor(name: string): string | null {
   if (/\barpa\b/.test(n)) return 'arpa';
   if (/\bpamuk\b/.test(n)) return 'pamuk';
   if (/\bdomates\b/.test(n)) return 'domates';
+  if (/\bbiber\b/.test(n)) return 'biber';
+  if (/\bpatlican\b/.test(n)) return 'patlican';
+  if (/\bsalatalik\b/.test(n)) return 'salatalik';
+  if (/\bsogan\b/.test(n) && !/\btaze\b/.test(n)) return 'sogan';
+  if (/\bpatates\b/.test(n) && !/\btatli\b/.test(n)) return 'patates';
+  if (/\bcilek\b/.test(n)) return 'cilek';
+  if (/\bnar\b/.test(n)) return 'nar';
+  if (/\bincir\b/.test(n)) return 'incir';
+  if (/\buzum\b/.test(n)) return 'uzum-sofralik';
+  if (/\bfasulye\b/.test(n)) return 'fasulye';
   return null;
 }
 
@@ -131,6 +141,33 @@ export function parseIbbHal(text: string): PriceRecord[] {
       asNum(pick(o, 'MinPrice', 'minPrice', 'Min')),
       asNum(pick(o, 'MaxPrice', 'maxPrice', 'Max')),
       parseDay(date),
+    );
+  }
+  return out;
+}
+
+/** İzmir Büyükşehir açık veri servisi, günlük sebze-meyve hal bülteni (canlı yanıttan doğrulandı, 24.11.2026). */
+export function parseIzmirHal(text: string): PriceRecord[] {
+  let j: Json | null;
+  try {
+    j = JSON.parse(text) as Json | null;
+  } catch {
+    return [];
+  }
+  const day = typeof j?.['BultenTarihi'] === 'string' ? parseDay(j['BultenTarihi']) : null;
+  const rows = Array.isArray(j?.['HalFiyatListesi']) ? (j['HalFiyatListesi'] as unknown[]) : [];
+  const out: PriceRecord[] = [];
+  for (const r of rows) {
+    if (!r || typeof r !== 'object') continue;
+    const o = r as Json;
+    if (typeof o['MalAdi'] !== 'string' || typeof o['Birim'] !== 'string') continue;
+    push(
+      out,
+      o['MalAdi'].replace(/\s+/g, ' '),
+      o['Birim'],
+      asNum(o['AsgariUcret']),
+      asNum(o['AzamiUcret']),
+      day,
     );
   }
   return out;

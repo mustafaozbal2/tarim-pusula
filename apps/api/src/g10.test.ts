@@ -11,15 +11,17 @@ import { FakeSmsProvider } from './auth/sms';
 import { importCropCatalog } from './crops';
 import { migrate, systemTx } from './db/db';
 import { createTestDb } from './db/testdb';
-import { type MarketSourceConfig } from './market/collector';
+import { MarketCollector, type MarketSourceConfig } from './market/collector';
 import {
   cropIdFor,
   parseBorsaBulletin,
   parseIbbHal,
+  parseIzmirHal,
   parseTepge,
   parseTrNumber,
 } from './market/parse';
 import { parseRobots, robotsAllows } from './market/robots';
+import { trToday } from './controllers.g4';
 import { Places } from './places';
 
 const fx = (f: string) =>
@@ -49,6 +51,38 @@ describe('ayrıştırıcılar (kayıtlı örnek yanıtlar)', () => {
     expect(parseIbbHal('<html>bakım</html>')).toEqual([]);
     expect(parseIbbHal('{"data":[{"ProductName":"Domates"}]}')).toEqual([]);
     expect(parseIbbHal('{"data":[]}')).toEqual([]);
+  });
+  it('İzmir hal (canlı yanıt biçimi): adet atılır, boşluk sadeleşir, ürün eşlenir, bozuk yanıt boş döner', () => {
+    const satir = (MalAdi: string, Birim: string, AsgariUcret: number, AzamiUcret: number) => ({
+      MalAdi,
+      Birim,
+      AsgariUcret,
+      AzamiUcret,
+    });
+    const r = parseIzmirHal(
+      JSON.stringify({
+        BultenTarihi: '2026-11-24T00:00:00',
+        HalFiyatListesi: [
+          satir('DOMATES  SALKIM', 'KG', 50, 100),
+          satir('MARUL', 'ADET', 25, 50),
+          satir('SOĞAN   TAZE', 'KG', 50, 70),
+          satir('SOĞAN   KURU', 'KG', 20, 35),
+          satir('BİBER  SİVRİ', 'KG', 40, 65),
+          satir('CILEK', 'KG', 250, 400),
+        ],
+      }),
+    );
+    expect(r.map((x) => [x.productName, x.cropId])).toEqual([
+      ['DOMATES SALKIM', 'domates'],
+      ['SOĞAN TAZE', null],
+      ['SOĞAN KURU', 'sogan'],
+      ['BİBER SİVRİ', 'biber'],
+      ['CILEK', 'cilek'],
+    ]);
+    expect(r[0]).toMatchObject({ priceMin: 50, priceMax: 100, priceDate: '2026-11-24' });
+    expect(parseIzmirHal('<html>bakım</html>')).toEqual([]);
+    expect(parseIzmirHal('null')).toEqual([]);
+    expect(parseIzmirHal('{"HalFiyatListesi":[]}')).toEqual([]);
   });
   it('TEPGE aylık: Türkçe sayı, iki dönem biçimi, ay sonu tarihi; başlık/bozuk satır atlanır', () => {
     const r = parseTepge(fx('tepge_aylik.csv'));
@@ -336,6 +370,44 @@ describe('toplayıcı: robots, kaynak künyesi, tekrar aralığı', () => {
     expect(r.body.map((x: any) => x.status)).toEqual(['error', 'empty', 'ok']);
     const [s] = await sql<any>("SELECT last_status FROM market_sources WHERE id = 'ibb-hal'");
     expect(s.last_status).toContain('HTTP 500');
+  });
+});
+
+describe('günlük adresli kaynak ({tarih})', () => {
+  it('ilk çekimde son 30 gün, sonra dün ve bugün; kayıt gerçek adresi taşır; bir günün hatası diğerlerini durdurmaz', async () => {
+    setRoutes();
+    const adres = (g: string) => 'https://gunluk.example.test/hal/' + g;
+    const bulten = (g: string) => ({
+      status: 200,
+      body: JSON.stringify({
+        BultenTarihi: g + 'T00:00:00',
+        HalFiyatListesi: [{ MalAdi: 'NAR', Birim: 'KG', AsgariUcret: 20, AzamiUcret: 50 }],
+      }),
+    });
+    const bugun = trToday(new Date(clock));
+    const dun = new Date(Date.parse(bugun) - 86_400_000).toISOString().slice(0, 10);
+    routes.set(adres(bugun), bulten(bugun));
+    routes.set(adres(dun), { status: 500, body: '' });
+    const cfg: MarketSourceConfig = {
+      ...sources[0]!,
+      id: 'gunluk',
+      url: adres('{tarih}'),
+      parse: parseIzmirHal,
+      place: { ...sources[0]!.place, id: 'gunluk-hal' },
+    };
+    const col = app.get(MarketCollector);
+    const veri = () => calls.filter((u) => u.startsWith(adres('')));
+    expect(await col.run(cfg, true)).toMatchObject({ status: 'ok', stored: 1 });
+    expect(veri()).toHaveLength(30);
+    expect(veri().at(-1)).toBe(adres(bugun));
+    calls.length = 0;
+    expect(await col.run(cfg, true)).toMatchObject({ status: 'ok', stored: 1 });
+    expect(veri()).toEqual([adres(dun), adres(bugun)]);
+    const [row] = await sql<{ u: string }>(
+      "SELECT source_url AS u FROM market_prices WHERE source_id = 'gunluk'",
+    );
+    expect(row?.u).toBe(adres(bugun));
+    await sql("DELETE FROM market_prices WHERE source_id = 'gunluk'");
   });
 });
 

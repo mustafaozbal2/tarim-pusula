@@ -310,6 +310,9 @@ export async function startDemo(o: DemoOptions): Promise<DemoHandle> {
     console.warn('demo pazar tohumu atlandı:', (e as Error).message);
   }
 
+  // Canlı sunucu bu dosyayla açılır; gerçek fiyat toplayıcı burada başlamazsa Pazar ekranı boş kalır.
+  if (!ornekTohum) app.get(MarketCollector).zamanla();
+
   // webPort 0: yalnız API (bulut: mobil web ayrı statik sitede, tek kapı açılır).
   const web = o.webPort > 0 ? serveStatic(resolve(o.webDir)) : null;
   if (web) await new Promise<void>((ok) => web.listen(o.webPort, o.host ?? '127.0.0.1', ok));

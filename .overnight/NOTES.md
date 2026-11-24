@@ -208,3 +208,9 @@ Yarım: telefonda elle denenmedi; yeni APK (amblem düzeltmesi için) EAS hesab�
 - Yayın: dev push, Render yeniden kuruldu (`/me/haftalik-ozet` 401 = canlı), EAS Update preview.
 - Yarım: takvim şablonları hâlâ boş olduğundan "kritik tarihler" çoğunlukla başvuru son günlerinden oluşur. Telefonda elle denenmedi.
 - Ek (24.11): son günü 3 gün içindeki başvuru haftalık özette kırmızı + "Son günler, kaçırmayın"; pazartesi bildiriminde "N başvurunun son günü 3 gün içinde". agro-core sonGunYakin + testler. dev 7b7b08e, Render canlı (7b7b08e), EAS Update preview b6943fc9.
+
+## 2026-11-24 — Hal fiyatları canlıya alındı (TarimPusula-t-hal-davet-2311)
+
+- Bulgu: canlı giriş noktası `demo-server.ts` toplayıcı zamanlayıcısını hiç başlatmıyordu ve Render'da `MARKET_*` yoktu; Pazar ekranı canlıda boştu.
+- Yapıldı: İzmir Büyükşehir açık veri hal bülteni (`izmir-hal`, `{tarih}` yer tutuculu günlük adres, ilk çekimde 30 gün), `MarketCollector.zamanla()` (açılışta + `MARKET_COLLECT_INTERVAL_MIN`), biber/patlıcan/salatalık/soğan/patates/çilek/nar/incir/üzüm/fasulye eşlemesi, Pazar kartlarında çeşit adı. Toplayıcının istek başlığındaki kişisel e-posta kaldırıldı.
+- Yarım: İBB servisi 404 (adres bilinmiyor). Antep fıstığı, zeytin, buğday, arpa, pamuk İzmir hal bülteninde yok; ticaret borsası kaynağı gerekir. Zincir market raf fiyatı için açık ve güvenilir kaynak bulunmadı, eklenmedi.

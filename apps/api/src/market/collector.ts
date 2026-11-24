@@ -1,23 +1,32 @@
 import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { DB } from '../auth/auth.service';
+import { trToday } from '../controllers.g4';
 import { systemTx, type Db } from '../db/db';
 import { CLOCK } from '../weather/tokens';
-import { parseBorsaBulletin, parseIbbHal, parseTepge, type PriceRecord } from './parse';
+import {
+  parseBorsaBulletin,
+  parseIbbHal,
+  parseIzmirHal,
+  parseTepge,
+  type PriceRecord,
+} from './parse';
 import { parseRobots, robotsAllows } from './robots';
 
 export const MARKET_FETCH = Symbol('MARKET_FETCH');
 export const MARKET_SOURCES = Symbol('MARKET_SOURCES');
 export const MARKET_SLEEP = Symbol('MARKET_SLEEP');
 
-export const USER_AGENT = 'TarimPusulaBot/0.1 (+mustafaozbal3@gmail.com)';
+export const USER_AGENT = 'TarimPusulaBot/0.1 (hal fiyati okuyucu; egitim projesi)';
 /** Aynı kaynağa iki çekim arasında en az bu kadar süre (saat); robots'taki Crawl-Delay ayrıca uygulanır. */
 export const MIN_REFETCH_HOURS = 6;
+/** Günlük adresli kaynağın ilk çekiminde geriye alınan gün: eğilim ve haftalık değişim hemen hesaplanabilsin. */
+export const ILK_CEKIM_GUN = 30;
 
 export interface MarketSourceConfig {
   id: string;
   name: string;
-  /** Veri adresi. Boşsa kaynak devre dışıdır (uydurma adres kullanılmaz). */
+  /** Veri adresi. Boşsa kaynak devre dışıdır. `{tarih}` varsa günlük adrestir (YYYY-MM-DD konur). */
   url: string | null;
   licenseNote: string;
   /** Biçim sürümü: ayrıştırıcı değişirse artar, kayıt künyesine yazılır. */
@@ -59,6 +68,23 @@ export function defaultMarketSources(env: NodeJS.ProcessEnv = process.env): Mark
         province: 'İstanbul',
         lat: 41.0082,
         lon: 28.9784,
+        approx: true,
+      },
+    },
+    {
+      id: 'izmir-hal',
+      name: 'İzmir Büyükşehir Belediyesi Hal Fiyatları',
+      url: env['MARKET_IZMIR_URL'] || null,
+      licenseNote:
+        'İzmir Büyükşehir Belediyesi açık veri servisi (openapi.izmir.bel.tr); kaynak ve bülten tarihiyle gösterilir.',
+      formatVersion: 'izmir-hal-v1',
+      parse: parseIzmirHal,
+      place: {
+        id: 'izmir-hal',
+        name: 'İzmir Hali',
+        province: 'İzmir',
+        lat: 38.4192,
+        lon: 27.1287,
         approx: true,
       },
     },
@@ -130,6 +156,34 @@ export class MarketCollector {
     return out;
   }
 
+  /** Açılışta bir kez, sonra `MARKET_COLLECT_INTERVAL_MIN` dakikada bir (boşsa kapalı; 6 saat sınırı yine geçerli). */
+  zamanla(env: NodeJS.ProcessEnv = process.env): void {
+    const dk = Number(env['MARKET_COLLECT_INTERVAL_MIN']);
+    if (!(dk > 0)) return;
+    const tur = () => void this.runAll().catch((e) => console.error('pazar toplayıcı', e));
+    tur();
+    setInterval(tur, dk * 60_000).unref();
+  }
+
+  /** Çekilecek adresler. Günlük adreste: ilk çekimde son 30 gün, sonra dün ve bugün (en yeni sonda). */
+  private async adresler(cfg: MarketSourceConfig, url: string): Promise<string[]> {
+    if (!url.includes('{tarih}')) return [url];
+    const [row] = await systemTx(this.db, (q) =>
+      q.query<{ var: boolean }>(
+        'SELECT EXISTS (SELECT 1 FROM market_prices WHERE source_id = $1) AS var',
+        [cfg.id],
+      ),
+    );
+    const bugun = Date.parse(trToday(this.now()));
+    const gun = row?.var ? 2 : ILK_CEKIM_GUN;
+    return Array.from({ length: gun }, (_, i) =>
+      url.replace(
+        '{tarih}',
+        new Date(bugun - (gun - 1 - i) * 86_400_000).toISOString().slice(0, 10),
+      ),
+    );
+  }
+
   private async get(url: string): Promise<{ ok: boolean; status: number; body: string }> {
     const res = await this.fetchFn(url, {
       headers: { 'user-agent': USER_AGENT, accept: '*/*' },
@@ -141,7 +195,7 @@ export class MarketCollector {
   async run(cfg: MarketSourceConfig, force = false): Promise<RunResult> {
     await this.upsertSource(cfg);
     if (!cfg.url) return this.finish(cfg, 'disabled', 0, 'adres tanımlı değil');
-    const url = new URL(cfg.url);
+    const url = new URL(cfg.url.replace('{tarih}', trToday(this.now())));
 
     if (!force) {
       const [last] = await systemTx(this.db, (q) =>
@@ -183,21 +237,39 @@ export class MarketCollector {
     }
     if (delaySec && delaySec > 0) await this.sleep(delaySec * 1000);
 
-    let body: string;
-    try {
-      const r = await this.get(cfg.url);
-      if (!r.ok) return this.finish(cfg, 'error', 0, `HTTP ${r.status}`);
-      body = r.body;
-    } catch (e) {
-      return this.finish(cfg, 'error', 0, (e as Error).message);
+    const urls = await this.adresler(cfg, cfg.url);
+    let stored = 0;
+    let hata: string | null = null;
+    for (const [i, adres] of urls.entries()) {
+      if (i > 0) await this.sleep(Math.max(delaySec ?? 0, 1) * 1000);
+      let body: string;
+      try {
+        const r = await this.get(adres);
+        if (!r.ok) {
+          hata = `HTTP ${r.status}`;
+          continue;
+        }
+        body = r.body;
+      } catch (e) {
+        hata = (e as Error).message;
+        continue;
+      }
+      stored += await this.sakla(cfg, adres, body);
     }
+    if (stored === 0)
+      return hata
+        ? this.finish(cfg, 'error', 0, hata)
+        : this.finish(cfg, 'empty', 0, 'ayrıştırılan kayıt yok');
+    return this.finish(cfg, 'ok', stored);
+  }
 
+  private async sakla(cfg: MarketSourceConfig, adres: string, body: string): Promise<number> {
     const records = cfg.parse(body);
-    if (records.length === 0) return this.finish(cfg, 'empty', 0, 'ayrıştırılan kayıt yok');
+    if (records.length === 0) return 0;
     const fetchedAt = this.now();
     const version = `${cfg.formatVersion}@${fetchedAt.toISOString().slice(0, 10)}`;
     const digest = sha256(body);
-    const stored = await systemTx(this.db, async (q) => {
+    return systemTx(this.db, async (q) => {
       let n = 0;
       for (const r of records) {
         const rows = await q.query(
@@ -219,7 +291,7 @@ export class MarketCollector {
             r.priceDate,
             fetchedAt,
             version,
-            cfg.url,
+            adres,
             digest,
           ],
         );
@@ -227,7 +299,6 @@ export class MarketCollector {
       }
       return n;
     });
-    return this.finish(cfg, 'ok', stored);
   }
 
   private async finish(
