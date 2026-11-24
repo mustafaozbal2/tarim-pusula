@@ -95,6 +95,16 @@ export function haftalikFiyat(seri: readonly FiyatNoktasi[]): HaftalikFiyat | nu
   };
 }
 
+/** Son günü kaçırılmasın diye öne çıkarılan başvurular için eşik (gün). */
+export const YAKIN_SON_GUN = 3;
+
+/** Başvuru son günü bugün ile `esik` gün sonrası arasındaysa true; geçmiş ya da bilinmeyen son gün false. */
+export function sonGunYakin(sonGun: string | null, bugun: string, esik = YAKIN_SON_GUN): boolean {
+  if (!sonGun) return false;
+  const n = dayNum(sonGun) - dayNum(bugun);
+  return n >= 0 && n <= esik;
+}
+
 /** Özetin kapsadığı aralık: bugünden geriye 7 gün (geçen hafta) ve ileriye 14 gün (yaklaşan tarihler). */
 export function ozetAraligi(today: string): { gecenBas: string; ileriSon: string } {
   return { gecenBas: isoOf(dayNum(today) - 7), ileriSon: isoOf(dayNum(today) + 14) };

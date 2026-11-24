@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gecmisUyarilar, haftaAnahtari, haftalikFiyat, ozetAraligi } from './haftalik';
+import { gecmisUyarilar, haftaAnahtari, haftalikFiyat, ozetAraligi, sonGunYakin } from './haftalik';
 
 describe('haftaAnahtari (ISO 8601)', () => {
   it('bilinen tarihler', () => {
@@ -72,5 +72,17 @@ describe('haftalikFiyat', () => {
 describe('ozetAraligi', () => {
   it('7 gün geri, 14 gün ileri', () => {
     expect(ozetAraligi('2026-11-24')).toEqual({ gecenBas: '2026-11-17', ileriSon: '2026-12-08' });
+  });
+});
+
+describe('sonGunYakin', () => {
+  it('bugün ile 3 gün sonrası arası yakın; geçmiş, uzak ve bilinmeyen değil', () => {
+    expect(sonGunYakin('2026-11-24', '2026-11-24')).toBe(true);
+    expect(sonGunYakin('2026-11-27', '2026-11-24')).toBe(true);
+    expect(sonGunYakin('2026-11-28', '2026-11-24')).toBe(false);
+    expect(sonGunYakin('2026-11-23', '2026-11-24')).toBe(false);
+    expect(sonGunYakin(null, '2026-11-24')).toBe(false);
+    // ay ve yıl geçişi
+    expect(sonGunYakin('2027-01-02', '2026-12-30')).toBe(true);
   });
 });

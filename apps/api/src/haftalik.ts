@@ -9,6 +9,8 @@ import {
   matchSupports,
   needsDraftBadge,
   ozetAraligi,
+  sonGunYakin,
+  YAKIN_SON_GUN,
   type FieldSite,
   type ReviewStatus,
   type SupportRecord,
@@ -317,6 +319,8 @@ export async function haftalikOzet(
 export function ozetSatiri(o: HaftalikOzet): string | null {
   const p: string[] = [];
   if (o.destekler.length) p.push(`${o.destekler.length} açık başvuru`);
+  const yakin = o.destekler.filter((d) => sonGunYakin(d.sonGun, o.bugun)).length;
+  if (yakin) p.push(`${yakin} başvurunun son günü ${YAKIN_SON_GUN} gün içinde`);
   if (o.tarihler.length) p.push(`${o.tarihler.length} yaklaşan tarih`);
   if (o.uyarilar.length) {
     const turler = [...new Set(o.uyarilar.map((u) => UYARI_ADI[u.tur]))].join(', ');

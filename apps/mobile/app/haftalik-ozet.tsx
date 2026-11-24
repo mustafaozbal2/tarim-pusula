@@ -2,6 +2,7 @@ import { hedefRef } from '../src/tanitim/hedef';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
+import { sonGunYakin } from '@tarim/agro-core';
 import { Button, Card, colors, Durum, fontFamily, fontSize } from '@tarim/ui';
 import type { HaftalikOzetDto } from '../src/api/client';
 import { Screen } from '../src/components/Screen';
@@ -52,9 +53,11 @@ export default function HaftalikOzet() {
             {o.destekler.map((d) => (
               <Card key={d.id} style={styles.card}>
                 <Text style={styles.ad}>{d.baslik}</Text>
-                <Text style={styles.body}>
+                <Text
+                  style={[styles.body, sonGunYakin(d.sonGun, o.bugun) && { color: colors.brick }]}
+                >
                   {d.sonGun
-                    ? `Son gün: ${gunTr(d.sonGun)} (${kalanGun(d.sonGun, o.bugun)})`
+                    ? `${sonGunYakin(d.sonGun, o.bugun) ? 'Son günler, kaçırmayın. ' : ''}Son gün: ${gunTr(d.sonGun)} (${kalanGun(d.sonGun, o.bugun)})`
                     : 'Son gün duyuruda yazmıyor'}
                 </Text>
                 <Text style={styles.small}>
