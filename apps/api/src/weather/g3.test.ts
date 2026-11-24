@@ -459,4 +459,50 @@ describe('meteorolojik don (ürün eşiğinden bağımsız): bildirim + SMS', ()
       delete process.env['DON_SMS'];
     }
   });
+
+  it('çiftçi SMS kapatıp WhatsApp açınca kritik uyarı yalnız WhatsApp ile gider; anahtar yoksa WhatsApp kapalı', async () => {
+    const { DataService } = await import('../data.service');
+    const saat18 = new Date('2026-10-22T15:00:00Z');
+    const temel = sampleBundle(0, 0, { now: saat18 });
+    const hourly = [6, 2, 0.5, -0.5, -1.5, -1, 1, 3].map((t, i) => {
+      const d = new Date(Date.parse('2026-10-22T19:00:00Z') + i * 3_600_000).toISOString();
+      return { time: `${d.slice(0, 13)}:00`, tempC: t, dewC: t - 2, windMs: 0.8, cloudPct: 5 };
+    });
+    const hava = { get: async () => ({ ...temel, utcOffsetSeconds: 10800, hourly }) };
+
+    const ilk = await call('GET', '/me/bildirim-ayar', farmer.token);
+    expect(ilk.body).toEqual({ sms: true, whatsapp: false, whatsappHazir: false });
+    expect((await call('PATCH', '/me/bildirim-ayar', farmer.token, { sms: 'evet' })).status).toBe(
+      400,
+    );
+    const yeni = await call('PATCH', '/me/bildirim-ayar', farmer.token, {
+      sms: false,
+      whatsapp: true,
+    });
+    expect(yeni.body).toMatchObject({ sms: false, whatsapp: true });
+
+    const smsGelen = new FakeSmsProvider();
+    const waGelen = new FakeSmsProvider();
+    process.env['DON_SMS'] = '1';
+    try {
+      const svc = new NotifyService(
+        app.get(DataService),
+        hava as never,
+        () => saat18,
+        queue,
+        push,
+        smsGelen,
+        waGelen,
+      );
+      const r = await svc.scanHava();
+      await queue.idle();
+      expect(r).toMatchObject({ sms: 0, whatsapp: 1 });
+      expect(smsGelen.sent).toHaveLength(0);
+      expect(waGelen.sent[0]!.text).toContain('Bu gece don bekleniyor');
+      expect((await svc.scanHava()).whatsapp).toBe(0); // aynı uyarı ikinci kez gitmez
+    } finally {
+      delete process.env['DON_SMS'];
+      await call('PATCH', '/me/bildirim-ayar', farmer.token, { sms: true, whatsapp: false });
+    }
+  });
 });

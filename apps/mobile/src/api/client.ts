@@ -201,6 +201,13 @@ export interface MyQuestionDto {
   aiSource?: string | null;
 }
 
+/** Kritik uyarıların SMS/WhatsApp ile de gitmesi; `whatsappHazir` sunucuda WhatsApp anahtarı var mı. */
+export interface BildirimAyarDto {
+  sms: boolean;
+  whatsapp: boolean;
+  whatsappHazir: boolean;
+}
+
 export interface InboxItemDto {
   id: string;
   kind: 'uzman_cevap' | 'duyuru' | 'basvuru';
@@ -870,6 +877,9 @@ export function createApi(opts: ApiOptions) {
       ),
     announcements: (fieldId: string) =>
       request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
+    bildirimAyar: () => request<BildirimAyarDto>('GET', '/me/bildirim-ayar'),
+    bildirimAyarKaydet: (body: { sms?: boolean; whatsapp?: boolean }) =>
+      request<BildirimAyarDto>('PATCH', '/me/bildirim-ayar', body),
     registerPush: (token: string, platform: 'ios' | 'android' | 'web') =>
       request<{ ok: boolean }>('POST', '/me/push-token', { token, platform }),
     crops: () => request<CropDto[]>('GET', '/crops'),

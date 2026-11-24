@@ -1,16 +1,20 @@
 import { Inject, Injectable, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common';
 import {
+  gruplaSatir,
+  paketle,
   processNotification,
-  type NotificationJob,
+  TR_UTC_OFFSET_HOURS,
   type NotificationQueue,
   type ProcessorDeps,
   type PushClient,
+  type Uyari,
 } from '@tarim/workers';
 import { pickPack, stagesOf } from '../controllers.g2';
 import { DataService } from '../data.service';
+import type { Queryable } from '../db/db';
 import { frostCard, type FrostCard } from './today';
 import type { WeatherProvider } from './openmeteo';
-import { CLOCK, NOTIFY_QUEUE, PUSH, WEATHER } from './tokens';
+import { CLOCK, NOTIFY_QUEUE, PUSH, WEATHER, WHATSAPP } from './tokens';
 import { Optional } from '@nestjs/common';
 import { SMS } from '../auth/auth.service';
 import type { SmsProvider } from '../auth/sms';
@@ -22,6 +26,16 @@ export interface ScanResult {
   queued: number;
   failed: number;
 }
+
+/** Kritik uyarının SMS/WhatsApp ile gideceği kişi (tercihleri `users` tablosunda). */
+interface Kisi {
+  phone: string;
+  sms: boolean;
+  whatsapp: boolean;
+}
+
+/** Bilgi düzeyi uyarıların günlük özeti bu yerel saatten sonra gider (tarama 14:00-22:00 arası çalışır). */
+export const OZET_SAATI = 18;
 
 /** "Bu gece / bu sabah / 2 gün sonra" biçiminde çiftçi dili. */
 export function frostWhen(card: Pick<FrostCard, 'dayOffset'>): string {
@@ -41,6 +55,7 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
     @Inject(NOTIFY_QUEUE) private readonly queue: NotificationQueue,
     @Inject(PUSH) private readonly push: PushClient,
     @Optional() @Inject(SMS) private readonly sms?: SmsProvider,
+    @Optional() @Inject(WHATSAPP) private readonly whatsapp?: SmsProvider | null,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -75,23 +90,26 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
             ])
           ).map((r) => r.token),
         ),
+      // Toplu bildirimde içindeki her uyarı da gönderildi sayılır; sonraki tarama onları yeniden göndermez.
       claim: (job) =>
-        this.data.system(
-          async (q) =>
+        this.data.system(async (q) => {
+          const ilk =
             (
               await q.query(
                 `INSERT INTO notification_log(dedupe_key, user_id, kind) VALUES ($1,$2,$3)
                  ON CONFLICT DO NOTHING RETURNING 1`,
                 [job.dedupeKey, job.userId, job.kind],
               )
-            ).length > 0,
-        ),
+            ).length > 0;
+          if (ilk) await this.isaretle(q, job.userId, job.anahtarlar ?? [], job.kind);
+          return ilk;
+        }),
       release: (job) =>
         this.data.system(async (q) => {
-          await q.query('DELETE FROM notification_log WHERE dedupe_key = $1 AND user_id = $2', [
-            job.dedupeKey,
-            job.userId,
-          ]);
+          await q.query(
+            'DELETE FROM notification_log WHERE dedupe_key = ANY($1) AND user_id = $2',
+            [[job.dedupeKey, ...(job.anahtarlar ?? [])], job.userId],
+          );
         }),
       dropToken: (token) =>
         this.data.system(async (q) => {
@@ -100,9 +118,110 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
+  /** Verilen anahtarları kullanıcı için gönderildi diye yazar; yalnız yeni yazılanları döner. */
+  private async isaretle(
+    q: Queryable,
+    userId: string,
+    anahtarlar: string[],
+    kind: string,
+  ): Promise<Set<string>> {
+    const yeni = new Set<string>();
+    for (const k of anahtarlar) {
+      const r = await q.query(
+        `INSERT INTO notification_log(dedupe_key, user_id, kind) VALUES ($1,$2,$3)
+         ON CONFLICT DO NOTHING RETURNING 1`,
+        [k, userId, kind],
+      );
+      if (r.length) yeni.add(k);
+    }
+    return yeni;
+  }
+
+  /** Türkiye yerel saati ve günü (özet zamanı ve özet anahtarı için). */
+  private yerel(): { saat: number; gun: string } {
+    const t = new Date(this.now().getTime() + TR_UTC_OFFSET_HOURS * 3_600_000).toISOString();
+    return { saat: Number(t.slice(11, 13)), gun: t.slice(0, 10) };
+  }
+
+  /**
+   * Taramanın uyarılarını dağıtır: daha önce gönderilmişleri ayıklar, kalanları önem sırasıyla (gerekirse
+   * tek bildirimde toplanarak) kuyruğa koyar; kritik olanları ayrıca açık kanallardan (SMS, WhatsApp) yollar.
+   */
+  private async dagit(
+    uyarilar: Uyari[],
+    kisiler: Map<string, Kisi>,
+  ): Promise<{ queued: number; sms: number; whatsapp: number }> {
+    const gonderilmis = new Set(
+      uyarilar.length
+        ? (
+            await this.data.system((q) =>
+              q.query<{ k: string; u: string }>(
+                'SELECT dedupe_key AS k, user_id AS u FROM notification_log WHERE dedupe_key = ANY($1)',
+                [uyarilar.map((u) => u.dedupeKey)],
+              ),
+            )
+          ).map((r) => `${r.u}|${r.k}`)
+        : [],
+    );
+    const { saat, gun } = this.yerel();
+    const isler = paketle(
+      uyarilar.filter((u) => !gonderilmis.has(`${u.userId}|${u.dedupeKey}`)),
+      { ozetZamani: saat >= OZET_SAATI, gun },
+    );
+    for (const j of isler) await this.queue.enqueue(j);
+    return { queued: isler.length, ...(await this.kritikKanallar(uyarilar, kisiler)) };
+  }
+
+  /**
+   * Kritik uyarılar SMS (KRITIK_SMS=1; eski adı DON_SMS=1) ve WhatsApp (sunucuda anahtar varsa) ile de gider,
+   * çiftçi o kanalı ayarlardan kapatmadıysa. Her uyarı kanal başına bir kez; kişi başına tek mesajda toplanır.
+   * Tur başına en çok DON_SMS_LIMIT mesaj (SMS/WhatsApp ücretli).
+   */
+  private async kritikKanallar(uyarilar: Uyari[], kisiler: Map<string, Kisi>) {
+    const sayac = { sms: 0, whatsapp: 0 };
+    const smsAcik = (process.env['KRITIK_SMS'] ?? process.env['DON_SMS']) === '1' && !!this.sms;
+    const limit = Number(process.env['DON_SMS_LIMIT'] ?? 40);
+    const kisiBasi = new Map<string, Uyari[]>();
+    for (const u of uyarilar)
+      if (u.oncelik === 'kritik') kisiBasi.set(u.userId, [...(kisiBasi.get(u.userId) ?? []), u]);
+    for (const [userId, liste] of kisiBasi) {
+      const k = kisiler.get(userId);
+      if (!k) continue;
+      const kanallar = [
+        smsAcik && k.sms ? (['sms', this.sms!] as const) : null,
+        this.whatsapp && k.whatsapp ? (['whatsapp', this.whatsapp] as const) : null,
+      ];
+      for (const kanal of kanallar) {
+        if (!kanal || sayac.sms + sayac.whatsapp >= limit) continue;
+        const [ad, saglayici] = kanal;
+        const anahtar = (u: Uyari) => `${ad}:${u.dedupeKey}`;
+        const yeni = await this.data.system((q) =>
+          this.isaretle(q, userId, liste.map(anahtar), liste[0]!.kind),
+        );
+        const gidecek = liste.filter((u) => yeni.has(anahtar(u)));
+        if (!gidecek.length) continue;
+        try {
+          await saglayici.send(
+            k.phone,
+            `Tarim Pusula: ${gruplaSatir(gidecek, 3).join('; ')}. Ayrinti uygulamada.`,
+          );
+          sayac[ad]++;
+        } catch {
+          await this.data.system((q) =>
+            q.query('DELETE FROM notification_log WHERE dedupe_key = ANY($1) AND user_id = $2', [
+              [...yeni],
+              userId,
+            ]),
+          );
+        }
+      }
+    }
+    return sayac;
+  }
+
   /**
    * Cihazı kayıtlı çiftçilerin ürünlü tarlalarında önümüzdeki 3 sabahın don olasılığına bakar;
-   * olasılık ≥ %50 ve eşik uzman onaylıysa don bildirimi kuyruğa girer (tarla + gün başına bir kez).
+   * olasılık ≥ %50 ve eşik onaylıysa kritik don uyarısı üretir (tarla + gün başına bir kez).
    */
   async scanFrost(): Promise<ScanResult> {
     const fields = await this.data.system((q) =>
@@ -113,17 +232,24 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
         lat: number;
         lon: number;
         cropId: string;
+        phone: string;
+        sms: boolean;
+        whatsapp: boolean;
       }>(
-        `SELECT f.id, f.owner_id AS "ownerId", f.name, f.lat, f.lon, f.crop_id AS "cropId"
-         FROM fields f
+        `SELECT f.id, f.owner_id AS "ownerId", f.name, f.lat, f.lon, f.crop_id AS "cropId",
+           u.phone, u.bildirim_sms AS sms, u.bildirim_whatsapp AS whatsapp
+         FROM fields f JOIN users u ON u.id = f.owner_id
          WHERE f.lat IS NOT NULL AND f.lon IS NOT NULL AND f.crop_id IS NOT NULL
            AND EXISTS (SELECT 1 FROM push_tokens t WHERE t.user_id = f.owner_id)
          ORDER BY f.created_at`,
       ),
     );
     const res: ScanResult = { checked: 0, queued: 0, failed: 0 };
+    const uyarilar: Uyari[] = [];
+    const kisiler = new Map<string, Kisi>();
     for (const f of fields) {
       res.checked++;
+      kisiler.set(f.ownerId, f);
       try {
         const bundle = await this.weather.get(f.lat, f.lon);
         const { pack, stages } = await this.data.system(async (q) => {
@@ -146,30 +272,32 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
         });
         const a = card.assessment;
         if (a.kind !== 'frost' || a.level !== 'warning' || !card.date) continue;
-        const job: NotificationJob = {
+        uyarilar.push({
+          oncelik: 'kritik',
           kind: 'frost',
           userId: f.ownerId,
-          title: 'Don uyarısı',
-          body: `${f.name}: ${frostWhen(card)} don bekleniyor. Ne yapacağını görmek için uygulamayı aç.`,
+          baslik: 'Don uyarısı',
+          metin: `${f.name}: ${frostWhen(card)} don bekleniyor. Ne yapacağını görmek için uygulamayı aç.`,
+          satir: `${f.name} ${frostWhen(card)}`,
           dedupeKey: `frost:${f.id}:${card.date}`,
           data: { fieldId: f.id, date: card.date },
-        };
-        await this.queue.enqueue(job);
-        res.queued++;
+        });
       } catch {
         res.failed++; // bir tarlanın hatası diğerlerini durdurmaz
       }
     }
+    res.queued = (await this.dagit(uyarilar, kisiler)).queued;
     return res;
   }
 
   /**
-   * Meteorolojik uyarılar (ürün eşiğinden bağımsız, olgu): bu gece hava donu (2 m sıcaklık ≤ 0 °C) için
-   * telefon bildirimi + (DON_SMS=1 ise) SMS; yarın kar ya da kuvvetli rüzgâr için telefon bildirimi.
-   * Tarla + gece başına bir bildirim; SMS kullanıcı + gece başına bir tane ve tur başına en çok DON_SMS_LIMIT.
+   * Meteorolojik uyarılar (ürün eşiğinden bağımsız, olgu), önem sırasıyla:
+   * kritik: bu gece hava donu (2 m sıcaklık ≤ 0 °C), yarın kuvvetli yağış (≥ YAGIS_ESIK_MM);
+   * önemli: yarın kar ya da kuvvetli rüzgâr; bilgi: 2-6 gün sonrası tehlikeler (akşam günlük özete katlanır).
+   * Günlük sayı sınırı yok; aynı anda birden fazlası tek bildirimde toplanır. Kritikler SMS/WhatsApp ile de gider.
    * Yalnız yerel saat 14:00-22:00 arasında gönderilir (gece yarısı uyandırılmaz).
    */
-  async scanHava(): Promise<ScanResult & { sms: number }> {
+  async scanHava(): Promise<ScanResult & { sms: number; whatsapp: number }> {
     const fields = await this.data.system((q) =>
       q.query<{
         id: string;
@@ -178,18 +306,21 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
         lat: number;
         lon: number;
         phone: string;
+        sms: boolean;
+        whatsapp: boolean;
       }>(
-        `SELECT f.id, f.owner_id AS "ownerId", f.name, f.lat, f.lon, u.phone
+        `SELECT f.id, f.owner_id AS "ownerId", f.name, f.lat, f.lon, u.phone,
+           u.bildirim_sms AS sms, u.bildirim_whatsapp AS whatsapp
          FROM fields f JOIN users u ON u.id = f.owner_id
          WHERE f.lat IS NOT NULL AND f.lon IS NOT NULL ORDER BY f.created_at`,
       ),
     );
-    const res = { checked: 0, queued: 0, failed: 0, sms: 0 };
-    const smsAcik = process.env['DON_SMS'] === '1' && !!this.sms;
-    const smsLimit = Number(process.env['DON_SMS_LIMIT'] ?? 40);
-    const smsBekleyen = new Map<string, { phone: string; satirlar: string[]; sabah: string }>();
+    const res = { checked: 0, failed: 0 };
+    const uyarilar: Uyari[] = [];
+    const kisiler = new Map<string, Kisi>();
     for (const f of fields) {
       res.checked++;
+      kisiler.set(f.ownerId, f);
       try {
         const b = await this.weather.get(f.lat, f.lon);
         const yerel = yerelSimdi(this.now(), b.utcOffsetSeconds);
@@ -197,68 +328,41 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
         if (saat < 14 || saat >= 22) continue;
         const g = b.hourly?.length ? geceDonu(b.hourly, yerel) : null;
         if (g?.var) {
-          await this.queue.enqueue({
+          uyarilar.push({
+            oncelik: 'kritik',
             kind: 'frost',
             userId: f.ownerId,
-            title: 'Bu gece don bekleniyor',
-            body: donBildirimi(f.name, g),
+            baslik: 'Bu gece don bekleniyor',
+            metin: donBildirimi(f.name, g),
+            satir: `${f.name} ${g.baslangic}-${g.bitis} ${g.enDusukC}°`,
             dedupeKey: `hava-don:${f.id}:${g.sabah}`,
             data: { fieldId: f.id, date: g.sabah },
           });
-          res.queued++;
-          const m = smsBekleyen.get(f.ownerId) ?? { phone: f.phone, satirlar: [], sabah: g.sabah };
-          m.satirlar.push(`${f.name} ${g.baslangic}-${g.bitis} ${g.enDusukC}°`);
-          smsBekleyen.set(f.ownerId, m);
         }
-        const yarin = tehlikeler(b.days, yerel.slice(0, 10)).filter(
-          (t) => t.gunFarki === 1 && (t.tur === 'kar' || t.tur === 'ruzgar'),
-        );
-        for (const t of yarin) {
-          await this.queue.enqueue({
+        for (const t of tehlikeler(b.days, yerel.slice(0, 10))) {
+          // Bu gecenin donu saatlik veriden yukarıda; günlük "yarın don" onu tekrarlar.
+          if (t.gunFarki < 1 || (t.gunFarki === 1 && t.tur === 'don')) continue;
+          const oncelik =
+            t.gunFarki > 1
+              ? 'bilgi'
+              : t.tur === 'yagis'
+                ? ('kritik' as const)
+                : ('onemli' as const);
+          uyarilar.push({
+            oncelik,
             kind: 'info',
             userId: f.ownerId,
-            title: t.tur === 'kar' ? 'Yarın kar bekleniyor' : 'Yarın kuvvetli rüzgâr',
-            body: `${f.name}: ${t.baslik}.`,
+            baslik: t.baslik,
+            metin: `${f.name}: ${t.baslik}.`,
+            satir: f.name,
             dedupeKey: `hava-${t.tur}:${f.id}:${t.tarih}`,
             data: { fieldId: f.id, date: t.tarih },
           });
-          res.queued++;
         }
       } catch {
         res.failed++;
       }
     }
-    if (smsAcik) {
-      for (const [userId, m] of smsBekleyen) {
-        if (res.sms >= smsLimit) break;
-        const key = `sms-don:${m.sabah}`;
-        const ilk = await this.data.system(
-          async (q) =>
-            (
-              await q.query(
-                `INSERT INTO notification_log(dedupe_key, user_id, kind) VALUES ($1,$2,'frost')
-                 ON CONFLICT DO NOTHING RETURNING 1`,
-                [key, userId],
-              )
-            ).length > 0,
-        );
-        if (!ilk) continue;
-        try {
-          await this.sms!.send(
-            m.phone,
-            `Tarim Pusula: Bu gece don bekleniyor. ${m.satirlar.slice(0, 3).join('; ')}. Ayrinti uygulamada.`,
-          );
-          res.sms++;
-        } catch {
-          await this.data.system((q) =>
-            q.query('DELETE FROM notification_log WHERE dedupe_key = $1 AND user_id = $2', [
-              key,
-              userId,
-            ]),
-          );
-        }
-      }
-    }
-    return res;
+    return { ...res, ...(await this.dagit(uyarilar, kisiler)) };
   }
 }

@@ -9,7 +9,8 @@ import { Bolum, IkonKart, KartIzgara, SayfaGorseli } from '../src/components/Gor
 import { Screen } from '../src/components/Screen';
 import { SunucuKarti } from '../src/components/SunucuKarti';
 import { tr } from '../src/i18n/tr';
-import { currentApiUrl, setToken } from '../src/session';
+import type { BildirimAyarDto } from '../src/api/client';
+import { api, currentApiUrl, setToken } from '../src/session';
 import { updateSettings, useSettings } from '../src/settings';
 import { nextTap, type TapState } from '../src/settingsCore';
 import { expoUpdates, syncUpdate, updateDate, type UpdateResult } from '../src/updates';
@@ -28,6 +29,7 @@ export default function SettingsScreen() {
   const [devNote, setDevNote] = useState<string | null>(null);
   const [update, setUpdate] = useState<UpdateResult | 'bekliyor' | null>(null);
   const updated = updateDate();
+  const [acil, setAcil] = useState<BildirimAyarDto | null | undefined>(undefined);
   const checkUpdate = () => {
     setUpdate('bekliyor');
     void syncUpdate(expoUpdates).then(setUpdate);
@@ -43,7 +45,20 @@ export default function SettingsScreen() {
   };
   useEffect(() => {
     void currentApiUrl().then(setServer);
+    void api
+      .bildirimAyar()
+      .then(setAcil)
+      .catch(() => setAcil(null));
   }, []);
+  const acilDegistir = (alan: 'sms' | 'whatsapp', acik: boolean) => {
+    if (!acil) return;
+    const once = acil;
+    setAcil({ ...acil, [alan]: acik });
+    void api
+      .bildirimAyarKaydet({ [alan]: acik })
+      .then(setAcil)
+      .catch(() => setAcil(once));
+  };
 
   return (
     <Screen title={t.title}>
@@ -118,6 +133,38 @@ export default function SettingsScreen() {
           ]}
         />
         <Text style={styles.hint}>{t.voiceHint}</Text>
+      </Card>
+
+      <Card style={styles.card} testID="ayar-acil">
+        <Text style={styles.label}>{t.acil}</Text>
+        <Text style={styles.hint}>{t.acilHint}</Text>
+        {acil ? (
+          <>
+            <Text style={styles.value}>{t.acilSms}</Text>
+            <SekmeAnahtari<'on' | 'off'>
+              testID="ayar-acil-sms"
+              value={acil.sms ? 'on' : 'off'}
+              onChange={(v) => acilDegistir('sms', v === 'on')}
+              options={[
+                { key: 'on', label: t.voiceOn },
+                { key: 'off', label: t.voiceOff },
+              ]}
+            />
+            <Text style={styles.value}>{t.acilWhatsapp}</Text>
+            <SekmeAnahtari<'on' | 'off'>
+              testID="ayar-acil-whatsapp"
+              value={acil.whatsapp ? 'on' : 'off'}
+              onChange={(v) => acilDegistir('whatsapp', v === 'on')}
+              options={[
+                { key: 'on', label: t.voiceOn },
+                { key: 'off', label: t.voiceOff },
+              ]}
+            />
+            {acil.whatsappHazir ? null : <Text style={styles.hint}>{t.acilWhatsappKapali}</Text>}
+          </>
+        ) : acil === null ? (
+          <Text style={styles.hint}>{t.acilHata}</Text>
+        ) : null}
       </Card>
 
       <Card style={styles.card} ref={hedefRef('ayar.hakkinda')} testID="ayar-hakkinda">

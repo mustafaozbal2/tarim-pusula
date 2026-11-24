@@ -57,6 +57,11 @@ export const profileUpdateSchema = z.object({
   displayName: z.string().trim().min(1).max(80).nullable(),
 });
 
+/** Kritik uyarıların SMS/WhatsApp ile de gitmesi (çiftçi ayarı). */
+export const bildirimAyarSchema = z
+  .object({ sms: z.boolean().optional(), whatsapp: z.boolean().optional() })
+  .strict();
+
 export const accountDeleteSchema = z.object({ confirm: z.literal('SIL') });
 export const roleGrantSchema = z.object({ role: roleSchema });
 

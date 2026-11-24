@@ -1,4 +1,5 @@
 import { decideDelivery, type NotificationKind } from './quietHours';
+import type { Oncelik } from './oncelik';
 import type { PushClient } from './push';
 
 export interface NotificationJob {
@@ -9,6 +10,10 @@ export interface NotificationJob {
   /** Aynı olay için tek bildirim: ör. `frost:<tarla>:<tarih>`. */
   dedupeKey: string;
   data?: Record<string, unknown>;
+  /** Yoksa türünden gelir (don kritik sayılır). */
+  oncelik?: Oncelik;
+  /** Toplu bildirimde içindeki uyarıların anahtarları: gönderilince her biri gönderildi sayılır. */
+  anahtarlar?: string[];
 }
 
 /** Kuyruk soyutlaması: üretimde BullMQ (Redis), geliştirmede/testte bellekte. */
@@ -33,7 +38,7 @@ export interface ProcessorDeps {
 export type Outcome = 'sent' | 'deferred' | 'duplicate' | 'no-device' | 'failed';
 
 /**
- * Tek bildirim işi: sessiz saat denetimi (don hariç) → mükerrer denetimi → gönderim.
+ * Tek bildirim işi: sessiz saat denetimi (don ve kritik hariç) → mükerrer denetimi → gönderim.
  * Sessiz saatte olan iş, yerel 06:00'ya geciktirilerek kuyruğa geri konur.
  */
 export async function processNotification(
@@ -41,7 +46,7 @@ export async function processNotification(
   deps: ProcessorDeps,
 ): Promise<Outcome> {
   const now = deps.now();
-  const d = decideDelivery(job.kind, now);
+  const d = decideDelivery(job.kind, now, job.oncelik);
   if (d.action === 'defer') {
     await deps.queue.enqueue(job, { delayMs: d.until.getTime() - now.getTime() });
     return 'deferred';
@@ -56,7 +61,8 @@ export async function processNotification(
       title: job.title,
       body: job.body,
       data: { kind: job.kind, ...job.data },
-      priority: job.kind === 'frost' ? ('high' as const) : ('default' as const),
+      priority:
+        job.kind === 'frost' || job.oncelik === 'kritik' ? ('high' as const) : ('default' as const),
     })),
   );
   for (const r of results) if (r.invalidToken) await deps.dropToken(r.token);
