@@ -191,3 +191,7 @@ Sonraki için: telefonda turu dene (özellikle Android'de ölçüm ve kaydırma)
 ## Güncelleme ekranı (2026-11-23)
 Yapıldı: açılıştaki "Güncellemeler denetleniyor" örtüsü kalktı; güncelleme arka planda iner, hazır olunca üstte "Yeni sürüm hazır / Yeniden başlat" şeridi (`src/updates/UpdateGate.tsx`); `fallbackToCacheTimeout` 0; açılış amblemi kenar boşluklu (Android 12 daire maskesi); versionCode 4. Ayrıca `hiz-siniri.test.ts` lint/biçim düzeltmesi (verify kırıktı).
 Yarım: telefonda elle denenmedi; yeni APK (amblem düzeltmesi için) EAS hesabı gerektirir.
+
+## 2026-11-24 — Fotoğraf teşhisinde güven puanı
+- Yapıldı: /robot/foto cevabı guven (0-100 ya da null) + olasilar (en çok 3) döner; telefonda güven çubuğu, %60 altı ya da bilinmiyorsa "Emin değilim" + olası sebepler + foto ipuçları + Uzmana sor. dev 9950d83, Render + EAS Update (preview) yayınlandı.
+- Yarım: Nuvia henüz guven alanını doldurmuyor olabilir; o zaman her foto cevabı "Emin değilim" gösterir (bilinçli).
