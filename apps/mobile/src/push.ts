@@ -31,10 +31,12 @@ export async function registerForPush(api: Pick<Api, 'registerPush'>): Promise<b
 }
 
 /**
- * Bildirime dokununca ilgili ekran: uzman cevabı -> Sorularım. Uygulama kapalıyken gelen dokunuş da
+ * Bildirime dokununca ilgili ekran: uzman cevabı -> Sorularım, haftalık özet -> Haftalık özet. Uygulama kapalıyken gelen dokunuş da
  * (son yanıt) işlenir. Web'de yok. Dönen işlev dinleyiciyi kaldırır.
  */
-export function onPushTap(go: (path: '/sorularim' | '/bildirimler') => void): () => void {
+export function onPushTap(
+  go: (path: '/sorularim' | '/bildirimler' | '/haftalik-ozet') => void,
+): () => void {
   if (Platform.OS === 'web') return () => undefined;
   let sub: { remove(): void } | null = null;
   let stopped = false;
@@ -43,7 +45,13 @@ export function onPushTap(go: (path: '/sorularim' | '/bildirimler') => void): ()
       if (stopped) return;
       const handle = (data: unknown) => {
         const kind = (data as { kind?: string } | null)?.kind;
-        go(kind === 'uzman_cevap' ? '/sorularim' : '/bildirimler');
+        go(
+          kind === 'uzman_cevap'
+            ? '/sorularim'
+            : kind === 'haftalik'
+              ? '/haftalik-ozet'
+              : '/bildirimler',
+        );
       };
       sub = N.addNotificationResponseReceivedListener((r) =>
         handle(r.notification.request.content.data),

@@ -20,3 +20,4 @@ export * from './savings';
 export * from './yetki';
 export * from './twin';
 export * from './neEksem';
+export * from './haftalik';

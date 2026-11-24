@@ -853,6 +853,35 @@ const ADIMLAR: Record<string, TanitimAdimi[]> = {
     AMPUL,
   ],
 
+  '/haftalik-ozet': [
+    {
+      baslik: 'Haftalık özet',
+      metin: 'Haftanın kısa özeti: açık başvurular, yaklaşan tarihler, uyarılar ve hal fiyatı.',
+    },
+    {
+      hedef: 'haftalik.destek',
+      baslik: 'Açık başvurular',
+      metin: 'İline ve ürününe uyan destek ve hibeler. Son gün ve resmî sayfa bağlantısı yazar.',
+    },
+    {
+      hedef: 'haftalik.tarih',
+      baslik: 'Yaklaşan tarihler',
+      metin: 'Önümüzdeki 14 günde kapanan başvurular ve iş takvimindeki kritik günler.',
+    },
+    {
+      hedef: 'haftalik.uyari',
+      baslik: 'Geçen haftanın uyarıları',
+      metin: 'Son 7 günde arazilerin için gönderilen don, kar, rüzgâr ve yağış uyarıları.',
+    },
+    {
+      hedef: 'haftalik.fiyat',
+      baslik: 'Hal fiyatı',
+      metin: 'Ürününün bu haftaki hal fiyatı ve geçen haftaya göre değişimi, kaynağıyla.',
+    },
+    GERI,
+    AMPUL,
+  ],
+
   '/resmi-kaynaklar': [
     {
       baslik: 'Resmî kaynaklar',

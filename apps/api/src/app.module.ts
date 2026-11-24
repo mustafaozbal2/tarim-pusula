@@ -87,6 +87,7 @@ import {
   type PushClient,
 } from '@tarim/workers';
 import { NotifyService } from './weather/notify';
+import { HaftalikController } from './haftalik';
 import { FakeWeatherProvider, type WeatherProvider } from './weather/openmeteo';
 import { CLOCK, NOTIFY_QUEUE, PUSH, WEATHER, WHATSAPP } from './weather/tokens';
 import { JobsController, PushTokenController, TodayController } from './weather/weather.controller';
@@ -187,6 +188,7 @@ export class AppModule {
         CleanupController,
         SuitabilityController,
         SupportsController,
+        HaftalikController,
         WalletController,
         IngestController,
         StaffController,

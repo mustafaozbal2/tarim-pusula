@@ -16,3 +16,4 @@ data
 scripts
 apps/api/src/market/fixtures/
 apps/api/src/ndvi/fixtures/
+.impeccable

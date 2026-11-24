@@ -123,6 +123,7 @@ export const MENU: { baslik: string; ogeler: MenuOgesi[]; vurgulu?: boolean }[] 
       { ad: 'İş takvimi ve notlarım', rota: '/takvim', ikon: 'takvim' },
       { ad: 'Sulama', rota: '/sulama', ikon: 'su' },
       { ad: 'Bildirimler', rota: '/bildirimler', ikon: 'zil' },
+      { ad: 'Haftalık özet', rota: '/haftalik-ozet', ikon: 'takvim', etiket: 'Yeni' },
     ],
   },
   {

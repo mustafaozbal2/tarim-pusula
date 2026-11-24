@@ -20,6 +20,10 @@ import { SMS } from '../auth/auth.service';
 import type { SmsProvider } from '../auth/sms';
 import { donBildirimi, geceDonu, tehlikeler } from './gece';
 import { yerelSimdi } from './today';
+import { PLACES } from '../controllers.g2';
+import { haftalikOzet, ozetSatiri, sonUyariAnahtarlari } from '../haftalik';
+import type { Places } from '../places';
+import { haftaAnahtari } from '@tarim/agro-core';
 
 export interface ScanResult {
   checked: number;
@@ -56,6 +60,7 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
     @Inject(PUSH) private readonly push: PushClient,
     @Optional() @Inject(SMS) private readonly sms?: SmsProvider,
     @Optional() @Inject(WHATSAPP) private readonly whatsapp?: SmsProvider | null,
+    @Optional() @Inject(PLACES) private readonly places?: Places,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -67,6 +72,7 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
       this.timer = setInterval(() => {
         void this.scanFrost().catch(console.error);
         void this.scanHava().catch(console.error);
+        void this.scanHaftalik().catch(console.error);
       }, minutes * 60_000);
       this.timer.unref?.();
     }
@@ -364,5 +370,45 @@ export class NotifyService implements OnModuleInit, OnModuleDestroy {
       }
     }
     return { ...res, ...(await this.dagit(uyarilar, kisiler)) };
+  }
+
+  /**
+   * Haftalık özet bildirimi: pazartesi yerel 09:00-21:00 arasında, telefonu kayıtlı her çiftçiye haftada
+   * bir kez (anahtar `haftalik:<ISO hafta>`). Özette gösterecek bir şey yoksa gönderilmez.
+   */
+  async scanHaftalik(): Promise<{ checked: number; queued: number }> {
+    const now = this.now();
+    const yerel = new Date(now.getTime() + TR_UTC_OFFSET_HOURS * 3_600_000);
+    const saat = yerel.getUTCHours();
+    if (!this.places || yerel.getUTCDay() !== 1 || saat < 9 || saat >= 21)
+      return { checked: 0, queued: 0 };
+    const anahtar = `haftalik:${haftaAnahtari(yerel.toISOString().slice(0, 10))}`;
+    const kisiler = await this.data.system((q) =>
+      q.query<{ u: string }>(
+        `SELECT DISTINCT t.user_id AS u FROM push_tokens t
+         WHERE NOT EXISTS (SELECT 1 FROM notification_log n WHERE n.user_id = t.user_id AND n.dedupe_key = $1)`,
+        [anahtar],
+      ),
+    );
+    let queued = 0;
+    for (const { u } of kisiler) {
+      const satir = await this.data.system(async (q) =>
+        ozetSatiri(
+          await haftalikOzet(q, u, now, this.places!, await sonUyariAnahtarlari(q, u, now)),
+        ),
+      );
+      if (!satir) continue;
+      await this.queue.enqueue({
+        kind: 'info',
+        oncelik: 'onemli',
+        userId: u,
+        title: 'Haftalık özetiniz hazır',
+        body: `${satir}.`,
+        dedupeKey: anahtar,
+        data: { kind: 'haftalik' },
+      });
+      queued++;
+    }
+    return { checked: kisiler.length, queued };
   }
 }

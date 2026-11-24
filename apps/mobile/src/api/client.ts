@@ -201,6 +201,42 @@ export interface MyQuestionDto {
   aiSource?: string | null;
 }
 
+/** Haftalık özet (`GET /me/haftalik-ozet`); sunucudaki `apps/api/src/haftalik.ts` ile aynı biçim. */
+export interface HaftalikOzetDto {
+  hafta: string;
+  bugun: string;
+  destekler: {
+    id: string;
+    baslik: string;
+    sonGun: string | null;
+    kaynak: string;
+    kaynakTarihi: string;
+    kaynakUrl: string | null;
+    tarlalar: string[];
+  }[];
+  tarihler: {
+    tarih: string;
+    baslik: string;
+    tur: 'basvuru' | 'takvim';
+    tarla: string | null;
+    kaynak: string;
+  }[];
+  uyarilar: { tur: 'don' | 'kar' | 'ruzgar' | 'yagis'; tarih: string; tarla: string }[];
+  fiyatlar: {
+    cropId: string;
+    urun: string;
+    yer: string;
+    son: number;
+    sonTarih: string;
+    onceki: number;
+    oncekiTarih: string;
+    degisimPct: number;
+    kaynak: string;
+    kaynakUrl: string;
+  }[];
+  not: string | null;
+}
+
 /** Kritik uyarıların SMS/WhatsApp ile de gitmesi; `whatsappHazir` sunucuda WhatsApp anahtarı var mı. */
 export interface BildirimAyarDto {
   sms: boolean;
@@ -877,6 +913,7 @@ export function createApi(opts: ApiOptions) {
       ),
     announcements: (fieldId: string) =>
       request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
+    haftalikOzet: () => request<HaftalikOzetDto>('GET', '/me/haftalik-ozet'),
     bildirimAyar: () => request<BildirimAyarDto>('GET', '/me/bildirim-ayar'),
     bildirimAyarKaydet: (body: { sms?: boolean; whatsapp?: boolean }) =>
       request<BildirimAyarDto>('PATCH', '/me/bildirim-ayar', body),
