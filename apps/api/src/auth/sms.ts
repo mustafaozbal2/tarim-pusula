@@ -168,3 +168,64 @@ export function createSmsProvider(
 
 /** Gerçek SMS gidiyor mu (sahte değil). */
 export const isRealSms = (s: SmsProvider) => !(s instanceof FakeSmsProvider);
+
+/**
+ * WhatsApp Cloud API (Meta): POST graph.facebook.com/{sürüm}/{telefon-no-kimliği}/messages, Bearer anahtar.
+ * Meta, son 24 saatte yazışmamış kişiye serbest metin göndermez; onaylı şablon adı (WHATSAPP_TEMPLATE)
+ * verilirse metin şablonun tek gövde değişkeni olarak gider. Numara "905XXXXXXXXX" biçiminde (artısız).
+ */
+export class WhatsappCloudProvider implements SmsProvider {
+  constructor(
+    private readonly o: {
+      token: string;
+      phoneId: string;
+      template?: string;
+      lang?: string;
+      fetchImpl?: typeof fetch;
+    },
+  ) {}
+
+  async send(phone: string, text: string): Promise<void> {
+    const to = phone.replace(/\D/g, '');
+    const mesaj = this.o.template
+      ? {
+          type: 'template',
+          template: {
+            name: this.o.template,
+            language: { code: this.o.lang ?? 'tr' },
+            components: [{ type: 'body', parameters: [{ type: 'text', text }] }],
+          },
+        }
+      : { type: 'text', text: { body: text } };
+    const res = await (this.o.fetchImpl ?? fetch)(
+      `https://graph.facebook.com/v21.0/${encodeURIComponent(this.o.phoneId)}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${this.o.token}`,
+        },
+        body: JSON.stringify({ messaging_product: 'whatsapp', to, ...mesaj }),
+      },
+    );
+    if (!res.ok) throw new Error(`WhatsApp gönderemedi: ${res.status}`);
+  }
+}
+
+/**
+ * WHATSAPP_TOKEN ve WHATSAPP_PHONE_ID varsa WhatsApp sağlayıcısı (isteğe bağlı WHATSAPP_TEMPLATE,
+ * WHATSAPP_LANG); yoksa null: WhatsApp kanalı kapalıdır, çiftçi ayarı açsa bile mesaj gitmez.
+ */
+export function createWhatsappProvider(
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl?: typeof fetch,
+): SmsProvider | null {
+  if (!env['WHATSAPP_TOKEN'] || !env['WHATSAPP_PHONE_ID']) return null;
+  return new WhatsappCloudProvider({
+    token: env['WHATSAPP_TOKEN'],
+    phoneId: env['WHATSAPP_PHONE_ID'],
+    template: env['WHATSAPP_TEMPLATE'] || undefined,
+    lang: env['WHATSAPP_LANG'] || undefined,
+    fetchImpl,
+  });
+}

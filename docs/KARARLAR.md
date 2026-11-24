@@ -456,3 +456,14 @@
 - **Sunucu:** `foto_analiz` isteğine `guven` (0-100) ve `olasi_nedenler` (en çok 3) alanları istenir. Gelen güven 0-1 ise yüzdeye çevrilir; aralık dışıysa ya da hiç yoksa `null` (bilinmiyor). Olası sebeplerde ilaç dozu varsa cevabın tamamı atılır (kural 2).
 - **Telefon:** fotoğraf cevabının altında "Güven: %X" ve çubuk. Güven %60'ın altındaysa ya da bilinmiyorsa "Emin değilim", olası sebepler, daha iyi fotoğraf için 3 ipucu ve büyük "Uzmana sor" düğmesi çıkar. Eşik %60: fikirdeki öneri; tek yerde (`apps/mobile/src/yz/guven.ts`) değişir.
 - **Bilinmeyen güven = emin değil:** Nuvia bu alanları henüz doldurmuyorsa her fotoğraf cevabı "Emin değilim" kutusuyla gelir; bu bilinçli olarak dürüst taraftır.
+
+## 2026-11-24 — Bildirim önceliği; kritik uyarı SMS/WhatsApp ile de
+
+- **Neden (Mustafa onayı 23.11):** günlük bildirim sınırı olmasın (5-10 tarlası olan çiftçi var), ama önem sırasına göre gelsin; kritikler SMS/WhatsApp ile de gitsin.
+- **Üç seviye** (`apps/workers/src/oncelik.ts`): **kritik** = bu gece hava donu, ürün eşiğine göre don, yarın kuvvetli yağış (≥ 25 mm, mevcut `YAGIS_ESIK_MM`); her saatte gider (sessiz saat yok), yüksek öncelikli. **Önemli** = yarın kar ya da kuvvetli rüzgâr; hemen gider, 22:00-06:00 arası sabaha kalır. **Bilgi** = 2-6 gün sonrası tehlikeler; yerel 18:00'den sonra günde tek "Günlük özet" olarak gider.
+- **Toplama:** sayı sınırı yok. Bir taramada aynı kişiye aynı önemde birden fazla uyarı varsa tek bildirimde toplanır ("3 acil uyarı"; başlığa göre gruplu satırlar, en çok 5 satır + "ve N uyarı daha"). İçindeki her uyarı gönderildi diye kaydedilir; sonraki tarama aynılarını yeniden göndermez, yalnız yenileri gönderir.
+- **SMS:** kritik uyarılar SMS ile de gider (sunucuda `KRITIK_SMS=1`; eski `DON_SMS=1` de geçerli, mevcut SMSGate altyapısı). Her uyarı SMS'le bir kez; kişi başına tek mesajda toplanır; tur başına en çok `DON_SMS_LIMIT` (varsayılan 40) mesaj.
+- **WhatsApp:** yapılandırma noktası hazır (`WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, isteğe bağlı `WHATSAPP_TEMPLATE`). Anahtar yoksa kanal kapalıdır. Meta, son 24 saatte yazışmamış kişiye serbest metin göndermez; gerçek kullanımda Meta'da onaylı bir şablon (tek gövde değişkeni) açılıp adı `WHATSAPP_TEMPLATE`'e yazılmalı.
+- **Çiftçi ayarı:** Ayarlar > "Acil uyarılar": SMS (varsayılan açık, önceden de don SMS'i gidiyordu) ve WhatsApp (varsayılan kapalı). `users.bildirim_sms`, `users.bildirim_whatsapp`; yeni kişisel veri toplanmaz, numara zaten girişte alınan telefon.
+- **Yapılmayan:** dolu ve ilaçlama son günü için sunucuda veri yok (hava kaynağında dolu alanı yok; ilaçlama hatırlatıcıları telefonda yerel). Seviye yapısı bunları da taşır; veri gelince `kritik` olarak eklenir.
+

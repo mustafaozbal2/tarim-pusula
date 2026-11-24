@@ -6,6 +6,8 @@ export const TR_UTC_OFFSET_HOURS = 3;
 export const QUIET_START_HOUR = 22;
 export const QUIET_END_HOUR = 6;
 
+import type { Oncelik } from './oncelik';
+
 export type NotificationKind = 'frost' | 'irrigation' | 'info';
 
 const localHour = (d: Date) => (d.getUTCHours() + TR_UTC_OFFSET_HOURS) % 24;
@@ -27,8 +29,8 @@ export function nextAllowedTime(now: Date): Date {
 
 export type Delivery = { action: 'send' } | { action: 'defer'; until: Date };
 
-/** Don güvenlik uyarısı her saatte gider; diğerleri sessiz saatte sabaha ertelenir. */
-export function decideDelivery(kind: NotificationKind, now: Date): Delivery {
-  if (kind === 'frost' || !isQuietHour(now)) return { action: 'send' };
+/** Don ve kritik uyarılar her saatte gider; diğerleri sessiz saatte sabaha ertelenir. */
+export function decideDelivery(kind: NotificationKind, now: Date, oncelik?: Oncelik): Delivery {
+  if (kind === 'frost' || oncelik === 'kritik' || !isQuietHour(now)) return { action: 'send' };
   return { action: 'defer', until: nextAllowedTime(now) };
 }

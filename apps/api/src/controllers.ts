@@ -7,6 +7,7 @@ import {
   HttpCode,
   Inject,
   NotFoundException,
+  Optional,
   Param,
   Patch,
   Post,
@@ -25,6 +26,7 @@ import {
   otpVerifySchema,
   passwordResetSchema,
   profileUpdateSchema,
+  bildirimAyarSchema,
   registerSchema,
   smsMfaSchema,
   staffRegisterSchema,
@@ -38,6 +40,8 @@ import { FIELD_COLS, FIELD_COLUMN, insertField, withComputedArea, withPlace } fr
 import type { Places } from './places';
 import { Me, parse, Public, Roles, Token } from './auth/access';
 import { AuthService } from './auth/auth.service';
+import type { SmsProvider } from './auth/sms';
+import { WHATSAPP } from './weather/tokens';
 import { DataService } from './data.service';
 import { buildExport } from './wallet';
 import type { Principal, Queryable } from './db/db';
@@ -297,7 +301,42 @@ export class DevicesController {
 /** KVKK: profil, rıza, veri dışa aktarma, hesap silme. */
 @Controller('me')
 export class MeController {
-  constructor(@Inject(DataService) private readonly data: DataService) {}
+  constructor(
+    @Inject(DataService) private readonly data: DataService,
+    @Optional() @Inject(WHATSAPP) private readonly whatsapp?: SmsProvider | null,
+  ) {}
+
+  private bildirimAyar(q: Queryable, me: Principal) {
+    return q
+      .query<{ sms: boolean; whatsapp: boolean }>(
+        'SELECT bildirim_sms AS sms, bildirim_whatsapp AS whatsapp FROM users WHERE id = $1',
+        [me.userId],
+      )
+      .then((r) => ({
+        ...r[0]!,
+        // WhatsApp anahtarı sunucuda yoksa kanal kapalıdır; ekran bunu çiftçiye söyler.
+        whatsappHazir: !!this.whatsapp,
+      }));
+  }
+
+  /** Kritik uyarılar (don, kuvvetli yağış) telefon bildirimine ek olarak SMS/WhatsApp ile de gitsin mi. */
+  @Get('bildirim-ayar')
+  getBildirimAyar(@Me() me: Principal) {
+    return this.data.run(me, 'me.bildirimAyar', (q) => this.bildirimAyar(q, me));
+  }
+
+  @Patch('bildirim-ayar')
+  setBildirimAyar(@Me() me: Principal, @Body() body: unknown) {
+    const { sms, whatsapp } = parse(bildirimAyarSchema, body);
+    return this.data.run(me, 'me.bildirimAyarKaydet', async (q) => {
+      await q.query(
+        `UPDATE users SET bildirim_sms = COALESCE($2, bildirim_sms),
+           bildirim_whatsapp = COALESCE($3, bildirim_whatsapp) WHERE id = $1`,
+        [me.userId, sms ?? null, whatsapp ?? null],
+      );
+      return this.bildirimAyar(q, me);
+    });
+  }
 
   private profile(q: Queryable, me: Principal) {
     return q

@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from './app.module';
 import {
   createSmsProvider,
+  createWhatsappProvider,
   FakeSmsProvider,
   isRealSms,
   NetgsmSmsProvider,
@@ -26,6 +27,23 @@ function recorder(status: number, body: unknown) {
 }
 
 describe('SMS sağlayıcıları', () => {
+  it('WhatsApp Cloud: anahtar yoksa kapalı; şablonla Bearer kimlik, numara artısız', async () => {
+    expect(createWhatsappProvider({})).toBeNull();
+    const r = recorder(200, {});
+    await createWhatsappProvider(
+      { WHATSAPP_TOKEN: 'T', WHATSAPP_PHONE_ID: '123', WHATSAPP_TEMPLATE: 'kritik_uyari' },
+      r.fetchImpl,
+    )!.send('+905321234567', 'Bu gece don');
+    expect(r.calls[0]!.url).toBe('https://graph.facebook.com/v21.0/123/messages');
+    expect((r.calls[0]!.init.headers as Record<string, string>).authorization).toBe('Bearer T');
+    expect(JSON.parse(r.calls[0]!.init.body as string)).toMatchObject({
+      messaging_product: 'whatsapp',
+      to: '905321234567',
+      type: 'template',
+      template: { name: 'kritik_uyari', components: [{ parameters: [{ text: 'Bu gece don' }] }] },
+    });
+  });
+
   it('Netgsm: Basic kimlik, başlık, numara +90 olmadan, TR kodlama', async () => {
     const r = recorder(200, { code: '00', jobid: '1' });
     await new NetgsmSmsProvider({

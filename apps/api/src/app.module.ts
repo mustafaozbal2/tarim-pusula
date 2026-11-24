@@ -9,7 +9,7 @@ import {
   defaultAuthConfig,
   type AuthConfig,
 } from './auth/auth.service';
-import type { SmsProvider } from './auth/sms';
+import { createWhatsappProvider, type SmsProvider } from './auth/sms';
 import { DEMO_INFO, DemoController, type DemoInfo } from './demo';
 import { OrnekIcerikController } from './ornek-icerik';
 import {
@@ -88,7 +88,7 @@ import {
 } from '@tarim/workers';
 import { NotifyService } from './weather/notify';
 import { FakeWeatherProvider, type WeatherProvider } from './weather/openmeteo';
-import { CLOCK, NOTIFY_QUEUE, PUSH, WEATHER } from './weather/tokens';
+import { CLOCK, NOTIFY_QUEUE, PUSH, WEATHER, WHATSAPP } from './weather/tokens';
 import { JobsController, PushTokenController, TodayController } from './weather/weather.controller';
 
 export interface AppOptions {
@@ -104,6 +104,8 @@ export interface AppOptions {
   ndvi?: NdviProvider;
   queue?: NotificationQueue;
   push?: PushClient;
+  /** Kritik uyarı için WhatsApp. Verilmezse ortamdan (WHATSAPP_TOKEN); anahtar yoksa kapalı (null). */
+  whatsapp?: SmsProvider | null;
   /** Verilmezse ANTHROPIC_API_KEY varsa Claude, yoksa ağa çıkmayan sahte sağlayıcı. */
   llm?: LlmProvider;
   /** Cihaz aracısı. Verilmezse süreç içi aracı (gerçek MQTT/TLS aracısı üretimde bunun yerine geçer). */
@@ -219,6 +221,10 @@ export class AppModule {
         { provide: NDVI, useFactory: () => opts.ndvi ?? defaultNdvi() },
         { provide: NOTIFY_QUEUE, useValue: opts.queue ?? new InMemoryQueue() },
         { provide: PUSH, useValue: opts.push ?? new FakePushClient() },
+        {
+          provide: WHATSAPP,
+          useValue: opts.whatsapp !== undefined ? opts.whatsapp : createWhatsappProvider(),
+        },
         { provide: CLOCK, useValue: opts.now ?? (() => new Date()) },
         { provide: LLM, useFactory: () => opts.llm ?? defaultLlm() },
         TodayController,

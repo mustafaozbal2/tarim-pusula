@@ -919,6 +919,13 @@ export const tr = {
     voiceHint:
       'Açıkken Pusula AI cevapları sesli okunur. Pusula AI şu an geliştiriliyor; hazır olunca uzman cevapları da sesli gelir.',
     lists: 'Bilgi listeleri',
+    acil: 'Acil uyarılar',
+    acilHint:
+      'Don ve kuvvetli yağış gibi acil uyarılar telefon bildirimine ek olarak buradan da gelir. Diğer uyarılar önem sırasıyla, bilgi notları akşam tek özette gelir.',
+    acilSms: 'SMS ile de gönder',
+    acilWhatsapp: 'WhatsApp ile de gönder',
+    acilWhatsappKapali: 'WhatsApp henüz hazır değil; açık bırakırsan hazır olunca gelmeye başlar.',
+    acilHata: 'Ayar şu an alınamadı. İnternet bağlantını kontrol et.',
     about: 'Hakkında',
     version: 'Sürüm',
     updatedAt: 'Son güncelleme',
