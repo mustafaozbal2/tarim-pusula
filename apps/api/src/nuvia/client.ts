@@ -19,6 +19,16 @@ export interface NuviaSoru {
 export interface NuviaCevap {
   metin: string;
   kaynak: string;
+  /** Fotoğraf teşhisi: modelin güveni (0-100). Model vermediyse null (bilinmiyor = emin değil sayılır). */
+  guven?: number | null;
+  /** Fotoğraf teşhisi: olası sebepler, en çok 3. */
+  olasilar?: string[];
+}
+
+/** Model güveni 0-1 ya da 0-100 gelebilir; 0-100 tam sayıya çevrilir. */
+export function guvenYuzde(g: number | undefined): number | null {
+  if (g === undefined || !Number.isFinite(g) || g < 0 || g > 100) return null;
+  return Math.round(g <= 1 ? g * 100 : g);
 }
 
 export const UYARI =
@@ -50,7 +60,13 @@ const yanit = z.object({
   cevap: z.string().trim().min(10).max(1800),
   adimlar: z.array(z.string().trim().min(1).max(300)).max(6).optional(),
   kaynaklar: z.array(z.string().trim().min(1).max(200)).max(5).optional(),
+  guven: z.number().optional(),
+  olasi_nedenler: z.array(z.string().trim().min(1).max(200)).max(5).optional(),
 });
+
+/** foto_analiz isteğine eklenen not: güven ve olası sebepler ayrı alanlarda istenir. */
+const FOTO_ISTEK =
+  'Cevaba ek olarak "guven" (0-100, teşhisten ne kadar eminsin) ve "olasi_nedenler" (en olasıdan başlayarak en çok 3 kısa sebep) alanlarını doldur. Emin değilsen düşük güven ver.';
 
 const robotYanit = z.object({
   cevap: z.string().trim().min(2).max(700),
@@ -99,9 +115,16 @@ export class HttpNuviaClient implements NuviaClient {
       const { gorsel, ...metinli } = s;
       let ham: unknown | null = null;
       if (gorsel?.base64) {
-        ham = await nuviaCagir(this.ayar, 'foto_analiz', metinli, this.fetchFn, this.ms, {
-          gorsel: { mime: gorsel.mime, base64: gorsel.base64 },
-        });
+        ham = await nuviaCagir(
+          this.ayar,
+          'foto_analiz',
+          { ...metinli, istek: FOTO_ISTEK },
+          this.fetchFn,
+          this.ms,
+          {
+            gorsel: { mime: gorsel.mime, base64: gorsel.base64 },
+          },
+        );
       }
       if (ham === null) {
         ham = await nuviaCagir(
@@ -118,8 +141,10 @@ export class HttpNuviaClient implements NuviaClient {
       const govde = [p.data.cevap, ...(p.data.adimlar ?? []).map((a, i) => `${i + 1}. ${a}`)].join(
         '\n',
       );
-      if (containsDose(govde)) return null;
+      const olasilar = (p.data.olasi_nedenler ?? []).slice(0, 3);
+      if (containsDose(govde) || olasilar.some(containsDose)) return null;
       return {
+        ...(gorsel ? { guven: guvenYuzde(p.data.guven), olasilar } : {}),
         metin: `${govde}\n\n${UYARI}`.slice(0, 2500),
         kaynak:
           `Nuvia (yapay zekâ)${p.data.kaynaklar?.length ? `; dayanak: ${p.data.kaynaklar.join(', ')}` : ''}`.slice(

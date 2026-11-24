@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
-import { HttpNuviaClient, KapaliNuvia } from './client';
+import { guvenYuzde, HttpNuviaClient, KapaliNuvia } from './client';
 import { RobotController, ROBOT_YEDEK, sinirli } from './robot.controller';
 
 const AYAR = { url: 'https://n.example', projeAnahtari: 'tarim_pusula.nvp_t' };
@@ -61,6 +61,35 @@ describe('robot sohbeti (Nuvia)', () => {
     expect(r!.metin).toContain('mantar');
     expect(gidenler[0]!.islev).toBe('foto_analiz');
     expect(gidenler[0]!.gorsel.base64).toBe('QUJD');
+    // Model güven vermediyse bilinmiyor (null): telefon "Emin değilim" der.
+    expect(r!.guven).toBeNull();
+  });
+  it('fotoğraf teşhisi: güven 0-100e çevrilir, olası sebepler en çok 3, dozlu sebep cevabı düşürür', async () => {
+    const cevapla = (veri: object) =>
+      new HttpNuviaClient(AYAR, yanit({ ok: true, veri })).soruCevapla({
+        soru: 'leke',
+        gorsel: { mime: 'image/jpeg', base64: 'QUJD' },
+      });
+    const r = await cevapla({
+      cevap: 'Yaprakta mantar lekesi olabilir; uzmana göster.',
+      guven: 0.42,
+      olasi_nedenler: ['Mantar', 'Güneş yanığı', 'Besin eksikliği', 'Böcek'],
+    });
+    expect(r!.guven).toBe(42);
+    expect(r!.olasilar).toEqual(['Mantar', 'Güneş yanığı', 'Besin eksikliği']);
+    expect((await cevapla({ cevap: 'Yaprakta mantar lekesi olabilir.', guven: 85 }))!.guven).toBe(
+      85,
+    );
+    expect(
+      (await cevapla({ cevap: 'Yaprakta mantar lekesi olabilir.', guven: 250 }))!.guven,
+    ).toBeNull();
+    expect(
+      await cevapla({
+        cevap: 'Yaprakta mantar lekesi olabilir.',
+        olasi_nedenler: ['Dekara 50 ml ilaç at'],
+      }),
+    ).toBeNull();
+    expect(guvenYuzde(undefined)).toBeNull();
   });
   it('ses: başarılıysa WAV döner, değilse null', async () => {
     const ok = new HttpNuviaClient(AYAR, yanit({ ok: true, mime: 'audio/wav', ses_b64: 'AAAA' }));

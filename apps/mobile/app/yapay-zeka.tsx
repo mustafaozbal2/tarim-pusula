@@ -27,6 +27,7 @@ import { ben, ilerle, robot, SORU_UYARISI, type Durum, type Mesaj } from '../src
 import { konus, sustur } from '../src/asistan/konus';
 import { expoLocation } from '../src/location/expoLocation';
 import { kv } from '../src/offline/kvStore';
+import { eminMi, FOTO_IPUCLARI, type Guven } from '../src/yz/guven';
 import { listen } from '../src/pusula/voice';
 import { voiceMessage } from '../src/pusula/voiceTypes';
 import { api, queue } from '../src/session';
@@ -166,7 +167,9 @@ export default function YapayZekaEkrani() {
         ]);
         const tarla = await ortam.urunKimligi().catch(() => null);
         const r = await api.robotFoto({ soru: q || null, urun: tarla, gorsel: f });
-        await ekle([robot(r.cevap)]);
+        await ekle([
+          robot(r.cevap, { guven: { yuzde: r.guven ?? null, olasilar: r.olasilar ?? [] } }),
+        ]);
         if (sesleSordu.current) void konus(r.cevap, api);
       } else {
         await ekle([ben(q)]);
@@ -348,6 +351,9 @@ export default function YapayZekaEkrani() {
                   <Text style={s.fotoNot}>[Fotoğraf gönderildi]</Text>
                 ) : null}
                 <Text style={m.kimden === 'robot' ? s.yaziRobot : s.yaziBen}>{m.metin}</Text>
+                {m.guven ? (
+                  <GuvenKutusu g={m.guven} uzmanaSor={() => router.push('/soru-sor')} />
+                ) : null}
                 {m.kartlar?.map((k, i) => (
                   <KartGorunumu key={i} k={k} />
                 ))}
@@ -568,6 +574,53 @@ export default function YapayZekaEkrani() {
   );
 }
 
+/** Fotoğraf teşhisi: güven çubuğu; emin değilse olası sebepler, fotoğraf ipuçları ve öne çıkan uzman düğmesi. */
+function GuvenKutusu({ g, uzmanaSor }: { g: Guven; uzmanaSor: () => void }) {
+  const emin = eminMi(g);
+  return (
+    <View style={s.guven} testID="yz-guven">
+      {g.yuzde !== null ? (
+        <>
+          <Text style={s.guvenBaslik}>{`Güven: %${g.yuzde}`}</Text>
+          <View style={s.guvenCubuk}>
+            <View
+              style={[
+                s.guvenDolu,
+                { width: `${g.yuzde}%`, backgroundColor: emin ? YESIL : '#C27C0E' },
+              ]}
+            />
+          </View>
+        </>
+      ) : null}
+      {emin ? null : (
+        <>
+          <Text style={s.guvenBaslik}>Emin değilim</Text>
+          {g.olasilar.length ? (
+            <>
+              <Text style={s.guvenYazi}>Olası sebepler:</Text>
+              {g.olasilar.map((o, i) => (
+                <Text key={i} style={s.guvenYazi}>{`${i + 1}. ${o}`}</Text>
+              ))}
+            </>
+          ) : null}
+          <Text style={s.guvenYazi}>Daha iyi fotoğraf için:</Text>
+          {FOTO_IPUCLARI.map((t) => (
+            <Text key={t} style={s.guvenYazi}>{`- ${t}`}</Text>
+          ))}
+          <Pressable
+            accessibilityRole="button"
+            testID="yz-guven-uzman"
+            onPress={uzmanaSor}
+            style={s.guvenUzman}
+          >
+            <Text style={s.guvenUzmanYazi}>Uzmana sor</Text>
+          </Pressable>
+        </>
+      )}
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
   kok: { flex: 1, backgroundColor: '#F3F6F5' },
   ust: {
@@ -699,6 +752,20 @@ const s = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   gitYazi: { fontFamily: fontFamily.bold, fontSize: 14, color: YESIL },
+  guven: { marginTop: 10, gap: 4, borderTopWidth: 1, borderTopColor: '#E2E8E6', paddingTop: 8 },
+  guvenBaslik: { fontFamily: fontFamily.bold, fontSize: 14, color: '#14302D' },
+  guvenCubuk: { height: 8, borderRadius: 4, backgroundColor: '#E2E8E6', overflow: 'hidden' },
+  guvenDolu: { height: 8, borderRadius: 4 },
+  guvenYazi: { fontFamily: fontFamily.medium, fontSize: 13.5, color: '#14302D', lineHeight: 19 },
+  guvenUzman: {
+    marginTop: 6,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: YESIL,
+    borderRadius: 10,
+  },
+  guvenUzmanYazi: { fontFamily: fontFamily.bold, fontSize: 15, color: '#FFFFFF' },
   bildir: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
   bildirYazi: { fontFamily: fontFamily.semibold, fontSize: 12, color: '#7B948F' },
   bildirSecenekler: {
