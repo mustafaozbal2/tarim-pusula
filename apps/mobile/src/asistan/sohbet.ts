@@ -1,3 +1,4 @@
+import type { Guven } from '../yz/guven';
 import type { FieldCreate } from '@tarim/schemas';
 import type { PusulaCardDto } from '../api/client';
 import { centroid } from '../flow/draft';
@@ -32,6 +33,8 @@ export interface Mesaj {
   gorsel?: string;
   /** Fotoğraf gönderildi notu (geçmişte görünür). */
   fotoNotu?: boolean;
+  /** Fotoğraf teşhisinin güveni ve olası sebepler (src/yz/guven.ts). */
+  guven?: Guven;
 }
 
 interface Taslak {

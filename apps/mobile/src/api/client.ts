@@ -934,7 +934,12 @@ export function createApi(opts: ApiOptions) {
       urun?: string | null;
       il?: string | null;
       gorsel: { mime: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string };
-    }) => request<{ cevap: string; kaynak: string }>('POST', '/robot/foto', body),
+    }) =>
+      request<{ cevap: string; kaynak: string; guven?: number | null; olasilar?: string[] }>(
+        'POST',
+        '/robot/foto',
+        body,
+      ),
     /** Yapay zekâ cevabını bildir (yanlış, sakıncalı, zararlı): yönetim panelinde incelenir. */
     robotBildir: (body: {
       mesaj: string;

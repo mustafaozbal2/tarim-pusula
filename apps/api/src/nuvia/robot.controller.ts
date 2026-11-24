@@ -123,11 +123,13 @@ export class RobotController {
       gorsel: g.gorsel,
     });
     return r
-      ? { cevap: r.metin, kaynak: r.kaynak }
+      ? { cevap: r.metin, kaynak: r.kaynak, guven: r.guven ?? null, olasilar: r.olasilar ?? [] }
       : {
           cevap:
             'Fotoğrafı şu an inceleyemedim. Uzmana sor bölümünden fotoğraflı soru gönderebilirsin; uzman cevaplar.',
           kaynak: 'yedek',
+          guven: null,
+          olasilar: [],
         };
   }
 

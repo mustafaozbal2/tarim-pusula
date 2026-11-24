@@ -449,3 +449,10 @@
 - **Güncelleme:** açılışta denetim ekranı ve zorunlu "Güncelle" kilidi kaldırıldı. Yeni sürüm açılışta ve uygulama her öne geldiğinde (en sık dakikada bir) arka planda sessizce iner; inince üstte küçük "Yeni sürüm hazır" şeridi çıkar ("Yeniden başlat" / "Sonra"). Dokunulmazsa sonraki açılışta zaten yeni sürüm açılır. `app.json` `updates.fallbackToCacheTimeout` 3000 → 0: yerel açılış da güncellemeyi beklemez. Yalnız yüklü APK `site/surum.json` enAz'ın altındaysa (yerel kod değişti) APK ekranı örter; bu kapı korundu.
 - **Amblem:** Android 12+ açılış simgesini tuvalin 2/3'ü çaplı daireyle keser; `splash-logo.png` tuvali tamamen dolduruyordu, dış halka yazıları kesiliyordu. Amblem tuvalin %60'ına (620/1024 px) küçültüldü, `imageWidth` 220 → 288 (görünen boy hemen hemen aynı). `scripts/uygulama-simgesi.py` artık bu dosyayı da üretir.
 - **Sürüm:** `runtimeVersion` 0.3.0 sabit kaldı (JS arayüzü değişmedi): şerit değişikliği eski APK'lara EAS Update ile gider. Amblem ve bekleme süresi yerel ayardır, yalnız yeni APK ile gelir: `versionCode` 3 → 4. Yeni APK zorunlu tutulmadı (`site/surum.json` değişmedi).
+
+## 2026-11-23 — Fotoğraf teşhisinde güven puanı ve "Emin değilim"
+
+- **Neden (Mustafa onayı, araştırma 19.11):** benzer uygulamaların en büyük şikâyeti yanlış teşhis; yapay zekânın ne kadar emin olduğunu dürüstçe söylemesi güven kazandırır.
+- **Sunucu:** `foto_analiz` isteğine `guven` (0-100) ve `olasi_nedenler` (en çok 3) alanları istenir. Gelen güven 0-1 ise yüzdeye çevrilir; aralık dışıysa ya da hiç yoksa `null` (bilinmiyor). Olası sebeplerde ilaç dozu varsa cevabın tamamı atılır (kural 2).
+- **Telefon:** fotoğraf cevabının altında "Güven: %X" ve çubuk. Güven %60'ın altındaysa ya da bilinmiyorsa "Emin değilim", olası sebepler, daha iyi fotoğraf için 3 ipucu ve büyük "Uzmana sor" düğmesi çıkar. Eşik %60: fikirdeki öneri; tek yerde (`apps/mobile/src/yz/guven.ts`) değişir.
+- **Bilinmeyen güven = emin değil:** Nuvia bu alanları henüz doldurmuyorsa her fotoğraf cevabı "Emin değilim" kutusuyla gelir; bu bilinçli olarak dürüst taraftır.
