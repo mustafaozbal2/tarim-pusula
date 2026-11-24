@@ -485,3 +485,33 @@ describe('telefon bildirimi kısaltma', () => {
     expect(kisalt('Kısa cevap.', 60)).toBe('Kısa cevap.');
   });
 });
+
+describe('davet', () => {
+  it('kod üretilir, davetle katılan sayılır, geçersiz/kendi kodu sayılmaz', async () => {
+    const a = await call('POST', '/auth/register', undefined, {
+      phone: '+905550001001',
+      code: await code('+905550001001'),
+      password: PW,
+      kvkk: true,
+    });
+    const d1 = await call('GET', '/me/davet', a.body.token);
+    expect(d1.body.kod).toMatch(/^[A-Z2-9]{8}$/);
+    expect(d1.body.katilan).toBe(0);
+    expect((await call('GET', '/me/davet', a.body.token)).body.kod).toBe(d1.body.kod);
+    for (const [phone, k] of [
+      ['+905550001002', d1.body.kod.toLowerCase()],
+      ['+905550001003', 'YANLIS99'],
+      ['+905550001004', d1.body.kod],
+    ] as const) {
+      const r = await call('POST', '/auth/register', undefined, {
+        phone,
+        code: await code(phone),
+        password: PW,
+        kvkk: true,
+        davetKodu: k,
+      });
+      expect(r.status).toBe(200);
+    }
+    expect((await call('GET', '/me/davet', a.body.token)).body.katilan).toBe(2);
+  });
+});
