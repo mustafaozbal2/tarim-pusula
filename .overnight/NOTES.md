@@ -195,3 +195,9 @@ Yarım: telefonda elle denenmedi; yeni APK (amblem düzeltmesi için) EAS hesab�
 ## 2026-11-24 — Fotoğraf teşhisinde güven puanı
 - Yapıldı: /robot/foto cevabı guven (0-100 ya da null) + olasilar (en çok 3) döner; telefonda güven çubuğu, %60 altı ya da bilinmiyorsa "Emin değilim" + olası sebepler + foto ipuçları + Uzmana sor. dev 9950d83, Render + EAS Update (preview) yayınlandı.
 - Yarım: Nuvia henüz guven alanını doldurmuyor olabilir; o zaman her foto cevabı "Emin değilim" gösterir (bilinçli).
+
+## 2026-11-24 — Bildirim önceliği + kritik uyarı SMS/WhatsApp (TarimPusula-t-bildirim-oncelik-2311)
+
+- Yapıldı: `apps/workers/src/oncelik.ts` (kritik/önemli/bilgi, `paketle`, `gruplaSatir`) + test. `NotifyService.scanFrost/scanHava` uyarıları önce toplar, gönderilmişleri ayıklar, kişi başına önem sırasıyla (aynı önemde çoksa tek bildirim) kuyruğa koyar; bilgi düzeyi 18:00 sonrası tek "Günlük özet". Kritikler her saatte, yüksek öncelikli. Kritik SMS (`KRITIK_SMS=1` ya da eski `DON_SMS=1`) ve WhatsApp (`WHATSAPP_TOKEN`+`WHATSAPP_PHONE_ID`; yoksa kapalı). Göç 0027: `users.bildirim_sms` (varsayılan açık), `users.bildirim_whatsapp` (kapalı). `GET/PATCH /me/bildirim-ayar`. Ayarlar ekranında "Acil uyarılar" kartı.
+- Yayın: dev push, Render yeniden kuruldu (API /me/bildirim-ayar 401 = canlı), EAS Update preview (runtime 0.3.0). APK gerekmedi (yerel kod değişmedi).
+- Yarım: dolu ve ilaçlama son günü için sunucuda veri yok; seviye yapısı hazır. WhatsApp gerçek kullanım için Meta'da onaylı şablon + anahtarlar gerekli. Render'da `DON_SMS`/`KRITIK_SMS` ayarı açık mı kontrol edilmedi.
