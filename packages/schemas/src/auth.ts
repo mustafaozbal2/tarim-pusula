@@ -94,6 +94,8 @@ export const registerSchema = z.object({
   password: passwordSchema,
   name: personName.optional(),
   kvkk: z.literal(true, { message: 'KVKK aydınlatma metnini onaylayın' }),
+  /** Tanıdık çiftçinin davet kodu (isteğe bağlı; yanlışsa kayıt yine yapılır, sayılmaz). */
+  davetKodu: z.string().trim().toUpperCase().max(12).optional(),
 });
 
 export const loginSchema = z.object({

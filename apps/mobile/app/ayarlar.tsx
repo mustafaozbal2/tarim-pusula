@@ -3,13 +3,13 @@ import { hedefRef } from '../src/tanitim/hedef';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, colors, fontFamily, fontSize, SekmeAnahtari, spacing } from '@tarim/ui';
 import { Bolum, IkonKart, KartIzgara, SayfaGorseli } from '../src/components/Gorsel';
 import { Screen } from '../src/components/Screen';
 import { SunucuKarti } from '../src/components/SunucuKarti';
 import { tr } from '../src/i18n/tr';
-import type { BildirimAyarDto } from '../src/api/client';
+import type { BildirimAyarDto, DavetDto } from '../src/api/client';
 import { api, currentApiUrl, setToken } from '../src/session';
 import { updateSettings, useSettings } from '../src/settings';
 import { nextTap, type TapState } from '../src/settingsCore';
@@ -30,6 +30,7 @@ export default function SettingsScreen() {
   const [update, setUpdate] = useState<UpdateResult | 'bekliyor' | null>(null);
   const updated = updateDate();
   const [acil, setAcil] = useState<BildirimAyarDto | null | undefined>(undefined);
+  const [davet, setDavet] = useState<DavetDto | null | undefined>(undefined);
   const checkUpdate = () => {
     setUpdate('bekliyor');
     void syncUpdate(expoUpdates).then(setUpdate);
@@ -45,6 +46,10 @@ export default function SettingsScreen() {
   };
   useEffect(() => {
     void currentApiUrl().then(setServer);
+    void api
+      .davet()
+      .then(setDavet)
+      .catch(() => setDavet(null));
     void api
       .bildirimAyar()
       .then(setAcil)
@@ -164,6 +169,31 @@ export default function SettingsScreen() {
           </>
         ) : acil === null ? (
           <Text style={styles.hint}>{t.acilHata}</Text>
+        ) : null}
+      </Card>
+
+      <Card style={styles.card} testID="ayar-davet">
+        <Text style={styles.label}>{t.davet}</Text>
+        <Text style={styles.hint}>{t.davetHint}</Text>
+        {davet?.kod ? (
+          <>
+            <View style={styles.row}>
+              <Text style={styles.hint}>{t.davetKod}</Text>
+              <Text style={styles.value} testID="ayar-davet-kod" selectable>
+                {davet.kod}
+              </Text>
+            </View>
+            <Text style={styles.hint} testID="ayar-davet-sayi">
+              {t.davetKatilan.replace('{{n}}', String(davet.katilan))}
+            </Text>
+            <Button
+              label={t.davetPaylas}
+              testID="ayar-davet-paylas"
+              onPress={() => void Share.share({ message: davet.metin ?? davet.kod ?? '' })}
+            />
+          </>
+        ) : davet === null ? (
+          <Text style={styles.hint}>{t.davetHata}</Text>
         ) : null}
       </Card>
 

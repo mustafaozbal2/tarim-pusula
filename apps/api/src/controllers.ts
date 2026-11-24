@@ -36,6 +36,7 @@ import {
 } from '@tarim/schemas';
 import { adapterFor, validateRegistration } from '@tarim/devices';
 import { PLACES } from './controllers.g2';
+import { davetKoduUret, davetMetni } from './davet';
 import { FIELD_COLS, FIELD_COLUMN, insertField, withComputedArea, withPlace } from './fields.logic';
 import type { Places } from './places';
 import { Me, parse, Public, Roles, Token } from './auth/access';
@@ -335,6 +336,30 @@ export class MeController {
         [me.userId, sms ?? null, whatsapp ?? null],
       );
       return this.bildirimAyar(q, me);
+    });
+  }
+
+  /** Kişisel davet kodu (ilk istekte üretilir), paylaşım metni ve davetle katılan sayısı. */
+  @Get('davet')
+  davet(@Me() me: Principal) {
+    return this.data.run(me, 'me.davet', async (q) => {
+      const [r] = await q.query<{ kod: string | null }>(
+        'SELECT davet_kodu AS kod FROM users WHERE id = $1',
+        [me.userId],
+      );
+      let kod = r?.kod ?? null;
+      for (let i = 0; !kod && i < 5; i++) {
+        const k = davetKoduUret();
+        const [u] = await q.query<{ davet_kodu: string }>(
+          'UPDATE users SET davet_kodu = $2 WHERE id = $1 AND davet_kodu IS NULL AND NOT EXISTS (SELECT 1 FROM users WHERE davet_kodu = $2) RETURNING davet_kodu',
+          [me.userId, k],
+        );
+        kod = u?.davet_kodu ?? null;
+      }
+      const [{ n }] = (await q.query<{ n: number }>('SELECT davet_sayisi() AS n')) as [
+        { n: number },
+      ];
+      return { kod, metin: kod ? davetMetni(kod) : null, katilan: n };
     });
   }
 

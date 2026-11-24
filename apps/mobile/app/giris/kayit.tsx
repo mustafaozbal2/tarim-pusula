@@ -14,6 +14,7 @@ export default function CiftciKayit() {
   const [password, setPassword] = useState('');
   const [again, setAgain] = useState('');
   const [kvkk, setKvkk] = useState(false);
+  const [davetKodu, setDavetKodu] = useState('');
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState('');
   const { busy, error, noServer, run, setError } = useIslem();
@@ -34,6 +35,7 @@ export default function CiftciKayit() {
         code,
         password,
         name: name.trim() || undefined,
+        davetKodu: davetKodu.trim() || undefined,
         kvkk: true,
       });
       await setSessionKind('ciftci');
@@ -76,6 +78,12 @@ export default function CiftciKayit() {
             secret
             autoComplete="new-password"
             testID="kayit-sifre2"
+          />
+          <Alan
+            label={t.inviteCode}
+            value={davetKodu}
+            onChangeText={(v) => setDavetKodu(v.toUpperCase())}
+            testID="kayit-davet"
           />
           <Onay checked={kvkk} onChange={setKvkk} testID="kayit-kvkk">
             {t.kvkk}

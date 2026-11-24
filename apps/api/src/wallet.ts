@@ -7,6 +7,10 @@ import type { Principal, Queryable } from './db/db';
  * yeni bir kullanıcı tablosu eklenip buraya yazılmazsa test kırılır (KVKK taşınabilirlik unutulmaz).
  */
 export const EXPORT_COVERAGE: Record<string, { key: string } | { excluded: string }> = {
+  users: {
+    excluded:
+      'Kendi satırı profil olarak zaten dışa aktarılır; davet_eden yalnız davet edenin kimliğidir, başkasının kişisel verisi değildir.',
+  },
   user_roles: { key: 'profile' },
   fields: { key: 'fields' },
   field_access: { key: 'fieldAccess' },

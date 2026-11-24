@@ -244,6 +244,13 @@ export interface BildirimAyarDto {
   whatsappHazir: boolean;
 }
 
+/** Tanıdık çiftçini davet et: kişisel kod, paylaşım metni, davetle katılan sayısı. */
+export interface DavetDto {
+  kod: string | null;
+  metin: string | null;
+  katilan: number;
+}
+
 export interface InboxItemDto {
   id: string;
   kind: 'uzman_cevap' | 'duyuru' | 'basvuru';
@@ -835,8 +842,14 @@ export function createApi(opts: ApiOptions) {
   const q = encodeURIComponent;
   return {
     // --- G24: şifreli giriş, kayıt, yetkili ---
-    register: (b: { phone: string; code: string; password: string; name?: string; kvkk: true }) =>
-      request<{ token: string; userId: string }>('POST', '/auth/register', b),
+    register: (b: {
+      phone: string;
+      code: string;
+      password: string;
+      name?: string;
+      davetKodu?: string;
+      kvkk: true;
+    }) => request<{ token: string; userId: string }>('POST', '/auth/register', b),
     login: (phone: string, password: string) =>
       request<{ token: string; userId: string; roles: string[]; mfaRequired: boolean }>(
         'POST',
@@ -914,6 +927,7 @@ export function createApi(opts: ApiOptions) {
     announcements: (fieldId: string) =>
       request<{ announcements: AnnouncementDto[] }>('GET', `/fields/${q(fieldId)}/announcements`),
     haftalikOzet: () => request<HaftalikOzetDto>('GET', '/me/haftalik-ozet'),
+    davet: () => request<DavetDto>('GET', '/me/davet'),
     bildirimAyar: () => request<BildirimAyarDto>('GET', '/me/bildirim-ayar'),
     bildirimAyarKaydet: (body: { sms?: boolean; whatsapp?: boolean }) =>
       request<BildirimAyarDto>('PATCH', '/me/bildirim-ayar', body),

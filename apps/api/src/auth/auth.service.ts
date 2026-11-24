@@ -1,4 +1,5 @@
 import { createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
+import { davetKoduTemizle } from '../davet';
 import {
   ConflictException,
   ForbiddenException,
@@ -178,6 +179,7 @@ export class AuthService {
     code: string;
     password: string;
     name?: string;
+    davetKodu?: string;
   }): Promise<{ token: string; userId: string }> {
     const hash = await hashPassword(input.password);
     const consume = await this.consumeOtp(input.phone, input.code);
@@ -197,6 +199,13 @@ export class AuthService {
           [input.phone, input.name ?? null, hash],
         )) as [{ id: string }];
         await q.query("INSERT INTO user_roles(user_id, role) VALUES ($1, 'farmer')", [userId]);
+        // Yalnız yeni hesap davetle sayılır; kendi kodu olamaz, geçersiz kod kaydı durdurmaz.
+        const kod = davetKoduTemizle(input.davetKodu);
+        if (kod)
+          await q.query(
+            'UPDATE users SET davet_eden = (SELECT id FROM users WHERE davet_kodu = $2 AND id <> $1) WHERE id = $1',
+            [userId, kod],
+          );
       } else {
         await q.query(
           'UPDATE users SET password_hash = $2, display_name = COALESCE($3, display_name) WHERE id = $1',
