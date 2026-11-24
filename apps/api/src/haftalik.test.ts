@@ -134,6 +134,38 @@ describe('haftalık özet', () => {
     );
   });
 
+  it('son günü 3 gün içindeki başvuru bildirimde ayrıca söylenir', () => {
+    const o: HaftalikOzet = {
+      hafta: '2026-W48',
+      bugun: '2026-11-24',
+      destekler: [
+        {
+          id: 'a',
+          baslik: 'A',
+          sonGun: '2026-11-26',
+          kaynak: 'K',
+          kaynakTarihi: '2026-11-01',
+          kaynakUrl: null,
+          tarlalar: ['T'],
+        },
+        {
+          id: 'b',
+          baslik: 'B',
+          sonGun: '2026-12-20',
+          kaynak: 'K',
+          kaynakTarihi: '2026-11-01',
+          kaynakUrl: null,
+          tarlalar: ['T'],
+        },
+      ],
+      tarihler: [],
+      uyarilar: [],
+      fiyatlar: [],
+      not: null,
+    };
+    expect(ozetSatiri(o)).toBe('2 açık başvuru, 1 başvurunun son günü 3 gün içinde');
+  });
+
   it('başkasının verisi görünmez; arazisi olmayana yol gösterir', async () => {
     const r = await call('GET', '/me/haftalik-ozet', veli.token);
     expect(r.status).toBe(200);
